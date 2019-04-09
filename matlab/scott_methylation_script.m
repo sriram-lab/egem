@@ -16,9 +16,10 @@ load methylation_proteomics_validation_data acet_meth_listval acet_meth_list_row
 load supplementary_software_code labels media_exchange1 mediareactions1
 
 % 1 for maximizing SAM; 2 for maximizing methylated histones
-meth_type = 1; 
+meth_type = 2; 
 MODE = 1;  % changed to rxn.
-epsilon = 1E-2; rho = 1;
+epsilon = 1E-2; 
+rho = 1;
 kappa = 1;
 minfluxflag = 0; 
 
@@ -175,8 +176,6 @@ set(gca,'fontsize',12)
 %ylabel('SAM- Flux') % if Maximizing SAM
 ylabel('Methyl- Flux')
 h = legend({'Excess','Depletion'});
-
-
 
 %% Methylation and methylation levels 
 
