@@ -7,10 +7,10 @@
     % 5: Folate
     % 6: Choline
     % 7: DNA Methylation
-    % 8: SHMT
-    % 9: DHFR
-    % 10: MTHFR
-meth_type = 1; 
+    % 8: Serine
+    % 9: Glycine
+    % 10: THF
+meth_type = 4; 
 MODE = 1;  % changed to rxn.
 epsilon = 1E-2; 
 rho = 1;
