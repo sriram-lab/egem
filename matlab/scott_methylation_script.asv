@@ -10,7 +10,7 @@
     % 8: SHMT
     % 9: DHFR
     % 10: MTHFR
-meth_type = 1; 
+meth_type = ; 
 MODE = 1;  % changed to rxn.
 epsilon = 1E-2; 
 rho = 1;
