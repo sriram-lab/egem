@@ -13,7 +13,7 @@ load methylation_proteomics_validation_data acet_meth_listval acet_meth_list_row
 load supplementary_software_code labels media_exchange1 mediareactions1
 
 % Init
-initCobraToolbox;
+%initCobraToolbox;
 changeCobraSolver('gurobi');
 
 model = acetylation_model;
