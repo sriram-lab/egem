@@ -13,7 +13,7 @@ load methylation_proteomics_validation_data acet_meth_listval acet_meth_list_row
 load supplementary_software_code labels media_exchange1 mediareactions1
 
 % Init
-%initCobraToolbox;
+initCobraToolbox;
 changeCobraSolver('gurobi');
 
 model = acetylation_model;
@@ -53,7 +53,7 @@ model = addReaction(model, 'PEPHYDROX1n',...
     'reactionFormula', 'pepimine[n] + h2o[n] -> peplys[n] + fald[n]',...
     'geneRule', '(LSD1) or (LSD2)');
 
-% Dioxygenase (Mono, di, and tridemethylation)
+% Dioxygenase (Mono-, di-, and tri-demethylation)
 model = addReaction(model, 'JMJDMT3n',...
     'reactionFormula', 'Ntmelys[n] + akg[n] + o2[n] + fe2[n] -> Ndmelys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
     'geneRule', '(JARID1A) or (JARID1B) or (JARID1C) or (JARID1D) or (JMJD3) or (JHDM3)');
