@@ -145,13 +145,12 @@ set(gca,'box','off');
 set(gca,'linewidth',2);
 set(gcf,'color','white');
 set(gca,'fontsize',12);
-set(gcf, 'Position', [100, 100, 700, 800])
 xlabel('Pearson Correlation');
 ylabel('H3 methylation and acetylation positions');
 xlim([-1,1]);
 title('Correlation between histone mark expression and metabolic flux', 'fontweight', 'bold');
-saveas(fig(1), ['./../figures/fig/' nam '-corr-acmodel.fig']);
-saveas(fig(1), ['./../figures/tiff/' nam '-corr-acmodel.tif']);
+savefig(fig, './../figures/fig/'+nam+'--acmodel.fig');
+savefig(fig, './../figures/tiff/'+nam+'-media-acmodel.tif');
 
 %% Determine the impact of excess or depleting growth media components on flux
 
@@ -272,12 +271,11 @@ set(gca,'box', 'off');
 set(gca,'linewidth', 2);
 set(gcf,'color', 'white');
 set(gca,'fontsize', 12);
-set(gcf, 'Position', [100, 100, 700, 800])
 xlabel('Methylation flux (mmol/gDW*hr)');
 h = legend({'Excess', 'Depletion'});
 legend boxoff;
-saveas(fig(1), ['./../figures/fig/' nam '-media-acmodel.fig']);
-saveas(fig(1), ['./../figures/tiff/' nam '-media-acmodel.tif']);
+savefig(fig, './../figures/fig/'+nam+'-media-acmodel.fig');
+savefig(fig, './../figures/tiff/'+nam+'-media-acmodel.tif');
 
 %% Methylation and methylation levels 
 
