@@ -13,8 +13,8 @@ load methylation_proteomics_validation_data acet_meth_listval acet_meth_list_row
 load supplementary_software_code labels media_exchange1 mediareactions1
 
 % Init
-%initCobraToolbox;
-%changeCobraSolver('gurobi');
+initCobraToolbox;
+changeCobraSolver('gurobi');
 
 model = acetylation_model;
 
@@ -38,9 +38,7 @@ model = addReaction(model, 'SERtn',...
 model = addReaction(model, 'ACtn',...
     'reactionFormula', 'ac[c] <=> ac[n]');
 model = addReaction(model, 'PYRtn',...
-    'reactionFormula', 'pyr[c] <=> pyr[n]');
-model = addReaction(model, 'FORtn',...
-    'reactionFormula', 'for[c] <=> for[n]');
+    'reactionFormula', 'pyr[
 
 %% Add demthylation reactions to nucleus (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2732404/)
 % Also added aldehyde detox pathway and source of fe
