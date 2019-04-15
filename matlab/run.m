@@ -1,5 +1,5 @@
 %% Methylation
-% Arguments for maximizing flux for different metabolites:
+% Arguments for maximizing flux for different metabolites (demand reactions):
     % 1: SAM
     % 2: Histone Methylation 1
     % 3: Histone Methylation 2
@@ -13,12 +13,27 @@
     % 11: AKG
     % 12: Succ
     % 13: Fum
+    % 14: ATP
+    % 15: NAD
+    % 16: NADH
+    % 17: ADP
 
-model = model;
+% Arguments for compartments
+    % c: cyto
+    % m: mito
+    % n: nuc
+
+%model = model;
 %model = acetylation_model;
-meth_type = 1; 
+%meth_type = 16;
+
+% Finding specific reactions in the model. Otherwise, comment it out.
+rxnpos1  = [find(ismember(model2.rxns, 'MAT2n'));];
+nam = 'MAT2n';
+
+%compartment = 'n';
 MODE = 1;  % changed to rxn.
-epsilon = 1E-2; 
+epsilon = 1E-3; 
 rho = 1;
 kappa = 1;
 minfluxflag = 0; 
@@ -62,58 +77,76 @@ for i = 1:14
         [fluxstate_gurobi, grate_ccle_exp_dat(i,1),  solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);
 
         % Now let's add the demand reaction we want
-        if meth_type == 1
-            model2 = addReaction(model2, 'DM_amet', 'reactionFormula', 'amet[n] -> ');
+        if (~exist('meth_type','var')) || (isempty(meth_type))
+            rxnpos1 = rxnpos1;
+        elseif meth_type == 1
+            model2 = addReaction(model2, 'DM_amet', 'reactionFormula', ['amet[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_amet'));];
             nam = 'DM_amet';
         elseif meth_type == 2
-            model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', 'Nmelys[n] -> ');
+            model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', ['Nmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'EX_HistMET1'));];
             nam = 'EX_HistMET1';
         elseif meth_type == 3
-            model2 = addReaction(model2, 'DM_HistMET2', 'reactionFormula', 'Ndmelys[n] -> ');
+            model2 = addReaction(model2, 'DM_HistMET2', 'reactionFormula', ['Ndmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET2'));];
             nam = 'DM_HistMET2';
         elseif meth_type == 4
-            model2 = addReaction(model2, 'DM_HistMET3', 'reactionFormula', 'Ntmelys[n] -> ');
+            model2 = addReaction(model2, 'DM_HistMET3', 'reactionFormula', ['Ntmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET3'));];
             nam = 'DM_HistMET3';
         elseif meth_type == 5
-            model2 = addReaction(model2, 'DM_fol', 'reactionFormula', 'fol[n] -> ');
+            model2 = addReaction(model2, 'DM_fol', 'reactionFormula', ['fol[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_fol'));];
             nam = 'DM_fol';
         elseif meth_type == 6
-            model2 = addReaction(model2, 'DM_chol', 'reactionFormula', 'chol[n] -> ');
+            model2 = addReaction(model2, 'DM_chol', 'reactionFormula', ['chol[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_chol'));];
             nam = 'DM_chol';
         elseif meth_type == 7
-            model2 = addReaction(model2, 'DM_DNAMe', 'reactionFormula', 'dna5mtc[n] -> ');
+            model2 = addReaction(model2, 'DM_DNAMe', 'reactionFormula', ['dna5mtc[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_DNAMe'));];
             nam = 'DM_DNAMe';
         elseif meth_type == 8
-            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', 'ser[n] -> ');
+            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_ser'));];
             nam = 'DM_ser';
         elseif meth_type == 9
-            model2 = addReaction(model2, 'DM_gly', 'reactionFormula', 'gly[n] -> ');
+            model2 = addReaction(model2, 'DM_gly', 'reactionFormula', ['gly[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_gly'));];
             nam = 'DM_gly';
         elseif meth_type == 10
-            model2 = addReaction(model2, 'DM_thf', 'reactionFormula', 'thf[n] -> ');
+            model2 = addReaction(model2, 'DM_thf', 'reactionFormula', ['thf[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_thf'));];
             nam = 'DM_thf';
         elseif meth_type == 11
-            model2 = addReaction(model2, 'DM_akg', 'reactionFormula', 'akg[n] -> ');
+            model2 = addReaction(model2, 'DM_akg', 'reactionFormula', ['akg[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_akg'));];
             nam = 'DM_akg';
         elseif meth_type == 12
-            model2 = addReaction(model2, 'DM_succ', 'reactionFormula', 'succ[n] -> ');
+            model2 = addReaction(model2, 'DM_succ', 'reactionFormula', ['succ[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_succ'));];
             nam = 'DM_succ';
         elseif meth_type == 13
-            model2 = addReaction(model2, 'DM_fum', 'reactionFormula', 'fum[n] -> ');
+            model2 = addReaction(model2, 'DM_fum', 'reactionFormula', ['fum[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_fum'));];
             nam = 'DM_fum';
+        elseif meth_type == 14
+            model2 = addReaction(model2, 'DM_atp', 'reactionFormula', ['atp[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_atp'));];
+            nam = 'DM_atp';
+        elseif meth_type == 15
+            model2 = addReaction(model2, 'DM_nad', 'reactionFormula', ['nad[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_nad'));];
+            nam = 'DM_nad';
+        elseif meth_type == 16
+            model2 = addReaction(model2, 'DM_nadh', 'reactionFormula', ['nadh[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_nadh'));];
+            nam = 'DM_nadh';
+        elseif meth_type == 17
+            model2 = addReaction(model2, 'DM_adp', 'reactionFormula', ['adp[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_adp'));];
+            nam = 'DM_adp';
         end
 
         % limit methionine levels for all reactions in the model; it has to be non limiting
@@ -151,7 +184,7 @@ set(gcf, 'Position', [100, 100, 700, 800])
 xlabel('Pearson Correlation');
 ylabel('H3 methylation and acetylation positions');
 xlim([-1,1]);
-title('Correlation between histone mark expression and metabolic flux', 'fontweight', 'bold');
+title(['Correlation between histone mark expression and ' nam 'metabolic flux'], 'fontweight', 'bold');
 saveas(fig(1), ['./../figures/fig/ac-model' nam '-corr-memodel.fig']);
 saveas(fig(1), ['./../figures/tiff/ac-model' nam '-corr-memodel.tif']);
 
@@ -160,7 +193,7 @@ saveas(fig(1), ['./../figures/tiff/ac-model' nam '-corr-memodel.tif']);
 posgluc = 1385;  % glucose uptake reaction in RECON1
 objpos = find(model.c) %biomass objective
 minfluxflag = 0; % no PFBA
-epsilon_acetylation = 1; % higher weights for methylation compared to acetylation
+new_epsilon = 1; % higher weights for methylation compared to acetylation
 
 for kappatype = 1:2
     if kappatype == 1, kappa  = 10; else kappa = 0.01;end
@@ -177,60 +210,77 @@ for kappatype = 1:2
         % change media
         [ix, pos]  = ismember({'EX_met_L(e)'},model2.rxns);
         model2.lb(pos) = -0.5; % it has to be non limiting
-
-        % Now let's add the demand reaction we want
-        if meth_type == 1
-            model2 = addReaction(model2, 'DM_amet', 'reactionFormula', 'amet[n] -> ');
+        
+        if (~exist('meth_type','var')) || (isempty(meth_type))
+            rxnpos1 = rxnpos1;
+        elseif meth_type == 1
+            model2 = addReaction(model2, 'DM_amet', 'reactionFormula', ['amet[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_amet'));];
             nam = 'DM_amet';
         elseif meth_type == 2
-            model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', 'Nmelys[n] -> ');
+            model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', ['Nmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'EX_HistMET1'));];
             nam = 'EX_HistMET1';
         elseif meth_type == 3
-            model2 = addReaction(model2, 'DM_HistMET2', 'reactionFormula', 'Ndmelys[n] -> ');
+            model2 = addReaction(model2, 'DM_HistMET2', 'reactionFormula', ['Ndmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET2'));];
             nam = 'DM_HistMET2';
         elseif meth_type == 4
-            model2 = addReaction(model2, 'DM_HistMET3', 'reactionFormula', 'Ntmelys[n] -> ');
+            model2 = addReaction(model2, 'DM_HistMET3', 'reactionFormula', ['Ntmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET3'));];
             nam = 'DM_HistMET3';
         elseif meth_type == 5
-            model2 = addReaction(model2, 'DM_fol', 'reactionFormula', 'fol[n] -> ');
+            model2 = addReaction(model2, 'DM_fol', 'reactionFormula', ['fol[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_fol'));];
             nam = 'DM_fol';
         elseif meth_type == 6
-            model2 = addReaction(model2, 'DM_chol', 'reactionFormula', 'chol[n] -> ');
+            model2 = addReaction(model2, 'DM_chol', 'reactionFormula', ['chol[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_chol'));];
             nam = 'DM_chol';
         elseif meth_type == 7
-            model2 = addReaction(model2, 'DM_DNAMe', 'reactionFormula', 'dna5mtc[n] -> ');
+            model2 = addReaction(model2, 'DM_DNAMe', 'reactionFormula', ['dna5mtc[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_DNAMe'));];
             nam = 'DM_DNAMe';
         elseif meth_type == 8
-            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', 'ser[n] -> ');
+            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_ser'));];
             nam = 'DM_ser';
         elseif meth_type == 9
-            model2 = addReaction(model2, 'DM_gly', 'reactionFormula', 'gly[n] -> ');
+            model2 = addReaction(model2, 'DM_gly', 'reactionFormula', ['gly[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_gly'));];
             nam = 'DM_gly';
         elseif meth_type == 10
-            model2 = addReaction(model2, 'DM_thf', 'reactionFormula', 'thf[n] -> ');
+            model2 = addReaction(model2, 'DM_thf', 'reactionFormula', ['thf[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_thf'));];
             nam = 'DM_thf';
         elseif meth_type == 11
-            model2 = addReaction(model2, 'DM_akg', 'reactionFormula', 'akg[n] -> ');
+            model2 = addReaction(model2, 'DM_akg', 'reactionFormula', ['akg[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_akg'));];
             nam = 'DM_akg';
         elseif meth_type == 12
-            model2 = addReaction(model2, 'DM_succ', 'reactionFormula', 'succ[n] -> ');
+            model2 = addReaction(model2, 'DM_succ', 'reactionFormula', ['succ[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_succ'));];
             nam = 'DM_succ';
         elseif meth_type == 13
-            model2 = addReaction(model2, 'DM_fum', 'reactionFormula', 'fum[n] -> ');
+            model2 = addReaction(model2, 'DM_fum', 'reactionFormula', ['fum[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_fum'));];
             nam = 'DM_fum';
+        elseif meth_type == 14
+            model2 = addReaction(model2, 'DM_atp', 'reactionFormula', ['atp[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_atp'));];
+            nam = 'DM_atp';
+        elseif meth_type == 15
+            model2 = addReaction(model2, 'DM_nad', 'reactionFormula', ['nad[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_nad'));];
+            nam = 'DM_nad';
+        elseif meth_type == 16
+            model2 = addReaction(model2, 'DM_nadh', 'reactionFormula', ['nadh[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_nadh'));];
+            nam = 'DM_nadh';
+        elseif meth_type == 17
+            model2 = addReaction(model2, 'DM_adp', 'reactionFormula', ['adp[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_adp'));];
+            nam = 'DM_adp';
         end
 
         [ix, pos]  = ismember(mediareactions1(i), model2.rxns);
@@ -245,7 +295,7 @@ for kappatype = 1:2
 
         j = 1;
         model3 = model2;
-        model3.c(rxnpos1) = epsilon_acetylation;
+        model3.c(rxnpos1) = new_epsilon;
         [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
         str = ['media_change_histone_acet_nuc_',num2str(kappatype),'(i,j) = solf.x(rxnpos1);'];
         if ~isempty(solf.x) &  ~isnan(solf.x)
@@ -253,8 +303,6 @@ for kappatype = 1:2
         end
         disp(i)
     end
-
-
     disp(kappatype)
 end
 
@@ -275,7 +323,7 @@ set(gca,'linewidth', 2);
 set(gcf,'color', 'white');
 set(gca,'fontsize', 12);
 set(gcf, 'Position', [100, 100, 700, 800])
-xlabel('Methylation flux (mmol/gDW*hr)');
+xlabel([nam ' flux (mmol/gDW*hr)']);
 h = legend({'Excess', 'Depletion'});
 legend boxoff;
 saveas(fig(1), ['./../figures/fig/ac-model' nam '-media-memodel.fig']);
