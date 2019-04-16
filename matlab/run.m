@@ -28,12 +28,12 @@
 %meth_type = 16;
 
 % Finding specific reactions in the model. Otherwise, comment it out.
-rxnpos1  = [find(ismember(model2.rxns, 'MAT2n'));];
+rxnpos1  = [find(ismember(model.rxns, 'MAT2n'));];
 nam = 'MAT2n';
 
 %compartment = 'n';
 MODE = 1;  % changed to rxn.
-epsilon = 1E-3; 
+epsilon = 1; 
 rho = 1;
 kappa = 1;
 minfluxflag = 0; 
@@ -45,8 +45,8 @@ for i = 1:14
         iii  = iii(1);
         model2 = model;
 
-        ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
-        offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
+        ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) >= 2));
+        offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) <= -2));
 
         % now set the media and glucose levels for different media conditions
         if ismember({'RPMI'} , acetlevlistmedia(i))
@@ -151,8 +151,9 @@ for i = 1:14
 
         % limit methionine levels for all reactions in the model; it has to be non limiting
         [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
-        model2.lb(pos) = -0.5; 
-        model2.c(rxnpos1) = 1; % we're interested in this reaction
+        model2.lb(pos) = -0.5;
+        model2.c(3743) = 0;
+        model2.c(rxnpos1) = 0.01; % we're interested in this reaction
 
         % get the flux values from iMAT
         [fluxstate_gurobi] =  constrain_flux_regulation(model2,...
