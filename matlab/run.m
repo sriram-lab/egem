@@ -24,18 +24,19 @@
     % n: nuc
 
 %model = model;
+model = metabolicmodel;
 %model = acetylation_model;
-%meth_type = 16;
 
+model_nam = 'RECON1'
 % Finding specific reactions in the model. Otherwise, comment it out.
-rxnpos1  = [find(ismember(model.rxns, 'MAT2n'));];
-nam = 'MAT2n';
-
-%compartment = 'n';
+%rxnpos1  = [find(ismember(model.rxns, 'METAT'));];
+%nam = 'METAT';
+meth_type = 14;
+compartment = 'c';
 MODE = 1;  % changed to rxn.
-epsilon = 1; 
+epsilon = 1E-2; 
 rho = 1;
-kappa = 1;
+kappa = 1E-3;
 minfluxflag = 0; 
 
 %% See if there is a correlation between gene expression and flux
@@ -108,7 +109,7 @@ for i = 1:14
             rxnpos1  = [find(ismember(model2.rxns, 'DM_DNAMe'));];
             nam = 'DM_DNAMe';
         elseif meth_type == 8
-            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser[' compartment '] -> ']);
+            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser-L[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_ser'));];
             nam = 'DM_ser';
         elseif meth_type == 9
@@ -185,15 +186,15 @@ set(gcf, 'Position', [100, 100, 700, 800])
 xlabel('Pearson Correlation');
 ylabel('H3 methylation and acetylation positions');
 xlim([-1,1]);
-title(['Correlation between histone mark expression and ' nam 'metabolic flux'], 'fontweight', 'bold');
-saveas(fig(1), ['./../figures/fig/ac-model' nam '-corr-memodel.fig']);
-saveas(fig(1), ['./../figures/tiff/ac-model' nam '-corr-memodel.tif']);
+title(['Correlation between histone mark expression and ' nam ' metabolic flux'], 'fontweight', 'bold');
+saveas(fig(1), ['./../figures/fig/' model_nam '-' nam '-corr.fig']);
+saveas(fig(1), ['./../figures/tiff/' model_nam '-' nam '-corr.tif']);
 
 %% Determine the impact of excess or depleting growth media components on flux
 
 posgluc = 1385;  % glucose uptake reaction in RECON1
-objpos = find(model.c) %biomass objective
-minfluxflag = 0; % no PFBA
+objpos = find(model.c); % biomass objective
+minfluxflag = 1; 
 new_epsilon = 1; % higher weights for methylation compared to acetylation
 
 for kappatype = 1:2
@@ -243,7 +244,7 @@ for kappatype = 1:2
             rxnpos1  = [find(ismember(model2.rxns, 'DM_DNAMe'));];
             nam = 'DM_DNAMe';
         elseif meth_type == 8
-            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser[' compartment '] -> ']);
+            model2 = addReaction(model2, 'DM_ser', 'reactionFormula', ['ser-L[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_ser'));];
             nam = 'DM_ser';
         elseif meth_type == 9
@@ -327,8 +328,8 @@ set(gcf, 'Position', [100, 100, 700, 800])
 xlabel([nam ' flux (mmol/gDW*hr)']);
 h = legend({'Excess', 'Depletion'});
 legend boxoff;
-saveas(fig(1), ['./../figures/fig/ac-model' nam '-media-memodel.fig']);
-saveas(fig(1), ['./../figures/tiff/ac-model' nam '-media-memodel.tif']);
+saveas(fig(1), ['./../figures/fig/' model_nam '-' nam '-media-memodel.fig']);
+saveas(fig(1), ['./../figures/tiff/' model_nam '-' nam '-media-memodel.tif']);
 
 
 
