@@ -398,26 +398,30 @@ for i = 1:10
         model3.lb(pyrpos) = -10;
     end
     
-    model3.c(rxnpos) = epsilon;
+    
+    model3.c(rxnpos) = epsilon_acetylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-    media_screen_dmem(i,1) = solf.x(rxnpos); % impact on acetylation flux
+    acet_media_screen_dmem(i,1) = solf.x(rxnpos); % impact on acetylation flux
     
 
 end
 disp('consistency with 10 different experimental conditions - Part I')
-sum((media_screen_dmem > 0.05*wild_type) == expval') % 9
+sum((acet_media_screen_dmem > 0.05*wild_type_acet) == expval') % 9
+
+
 
 for i = 1:10
-    model3 = model;
+    model3 = acetylation_model;
     if ~glucflag1(i)
         model3.lb(posgluc) = 0;
     end
    
+    
     switch i 
         case 2 % no ca+
-                    model3.lb(ismember( {'EX_ca2(e)'}, model.rxns)) = 0;
+                    model3.lb(ismember( {'EX_ca2(e)'},acetylation_model.rxns)) = 0;
         case 4 % no Phosphate
-                    model3.lb(ismember( {'EX_pi(e)'}, model.rxns)) = 0;
+                    model3.lb(ismember( {'EX_pi(e)'},acetylation_model.rxns)) = 0;
         case 6 % no vitamins in dmem.. compmosition from sigma 
                     model3.lb(ismember( {'EX_thm(e)';'EX_ribflv(e)';'EX_pydx(e)';'EX_ncam(e)';'EX_inost(e)';'EX_5mthf(e)';'EX_pnto_R(e)';'EX_chol(e)'},acetylation_model.rxns)) = 0;
         case 7 %  add acetate
@@ -427,13 +431,13 @@ for i = 1:10
     end
 
         
-    model3.c(rxnpos) = epsilon;
+    model3.c(rxnpos) = epsilon_acetylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-    media_screen_dmem1(i,1) = solf.x(rxnpos); % impact on flux
+    acet_media_screen_dmem1(i,1) = solf.x(rxnpos); % impact on acetylation flux
 end
 
 disp('consistency with 10 different experimental conditions - Part II')
-sum((media_screen_dmem1 > 0.05*wild_type) == expval1') % 10
+sum((acet_media_screen_dmem1 > 0.05*wild_type_acet) == expval1') % 10
 
 
 
