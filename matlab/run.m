@@ -27,13 +27,13 @@
 %model = metabolicmodel;
 %model = acetylation_model;
 
-%model_nam = 'RECON1'
+model_nam = 'methyl';
 
 % Finding specific reactions in the model. Otherwise, comment it out.
-rxnpos1  = [find(ismember(model.rxns, 'METATn'));];
-model_nam = 'METATn';
-%meth_type = 14;
-%compartment = 'c';
+%rxnpos1  = [find(ismember(model.rxns, 'DM_HistMe'));];
+nam = 'SAM';
+meth_type = 1;
+compartment = 'n';
 MODE = 1;  % changed to rxn.
 epsilon = 1E-2; 
 rho = 1;
@@ -86,9 +86,9 @@ for i = 1:14
             rxnpos1  = [find(ismember(model2.rxns, 'DM_amet'));];
             nam = 'DM_amet';
         elseif meth_type == 2
-            model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', ['Nmelys[' compartment '] -> ']);
-            rxnpos1  = [find(ismember(model2.rxns, 'EX_HistMET1'));];
-            nam = 'EX_HistMET1';
+            model2 = addReaction(model2, 'DM_HistMET1', 'reactionFormula', ['Nmelys[' compartment '] -> ']);
+            rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET1'));];
+            nam = 'DM_HistMET1';
         elseif meth_type == 3
             model2 = addReaction(model2, 'DM_HistMET2', 'reactionFormula', ['Ndmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_HistMET2'));];
@@ -195,7 +195,7 @@ saveas(fig(1), ['./../figures/tiff/' model_nam '-' nam '-corr.tif']);
 
 posgluc = 1385;  % glucose uptake reaction in RECON1
 objpos = find(model.c); % biomass objective
-minfluxflag = 1; 
+minfluxflag = 0; 
 new_epsilon = 1; % higher weights for methylation compared to acetylation
 
 for kappatype = 1:2
@@ -219,7 +219,7 @@ for kappatype = 1:2
         elseif meth_type == 1
             model2 = addReaction(model2, 'DM_amet', 'reactionFormula', ['amet[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'DM_amet'));];
-            nam = 'DM_amet';
+            nam = 'SAM consumption';
         elseif meth_type == 2
             model2 = addReaction(model2, 'EX_HistMET1', 'reactionFormula', ['Nmelys[' compartment '] -> ']);
             rxnpos1  = [find(ismember(model2.rxns, 'EX_HistMET1'));];
@@ -376,9 +376,9 @@ acetatepos = 1238; % acetate
 fattyacidpos = 1445; % linoleic acid
 
 model3 = model;
-model3.c(rxnpos) = epsilon;
+model3.c(rxnpos1) = epsilon;
 [solf.x, sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-wild_type = solf.x(rxnpos); % default flux
+wild_type = solf.x(rxnpos1); % default flux
 
 for i = 1:10
     model3 = model;
@@ -398,9 +398,9 @@ for i = 1:10
         model3.lb(pyrpos) = -10;
     end
     
-    model3.c(rxnpos) = epsilon;
+    model3.c(rxnpos1) = epsilon;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-    media_screen_dmem(i,1) = solf.x(rxnpos); % impact on acetylation flux
+    media_screen_dmem(i,1) = solf.x(rxnpos1); % impact on acetylation flux
     
 
 end
@@ -427,13 +427,71 @@ for i = 1:10
     end
 
         
-    model3.c(rxnpos) = epsilon;
+    model3.c(rxnpos1) = epsilon;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-    media_screen_dmem1(i,1) = solf.x(rxnpos); % impact on flux
+    media_screen_dmem1(i,1) = solf.x(rxnpos1); % impact on flux
 end
 
 disp('consistency with 10 different experimental conditions - Part II')
 sum((media_screen_dmem1 > 0.05*wild_type) == expval1') % 10
 
+%% Soecific histone markers
+for i = 1:14
+    % match cell line in CCLE data
+    iii = find(ismember(celllinenames_ccle1, acetlevellist(i)));
+    if ~isempty(iii)
+        iii  = iii(1);
+        model2 = model;
+        
+        %find up and down-regulated genes in each cell line
+        ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
+        offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
+        
+        % set the glucose uptake based on media
+        % default glucose is -5 for rpmi
+        if ismember({'RPMI'} , acetlevlistmedia(i))
+            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5;% no change rpmi
+        elseif ismember({'DMEM'} , acetlevlistmedia(i))
+            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*4.5/2;% dmem.. 
+        elseif ismember({'L15'} , acetlevlistmedia(i))   % NO glucose.. LOW Galactose
+            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -0;% L15
+            model2.lb(find(ismember(model2.rxns, {'EX_gal(e)'})))  = -0.9;%
+        elseif ismember({'McCoy 5A'} , acetlevlistmedia(i)) 
+            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*3/2;% mccoy
+        elseif ismember({'IMM'} , acetlevlistmedia(i))
+            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*4.5/2;% IMDM
+        end
+        
+        %find reactions from differentially expressed genes
+        [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
+        [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
+        
+        disp(i)
+       
+        [fluxstate_gurobi,grate_ccle_exp_acetdat(i,1), solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);  % impact on growth
+            
+        model2.c(rxnpos1) = epsilon;
+        [fluxstate_gurobi] =  constrain_flux_regulation(model2, onreactions,...
+            offreactions, kappa, rho, epsilon, MODE,[], minfluxflag);
+        grate_ccle_exp_acetdat(i,2) = fluxstate_gurobi(rxnpos1); %acetylation flux    
+    end
+ end
+ 
+figure;
+plot(grate_ccle_exp_acetdat(:,2), acet_meth_listval(8, :)', 'o',...
+    'markerfacecolor', [0.9020, 0.3804, 0.0039], 'markeredgecolor', 'k') 
+fb = polyfit(grate_ccle_exp_acetdat(:,2), acet_meth_listval(8,:)',1);
+fb1 = polyval(fb, grate_ccle_exp_acetdat(:,2));
+
+hold on; 
+plot(grate_ccle_exp_acetdat(:,2), fb1, 'r-', 'linewidth', 2);
+text(grate_ccle_exp_acetdat(:,2) + 0.2, acet_meth_listval(8, :)', acetlevellist,...
+    'Margin', 5);%, 'editing', 'on');
+    %'horizontalalignment', 'right', 'fontsize', 10, 'fontname', 'helvetica')
+    %'fontweight', 'bold')
+xlabel('SAM flux (mmol/gDW*hr)');
+ylabel('H3K9me1');
+
+[acetlevelcorr, acetlevelcorrpv] = corr(grate_ccle_exp_acetdat(:,2), acet_meth_listval(8,:)');
 
 
