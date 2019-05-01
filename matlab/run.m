@@ -50,7 +50,8 @@ for i = 1:14
         ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) >= 2));
         offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) <= -2));
 
-        % now set the media and glucose levels for different media conditions
+        % Set the media and glucose levels for different media conditions
+        % corresponding to each cancer cell line.
         if ismember({'RPMI'} , acetlevlistmedia(i))
             % no change rpmi
             model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'}))) = -5;
@@ -76,7 +77,9 @@ for i = 1:14
         disp(i)
 
         % Get the flux redistribution values associated with different media component addition and deletion
-        [fluxstate_gurobi, grate_ccle_exp_dat(i,1),  solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);
+        [fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] =...
+            constrain_flux_regulation(model2, onreactions, offreactions,...
+            kappa, rho, epsilon, MODE, [], minfluxflag);
 
         % Now let's add the demand reaction we want
         if (~exist('meth_type','var')) || (isempty(meth_type))
@@ -154,13 +157,12 @@ for i = 1:14
         % limit methionine levels for all reactions in the model; it has to be non limiting
         [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
         model2.lb(pos) = -0.5;
-        model2.c(3743) = 0;
-        model2.c(rxnpos1) = 0.01; % we're interested in this reaction
+        model2.c(3743) = 0; % Force the biomass function to be 0
+        model2.c(rxnpos1) = 0.01; % Set the objective coefficient to be low.
 
-        % get the flux values from iMAT
+        % Get the constrained flux values from iMAT
         [fluxstate_gurobi] =  constrain_flux_regulation(model2,...
-            onreactions, offreactions,...
-            kappa, rho, epsilon,...
+            onreactions, offreactions, kappa, rho, epsilon,...
             MODE ,[], minfluxflag);
         grate_ccle_exp_dat(i,2) = fluxstate_gurobi(rxnpos1);
     end

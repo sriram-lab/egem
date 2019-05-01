@@ -1,0 +1,19 @@
+{
+  "Histone Acetylation":"DM_KAC",
+  "Acetyl-CoA":"DM_accoa",
+  "Histone Methylation":"DM_KMe",
+  "SAM":"DM_amet",
+  "SAH":"DM_ahcys",
+  "Succinate":"DM_succ",
+  "Fumarate":"DM_fum",
+  "Citrate":"DM_cit",
+  "AKG":"DM_akg",
+  "Malate":"DM_mal",
+  "OAA":"DM_oaa",
+  "Pyruvate":"DM_pyr",
+  "Folate":"DM_fol",
+  "ATP":"DM_atp",
+  "ADP":"DM_adp",
+  "NAD":"DM_nad",
+  "NADH":"DM_nadh"
+}
