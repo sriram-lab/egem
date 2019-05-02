@@ -102,16 +102,10 @@ depletion = media_xchange_2;
 fig = figure;
 
 subplot(1,2,1);
-heatmap(excess)
-ax1 = gca;
-ax1.XData = reaction_labels;
-ax1.YData = medium_labels;
+heatmap(excess, 'XLabel', reaction_labels, 'YLabel', medi_labels)
 
 subplot(1,2,2);
-heatmap(depletion)
-ax2 = gca;
-ax2.XData = reaction_labels;
-ax2.YData = medium_labels;
+imagesc(depletion)
 
 %title('Varying media components', 'fontweight', 'bold');
 set(gca,'ytick', [1:length(labels)], 'yticklabel',...

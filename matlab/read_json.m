@@ -13,3 +13,7 @@ function dict = read_json(fname)
     field = fieldnames(val);
     values = struct2cell(val);
     dict = [field, values];
+    
+    %dict = dict';
+    %dict = horzcat(dict{:});
+    %dict = dict';
