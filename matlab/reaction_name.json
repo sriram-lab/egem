@@ -1,7 +1,8 @@
 {
-  "Histone Acetylation":"DM_KAC",
-  "Acetyl-CoA":"DM_accoa",
-  "Histone Methylation":"DM_KMe",
+  "Histone Mono-methylation":"DM_KMe1",
+  "Histone Di-methylation":"DM_KMe2",
+  "Histone Tri-methylation":"DM_KMe3",
+  "Acetyl-CoA":"accoa",
   "SAM":"DM_amet",
   "SAH":"DM_ahcys",
   "Succinate":"DM_succ",
