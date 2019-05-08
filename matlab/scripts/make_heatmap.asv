@@ -2,8 +2,9 @@
 function [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     excess_shadow, depletion_shadow] = make_heatmap(model, compartment,...
     epsilon2, scaling)
-% make_heatmap.m displays the values corresponding to several demand 
-% reactions and excess/depletion of a specific medium component.
+% make_heatmap.m displays an array of correlation values corresponding to
+% several demand reactions and the quantity of the histone maker based on
+% metabolic perturbation. 
 
 % INPUTS:
     % model: genome scale metabolic model
@@ -150,12 +151,12 @@ for m = 1:length(metabolites(:,1))
 end
 
 %% Normalize the flux, shadow price, and reduced costs.
-%excess_xchange_rxn_flux = excess_xchange_rxn_flux - excess_xchange_flux;
-%depletion_xchange_rxn_flux = depletion_xchange_rxn_flux - depletion_xchange_flux;
-%excess_xchange_rxn_shadow = excess_xchange_rxn_shadow - excess_xchange_shadow;
-%depletion_xchange_rxn_shadow = depletion_xchange_rxn_shadow - depletion_xchange_rxn_shadow;
-%excess_xchange_rxn_redcost = excess_xchange_rxn_redcost - excess_xchange_rxn_redcost;
-%depletion_xchange_rxn_redcost = depletion_xchange_rxn_redcost - depletion_xchange_rxn_redcost;
+excess_xchange_rxn_flux = excess_xchange_rxn_flux - excess_xchange_flux;
+depletion_xchange_rxn_flux = depletion_xchange_rxn_flux - depletion_xchange_flux;
+excess_xchange_rxn_shadow = excess_xchange_rxn_shadow - excess_xchange_shadow;
+depletion_xchange_rxn_shadow = depletion_xchange_rxn_shadow - depletion_xchange_rxn_shadow;
+excess_xchange_rxn_redcost = excess_xchange_rxn_redcost - excess_xchange_rxn_redcost;
+depletion_xchange_rxn_redcost = depletion_xchange_rxn_redcost - depletion_xchange_rxn_redcost;
 
 %% Turn 0 -> NaN for heatmap visualization
 excess_xchange_rxn_flux(excess_xchange_rxn_flux == 0) = NaN;
@@ -208,7 +209,6 @@ end
     % Make `excess` green and `depletion` red
     % Color gradient: metabolic flux > reduced costs > shadow prices
     % Incorporate plotly 
-    % Is there a way to dynamically size .pngs?
     
 % Prepare figure labels and variables
 medium_labels = mediareactions1(:,2);
@@ -270,10 +270,10 @@ ax6.Title = 'Reduced cost in depleted medium';
 xlabel(ax6, 'Demand reactions');
 ylabel(ax6, 'Medium component');
 
-base = strcat('./../figures/acetylation/acetylationmodel_nucleus_', string(epsilon2));
+base = strcat('acetylationmodel_nucleus_', string(epsilon2));
 fig_str = strcat(base, '.fig');
 png_str = strcat(base, '.png');
 
 saveas(fig, fig_str);
-%saveas(fig, png_str); % figure output is super small.
+saveas(fig, png_str);
 end
