@@ -26,11 +26,9 @@ model = metabolicmodel;
 %    epsilon2, []);
 
 epsilon2 = [1E-4, 1E-3, 1E-2, 0.1, 1];
-%compartment = ['n', 'c', 'm'];
-for n = 1:length(epsilon2)
-    %for m = 1:length(compartment)
+compart
+for n=1:length(epsilon2)
     [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     excess_shadow, depletion_shadow] = make_heatmap(model, 'c',...
     epsilon2(n), []);
-    %end
 end
