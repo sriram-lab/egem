@@ -21,8 +21,8 @@ function [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     
 %% make_heatmap.m
 load supplementary_software_code media_exchange1 
-var = {'./../var/metabolites.mat', './../var/cellmedia.mat',...
-    './../var/mediareactions1.mat'};
+var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
+    './../vars/mediareactions1.mat'};
 for kk = 1:numel(var)
     load(var{kk})
 end
@@ -95,14 +95,14 @@ for m = 1:length(metabolites(:,1))
             end
             
             if kappatype == 1
-                excess_xchange_flux(j,m) = media_xchange_flux_1(j,1);
-                excess_xchange_redcost(j,m) = media_xchange_rc_1(j,1);
-                excess_xchange_shadow(j,m) = media_xchange_sp_1(j,1);
+                excess_xgrate(j,m) = media_xchange_flux_1(j,1);
+                excess_xredcost(j,m) = media_xchange_rc_1(j,1);
+                excess_xshadow(j,m) = media_xchange_sp_1(j,1);
             end
             if kappatype == 2
-                depletion_xchange_flux(j,m) = media_xchange_flux_2(j,1);
-                depletion_xchange_redcost(j,m) = media_xchange_rc_2(j,1);
-                depletion_xchange_shadow(j,m) = media_xchange_sp_2(j,1);
+                depletion_xgrate(j,m) = media_xchange_flux_2(j,1);
+                depletion_xredcost(j,m) = media_xchange_rc_2(j,1);
+                depletion_xshadow(j,m) = media_xchange_sp_2(j,1);
             end
             
             %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
@@ -134,14 +134,14 @@ for m = 1:length(metabolites(:,1))
             end
             
             if kappatype == 1
-                excess_xchange_rxn_flux(j,m) = media_xchange_rxn_flux_1(j,1);
-                excess_xchange_rxn_redcost(j,m) = media_xchange_rxn_rc_1(j,1);
-                excess_xchange_rxn_shadow(j,m) = media_xchange_rxn_sp_1(j,1);
+                excess_flux(j,m) = media_xchange_rxn_flux_1(j,1);
+                excess_redcost(j,m) = media_xchange_rxn_rc_1(j,1);
+                excess_shadow(j,m) = media_xchange_rxn_sp_1(j,1);
             end
             if kappatype == 2
-                depletion_xchange_rxn_flux(j,m) = media_xchange_rxn_flux_2(j,1);
-                depletion_xchange_rxn_redcost(j,m) = media_xchange_rxn_rc_2(j,1);
-                depletion_xchange_rxn_shadow(j,m) = media_xchange_rxn_sp_2(j,1);
+                depletion_flux(j,m) = media_xchange_rxn_flux_2(j,1);
+                depletion_redcost(j,m) = media_xchange_rxn_rc_2(j,1);
+                depletion_shadow(j,m) = media_xchange_rxn_sp_2(j,1);
             end
             disp(j)
         end
@@ -149,59 +149,83 @@ for m = 1:length(metabolites(:,1))
     end
 end
 
-%% Normalize the flux, shadow price, and reduced costs.
-%excess_xchange_rxn_flux = excess_xchange_rxn_flux - excess_xchange_flux;
-%depletion_xchange_rxn_flux = depletion_xchange_rxn_flux - depletion_xchange_flux;
-%excess_xchange_rxn_shadow = excess_xchange_rxn_shadow - excess_xchange_shadow;
-%depletion_xchange_rxn_shadow = depletion_xchange_rxn_shadow - depletion_xchange_rxn_shadow;
-%excess_xchange_rxn_redcost = excess_xchange_rxn_redcost - excess_xchange_rxn_redcost;
-%depletion_xchange_rxn_redcost = depletion_xchange_rxn_redcost - depletion_xchange_rxn_redcost;
+%% Get flux difference
+%exces_flux = exces_flux - excess_xchange_flux;
+%depletion_flux = depletion_flux - depletion_xchange_flux;
+%excess_shadow = excess_shadow - excess_xchange_shadow;
+%depletion_shadow = depletion_shadow - depletion_shadow;
+%excess_redcost = excess_redcost - excess_redcost;
+%depletion_redcost = depletion_redcost - depletion_redcost;
+
+%% Save metabolic flux data as excel file
+% input filename for saving
+filename1 = './../tables/eGEMn.xlsx';
+colname = metabolites(:,3)';
+rowname = mediareactions1(:,2);
+
+% Excess flux
+xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
+xlswrite(filename1, excess_flux, string(epsilon2), 'B2:U51');
+% Depleted flux
+xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
+xlswrite(filename1, depletion_flux, string(epsilon2), 'X2:AQ51');
+% Excess reduced cost
+xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
+xlswrite(filename1, excess_redcost, string(epsilon2), 'B54:U103');
+% Depleted reduced cost
+xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
+xlswrite(filename1, depletion_redcost, string(epsilon2), 'X54:AQ103');
+% Excess shadow price
+xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
+xlswrite(filename1, excess_shadow, string(epsilon2), 'B106:U155');
+% Depleted shadow price
+xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
+xlswrite(filename1, depletion_shadow, string(epsilon2), 'X106:AQ155');
+
+%% Save grate data as excel file
+% input filename for saving
+filename2 = './../tables/eGEMn_grate.xlsx';
+colname = metabolites(:,3)';
+rowname = mediareactions1(:,2);
+
+% Excess grate
+xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
+xlswrite(filename2, excess_xgrate, string(epsilon2), 'B2:U51');
+% Depleted grate
+xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
+xlswrite(filename2, depletion_xgrate, string(epsilon2), 'X2:AQ51');
+% Excess reduced cost
+xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
+xlswrite(filename2, excess_xredcost, string(epsilon2), 'B54:U103');
+% Depleted reduced cost
+xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
+xlswrite(filename2, depletion_xredcost, string(epsilon2), 'X54:AQ103');
+% Excess shadow price
+xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
+xlswrite(filename2, excess_xshadow, string(epsilon2), 'B106:U155');
+% Depleted shadow price
+xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
+xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
 
 %% Turn 0 -> NaN for heatmap visualization
-excess_xchange_rxn_flux(excess_xchange_rxn_flux == 0) = NaN;
-depletion_xchange_rxn_flux(depletion_xchange_rxn_flux == 0) = NaN;
-excess_xchange_rxn_shadow(excess_xchange_rxn_shadow == 0) = NaN;
-depletion_xchange_rxn_shadow(depletion_xchange_rxn_shadow == 0) = NaN;
-excess_xchange_rxn_redcost(excess_xchange_rxn_redcost == 0) = NaN;
-depletion_xchange_rxn_redcost(depletion_xchange_rxn_redcost == 0) = NaN;
-
-%% Scaling arguments <!-- Only takes into account the model with epsilon2 -->
-if (~exist('scaling', 'var')) || (isempty(scaling))
-    excess_flux = excess_xchange_rxn_flux; 
-    depletion_flux = depletion_xchange_rxn_flux;
-    excess_shadow = excess_xchange_rxn_shadow;
-    depletion_shadow = depletion_xchange_rxn_shadow;
-    excess_redcost = excess_xchange_rxn_redcost;
-    depletion_redcost = depletion_xchange_rxn_redcost;
-elseif scaling == 'minmax'
-    excess_flux = normalize(excess_xchange_rxn_flux, 'range');
-    depletion_flux = normalize(depletion_xchange_rxn_flux, 'range');
-    excess_shadow = normalize(excess_xchange_rxn_shadow, 'range');
-    depletion_shadow = normalize(depletion_xchange_rxn_shadow, 'range');
-    excess_redcost = normalize(excess_xchange_rxn_redcost, 'range');
-    depletion_redcost = normalize(depletion_xchange_rxn_redcost, 'range');
-elseif scaling == 'sttdev'
-    excess_flux = normalize(excess_xchange_rxn_flux, 'scale');
-    depletion_flux = normalize(depletion_xchange_rxn_flux, 'scale');
-    excess_shadow = normalize(excess_xchange_rxn_shadow, 'scale');
-    depletion_shadow = normalize(depletion_xchange_rxn_shadow, 'scale');
-    excess_redcost = normalize(excess_xchange_rxn_redcost, 'scale');
-    depletion_redcost = normalize(depletion_xchange_rxn_redcost, 'scale');
-elseif scaling == '1-norm'
-    excess_flux = normalize(excess_xchange_rxn_flux, 'norm', 1);
-    depletion_flux = normalize(depletion_xchange_rxn_flux, 'norm', 1);
-    excess_shadow = normalize(excess_xchange_rxn_shadow, 'norm', 1);
-    depletion_shadow = normalize(depletion_xchange_rxn_shadow, 'norm', 1);
-    excess_redcost = normalize(excess_xchange_rxn_redcost, 'norm', 1);
-    depletion_redcost = normalize(depletion_xchange_rxn_redcost, 'norm', 1);
-elseif scaling == '2-norm'
-    excess_flux = normalize(excess_xchange_rxn_flux, 'norm', 2);
-    depletion_flux = normalize(depletion_xchange_rxn_flux, 'norm', 2);
-    excess_shadow = normalize(excess_xchange_rxn_shadow, 'norm', 2);
-    depletion_shadow = normalize(depletion_xchange_rxn_shadow, 'norm', 2);
-    excess_redcost = normalize(excess_xchange_rxn_redcost, 'norm', 2);
-    depletion_redcost = normalize(depletion_xchange_rxn_redcost, 'norm', 2);
-end
+excess_flux(excess_flux == 0) = NaN;
+depletion_flux(depletion_flux == 0) = NaN;
+excess_shadow(excess_shadow == 0) = NaN;
+depletion_shadow(depletion_shadow == 0) = NaN;
+excess_redcost(excess_redcost == 0) = NaN;
+depletion_redcost(depletion_redcost == 0) = NaN;
 
 %% Heatmap figures
 % Still needs work:
@@ -216,7 +240,7 @@ reaction_labels = metabolites(:,3);
 
 fig = figure;
 
-subplot(3,2,1);
+subplot(2,3,1);
 heatmap(excess_flux)
 ax1 = gca;
 ax1.XData = reaction_labels;
@@ -225,7 +249,7 @@ ax1.Title = 'Metabolic flux in excess medium';
 xlabel(ax1, 'Demand reactions');
 ylabel(ax1, 'Medium component');
 
-subplot(3,2,2);
+subplot(2,3,4);
 heatmap(depletion_flux)
 ax2 = gca;
 ax2.XData = reaction_labels;
@@ -234,7 +258,7 @@ ax2.Title = 'Metabolic flux in depleted medium';
 xlabel(ax2, 'Demand reactions');
 ylabel(ax2, 'Medium component');
 
-subplot(3,2,3);
+subplot(2,3,2);
 heatmap(excess_shadow)
 ax3 = gca;
 ax3.XData = reaction_labels;
@@ -243,7 +267,7 @@ ax3.Title = 'Shadow price in excess medium';
 xlabel(ax3, 'Demand reactions');
 ylabel(ax3, 'Medium component');
 
-subplot(3,2,4);
+subplot(2,3,5);
 heatmap(depletion_shadow)
 ax4 = gca;
 ax4.XData = reaction_labels;
@@ -252,7 +276,7 @@ ax4.Title = 'Shadow price in depleted medium';
 xlabel(ax4, 'Demand reactions');
 ylabel(ax4, 'Medium component');
 
-subplot(3,2,5);
+subplot(2,3,3);
 heatmap(excess_redcost)
 ax5 = gca;
 ax5.XData = reaction_labels;
@@ -261,7 +285,7 @@ ax5.Title = 'Reduced cost in excess medium';
 xlabel(ax5, 'Demand reactions');
 ylabel(ax5, 'Medium component');
 
-subplot(3,2,6);
+subplot(2,3,6);
 heatmap(depletion_redcost)
 ax6 = gca;
 ax6.XData = reaction_labels;
@@ -270,9 +294,9 @@ ax6.Title = 'Reduced cost in depleted medium';
 xlabel(ax6, 'Demand reactions');
 ylabel(ax6, 'Medium component');
 
-base = strcat('./../figures/acetylation/acetylationmodel_nucleus_', string(epsilon2));
+base = strcat('./../figures/new-model/eGEMc_', string(epsilon2));
 fig_str = strcat(base, '.fig');
-png_str = strcat(base, '.png');
+%png_str = strcat(base, '.png');
 
 saveas(fig, fig_str);
 %saveas(fig, png_str); % figure output is super small.
