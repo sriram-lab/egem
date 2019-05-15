@@ -12,8 +12,19 @@ model = metabolicmodel;
 %model = acetylation_model; %Shen et al., 2019
 
 %% Correlation values between histone markers and metabolic flux
-%histone_corr(model, 'amet', [], 'n', 1, 1E-2, 1, 1E-3, 0);
-%rxnpos  = [find(ismember(model.rxns, 'EX_KAC'));];
+% h3marks: list of H3 marks from CCLE data (column values)
+% h3names: list of CCLE cell lines (row values)
+% h3vals: matrix containing values corresponding to h3marks and h3names
+
+h3marks = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3marks.txt',...
+    '%s', 'whitespace', '\n');
+h3names = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\ccle_names.txt',...
+    '%s', 'whitespace', '\n');
+h3vals = dlmread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3_relval.txt',...
+    ',');
+
+histone_corr(model, 'amet', [], 'n', 1, 1E-2, 1, 1E-3, 0);
+rxnpos  = [find(ismember(model.rxns, 'EX_KAC'));];
 
 %% Heatmap of metabolic reactions vs excess/depletion of medium coponents
 
@@ -33,4 +44,14 @@ for n = 1:length(epsilon2)
     excess_shadow, depletion_shadow] = make_heatmap(model, 'c',...
     epsilon2(n), []);
     %end
+end
+
+%% Density plot
+A = densityplot('eGEMn');
+
+[x,y,z] = meshgrid(1:50, 1:20, 1:6);
+for i=1:6
+    surf(x(:,1,1), y(1,:,1), A(:,:,i));
+    hold on;
+    colorbar
 end
