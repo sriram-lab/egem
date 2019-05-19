@@ -13,6 +13,28 @@ The files created from this script:
 
 import pandas as pd
 
+def get_media(dictionary, key, lst):
+    """
+    This function requires a list of synonyms for a specific medium. It will construct a dictionary that maps the key to various synonyms of the medium.
+    """
+    for i in lst:
+        try:
+            dictionary[key].append(i)
+        except KeyError:
+            dictionary[key] = [i]
+    return dictionary
+
+def mapper(dict, series):
+    """
+    This function maps the values in a medium key to the dataframe elements to get the keys into the dataframe.
+    """
+    for k, v in dict.items():
+        idx = series.isin(v)
+        tmp = series[idx]
+        tmp[idx] = k
+        series[idx] = tmp
+    return series
+
 def extract():
     """
     extract will perform the actual extraction
@@ -116,19 +138,6 @@ def extract():
         "+20 % FBS"
     ]
 
-    def get_media(dictionary, key, lst):
-        """
-        This function requires a list of synonyms for a specific medium. It will construct a dictionary that maps the key to various synonyms of the medium.
-        """
-
-        for i in lst:
-            try:
-                dictionary[key].append(i)
-            except KeyError:
-                dictionary[key] = [i]
-
-        return dictionary
-
     # Get synonyms for various medium components in dict with single key
     waymouth = {}
     waymouth_syn = [
@@ -171,14 +180,20 @@ def extract():
         "90%RPMI 1640",
         "80-90% RPHI 1640",
         "RPI-1640",
-        "80-90% RPHI 1640"
+        "80-90% RPHI 1640",
+        "RPMI-1640 +1 mM Sodium pyruvate",
+        "80% RPMI 1640 ",
+        "RPMI-1640  ",
+        "RPMI-1640",
+        "RPMI-1640 ",
     ]
     rpmi = get_media(rpmi, "RPMI", rpmi_syn)
 
     rpmi_gln = {}
     rpmi_gln_syn = [
         "RPMI 1640  with L-glutamine (300mg/L), 90%",
-        "RPMI 1640 with L-glutamine(300mg/L), 90%;"
+        "RPMI 1640 with L-glutamine(300mg/L), 90%;",
+        "RPMI w Gln"
     ]
     rpmi_gln = get_media(rpmi_gln, "RPMI w Gln", rpmi_gln_syn)
 
@@ -190,7 +205,8 @@ def extract():
         "Ham's F12",
         "HAMS F12 ",
         "F-12K  ATCC ",
-        "F-12"
+        "F-12",
+        "HAM F-10"
     ]
     ham_f12 = get_media(ham_f12, "HAM F-12", ham_f12_syn)
 
@@ -206,7 +222,8 @@ def extract():
     aMEM_syn = [
         "alpha-MEM",
         "80% alpha-MEM ",
-        "70% alpha-MEM "
+        "70% alpha-MEM ",
+        "alphaMEM"
     ]
     aMEM = get_media(aMEM, "alpha-MEM", aMEM_syn)
 
@@ -215,7 +232,10 @@ def extract():
         "Eagle's minimal essential medium",
         "Eagle's minimal essential",
         "Eagle",
-        "MEM"
+        "MEM",
+        "EMEM",
+        "Eagle MEM",
+        "EMEM "
     ]
     EagleMEM = get_media(EagleMEM, 'Eagle MEM', EagleMEM_syn)
 
@@ -225,7 +245,9 @@ def extract():
         "DMEM",
         "85% Dulbecco's MEM",
         "80% Dulbecco's MEM",
-        "90% Dulbecco's MEM"
+        "90% Dulbecco's MEM",
+        "DEMEM",
+        "DMEM "
     ]
     dmem = get_media(dmem, "DMEM", dmem_syn)
 
@@ -234,9 +256,9 @@ def extract():
         "80% Dulbecco's MEM(4.5g/L glucose)",
         "90% Dulbecco'sMEM(4.5g/l glucose)",
         "90% Dulbecco's MEM (4.5g/L glucose)",
-        "90% Dulbecco's MEM(4.5 g/L glucose)"
+        "90% Dulbecco's MEM(4.5 g/L glucose)",
     ]
-    high_dmem = get_media(high_dmem, "DMEM w Glc", high_dmem_syn)
+    high_dmem = get_media(high_dmem, "DMEM +Glc", high_dmem_syn)
 
     mccoy = {}
     mccoy_syn = [
@@ -245,37 +267,112 @@ def extract():
     ]
     mccoy = get_media(mccoy, "McCoy's 5A", mccoy_syn)
 
-    def replacer(dictionary):
-        def matcher(k):
-            x = (i for i in dictionary if i in k)
-            return '|'.join(map(dictionary.get, x))
+    dmem_f12_11 = {}
+    dmem_f12_11_syn = [
+        "DMEM:F12 (1:1)",
+        "DMEM:HAM's F12  1:1",
+        "DMEM:F12",
+        "DMEM/F12(1:1)",
+        "DMEM:F:12 (1:1)",
+        "DMEM:F12(1:1)",
+        "(DMEM: HamF12=1:1)",
+        "(DMEM:HamF12=1:1)",
+        "DMEM:HAM's F12  1:1 ",
+        "80% mixture of Dulbecco's MEM + Ham's F 12 at 1:1",
+        "80% mixture of Ham's F12 + Dulbecco's MEM (at 1:1)",
+        "DMEM:HAM's F12  1:1  "
+    ]
+    dmem_f12_11 = get_media(dmem_f12_11, "DMEM:F12 (1:1)", dmem_f12_11_syn)
 
-        unqmed = unqmed.map(matcher)
-        return unqmed
+    dmem_rpmi_21 = {}
+    dmem_rpmi_21_syn = [
+        "2/3 DMEM:1/3 RPMI",
+        "DMEM:RPMI (2:1)"
+    ]
+    dmem_rpmi_21 = get_media(dmem_rpmi_21, "DMEM:RPMI (2:1)", dmem_rpmi_21_syn)
+
+    mcdb_m199 = {}
+    mcdb_m199_syn = [
+        "MCDB 105 (1:1)Medium 199",
+        "MCDB 105:MEDIUM 199 (1:1)",
+        "MCDB 105 1:1 Media 199",
+    ]
+    mcdb_m199 = get_media(mcdb_m199, "MCDB105:M199", mcdb_m199_syn)
+
+    rpmi_EaglesMEM = {}
+    rpmi_EaglesMEM_syn = [
+        "RPMI:EMEM (1:1)",
+        "RPMI:Eagles MEM",
+        "RPM:MEM ",
+        "RPMI:Eagles MEM"
+    ]
+    rpmi_EaglesMEM = get_media(rpmi_EaglesMEM, "RPMI:Eagles MEM", rpmi_EaglesMEM_syn)
+
+    dmem_iscove = {}
+    dmem_iscove_syn = [
+        "40% Dulbecco's MEM +40% Iscove's MDM"
+    ]
+    dmem_iscove = get_media(dmem_iscove, "DMEM:Iscove", dmem_iscove_syn)
+
+    rpmi_iscove = {}
+    rpmi_iscove_syn = [
+        "90 % Iscove's MDMD or RPMI 1640",
+        "80-90% Iscove's MDM or RPMI 1640"
+    ]
+    rpmi_iscove = get_media(rpmi_iscove, "RPMI:Iscove", rpmi_iscove_syn)
+
+    iscove = {}
+    iscove_syn = [
+        "80% Iscove's MDM",
+        "90% Iscove's MDM",
+        "80-90% Iscove's MDM",
+        "IMDM",
+        "IMDM "
+    ]
+    iscove = get_media(iscove, "Iscove", iscove_syn)
+
+    rpmi_f12 = {}
+    rpmi_f12_syn = [
+        "RPMI:F12 1:1",
+        "RPMI:Ham F12"
+    ]
+    rpmi_f12 = get_media(rpmi_f12, "RPMI:F12", rpmi_f12_syn)
+
+    list_of_medium = [
+        waymouth,
+        l15,
+        rpmi,
+        rpmi_gln,
+        ham_f12,
+        ham_f10,
+        aMEM,
+        EagleMEM,
+        dmem,
+        high_dmem,
+        mccoy,
+        dmem_f12_11,
+        dmem_rpmi_21,
+        mcdb_m199,
+        rpmi_EaglesMEM,
+        dmem_iscove,
+        rpmi_iscove,
+        iscove,
+        rpmi_f12
+    ]
 
     import re
     unqmed = pd.Series(unqmed)
     unqmed = unqmed.str.replace('|'.join(map(re.escape, to_remove)), '')
-    #unqmed = unqmed.map(waymouth)
-    #unqmed = unqmed.map(l15)
 
-    unqmed = unqmed.replacer(rpmi)
-    print(unqmed)
-    #unqmed = unqmed.map(rpmi_gln)
-    #unqmed = unqmed.map(ham_f12)
-    #unqmed = unqmed.map(ham_f10)
-    #unqmed = unqmed.map(aMEM)
-    #unqmed = unqmed.map(EagleMEM)
-    #unqmed = unqmed.map(dmem)
-    #unqmed = unqmed.map(high_dmem)
-    #unqmed = unqmed.map(mccoy)
+    for medium in list_of_medium:
+        unqmed = mapper(medium, unqmed)
 
-    unqmed = unqmed.unique()
+    # Create a map of all the unique medium in the CCLE study (media.txt)
+    #unqmed = unqmed.unique()
 
-
-
-    #for medium in unqmed:
-    #    print(medium)
+    # Print out a file for all corresponding medium to common identifiers (ccle_media.txt)
+    for medium in unqmed:
+        print(medium)
 
     #df['CellLineName'] = df['CellLineName'].str.split('_').str[0]
 
