@@ -30,14 +30,11 @@ for kk = 1:numel(vars)
     load(vars{kk})
 end
 
-h3_ccle_names = string(h3_ccle_names);
-h3_media = cellstr(h3_media);
-h3_media = strrep(h3_media, "McCoy's 5A", "McCoy 5A");
-
-% impute missing values using KNN:
+% impute missing values using KNN. Maybe try other functions if the results
+% look like shit. 
 h3_relvals = knnimpute(h3_relval);
 
-% old ones
+% old variables but slightly modified
 path = './../vars/';
 vars = {[path 'metabolites.mat']};
 

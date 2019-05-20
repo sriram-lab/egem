@@ -47,7 +47,7 @@ for m = 1:length(metabolites(:,1))
             kappa = 0.01;
         end
 
-        for j = 1:length(mediareactions1(:,1))
+        for j = 1:length(mediareactions1(:, 1))
             kappa1 = kappa;
             if (kappatype == 2) & (ismember(j,[2,3,5:19])) % trace elements
                 kappa1 = kappa/100;
@@ -238,65 +238,28 @@ medium_labels = mediareactions1(:,2);
 reaction_labels = metabolites(:,3);
 
 fig1 = figure;
-
-subplot(2,3,1);
-heatmap(excess_flux)
-ax1 = gca;
-ax1.XData = reaction_labels;
-ax1.YData = medium_labels;
-ax1.Title = 'Metabolic flux in excess medium';
-xlabel(ax1, 'Demand reactions');
-ylabel(ax1, 'Medium component');
-
-subplot(2,3,4);
-heatmap(depletion_flux)
-ax2 = gca;
-ax2.XData = reaction_labels;
-ax2.YData = medium_labels;
-ax2.Title = 'Metabolic flux in depleted medium';
-xlabel(ax2, 'Demand reactions');
-ylabel(ax2, 'Medium component');
-
-subplot(2,3,2);
-heatmap(excess_shadow)
-ax3 = gca;
-ax3.XData = reaction_labels;
-ax3.YData = medium_labels;
-ax3.Title = 'Shadow price in excess medium';
-xlabel(ax3, 'Demand reactions');
-ylabel(ax3, 'Medium component');
-
-subplot(2,3,5);
-heatmap(depletion_shadow)
-ax4 = gca;
-ax4.XData = reaction_labels;
-ax4.YData = medium_labels;
-ax4.Title = 'Shadow price in depleted medium';
-xlabel(ax4, 'Demand reactions');
-ylabel(ax4, 'Medium component');
-
-subplot(2,3,3);
-heatmap(excess_redcost)
-ax5 = gca;
-ax5.XData = reaction_labels;
-ax5.YData = medium_labels;
-ax5.Title = 'Reduced cost in excess medium';
-xlabel(ax5, 'Demand reactions');
-ylabel(ax5, 'Medium component');
-
-subplot(2,3,6);
-heatmap(depletion_redcost)
-ax6 = gca;
-ax6.XData = reaction_labels;
-ax6.YData = medium_labels;
-ax6.Title = 'Reduced cost in depleted medium';
-xlabel(ax6, 'Demand reactions');
-ylabel(ax6, 'Medium component');
+vars = [excess_flux, depletion_flux, excess_shadow, depletion_shadow,...
+    excess_redcost, depletion_redcost];
+title_label = ['Metabolic flux in excess medium',...
+    'Metabolic flux in depleted medium',...
+    'Shadow price in excess medium',...
+    'Shadow price in depleted medium',...
+    'Reduced cost in excess medium',...
+    'Reduced cost in depleted medium'
+    ];
+for i = 1:length(vars)
+    subplot(2,3,i);
+    heatmap(vars(i))
+    ax = ['ax' i];
+    ax = gca;
+    ax.XData = reaction_labels;
+    ax.YData = medium_labels;
+    ax.Title = title_label(i);
+    xlabel(ax, 'Demand reactions');
+    ylabel(ax, 'Medium component');
 
 base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
 fig1_str = strcat(base, '.fig');
-%png_str = strcat(base, '.png');
-
 saveas(fig1, fig1_str);
 
 % Create a heatmap for the growth rates in excess and depleted medium

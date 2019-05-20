@@ -1,6 +1,0 @@
-function var = read_txt(txtfile)
-
-fileID = fopen('ccle_names.txt');
-[var, l] = fscanf(fileID);
-
-end
