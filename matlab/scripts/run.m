@@ -75,7 +75,7 @@ for i = 1:14
         [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
         [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
         disp(i)
-
+        
         % Get the flux redistribution values associated with different media component addition and deletion
         [fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] =...
             constrain_flux_regulation(model2, onreactions, offreactions,...

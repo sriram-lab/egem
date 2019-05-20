@@ -36,6 +36,7 @@ for m = 1:length(metabolites(:,1))
     tmp_met = char(metabolites(m,2));
     tmp = [tmp_met '[' compartment '] -> '];
     tmpname = char(metabolites(m,1));
+    %tmpname = 'EX_KAC';
     model2 = addReaction(model, tmpname, 'reactionFormula', tmp);
     
     % Kappa values are weights for both excess and depletion of medium.
@@ -58,7 +59,7 @@ for m = 1:length(metabolites(:,1))
             % Make the methylation exchange reaction have a fixed LB of
             % -0.5 to be non-limiting
             [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
-            model2.lb(pos) = -0.5;    
+            model2.lb(pos) = -0.5;     
 
             % Get the reaction position for the various medium components
             % and constrain the lower bound with a value proportional to
@@ -66,11 +67,11 @@ for m = 1:length(metabolites(:,1))
             [~, pos]  = ismember(mediareactions1(j,1), model2.rxns);
             model2.lb(pos) = -media_exchange1(j,1)*kappa1;
             
-            %% solve using FBA (cobratoolbox) to get growth rate
+            %% solve using FBA (cobratoolbox) without setting the reaction of interest objective coefficient to epsilon2 
             soln = optimizeCbModel(model2);
             
             % Metabolic fluxes for a single reaction
-            grate_str = ['media_xchange_grate_', num2str(kappatype),...
+            flux_str = ['media_xchange_flux_', num2str(kappatype),...
                 '(j,1) = soln.v(biomassobjpos);'];
             
             % Reduced costs for a single reaction
@@ -80,11 +81,11 @@ for m = 1:length(metabolites(:,1))
             % Shadow prices for a single metabolite
             tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
             met_pos = find(ismember(model2.mets,tmp_met));
-            sp_str = ['media_xchange_grate_', num2str(kappatype),...
+            sp_str = ['media_xchange_sp_', num2str(kappatype),...
                 '(j,1) = soln.y(met_pos);'];
             
             if ~isempty(soln.v) & ~isnan(soln.v)
-                eval(grate_str)
+                eval(flux_str)
             end
             if ~isempty(soln.w) & ~isnan(soln.w)
                 eval(rc_str)
@@ -94,12 +95,12 @@ for m = 1:length(metabolites(:,1))
             end
             
             if kappatype == 1
-                excess_xgrate(j,m) = media_xchange_grate_1(j,1);
+                excess_xgrate(j,m) = media_xchange_flux_1(j,1);
                 excess_xredcost(j,m) = media_xchange_rc_1(j,1);
                 excess_xshadow(j,m) = media_xchange_sp_1(j,1);
             end
             if kappatype == 2
-                depletion_xgrate(j,m) = media_xchange_grate_2(j,1);
+                depletion_xgrate(j,m) = media_xchange_flux_2(j,1);
                 depletion_xredcost(j,m) = media_xchange_rc_2(j,1);
                 depletion_xshadow(j,m) = media_xchange_sp_2(j,1);
             end
@@ -293,7 +294,7 @@ ax6.Title = 'Reduced cost in depleted medium';
 xlabel(ax6, 'Demand reactions');
 ylabel(ax6, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+base = strcat('./../figures/new-model/eGEMc_', string(epsilon2));
 fig1_str = strcat(base, '.fig');
 %png_str = strcat(base, '.png');
 
@@ -302,25 +303,22 @@ saveas(fig1, fig1_str);
 % Create a heatmap for the growth rates in excess and depleted medium
 fig2 = figure;
 subplot(1,2,1);
-heatmap(excess_xgrate)
+heatmap(excess_flux)
 ax1 = gca;
 ax1.XData = reaction_labels;
 ax1.YData = medium_labels;
-ax1.Title = 'Growth rate in excess medium';
+ax1.Title = 'Metabolic flux in excess medium';
 xlabel(ax1, 'Demand reactions');
 ylabel(ax1, 'Medium component');
 
 subplot(1,2,2);
-heatmap(depletion_xgrate)
+heatmap(depletion_flux)
 ax2 = gca;
 ax2.XData = reaction_labels;
 ax2.YData = medium_labels;
-ax2.Title = 'Growth rate in depleted medium';
+ax2.Title = 'Metabolic flux in depleted medium';
 xlabel(ax2, 'Demand reactions');
 ylabel(ax2, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMn_grate_', string(epsilon2));
-fig2_str = strcat(base, '.fig');
-saveas(fig2, fig2_str);
-
+%saveas(fig, png_str); % figure output is super small.
 end

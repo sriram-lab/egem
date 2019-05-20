@@ -227,18 +227,6 @@ def extract():
     ]
     aMEM = get_media(aMEM, "alpha-MEM", aMEM_syn)
 
-    EagleMEM = {}
-    EagleMEM_syn = [
-        "Eagle's minimal essential medium",
-        "Eagle's minimal essential",
-        "Eagle",
-        "MEM",
-        "EMEM",
-        "Eagle MEM",
-        "EMEM "
-    ]
-    EagleMEM = get_media(EagleMEM, 'Eagle MEM', EagleMEM_syn)
-
     dmem = {}
     dmem_syn = [
         "Dulbecco's modified Eagle's medium",
@@ -247,25 +235,28 @@ def extract():
         "80% Dulbecco's MEM",
         "90% Dulbecco's MEM",
         "DEMEM",
-        "DMEM "
-    ]
-    dmem = get_media(dmem, "DMEM", dmem_syn)
-
-    high_dmem = {}
-    high_dmem_syn = [
+        "DMEM ",
+        "Eagle's minimal essential medium",
+        "Eagle's minimal essential",
+        "Eagle",
+        "MEM",
+        "EMEM",
+        "Eagle MEM",
+        "EMEM ",
         "80% Dulbecco's MEM(4.5g/L glucose)",
         "90% Dulbecco'sMEM(4.5g/l glucose)",
         "90% Dulbecco's MEM (4.5g/L glucose)",
         "90% Dulbecco's MEM(4.5 g/L glucose)",
+
     ]
-    high_dmem = get_media(high_dmem, "DMEM +Glc", high_dmem_syn)
+    dmem = get_media(dmem, "DMEM", dmem_syn)
 
     mccoy = {}
     mccoy_syn = [
         "McCoy's 5A",
         "McCoy 5A"
     ]
-    mccoy = get_media(mccoy, "McCoy's 5A", mccoy_syn)
+    mccoy = get_media(mccoy, "McCoy 5A", mccoy_syn)
 
     dmem_f12_11 = {}
     dmem_f12_11_syn = [
@@ -299,14 +290,14 @@ def extract():
     ]
     mcdb_m199 = get_media(mcdb_m199, "MCDB105:M199", mcdb_m199_syn)
 
-    rpmi_EaglesMEM = {}
-    rpmi_EaglesMEM_syn = [
+    rpmi_dmem_11= {}
+    rpmi_dmem_11_syn = [
         "RPMI:EMEM (1:1)",
         "RPMI:Eagles MEM",
         "RPM:MEM ",
         "RPMI:Eagles MEM"
     ]
-    rpmi_EaglesMEM = get_media(rpmi_EaglesMEM, "RPMI:Eagles MEM", rpmi_EaglesMEM_syn)
+    rpmi_dmem_11 = get_media(rpmi_dmem_11, "RPMI:Eagles MEM", rpmi_dmem_11_syn)
 
     dmem_iscove = {}
     dmem_iscove_syn = [
@@ -346,14 +337,12 @@ def extract():
         ham_f12,
         ham_f10,
         aMEM,
-        EagleMEM,
         dmem,
-        high_dmem,
         mccoy,
         dmem_f12_11,
         dmem_rpmi_21,
         mcdb_m199,
-        rpmi_EaglesMEM,
+        rpmi_dmem_11,
         dmem_iscove,
         rpmi_iscove,
         iscove,
@@ -363,15 +352,16 @@ def extract():
     import re
     unqmed = pd.Series(unqmed)
     unqmed = unqmed.str.replace('|'.join(map(re.escape, to_remove)), '')
+    medium_map = df['Growth.Medium'].str.replace('|'.join(map(re.escape, to_remove)), '')
 
     for medium in list_of_medium:
-        unqmed = mapper(medium, unqmed)
+        medium_map = mapper(medium, medium_map)
 
     # Create a map of all the unique medium in the CCLE study (media.txt)
     #unqmed = unqmed.unique()
 
     # Print out a file for all corresponding medium to common identifiers (ccle_media.txt)
-    for medium in unqmed:
+    for medium in medium_map:
         print(medium)
 
     #df['CellLineName'] = df['CellLineName'].str.split('_').str[0]
