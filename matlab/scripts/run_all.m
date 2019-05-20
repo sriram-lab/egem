@@ -16,15 +16,24 @@ model = metabolicmodel;
 % h3names: list of CCLE cell lines (row values)
 % h3vals: matrix containing values corresponding to h3marks and h3names
 
-h3marks = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3marks.txt',...
-    '%s', 'whitespace', '\n');
-h3names = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\ccle_names.txt',...
-    '%s', 'whitespace', '\n');
-h3vals = dlmread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3_relval.txt',...
-    ',');
+%h3marks = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3marks.txt',...
+%    '%s', 'whitespace', '\n');
+%h3names = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\ccle_names.txt',...
+%    '%s', 'whitespace', '\n');
+%h3vals = dlmread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3_relval.txt',...
+%    ',');
 
-histone_corr(model, 'amet', [], 'n', 1, 1E-2, 1, 1E-3, 0);
-rxnpos  = [find(ismember(model.rxns, 'EX_KAC'));];
+% initialize parameters:
+compartment = 'n';
+mode = 1;
+epsilon = 1E-3;
+epsilon2 = 1E-3;
+rho = 1;
+kappa = 1E-3;
+minfluxflag = 0;
+
+histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag);
+%rxnpos  = [find(ismember(model.rxns, 'EX_KAC'));];
 
 %% Heatmap of metabolic reactions vs excess/depletion of medium coponents
 
@@ -41,7 +50,7 @@ epsilon2 = [1E-4, 1E-3, 1E-2, 0.1, 1];
 for n = 1:length(epsilon2)
     %for m = 1:length(compartment)
     [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-    excess_shadow, depletion_shadow] = make_heatmap(model, 'c',...
+    excess_shadow, depletion_shadow] = make_heatmap(model, 'n',...
     epsilon2(n), []);
     %end
 end
