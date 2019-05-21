@@ -2,20 +2,19 @@
 function [correl, pval, cell_line_match] = histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag)
 %% INPUTS:
     % model: Initial genome scale model
-    % metabolite: The metabolite we're interested in creating a demand
-    % reaction. If this argument is left empty, it will take the rxn
-    % argument.
-    % rxn: The rxn of interest that we are creating a demand reaction through.
-    % compartment: specifying the compartment. 
+    % compartment: Subcellular compartment of interest
     % mode: for constrain flux regulation
     % epsilon: for constrain flux regulation
-    % rho: 
-    % kappa:
-    % minfluxflag:
+    % epsilon2: obj coef weight for reaction of interest
+    % rho: for constrain flux regulation
+    % kappa: for constrain flux regulation
+    % minfluxflag: for parsimonious flux balance analysis
 %% OUTPUTS:
-    % histogram plotting the correlation value (x-axis) corresponding
-    % to each histone marker (y-axis) for the demand reaction of
-    % interest.
+    % correl: correlation values associated with each histone marker/rxn 
+    % pval: the p-value associated with correl
+    % cell_line_match: cell lines that matched between gene expression and
+    % proteomics
+    % heatmap that visualizes the correlation values
 %% histone_corr
 load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
 
@@ -31,7 +30,7 @@ end
 
 % impute missing values using KNN. Maybe try other functions if the results
 % look like shit. 
-h3_relvals = knnimpute(h3_relval);
+h3_relval = knnimpute(h3_relval);
 
 % old variables but slightly modified
 path = './../vars/';
@@ -40,9 +39,14 @@ for kk = 1:numel(vars)
     load(vars{kk})
 end
 
-idx = find(ismember(celllinenames_ccle1, h3_ccle_names));
+idx = find(ismember(h3_ccle_names, celllinenames_ccle1));
 tmp = length(idx);
 
+% get relevant data
+h3_relval = h3_relval(idx, :);
+h3_ccle_names = h3_ccle_names(idx,1);
+
+idx = find(ismember(celllinenames_ccle1, h3_ccle_names));
 for i = 1:tmp
     model2 = model;
 
@@ -75,7 +79,6 @@ for i = 1:tmp
         tmpname = char(metabolites(m,1));
         %model3 = addReaction(model, tmpname, 'reactionFormula', tmp);
         
-
         % limit methionine levels for all reactions in the model; it has to be non limiting
         model3 = model2;
         [ix, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
@@ -93,24 +96,35 @@ for i = 1:tmp
     end
 end
 
+
 % Calculate the pearson correlation coefficients for every demand reaction
-[~, col] = size(grate_ccle_exp_dat);
-for j = 1:length(col)
-    [correl, pval] = corr(grate_ccle_exp_dat(:,j),...
-        h3_relvals);  
+[row, col] = size(grate_ccle_exp_dat);
+
+test = interp1(1:numel(grate_ccle_exp_dat), grate_ccle_exp_dat,...
+    linespace(1, numel(grate_ccle_exp_dat), numel(h3_relval)));
+for i = 1:length(h3_relval(:,1))
+    [correl, pval] = corr(grate_ccle_exp_dat(i,:), h3_relval(i,:));
 end
+
+for i = 1:length(h3_ccle_names)
+    tmp1 = grate_ccle_exp_dat(i,:);
+    tmp2 = h3_relval(i,:);
+    [correl, pval] = corr(tmp1, tmp2);
+    tmp3 = diag(correl);
+end
+
+
 correl = correl';
 
 % Make a heatmap of correlation coefficients versus histone markers for
 % several demand reactions
 rxns = metabolites(:,1);
 
-
 fig = figure;
 heatmap(correl)
 ax = gca;
 ax.XData = h3_marks;
-ax.YData = ;
+ax.YData = h3_ccle_names;
 ax.Title = 'Histone markers and metabolic flux correlation'
 xlabel(ax, 'Histone Markers');
 ylabel(ax, 'Cancer Cell Lines (CCLE)'
