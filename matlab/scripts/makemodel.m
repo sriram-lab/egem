@@ -218,6 +218,15 @@ model = addReaction(model, 'PKM2n',...
     'reactionFormula', 'adp[n] + h[n] + pep[n] -> atp[n] + pyr[n]',...
     'geneRule', '(PKM2)');
 
+%% All demand reactions that will be used in the study 
+load './../vars/metabolites.mat'
+compartment = 'n'
+for m = 1:length(metabolites(:,1))
+    tmp_met = char(metabolites(m,2));
+    tmp = [tmp_met '[' compartment '] -> '];
+    tmpname = char(metabolites(m,1));
+    model = addReaction(model, tmpname, 'reactionFormula', tmp);
+end
 %% save
 save('./../models/eGEM.mat', 'model');
 

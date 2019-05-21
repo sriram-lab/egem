@@ -49,10 +49,11 @@ for m = 1:length(metabolites(:,1))
         end
 
         for j = 1:length(mediareactions1(:, 1))
-            if (kappatype == 2) & (ismember(j,[2,3,5:19])) % trace elements
-                weight = kappa/100;
+            weight = 
+            if (kappatype == 2) & (ismember(mediareactions1(j,1),[2,3,5:19])) % trace elements
+                kappa(j) = kappa/100;
             elseif (kappatype == 1) & (ismember(j,[1;4])) % glucose or glutamine
-                weight = 3;
+                kappa(j) = 3;
             end
 
             % Make the methylation exchange reaction have a fixed LB of
@@ -62,11 +63,10 @@ for m = 1:length(metabolites(:,1))
 
             % Get the reaction position for the various medium components
             % and constrain the lower bound with a value proportional to
-            % the weight 
+            % the weight kappa1
             [~, pos]  = ismember(mediareactions1(j,1), model2.rxns);
-            model2.lb(pos) = -1*media_exchange1(j,1)*weight;
+            model2.lb(pos) = -media_exchange1(j,1)*kappa1;
             model2.c(biomassobjpos) = 1;
-            
             %% solve using FBA (cobratoolbox) to get growth rate
             soln = optimizeCbModel(model2);
             
@@ -108,7 +108,7 @@ for m = 1:length(metabolites(:,1))
             
             %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
             model3 = model2;
-            rxnpos = [find(ismember(model3.rxns, tmpname))];
+            rxnpos = [find(ismember(model3.rxns,tmpname))];
             model3.c(rxnpos) = epsilon2;
             soln = optimizeCbModel(model3);
 
@@ -120,7 +120,7 @@ for m = 1:length(metabolites(:,1))
                 '(j,1) = soln.w(rxnpos);'];
             % Shadow prices
             tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
-            met_pos = find(ismember(model3.mets, tmp_met));
+            met_pos = find(ismember(model3.mets,tmp_met));
             sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
                 '(j,1) = soln.y(met_pos);'];
 
@@ -150,6 +150,14 @@ for m = 1:length(metabolites(:,1))
         disp(kappatype)
     end
 end
+
+%% Get flux difference
+%exces_flux = exces_flux - excess_xchange_flux;
+%depletion_flux = depletion_flux - depletion_xchange_flux;
+%excess_shadow = excess_shadow - excess_xchange_shadow;
+%depletion_shadow = depletion_shadow - depletion_shadow;
+%excess_redcost = excess_redcost - excess_redcost;
+%depletion_redcost = depletion_redcost - depletion_redcost;
 
 %% Save metabolic flux data as excel file
 % input filename for saving
