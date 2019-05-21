@@ -1,16 +1,7 @@
-function var = read_txt(txtfile)
-
-nlines = 897;
-var = cell(nlines, 1);
-
-fileID = fopen('ccle_names.txt');
-for idx = 1:nlines
-    var(idx) = {fgetl(fileID)};
+%% @author: Scott Campit 
+function var = read_txt(path, txt)
+% read_txt takes in a path and a file name containing new lines for each
+% element and outputs a matlab variable of either character vector or num
+% vector. 
+var = textread([path, txt], '%s', 'whitespace', '\n');
 end
-fclose(fileID);
-
-end
-
-h3_relval = table2array(h3relval)
-h3_marks = table2array(h3marks)
-h3_media = table2array(cclemedia)

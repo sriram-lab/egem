@@ -16,6 +16,13 @@ model = metabolicmodel;
 % h3names: list of CCLE cell lines (row values)
 % h3vals: matrix containing values corresponding to h3marks and h3names
 
+%h3marks = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3marks.txt',...
+%    '%s', 'whitespace', '\n');
+%h3names = textread('C:\Users\scampit\Desktop\MeGEM\matlab\data\ccle_names.txt',...
+%    '%s', 'whitespace', '\n');
+%h3vals = dlmread('C:\Users\scampit\Desktop\MeGEM\matlab\data\h3_relval.txt',...
+%    ',');
+
 % initialize parameters:
 compartment = 'n';
 mode = 1;
@@ -31,14 +38,14 @@ histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxfla
 %% Heatmap of metabolic reactions vs excess/depletion of medium coponents
 
 % Use params for testing 
-%compartment = 'n';
-%epsilon2 = 1E-3;
-%scaling = [];
-%[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-%    excess_shadow, depletion_shadow] = make_heatmap(model, 'n',...
-%    epsilon2, []);
+compartment = 'n';
+epsilon2 = 1E-3;
+scaling = [];
+[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
+    excess_shadow, depletion_shadow] = make_heatmap(model, 'n',...
+    epsilon2, []);
 
-epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
+epsilon2 = [1E-4, 1E-3, 1E-2, 0.1, 1];
 %compartment = ['n', 'c', 'm'];
 for n = 1:length(epsilon2)
     %for m = 1:length(compartment)

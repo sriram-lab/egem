@@ -1,5 +1,5 @@
 %% histone_corr calculates the correlation value between various histone markers and the metabolic flux obtained from the iMAT algorithm
-function [correl, pval, cell_line_match] = histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag)
+function histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag)
 %% INPUTS:
     % model: Initial genome scale model
     % metabolite: The metabolite we're interested in creating a demand
@@ -57,28 +57,26 @@ for i = 1:tmp
     
     %medium = string(h3_media(i,1));
     % set medium conditions unique to each cell line
-    model2 = media(model2, h3_media(i));
+    model2 = media(model, h3_media(i));
     disp(i)
     % Get the reactions corresponding to on- and off-genes
     [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
     [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
 
     % Get the flux redistribution values associated with different media component addition and deletion
-    [fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] =...
+    [fluxstate_gurobi, grate_ccle_exp_dat(i,1),  solverobj_ccle(i,1)] =...
         constrain_flux_regulation(model2, onreactions, offreactions,...
         kappa, rho, epsilon, mode, [], minfluxflag);
 
     % Add demand reactions from the metabolite list to the metabolic model
     for m = 1:length(metabolites(:,1))
-        %tmp_met = char(metabolites(m,2));
-        %tmp = [tmp_met '[' compartment '] -> '];
+        tmp_met = char(metabolites(m,2));
+        tmp = [tmp_met '[' compartment '] -> '];
         tmpname = char(metabolites(m,1));
-        %model3 = addReaction(model, tmpname, 'reactionFormula', tmp);
-        
+        model3 = addReaction(model, tmpname, 'reactionFormula', tmp);
 
         % limit methionine levels for all reactions in the model; it has to be non limiting
-        model3 = model2;
-        [ix, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
+        [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
         model3.lb(pos) = -0.5;
         %model3.c(3743) = 0;
         rxnpos = [find(ismember(model3.rxns, tmpname))];
@@ -88,8 +86,7 @@ for i = 1:tmp
         [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
             onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
             minfluxflag);
-        grate_ccle_exp_dat(i,1+m) = fluxstate_gurobi(rxnpos);
-        model3.c(rxnpos) = 0; 
+        grate_ccle_exp_dat(i,m+1) = fluxstate_gurobi(rxnpos);
     end
 end
 
@@ -103,16 +100,23 @@ correl = correl';
 
 % Make a heatmap of correlation coefficients versus histone markers for
 % several demand reactions
-rxns = metabolites(:,1);
-
-
 fig = figure;
 heatmap(correl)
-ax = gca;
-ax.XData = h3_marks;
-ax.YData = ;
-ax.Title = 'Histone markers and metabolic flux correlation'
-xlabel(ax, 'Histone Markers');
-ylabel(ax, 'Cancer Cell Lines (CCLE)'
-saveas(fig, ['./../figures/fig/histone_mark_corr.fig']);
+%set(...
+%    gca, 'ytick', [1:length(acet_meth_list_rowlab)], ...
+%    'yticklabel', acet_meth_list_rowlab,...
+%    'fontsize', 8, ...
+%    'fontweight','bold');
+%set(gca,'TickDir', 'out');
+%set(gca,'box','off');
+%set(gca,'linewidth',2);
+%set(gcf,'color','white');
+%set(gca,'fontsize',12);
+%set(gcf, 'Position', [100, 100, 700, 800])
+%xlabel('Pearson Correlation');
+%ylabel('H3 methylation and acetylation positions');
+%xlim([-1,1]);
+%title(['Correlation between histone mark expression and ' nam ' metabolic flux'], 'fontweight', 'bold');
+%saveas(fig(1), ['./../figures/fig/methylation-' nam '-corr.fig']);
+%saveas(fig(1), ['./../figures/tiff/methylation-' nam '-corr.tif']);
 end 
