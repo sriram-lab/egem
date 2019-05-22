@@ -1,3 +1,4 @@
+%% @author: Scott Campit
 function model = media(model, medium)
 %% media.m defines the medium constraints we will impose on the genome-scale metabolic model. 
 % For every 2g of D-glc, set model.lb to -5. 
