@@ -2,14 +2,14 @@
 function [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     excess_shadow, depletion_shadow] = make_heatmap(model, compartment,...
     epsilon2, scaling)
-% make_heatmap.m displays the values corresponding to several demand 
+% metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
 
 % INPUTS:
     % model: genome scale metabolic model
     % rxnpos: list of reactions that will be used in the analysis
-    % epsilon2: a weight that will be used for the secondary objective coefficient 
-    % scaling: if the data should be scaled/normalized 
+    % epsilon2: a weight that will be used for the secondary obcomponentective coefficient
+    % scaling: if the data should be scaled/normalized
 
 % OUTPUTS:
     % excess_flux: metabolic flux corresponding to excess medium
@@ -18,9 +18,9 @@ function [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     % depletion_redcost: ''' depletion medium
     % excess_shadow: shadow costs corresponding to excess medium
     % depletion_shadow: ''' depletion medium
-    
-%% make_heatmap.m
-load supplementary_software_code media_exchange1 
+
+%% metabolic_sensitivity.m
+load supplementary_software_code media_exchange1
 var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
     './../vars/mediareactions1.mat'};
 for kk = 1:numel(var)
@@ -29,61 +29,59 @@ end
 
 minfluxflag = 0;
 posgluc = 1385;  % glucose uptake reaction in RECON1
-biomassobjpos = 3743; % biomass objective
+biomassobcomponentpos = 3743; % biomass rxn position
 
-% Add demand reactions from the metabolite list to the metabolic model
-for m = 1:length(metabolites(:,1))
-    %tmp_met = char(metabolites(m,2));
-    %tmp = [tmp_met '[' compartment '] -> '];
-    tmpname = char(metabolites(m,1));
-    %model2 = addReaction(model, tmpname, 'reactionFormula', tmp);
-    model2 = model;
-    
+for rxn = 1:length(metabolites(:, 1)) % 20 times
+    rxnname = char(metabolites(rxn, 1));
+
     % Kappa values are weights for both excess and depletion of medium.
     % kappa = 10 is excess, and kappa = 0.01 is depletion
+
     for kappatype = 1:2
-        if kappatype == 1 
-            kappa  = 10; 
+        if kappatype == 1
+            kappa  = 10;
         elseif kappatype == 2
             kappa = 0.01;
         end
 
-        for j = 1:length(mediareactions1(:, 1))
-            if (kappatype == 2) & (ismember(j,[2,3,5:19])) % trace elements
+        for component = 1:length(mediareactions1(:, 1)) % 50 times
+            if (kappatype == 2) & (ismember(component,[2,3,5:19])) % trace elements
                 weight = kappa/100;
-            elseif (kappatype == 1) & (ismember(j,[1;4])) % glucose or glutamine
+            elseif (kappatype == 1) & (ismember(component,[1;4])) % glucose or glutamine
                 weight = 3;
             end
+
+            model2 = model;
 
             % Make the methylation exchange reaction have a fixed LB of
             % -0.5 to be non-limiting
             [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
-            model2.lb(pos) = -0.5;    
+            model2.lb(pos) = -0.5;
 
             % Get the reaction position for the various medium components
             % and constrain the lower bound with a value proportional to
-            % the weight 
-            [~, pos]  = ismember(mediareactions1(j,1), model2.rxns);
-            model2.lb(pos) = -1*media_exchange1(j,1)*weight;
-            model2.c(biomassobjpos) = 1;
-            
+            % the weight
+            [~, pos]  = ismember(mediareactions1(component,1), model2.rxns);
+            model2.lb(pos) = -1*media_exchange1(component,1)*weight;
+            model2.c(biomassobcomponentpos) = 1;
+
             %% solve using FBA (cobratoolbox) to get growth rate
             soln = optimizeCbModel(model2);
-            
+
             % Metabolic fluxes for a single reaction
             grate_str = ['media_xchange_grate_', num2str(kappatype),...
-                '(j,1) = soln.v(biomassobjpos);'];
-            
+                '(component,1) = soln.v(biomassobcomponentpos);'];
+
             % Reduced costs for a single reaction
             rc_str = ['media_xchange_grate_rc_', num2str(kappatype),...
-                '(j,1) = soln.w(biomassobjpos);'];
-            
+                '(component,1) = soln.w(biomassobcomponentpos);'];
+
             % Shadow prices for a single metabolite
-            tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
-            met_pos = find(ismember(model2.mets,tmp_met));
+            tmp_met = [char(metabolites(rxn, 2)) '[' compartment ']'];
+            met_pos = find(ismember(model2.mets, tmp_met));
             sp_str = ['media_xchange_grate_sp_', num2str(kappatype),...
-                '(j,1) = soln.y(met_pos);'];
-            
+                '(component,1) = soln.y(met_pos);'];
+
             if ~isempty(soln.v) & ~isnan(soln.v)
                 eval(grate_str)
             end
@@ -93,36 +91,36 @@ for m = 1:length(metabolites(:,1))
             if ~isempty(soln.y) & ~isnan(soln.y)
                 eval(sp_str)
             end
-            
+
             if kappatype == 1
-                excess_xgrate(j,m) = media_xchange_grate_1(j,1);
-                excess_xredcost(j,m) = media_xchange_grate_rc_1(j,1);
-                excess_xshadow(j,m) = media_xchange_grate_sp_1(j,1);
+                excess_xgrate(component, rxn) = media_xchange_grate_1(component, 1);
+                excess_xredcost(component, rxn) = media_xchange_grate_rc_1(component, 1);
+                excess_xshadow(component, rxn) = media_xchange_grate_sp_1(component, 1);
             end
             if kappatype == 2
-                depletion_xgrate(j,m) = media_xchange_grate_2(j,1);
-                depletion_xredcost(j,m) = media_xchange_grate_rc_2(j,1);
-                depletion_xshadow(j,m) = media_xchange_grate_sp_2(j,1);
+                depletion_xgrate(component,rxn) = media_xchange_grate_2(component, 1);
+                depletion_xredcost(component,rxn) = media_xchange_grate_rc_2(component, 1);
+                depletion_xshadow(component,rxn) = media_xchange_grate_sp_2(component, 1);
             end
-            model2.c(biomassobjpos) = 0;
-            
-            %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
+            model2.c(biomassobcomponentpos) = 0;
+
+            %% Obtain flux values when using epsilon2 as the obcomponentective coefficient for the reaction of interest.
             model3 = model2;
-            rxnpos = [find(ismember(model3.rxns, tmpname))];
+            rxnpos = [find(ismember(model3.rxns, rxnname))];
             model3.c(rxnpos) = epsilon2;
             soln = optimizeCbModel(model3);
 
             % Metabolic fluxes
             flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
-                '(j,1) = soln.v(rxnpos);'];
+                '(component, 1) = soln.v(rxnpos);'];
             % Reduced costs
             rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
-                '(j,1) = soln.w(rxnpos);'];
+                '(component, 1) = soln.w(rxnpos);'];
             % Shadow prices
-            tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
+            tmp_met = [char(metabolites(rxn,2)) '[' compartment ']'];
             met_pos = find(ismember(model3.mets, tmp_met));
             sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
-                '(j,1) = soln.y(met_pos);'];
+                '(component, 1) = soln.y(met_pos);'];
 
             if ~isempty(soln.v) & ~isnan(soln.v)
                 eval(flux_str)
@@ -133,19 +131,19 @@ for m = 1:length(metabolites(:,1))
             if ~isempty(soln.y) & ~isnan(soln.y)
                 eval(sp_str)
             end
-            
+
             if kappatype == 1
-                excess_flux(j,m) = media_xchange_rxn_flux_1(j,1);
-                excess_redcost(j,m) = media_xchange_rxn_rc_1(j,1);
-                excess_shadow(j,m) = media_xchange_rxn_sp_1(j,1);
+                excess_flux(component, rxn) = media_xchange_rxn_flux_1(component, 1);
+                excess_redcost(component, rxn) = media_xchange_rxn_rc_1(component, 1);
+                excess_shadow(component, rxn) = media_xchange_rxn_sp_1(component, 1);
             end
             if kappatype == 2
-                depletion_flux(j,m) = media_xchange_rxn_flux_2(j,1);
-                depletion_redcost(j,m) = media_xchange_rxn_rc_2(j,1);
-                depletion_shadow(j,m) = media_xchange_rxn_sp_2(j,1);
+                depletion_flux(component, rxn) = media_xchange_rxn_flux_2(component, 1);
+                depletion_redcost(component, rxn) = media_xchange_rxn_rc_2(component, 1);
+                depletion_shadow(component, rxn) = media_xchange_rxn_sp_2(component, 1);
             end
             model3.c(rxnpos) = 0;
-            disp(j)
+            disp(component)
         end
         disp(kappatype)
     end
@@ -154,8 +152,8 @@ end
 %% Save metabolic flux data as excel file
 % input filename for saving
 filename1 = './../tables/eGEMn_allDM.xlsx';
-colname = metabolites(:,3)';
-rowname = mediareactions1(:,2);
+colname = metabolites(:, 3)';
+rowname = mediareactions1(:, 2);
 
 % Excess flux
 xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
@@ -217,9 +215,9 @@ xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
 % Still needs work:
     % Make `excess` green and `depletion` red
     % Color gradient: metabolic flux > reduced costs > shadow prices
-    % Incorporate plotly 
+    % Incorporate plotly
     % Is there a way to dynamically size .pngs?
-    
+
 % Prepare figure labels and variables
 medium_labels = mediareactions1(:,2);
 reaction_labels = metabolites(:,3);
@@ -309,4 +307,5 @@ base = strcat('./../figures/new-model/eGEMn_grate_allDM_', string(epsilon2));
 fig2_str = strcat(base, '.fig');
 saveas(fig2, fig2_str);
 
+clear
 end

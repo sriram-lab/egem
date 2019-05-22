@@ -1,5 +1,5 @@
 %% histone_corr calculates the correlation value between various histone markers and the metabolic flux obtained from the iMAT algorithm
-function [rho, pval] = histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag)
+function [rho, pval, cell_line_match] = histone_corr(model, compartment, mode, epsilon, epsilon2, rho, kappa, minfluxflag)
 %% INPUTS:
     % model: Initial genome scale model
     % compartment: Subcellular compartment of interest
@@ -103,19 +103,13 @@ rxns = metabolites(:,3);
 rxns = [{'Biomass'}; rxns];
 
 %% Save data in Excel
-filename1 = './../tables/eGEMn_prot_stats.xlsx';
+filename1 = './../tables/eGEMn_allDM.xlsx';
 colname = rxns';
 rowname = h3_marks;
+xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
+xlswrite(filename1, excess_flux, string(epsilon2), 'B2:U51');
 
-% Rho
-xlswrite(filename1, colname, string(epsilon2), 'B1:AQ1');
-xlswrite(filename1, rowname, string(epsilon2), 'A2:A22');
-xlswrite(filename1, rho, string(epsilon2), 'B2:U22');
-
-% P-value
-xlswrite(filename1, colname, string(epsilon2), 'B24:AQ24');
-xlswrite(filename1, rowname, string(epsilon2), 'A25:A45');
-xlswrite(filename1, pval, string(epsilon2), 'B25:U45');
 
 %% Make Figures
 fig = figure;
@@ -124,9 +118,8 @@ ax = gca;
 ax.Colormap = parula;
 ax.XData = h3_marks;
 ax.YData = rxns;
+ax.Title = 'Histone markers and metabolic flux correlation'
 xlabel(ax, 'Histone Markers');
-ylabel(ax, 'Demand Reactions');
-base = strcat('./../figures/corr/histone_mark_corr_', string(epsilon2)); 
-fig_str = strcat(base, '.fig');
-saveas(fig, fig_str);
+ylabel(ax, 'Cancer Cell Lines (CCLE)');
+saveas(fig, ['./../figures/corr/histone_mark_corr.fig']);
 end 
