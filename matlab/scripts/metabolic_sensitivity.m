@@ -1,6 +1,6 @@
 %% @author: Scott Campit
 function [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-    excess_shadow, depletion_shadow] = make_heatmap(model, compartment,...
+    excess_shadow, depletion_shadow] = metabolic_sensitivity(model, compartment,...
     epsilon2, scaling)
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
@@ -151,7 +151,7 @@ end
 
 %% Save metabolic flux data as excel file
 % input filename for saving
-filename1 = './../tables/eGEMn_allDM.xlsx';
+filename1 = './../tables/eGEMn.xlsx';
 colname = metabolites(:, 3)';
 rowname = mediareactions1(:, 2);
 
@@ -182,7 +182,7 @@ xlswrite(filename1, depletion_shadow, string(epsilon2), 'X106:AQ155');
 
 %% Save grate data as excel file
 % input filename for saving
-filename2 = './../tables/eGEMn_grate_allDM.xlsx';
+filename2 = './../tables/eGEMn_grate.xlsx';
 colname = metabolites(:,3)';
 rowname = mediareactions1(:,2);
 
@@ -277,7 +277,7 @@ ax6.Title = 'Reduced cost in depleted medium';
 xlabel(ax6, 'Demand reactions');
 ylabel(ax6, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMc_', string(epsilon2));
+base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
 fig1_str = strcat(base, '.fig');
 
 saveas(fig1, fig1_str);
@@ -303,9 +303,9 @@ ax2.Title = 'Growth rate in depleted medium';
 xlabel(ax2, 'Demand reactions');
 ylabel(ax2, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMn_grate_allDM_', string(epsilon2));
+base = strcat('./../figures/new-model/eGEMn_grate_', string(epsilon2));
 fig2_str = strcat(base, '.fig');
 saveas(fig2, fig2_str);
 
-clear
+%clear
 end

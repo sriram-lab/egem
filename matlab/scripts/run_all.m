@@ -16,13 +16,19 @@ model = metabolicmodel;
 % h3names: list of CCLE cell lines (row values)
 % h3vals: matrix containing values corresponding to h3marks and h3names
 
-% initialize parameters:
+% Use params for testing
+% epsilon2 = 1E-3
+
+% Initialize params for iMAT algorithm
 compartment = 'n';
 mode = 1;
 epsilon = 1E-3;
 rho = 1;
 kappa = 1E-3;
 minfluxflag = 0;
+
+% Run with multiple objective coefficients to obtain dynamic range of
+% values
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for n = 1:length(epsilon2)
     [correl, pval] = histone_corr(model, compartment,...
@@ -32,14 +38,17 @@ end
 %% Heatmap of metabolic reactions vs excess/depletion of medium coponents
 
 % Use params for testing 
-compartment = 'n';
-epsilon2 = 1E-3;
-scaling = [];
-[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-    excess_shadow, depletion_shadow] = metabolic_sensitivity(model, 'n',...
-    epsilon2, []);
+%compartment = 'n';
+%epsilon2 = 1E-3;
+%scaling = [];
+%[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
+%    excess_shadow, depletion_shadow] = metabolic_sensitivity(model, 'n',...
+%    epsilon2, []);
 
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
+
+% Run with multiple objective coefficients to obtain dynamic range of
+% values
 %compartment = ['n', 'c', 'm'];
 for n = 1:length(epsilon2)
     %for m = 1:length(compartment)
