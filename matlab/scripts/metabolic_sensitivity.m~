@@ -36,7 +36,8 @@ rxnname = char(metabolites(:, 1)); % reaction positions of interest
 % Switch between modules for different types of analyses
 switch exp
     % Case 1: Use the most dynamic range of metabolic fluxes
-    case 'dyn'  
+    case 'dyn'
+        
         % Kappa values are weights for both excess and depletion of medium.
         % kappa = 10 is excess, and kappa = 0.01 is depletion
         for kappatype = 1:2
@@ -45,8 +46,7 @@ switch exp
             elseif kappatype == 2
                 kappa = 0.01;
             end
-            
-            % Each medium component has different uptake rates
+
             for component = 1:length(mediareactions1(:, 1)) % 50 times
                 if (kappatype == 2) & (ismember(component,[2,3,5:19])) % trace elements
                     weight = kappa/100;
@@ -73,11 +73,11 @@ switch exp
 
                 % Metabolic fluxes for a single reaction
                 grate_str = ['media_xchange_grate_', num2str(kappatype),...
-                    '(component,:) = soln.v(biomassobcomponentpos);'];
+                    '(component,1) = soln.v(biomassobcomponentpos);'];
 
                 % Reduced costs for a single reaction
                 rc_str = ['media_xchange_grate_rc_', num2str(kappatype),...
-                    '(component,:) = soln.w(biomassobcomponentpos);'];
+                    '(component,1) = soln.w(biomassobcomponentpos);'];
 
                 % Shadow prices for a single metabolite
                 for met = 1:length(metabolites(:,2))
