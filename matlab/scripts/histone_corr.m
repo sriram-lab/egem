@@ -16,7 +16,7 @@ function [rho, pval] = histone_corr(model, compartment, mode, epsilon, epsilon2,
     % proteomics
     % heatmap that visualizes the correlation values
 %% histone_corr
-load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
+load ./../vars/supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
 
 % New variables
 path = './../new_var/';
