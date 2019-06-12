@@ -37,7 +37,7 @@ def mapper(dict, series):
 
 def extract():
     """
-    extract will perform the actual extraction
+    Extract will get the medium conditions that were used for the CCLE histone proteomics paper to grow the cells and classify them to simpler medium conditions. The result will be outputted as a table.
     """
 
     # Basic data clean up
@@ -381,7 +381,32 @@ def extract():
 
     #df.to_csv(r'/mnt/c/Users/scampit/Desktop/MeGEM/matlab/h3_relval.txt', header=False, index=False)
 
-extract()
+#extract()
+
+def make_medium_conditions():
+    """
+    make_medium_conditions is an extension of what Shen et al., did with their analysis, but will now consider all medium components. To conduct this analysis, I will assume that RPMI is the default condition for current substrate uptake rates, and will scale the remaining substrate uptake rates for other medium conditions based on RPMI.
+        For instance, if RPMI has glc = 2 and DMEM has glc = 4.5, I will scale the substrate uptake rate for glc in DMEM conditions to be 2.25x that of the RPMI condition.
+    """
+
+    # Get the default substrate uptake rates from RECON1. For those with uptake rates set to 0 initially, I changed it to a small number (-0.005 = default value)
+    path = r'/mnt/c/Users/scampit/Desktop/MeGEM/data/'
+    default_uptake = pd.read_excel(path+'default_uptake.xlsx')
+
+    # For all medium, I will use RPMI as the base condition, and will scale the substrate uptake rates accordingly.
+
+        # If the medium component is not present, the substrate uptake rate will be set to 0. Otherwise, it will be the default uptake rate * the scaling factor.
+
+        # If the specific formulation was not provided, I simply divided the amount according to stoichiometric equivalents and added the medium concentrations together. If the amount of the medium component = infinity, I kept the infinity, as the amount will still be in excess. All infinity values will be converted into -100 for the substrate uptake rates.
+
+    rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI')
+    dmem = pd.read_excel(path+'medium.xlsx', sheet_name='DMEM')
+    mcdb105 = pd.read_excel(path+'medium.xlsx', sheet_name='MCDB105')
+    m199 = pd.read_excel(path+'medium.xlsx', sheet_name='M199')
+    f12 = pd.read_excel(path+'medium.xlsx', sheet_name='HAM F-12')
+    iscove = pd.read_excel(path+'medium.xlsx', sheet_name='Iscove')
+
+    
 
 def iterred(sheetnam=''):
     """
