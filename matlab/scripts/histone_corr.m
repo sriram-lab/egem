@@ -16,7 +16,7 @@ function [rho, pval] = histone_corr(model, compartment, mode, epsilon, epsilon2,
     % proteomics
     % heatmap that visualizes the correlation values
 %% histone_corr
-load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
+load ./../vars/supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
 
 % New variables
 path = './../new_var/';
@@ -28,8 +28,7 @@ for kk = 1:numel(vars)
     load(vars{kk})
 end
 
-% impute missing values using KNN. Maybe try other functions if the results
-% look like shit. 
+% impute missing values using KNN. Maybe try other imputation functions.
 h3_relval = knnimpute(h3_relval);
 
 % old variables but slightly modified
@@ -59,10 +58,10 @@ for i = 1:tmp
     ongenes = intersect(ongenes, model2.rxns);
     offgenes = intersect(offgenes, model2.rxns);
     
-    %medium = string(h3_media(i,1));
     % set medium conditions unique to each cell line
     model2 = media(model2, h3_media(i));
     disp(i)
+    
     % Get the reactions corresponding to on- and off-genes
     [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
     [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
@@ -74,16 +73,12 @@ for i = 1:tmp
 
     % Add demand reactions from the metabolite list to the metabolic model
     for m = 1:length(metabolites(:,1))
-        %tmp_met = char(metabolites(m,2));
-        %tmp = [tmp_met '[' compartment '] -> '];
         tmpname = char(metabolites(m,1));
-        %model3 = addReaction(model, tmpname, 'reactionFormula', tmp);
         
         % limit methionine levels for all reactions in the model; it has to be non limiting
         model3 = model2;
         [ix, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
         model3.lb(pos) = -0.5;
-        %model3.c(3743) = 0;
         rxnpos = [find(ismember(model3.rxns, tmpname))];
         model3.c(rxnpos) = epsilon2; 
 
@@ -96,8 +91,8 @@ for i = 1:tmp
     end
 end
 
-
 % Calculate the pearson correlation coefficients for every demand reaction
+% w.r.t to H3 expression
 [rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
 rxns = metabolites(:,3);
 rxns = [{'Biomass'}; rxns];
