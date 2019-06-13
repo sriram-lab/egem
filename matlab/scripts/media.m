@@ -29,6 +29,8 @@ function model = media(model, medium)
         % Contains Inositol in high concentrations
         % Contains Choline in high concentrations
 if ismember({'RPMI'}, medium)
+    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI')
+    for rxn=2:length()
     % Amino Acids
     model.lb(find(ismember(model.rxns, {'EX_gly(e)'}))) = -0.05;
     model.lb(find(ismember(model.rxns, {'EX_arg_L(e)'}))) = -0.05;
