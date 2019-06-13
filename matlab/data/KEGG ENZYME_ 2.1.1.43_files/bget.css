@@ -1,0 +1,87 @@
+body {font-size:14px; font-family:helvetica,sans-serif}
+.text {font-size:14px; font-family:helvetica,sans-serif}
+h1 {font-size:24px; font-weight:bold; font-family:helvetica,sans-serif}
+h2 {font-size:20px; font-weight:bold; font-family:helvetica,sans-serif}
+h3 {font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+h4 {font-size:14px; font-weight:bold; font-family:helvetica,sans-serif}
+h5 {font-size:12px; font-weight:bold; font-family:helvetica,sans-serif}
+b {font-size:14px; font-weight:bold; font-family:helvetica,sans-serif}
+th {font-size:14px; font-weight:bold; font-family:'Dejavu Sans Mono',Consolas,Courier,monospace;}
+td {font-size:14px; font-family:'Dejavu Sans Mono',Consolas,Courier,monospace;}
+.fm{font-family:'Dejavu Sans Mono',Consolas,Courier,monospace;}
+.aw{margin-left:1em;border:#ddd 1px solid;}
+.at{font-weight:bold;line-height:1.5em;}
+
+a {text-decoration:none}
+a:link {color:#003399}
+a:visited {color:#003399}
+a:hover {color:#33cc99}
+
+table.content {max-width:555px}
+td.content {width:555px;overflow-x:auto;overflow-y:hidden}
+div.content {max-width:555px;overflow-x:auto;overflow-y:hidden}
+
+font.title0 {color: #000000; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+
+font.title1 {color: #660033; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th10	{background-color: #f0e0e4;}
+.th11	{background-color: #f0e0e4;}
+td.td10	{background-color: #ffffff;}
+td.td11	{background-color: #ffffff;}
+.fr1	{background-color: #000000;}
+
+font.title2 {color: #003366; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th20	{background-color: #d4e4f0;}
+.th21	{background-color: #d4e4f0;}
+td.td20	{background-color: #ffffff;}
+td.td21	{background-color: #ffffff;}
+.fr2	{background-color: #000000;}
+
+font.title3 {color: #005050; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th30	{background-color: #e0f0e0;}
+.th31	{background-color: #e0f0e0;}
+td.td30	{background-color: #ffffff;}
+td.td31	{background-color: #ffffff;}
+.fr3	{background-color: #000000;}
+
+font.title4 {color: #663300; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th40	{background-color: #f2e9b6;}
+.th41	{background-color: #f2e9b6;}
+td.td40	{background-color: #ffffff;}
+td.td41	{background-color: #ffffff;}
+.fr4	{background-color: #000000;}
+
+font.title5 {color: #440066; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th50	{background-color: #e4ddf8;}
+.th51	{background-color: #e4ddf8;}
+td.td50	{background-color: #ffffff;}
+td.td51	{background-color: #ffffff;}
+.fr5	{background-color: #000000;}
+
+font.title6 {color: #000066; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th60	{background-color: #ccccff;}
+.th61	{background-color: #ccccff;}
+td.td60	{background-color: #ffffff;}
+td.td61	{background-color: #ffffff;}
+.fr6	{background-color: #000000;}
+
+font.title100 {color: #000066; font-size:16px; font-weight:bold; font-family:helvetica,sans-serif}
+.th1000	{background-color: #ccccff;}
+.th1001	{background-color: #ccccff;}
+td.td1000	{background-color: #ffffff;}
+td.td1001	{background-color: #ffffff;}
+.fr100	{background-color: #000000;}
+
+div.wrapper {
+  max-width : 600px;
+  min-width : 400px;
+  overflow : auto;
+  float : left
+}
+
+/* for IE6 */
+* html div.wrapper {
+  width : 600px;
+}
+/* end IE6 */
+
