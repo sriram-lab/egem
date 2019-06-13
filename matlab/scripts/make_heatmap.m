@@ -26,7 +26,7 @@ var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
 for kk = 1:numel(var)
     load(var{kk})
 end
-
+%% I made is a section
 minfluxflag = 0;
 posgluc = 1385;  % glucose uptake reaction in RECON1
 biomassobjpos = 3743; % biomass objective
@@ -54,7 +54,7 @@ for m = 1:length(metabolites(:,1))
             elseif (kappatype == 1) & (ismember(j,[1;4])) % glucose or glutamine
                 weight = 3;
             end
-
+            
             % Make the methylation exchange reaction have a fixed LB of
             % -0.5 to be non-limiting
             [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
@@ -108,22 +108,28 @@ for m = 1:length(metabolites(:,1))
             
             %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
             model3 = model2;
-            rxnpos = [find(ismember(model3.rxns, tmpname))];
+            rxnpos = find(ismember(model3.rxns, tmpname));
             model3.c(rxnpos) = epsilon2;
             soln = optimizeCbModel(model3);
 
             % Metabolic fluxes
+%             flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
+%                 '(j,1) = soln.v(rxnpos);'];
             flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
-                '(j,1) = soln.v(rxnpos);'];
+                '= soln.v(rxnpos);'];
             % Reduced costs
+%             rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
+%                 '(j,1) = soln.w(rxnpos);'];
             rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
-                '(j,1) = soln.w(rxnpos);'];
+                '= soln.w(rxnpos);'];
             % Shadow prices
             tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
             met_pos = find(ismember(model3.mets, tmp_met));
+%             sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
+%                 '(j,1) = soln.y(met_pos);'];
             sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
-                '(j,1) = soln.y(met_pos);'];
-
+                '= soln.y(met_pos);'];
+            
             if ~isempty(soln.v) & ~isnan(soln.v)
                 eval(flux_str)
             end
@@ -135,17 +141,17 @@ for m = 1:length(metabolites(:,1))
             end
             
             if kappatype == 1
-                excess_flux(j,m) = media_xchange_rxn_flux_1(j,1);
-                excess_redcost(j,m) = media_xchange_rxn_rc_1(j,1);
-                excess_shadow(j,m) = media_xchange_rxn_sp_1(j,1);
+                excess_flux(j,m) = media_xchange_rxn_flux_1;
+                excess_redcost(j,m) = media_xchange_rxn_rc_1;
+                excess_shadow(j,m) = media_xchange_rxn_sp_1;
             end
             if kappatype == 2
-                depletion_flux(j,m) = media_xchange_rxn_flux_2(j,1);
-                depletion_redcost(j,m) = media_xchange_rxn_rc_2(j,1);
-                depletion_shadow(j,m) = media_xchange_rxn_sp_2(j,1);
+                depletion_flux(j,m) = media_xchange_rxn_flux_2;
+                depletion_redcost(j,m) = media_xchange_rxn_rc_2;
+                depletion_shadow(j,m) = media_xchange_rxn_sp_2;
             end
             model3.c(rxnpos) = 0;
-            disp(j)
+            %disp(j)     % prints 50x2x20 times (mediareactions1,kappatype,metabolites)
         end
         disp(kappatype)
     end
