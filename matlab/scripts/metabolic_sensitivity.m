@@ -24,7 +24,7 @@ load ./../vars/supplementary_software_code media_exchange1
 var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
     './../vars/mediareactions1.mat'};
 for kk = 1:numel(var)
-    load(var{kk})
+    load(var{kk});
 end
 
 % init some params
@@ -36,7 +36,7 @@ rxnname = char(metabolites(:, 1)); % reaction positions of interest
 % Switch between modules for different types of analyses
 switch exp
     % Case 1: Use the most dynamic range of metabolic fluxes
-    case 'dyn'  
+    case 'fba'  
         % Kappa values are weights for both excess and depletion of medium.
         % kappa = 10 is excess, and kappa = 0.01 is depletion
         for kappatype = 1:2
@@ -60,13 +60,14 @@ switch exp
                 % -0.5 to be non-limiting
                 [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
                 model2.lb(pos) = -0.5;
-
+                
                 % Get the reaction position for the various medium components
                 % and constrain the lower bound with a value proportional to
                 % the weight
                 [~, pos]  = ismember(mediareactions1(component,1), model2.rxns);
                 model2.lb(pos) = -1*media_exchange1(component,1)*weight;
-                model2.c(biomassobcomponentpos) = 1;
+                %model2 = media(model2, 'RPMI');
+                %model2.c(biomassobcomponentpos) = 1;
 
                 %% solve using FBA (cobratoolbox) to get growth rate
                 soln = optimizeCbModel(model2);
@@ -154,7 +155,7 @@ switch exp
         end
     
     % Run the code using the FVA scheme for histone markers only
-    case 'grate'
+    case 'fva'
         for kappatype = 1:2
             if kappatype == 1
                 kappa  = 10;
@@ -234,39 +235,17 @@ switch exp
 
                 % Metabolic fluxes
                 flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
-                    '(component,1:20) = soln.v(rxnpos);'];
-                % Reduced costs
-                rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
-                    '(component,1:20) = soln.w(rxnpos);'];
-                % Shadow prices
-                for met = 1:length(metabolites(:,2))
-                    tmp_met{met} = [char(metabolites(met, 2)) '[' compartment ']'];
-                end
-                tmp_met = tmp_met';
-                
-                met_pos = find(ismember(model2.mets, tmp_met));
-                sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
-                    '(component,:) = soln.y(met_pos);'];
+                    '(component,1:20) = maxFlux;'];
 
                 if ~isempty(soln.v) & ~isnan(soln.v)
                     eval(flux_str)
                 end
-                if ~isempty(soln.w) & ~isnan(soln.w)
-                    eval(rc_str)
-                end
-                if ~isempty(soln.y) & ~isnan(soln.y)
-                    eval(sp_str)
-                end
-
+          
                 if kappatype == 1
                     excess_flux = media_xchange_rxn_flux_1;
-                    excess_redcost = media_xchange_rxn_rc_1;
-                    excess_shadow = media_xchange_rxn_sp_1;
                 end
                 if kappatype == 2
                     depletion_flux = media_xchange_rxn_flux_2;
-                    depletion_redcost = media_xchange_rxn_rc_2;
-                    depletion_shadow = media_xchange_rxn_sp_2;
                 end
                 model3.c(rxnpos) = 0;
                 disp(component)
@@ -275,7 +254,23 @@ switch exp
         end
 end
 
-        
+%% Scaling the data for visualization purposes
+excess_flux = zscore(excess_flux);
+excess_redcost = zscore(excess_redcost);
+excess_shadow = zscore(excess_shadow);
+
+depletion_flux = zscore(depletion_flux);
+depletion_redcost = zscore(depletion_redcost);
+depletion_shadow = zscore(depletion_shadow);
+
+%% Replace 0 with NaN
+excess_flux(excess_flux==0) = NaN;
+excess_redcost(excess_redcost==0) = NaN;
+excess_shadow(excess_shadow==0) = NaN;
+
+depletion_flux(depletion_flux==0) = NaN;
+depletion_redcost(depletion_redcost==0) = NaN;
+depletion_shadow(depletion_shadow==0) = NaN;
 
 %% Save metabolic flux data as excel file
 % input filename for saving
@@ -338,6 +333,32 @@ xlswrite(filename2, excess_xshadow, string(epsilon2), 'B106:U155');
 xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
 xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
 xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
+
+%% Barplot figures
+% Prepare figure labels and variables
+medium_labels = mediareactions1(:,2);
+reaction_labels = metabolites(:,3);
+
+fig1 = figure;
+subplot(1,2,1);
+heatmap(excess_flux)
+ax1 = gca;
+ax1.XData = reaction_labels;
+ax1.YData = medium_labels;
+ax1.Title = 'Metabolic flux in excess medium';
+xlabel(ax1, 'Demand reactions');
+ylabel(ax1, 'Medium component');
+
+subplot(1,2,2);
+heatmap(depletion_flux)
+ax2 = gca;
+ax2.XData = reaction_labels;
+ax2.YData = medium_labels;
+ax2.Title = 'Metabolic flux in depleted medium';
+xlabel(ax2, 'Demand reactions');
+ylabel(ax2, 'Medium component');
+
+
 
 %% Heatmap figures
 % Still needs work:

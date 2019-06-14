@@ -29,11 +29,24 @@ minfluxflag = 0;
 
 % Run with multiple objective coefficients to obtain dynamic range of
 % values
-epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
-for n = 1:length(epsilon2)
-    [correl, pval] = histone_corr(model, compartment,...
+%epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
+%for n = 1:length(epsilon2)
+%    [correl, pval] = histone_corr(model, compartment,...
+%        mode, epsilon, epsilon2(n), rho, kappa, minfluxflag);
+%end
+
+% Run with the optimized objective coefficients
+epsilon2_excess = [1E-6, 1E-6, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-6, 1E-6,...
+    1E-5, 1E-6, 1, 1E-6, 1E-6, 1, 1E-6, 1E-6, 1E-6, 1E-6, 1E-5];
+
+epsilon2_depletion = [1E-6, 1E-5, 1E-5, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-5,...
+    1E-6, 1E-4, 1, 1E-5, 1E-6, 1, 1E-6, 1E-6, 1E-6, 1E-6, 1E-6];
+
+epsilon2 = [epsilon2_excess; epsilon2_depletion];
+epsilon2 = epsilon2';
+[correl, pval] = histone_corr(model, compartment,...
         mode, epsilon, epsilon2(n), rho, kappa, minfluxflag);
-end
+
 
 %% Heatmap of metabolic reactions vs excess/depletion of medium coponents
 
