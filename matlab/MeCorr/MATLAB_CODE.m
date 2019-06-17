@@ -285,12 +285,17 @@ ylabel('Acetylation flux');xlabel('Vorinostat treatment vs control ratio from Bi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        %% impact of basal metabolic state of CCLE cell lines on sensitivity to demethylase inhibitors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-load supplementary_software_code  ctd2celllineidname exptidcelllinemediamatch ctd2celllineidname_id r* %data from seashore-ludlow study, contains cell line names , growth media
-load supplementary_software_code  ctd2compoundidname_id drug_auc_expt ctd2compoundidname_name %data from seashore-ludlow study, contains drug names , drug sensitivity data
-load supplementary_software_code celllinenames_ccle1   ccleids_met ccle_expression_metz  %contains CCLE cell line names, gene expression data (z-transformed)
-load supplementary_software_code hcommon_exptdat hcommon1 %data from seashore-ludlow study, contains drug names , drug sensitivity data for cell lines that were screened against all 4 hdac inhibitors
-load supplementary_software_code hdacexpfcs hdacexpallgeneids %contains gene expression data after treatment with hdac inhibitors
-rxnpos = 2451; % loading the above varialbes changes rxnpos to 3754, which is out of bounds for fluxstate_gurobi
+load supplementary_software_code  ctd2celllineidname exptidcelllinemediamatch ctd2celllineidname_id r* 
+%data from seashore-ludlow study, contains cell line names, growth media
+load supplementary_software_code  ctd2compoundidname_id drug_auc_expt ctd2compoundidname_name 
+%data from seashore-ludlow study, contains drug names, drug sensitivity data
+load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz  
+%contains CCLE cell line names, gene expression data (z-transformed)
+load supplementary_software_code hcommon_exptdat hcommon1 
+%data from seashore-ludlow study, contains drug names, drug sensitivity data for cell lines that were screened against all 4 hdac inhibitors
+load supplementary_software_code hdacexpfcs hdacexpallgeneids 
+%contains gene expression data after treatment with hdac inhibitors
+rxnpos = 2451; % loading the above variables changes rxnpos to 3754, which is out of bounds for fluxstate_gurobi
 
 MODE = 1;  % reaction (1) or gene list (0)
 epsilon = 1E-2; rho = 1;
