@@ -1,7 +1,7 @@
 %% Code to run modules
 initCobraToolbox;
 changeCobraSolver('gurobi');
-%% load models. Must run from "scripts" directory
+
 load ./../models/eGEM.mat % minimal eGEM model 
 %load ./../models/acetyl2.mat % new acetylation model
 
