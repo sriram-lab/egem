@@ -1,0 +1,897 @@
+Waymouth
+L15
+DMEM:F12 (1:1)
+nan
+nan
+DMEM
+nan
+nan
+Iscove
+RPMI
+RPMI
+nan
+nan
+DMEM:F12 (1:1)
+nan
+RPMI
+DMEM:F12 (1:1)
+DMEM:F12 (1:1)
+nan
+nan
+nan
+nan
+RPMI
+HAM F-12
+alpha-MEM
+DMEM
+RPMI
+DMEM
+HAM F-12
+DMEM
+RPMI
+nan
+nan
+RPMI
+nan
+DMEM
+DMEM:F12 (1:1)
+DMEM
+DMEM:F12 (1:1)
+HAM F-12
+McCoy's 5A
+nan
+DMEM:F12 (1:1)
+RPMI
+DMEM:F12 (1:1)
+L15
+nan
+RPMI
+nan
+DMEM
+RPMI
+nan
+nan
+nan
+nan
+RPMI
+RPMI
+RPMI
+DMEM:F12 (1:1)
+nan
+DMEM:F12 (1:1)
+DMEM
+RPMI
+nan
+RPMI
+DMEM:F12 (1:1)
+nan
+nan
+RPMI
+DMEM:F12 (1:1)
+DMEM
+nan
+DMEM
+RPMI
+DMEM
+nan
+nan
+RPMI
+RPMI
+DMEM
+RPMI
+nan
+DMEM
+DMEM
+DMEM
+DMEM
+DMEM
+DMEM
+RPMI
+DMEM:F12 (1:1)
+DMEM
+DMEM:F12 (1:1)
+RPMI
+RPMI
+RPMI
+DMEM:F12 (1:1)
+RPMI
+RPMI
+RPMI w Gln
+nan
+HAM F-10
+nan
+RPMI
+DMEM
+RPMI
+HAM F-10
+DMEM
+DMEM
+RPMI w Gln
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+RPMI w Gln
+DMEM:RPMI (2:1)
+HAM F-12
+RPMI
+RPMI w Gln
+RPMI w Gln
+RPMI
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI
+nan
+DMEM
+DMEM
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+DMEM
+RPMI
+RPMI
+RPMI w Gln
+DMEM:F12 (1:1)
+RPMI
+RPMI
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI
+nan
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI
+RPMI
+DMEM:F12 (1:1)
+RPMI
+MCDB105:M199
+RPMI
+RPMI
+nan
+DMEM
+nan
+RPMI
+nan
+nan
+DMEM
+RPMI
+DMEM
+Williams E Medium
+RPMI
+RPMI
+DMEM
+nan
+RPMI
+Williams E Medium
+DMEM
+RPMI
+RPMI
+nan
+DMEM
+RPMI
+DMEM:F12 (1:1)
+DMEM
+DMEM
+L15
+nan
+nan
+nan
+RPMI:Eagles MEM
+nan
+DMEM
+RPMI
+RPMI
+nan
+DMEM
+nan
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+DMEM
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+nan
+RPMI
+DMEM
+DMEM
+DMEM
+HAM F-12
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+nan
+RPMI
+RPMI
+DMEM
+nan
+RPMI
+nan
+DMEM
+RPMI
+DMEM
+DMEM
+DMEM
+DMEM
+DMEM
+DMEM
+RPMI
+Iscove
+RPMI
+RPMI
+DMEM
+nan
+RPMI
+nan
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+nan
+DMEM
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+nan
+RPMI
+RPMI
+Iscove
+RPMI
+RPMI
+Iscove
+RPMI
+RPMI
+DMEM:F12 (1:1)
+RPMI
+DMEM
+DMEM
+nan
+DMEM
+nan
+nan
+RPMI
+RPMI
+nan
+RPMI
+nan
+nan
+McCoy's 5A
+L15
+RPMI
+nan
+nan
+nan
+RPMI
+RPMI
+McCoy's 5A
+nan
+nan
+RPMI
+McCoy's 5A
+nan
+RPMI
+RPMI
+nan
+McCoy's 5A
+nan
+nan
+RPMI
+DMEM
+DMEM
+RPMI
+DMEM
+RPMI
+RPMI
+DMEM
+HAM F-10
+RPMI
+nan
+DMEM
+RPMI
+nan
+nan
+nan
+RPMI
+RPMI
+RPMI
+nan
+nan
+nan
+nan
+DMEM
+nan
+RPMI
+nan
+DMEM:F12 (1:1)
+nan
+nan
+DMEM
+RPMI w Gln
+DMEM
+RPMI w Gln
+DMEM
+DMEM
+RPMI w Gln
+RPMI w Gln
+RPMI
+RPMI
+RPMI
+DMEM
+DMEM
+RPMI
+nan
+nan
+nan
+nan
+nan
+Waymouth
+RPMI
+DMEM:F12 (1:1)
+nan
+DMEM:F12 (1:1)
+RPMI
+nan
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+nan
+nan
+nan
+RPMI
+RPMI
+Williams E Medium
+DMEM
+RPMI
+DMEM:F12 (1:1)
+DMEM:F12 (1:1)
+RPMI
+DMEM
+DMEM
+nan
+nan
+RPMI
+Iscove
+nan
+nan
+DMEM:F12 (1:1)
+nan
+DMEM
+DMEM
+nan
+DMEM
+nan
+RPMI
+DMEM
+nan
+RPMI
+nan
+RPMI
+DMEM:F12 (1:1)
+L15
+nan
+DMEM
+RPMI
+RPMI
+nan
+McCoy's 5A
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+nan
+nan
+DMEM
+RPMI w Gln
+RPMI
+nan
+RPMI w Gln
+DMEM
+RPMI w Gln
+nan
+DMEM
+nan
+nan
+RPMI w Gln
+RPMI w Gln
+DMEM
+nan
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+nan
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI
+RPMI w Gln
+RPMI w Gln
+nan
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+nan
+RPMI w Gln
+RPMI
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+RPMI w Gln
+nan
+RPMI
+RPMI w Gln
+RPMI w Gln
+RPMI
+RPMI
+RPMI
+RPMI
+ACL-4
+DMEM
+DMEM
+DMEM
+nan
+RPMI
+RPMI
+RPMI
+nan
+RPMI
+HAM F-10
+RPMI
+DMEM
+nan
+nan
+DMEM
+RPMI
+RPMI
+RPMI
+DMEM
+DMEM:F12 (1:1)
+Waymouth
+nan
+nan
+DMEM:F12 (1:1)
+RPMI
+RPMI
+McCoy's 5A
+DMEM
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+Iscove
+nan
+nan
+nan
+nan
+nan
+DMEM:F12 (1:1)
+nan
+nan
+nan
+nan
+RPMI
+nan
+RPMI
+nan
+nan
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM:F12 (1:1)
+DMEM
+RPMI
+nan
+nan
+nan
+RPMI:F12
+nan
+RPMI
+RPMI
+RPMI
+L15
+nan
+DMEM
+nan
+DMEM:F12 (1:1)
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+RPMI
+nan
+nan
+Waymouth
+DMEM:F12 (1:1)
+nan
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+nan
+nan
+DMEM
+RPMI
+RPMI
+nan
+DMEM
+DMEM
+RPMI
+DMEM
+RPMI
+RPMI
+nan
+nan
+nan
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+HAM F-12
+DMEM
+RPMI
+DMEM
+DMEM:F12 (1:1)
+nan
+DMEM
+RPMI
+RPMI
+MCDB105:M199
+McCoy's 5A
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+nan
+nan
+RPMI
+DMEM
+Iscove
+RPMI
+nan
+RPMI
+RPMI
+DMEM
+nan
+DMEM
+DMEM
+RPMI
+RPMI
+nan
+HAM F-12
+DMEM
+RPMI
+RPMI
+nan
+DMEM
+nan
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+McCoy's 5A
+RPMI
+DMEM
+Iscove
+DMEM
+RPMI:Eagles MEM
+RPMI
+RPMI
+DMEM
+nan
+DMEM
+RPMI
+nan
+RPMI
+nan
+RPMI
+RPMI
+nan
+nan
+nan
+nan
+nan
+nan
+RPMI
+nan
+RPMI
+RPMI
+nan
+DMEM:F12 (1:1)
+nan
+DMEM
+DMEM
+RPMI
+nan
+RPMI
+nan
+nan
+DMEM
+nan
+DMEM:F12 (1:1)
+DMEM
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+nan
+RPMI
+nan
+nan
+nan
+nan
+nan
+McCoy's 5A
+Iscove
+nan
+nan
+nan
+DMEM
+RPMI
+RPMI
+nan
+DMEM
+RPMI
+MCDB105:M199
+RPMI
+DMEM:F12 (1:1)
+DMEM
+nan
+DMEM
+nan
+RPMI
+DMEM
+nan
+nan
+RPMI
+nan
+HAM F-12
+RPMI
+RPMI
+DMEM
+nan
+RPMI
+DMEM
+DMEM
+Iscove
+DMEM
+nan
+nan
+nan
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+DMEM
+nan
+RPMI:F12
+RPMI
+RPMI
+nan
+nan
+RPMI
+nan
+RPMI
+nan
+DMEM
+RPMI
+nan
+DMEM
+RPMI
+RPMI
+nan
+DMEM:F12 (1:1)
+nan
+RPMI
+DMEM
+nan
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM:Iscove
+RPMI
+DMEM:F12 (1:1)
+RPMI
+nan
+DMEM
+RPMI
+RPMI
+RPMI
+DMEM:F12 (1:1)
+L15
+RPMI
+RPMI
+RPMI
+alpha-MEM
+RPMI
+RPMI
+RPMI
+alpha-MEM
+RPMI
+RPMI
+RPMI
+L15
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+Iscove
+HAM F-10
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+alpha-MEM
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+DMEM
+nan
+RPMI
+DMEM:F12 (1:1)
+RPMI
+DMEM
+nan
+RPMI
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+DMEM
+nan
+RPMI
+nan
+DMEM
+nan
+RPMI
+nan
+RPMI
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+RPMI
+nan
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI:Iscove
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+DMEM
+RPMI
+DMEM
+RPMI
+nan
+RPMI
+RPMI
+McCoy's 5A
+RPMI
+RPMI
+RPMI
+Iscove
+Iscove
+Iscove
+RPMI
+RPMI
+DMEM
+DMEM:F12 (1:1)
+RPMI
+DMEM:F12 (1:1)
+RPMI
+DMEM
+DMEM
+RPMI
+RPMI
+RPMI
+Iscove
+RPMI
+DMEM
+DMEM
+RPMI
+RPMI
+nan
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
+RPMI
