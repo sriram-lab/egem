@@ -39,7 +39,8 @@ model = addReaction(model, 'PYRtn',...
 %    'reactionFormula', 'for[c] <=> for[n]');
 model = addReaction(model, 'PEPtn',...
     'reactionFormula', 'pep[c] <=> pep[n]');
-
+model = addReaction(model, 'ATPtn',...
+    'reactionFormula', 'atp[c] <=> atp[n]');
 %% Add / modify existing Methionine cycle reactions
 
 % Should try to add other methylation pathways, such as betaine, choline, etc
