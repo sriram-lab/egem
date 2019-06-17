@@ -1,5 +1,4 @@
-%% Make Model
-% @author: Scott Campit
+%% @author: Scott Campit
 
 % metabolic model with nuclear acetylation reaction
 %load supplementary_software_code acetylation_model 

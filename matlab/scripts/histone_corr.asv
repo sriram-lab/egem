@@ -116,7 +116,7 @@ for i = 1:tmp
 end
 
 % Calculate the pearson correlation coefficients for every demand reaction
-% <<<<<<< HEAD
+<<<<<<< HEAD
 [row, col] = size(grate_ccle_exp_dat);
 
 test = interp1(1:numel(grate_ccle_exp_dat), grate_ccle_exp_dat,...
@@ -149,45 +149,45 @@ rxns = metabolites(:,1);
 fig = figure;
 %heatmap(correl)
 heatmap(c)
-% =======
-% % w.r.t to H3 expression
-% [rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
-% rxns = metabolites(:,3);
-% rxns = [{'Biomass'}; rxns];
+=======
+% w.r.t to H3 expression
+[rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
+rxns = metabolites(:,3);
+rxns = [{'Biomass'}; rxns];
 
 %% Save data in Excel
-% filename1 = './../tables/eGEMn_prot_stats.xlsx';
-% colname = rxns';
-% rowname = h3_marks;
-% 
-% % Rho
-% xlswrite(filename1, colname, string(epsilon2), 'B1:AQ1');
-% xlswrite(filename1, rowname, string(epsilon2), 'A2:A22');
-% xlswrite(filename1, rho, string(epsilon2), 'B2:U22');
-% 
-% % P-value
-% xlswrite(filename1, colname, string(epsilon2), 'B24:AQ24');
-% xlswrite(filename1, rowname, string(epsilon2), 'A25:A45');
-% xlswrite(filename1, pval, string(epsilon2), 'B25:U45');
-% 
-% %% Make Figures
-% 
-% ax = gca;
-% ax.Colormap = parula;
-% ax.XData = h3_marks;
-%<<<<<<< HEAD
+filename1 = './../tables/eGEMn_prot_stats.xlsx';
+colname = rxns';
+rowname = h3_marks;
+
+% Rho
+xlswrite(filename1, colname, string(epsilon2), 'B1:AQ1');
+xlswrite(filename1, rowname, string(epsilon2), 'A2:A22');
+xlswrite(filename1, rho, string(epsilon2), 'B2:U22');
+
+% P-value
+xlswrite(filename1, colname, string(epsilon2), 'B24:AQ24');
+xlswrite(filename1, rowname, string(epsilon2), 'A25:A45');
+xlswrite(filename1, pval, string(epsilon2), 'B25:U45');
+
+%% Make Figures
+
+ax = gca;
+ax.Colormap = parula;
+ax.XData = h3_marks;
+<<<<<<< HEAD
 ax.YData = h3_ccle_names;
 ax.Title = 'Histone markers and metabolic flux correlation';
 xlabel(ax, 'Histone Markers');
 ylabel(ax, 'Cancer Cell Lines (CCLE)');
 %saveas(fig, ['./../figures/fig/histone_mark_corr.fig']); %no "fig" folder. I saved it to "figures" folder
 %saveas(fig, './../figures/histone_mark_corr.fig');
-%=======
+=======
 ax.YData = rxns;
 xlabel(ax, 'Histone Markers');
 ylabel(ax, 'Demand Reactions');
 base = strcat('./../figures/corr/histone_mark_corr_', string(epsilon2)); 
 fig_str = strcat(base, '.fig');
-%saveas(fig, fig_str);
-%>>>>>>> 5c15a54a070a7bdf1d569795eb445600f9381482
+saveas(fig, fig_str);
+>>>>>>> 5c15a54a070a7bdf1d569795eb445600f9381482
 end 
