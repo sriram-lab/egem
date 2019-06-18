@@ -1,12 +1,13 @@
-%% @author: Scott Campit
+%% Make Model
+% @author: Scott Campit
 
 % metabolic model with nuclear acetylation reaction
-load supplementary_software_code acetylation_model 
+%load supplementary_software_code acetylation_model 
 
 % Init
 initCobraToolbox;
 changeCobraSolver('gurobi');
-model = acetylation_model;
+%model = acetylation_model;
 
 %% Add transport reactions to nucleus:
     % L-Methionine
@@ -219,14 +220,24 @@ model = addReaction(model, 'PKM2n',...
 
 %% All demand reactions that will be used in the study 
 load './../vars/metabolites.mat'
-compartment = 'n'
+compartment = 'n';
 for m = 1:length(metabolites(:,1))
     tmp_met = char(metabolites(m,2));
     tmp = [tmp_met '[' compartment '] -> '];
     tmpname = char(metabolites(m,1));
     model = addReaction(model, tmpname, 'reactionFormula', tmp);
 end
+%% Add more reactions - by LF
+%H3K9 methlation
+model = addReaction(model, 'Su(var)3-9',... 
+    'reactionFormula', '__lys[n] + SAM[n] <=> Nmelys[n] + SAH[n]', ... 
+    'checkDuplicate', 'true');
+%  Protein lysine + S-Adenosyl-L-methionine <=> Protein N6-methyl-L-lysine + S-Adenosyl-L-homocysteine
+%H3K4 methylation
+model = addReaction(model, 'H3K9MT',... 
+    'reactionFormula', '__l[n] + SAM[n] <=> Nmelys[n] + SAH[n]', ... 
+    'checkDuplicate', 'true');
+%same chemical rxn as H3K9 methylation -> should i add it? How do i
+%distinguish between locations?
 %% save
 save('./../models/eGEM.mat', 'model');
-
-
