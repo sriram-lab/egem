@@ -24,7 +24,7 @@ load ./../vars/supplementary_software_code media_exchange1
 var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
     './../vars/mediareactions1.mat'};
 for kk = 1:numel(var)
-    load(var{kk})
+    load(var{kk});
 end
 
 % init some params
@@ -36,7 +36,7 @@ rxnname = char(metabolites(:, 1)); % reaction positions of interest
 % Switch between modules for different types of analyses
 switch exp
     % Case 1: Use the most dynamic range of metabolic fluxes
-    case 'dyn'  
+    case 'fba'  
         % Kappa values are weights for both excess and depletion of medium.
         % kappa = 10 is excess, and kappa = 0.01 is depletion
         for kappatype = 1:2
@@ -60,13 +60,14 @@ switch exp
                 % -0.5 to be non-limiting
                 [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
                 model2.lb(pos) = -0.5;
-
+                
                 % Get the reaction position for the various medium components
                 % and constrain the lower bound with a value proportional to
                 % the weight
                 [~, pos]  = ismember(mediareactions1(component,1), model2.rxns);
                 model2.lb(pos) = -1*media_exchange1(component,1)*weight;
-                model2.c(biomassobcomponentpos) = 1;
+                %model2 = media(model2, 'RPMI');
+                %model2.c(biomassobcomponentpos) = 1;
 
                 %% solve using FBA (cobratoolbox) to get growth rate
                 soln = optimizeCbModel(model2);
@@ -154,7 +155,7 @@ switch exp
         end
     
     % Run the code using the FVA scheme for histone markers only
-    case 'grate'
+    case 'fva'
         for kappatype = 1:2
             if kappatype == 1
                 kappa  = 10;
@@ -234,39 +235,17 @@ switch exp
 
                 % Metabolic fluxes
                 flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
-                    '(component,1:20) = soln.v(rxnpos);'];
-                % Reduced costs
-                rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
-                    '(component,1:20) = soln.w(rxnpos);'];
-                % Shadow prices
-                for met = 1:length(metabolites(:,2))
-                    tmp_met{met} = [char(metabolites(met, 2)) '[' compartment ']'];
-                end
-                tmp_met = tmp_met';
-                
-                met_pos = find(ismember(model2.mets, tmp_met));
-                sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
-                    '(component,:) = soln.y(met_pos);'];
+                    '(component,1:20) = maxFlux;'];
 
                 if ~isempty(soln.v) & ~isnan(soln.v)
                     eval(flux_str)
                 end
-                if ~isempty(soln.w) & ~isnan(soln.w)
-                    eval(rc_str)
-                end
-                if ~isempty(soln.y) & ~isnan(soln.y)
-                    eval(sp_str)
-                end
-
+          
                 if kappatype == 1
                     excess_flux = media_xchange_rxn_flux_1;
-                    excess_redcost = media_xchange_rxn_rc_1;
-                    excess_shadow = media_xchange_rxn_sp_1;
                 end
                 if kappatype == 2
                     depletion_flux = media_xchange_rxn_flux_2;
-                    depletion_redcost = media_xchange_rxn_rc_2;
-                    depletion_shadow = media_xchange_rxn_sp_2;
                 end
                 model3.c(rxnpos) = 0;
                 disp(component)
@@ -275,69 +254,124 @@ switch exp
         end
 end
 
-        
+%% Scaling the data for visualization purposes
+excess_flux = zscore(excess_flux);
+excess_redcost = zscore(excess_redcost);
+excess_shadow = zscore(excess_shadow);
+
+depletion_flux = zscore(depletion_flux);
+depletion_redcost = zscore(depletion_redcost);
+depletion_shadow = zscore(depletion_shadow);
+
+%% Replace 0 with NaN
+%excess_flux(excess_flux==0) = NaN;
+%excess_redcost(excess_redcost==0) = NaN;
+%excess_shadow(excess_shadow==0) = NaN;
+
+%depletion_flux(depletion_flux==0) = NaN;
+%depletion_redcost(depletion_redcost==0) = NaN;
+%depletion_shadow(depletion_shadow==0) = NaN;
 
 %% Save metabolic flux data as excel file
 % input filename for saving
-filename1 = './../tables/eGEMn.xlsx';
-colname = metabolites(:, 3)';
-rowname = mediareactions1(:, 2);
+switch exp
+    % Case 1: Use the most dynamic range of metabolic fluxes
+    case 'fba'  
+        filename1 = './../tables/eGEMn.xlsx';
+        colname = metabolites(:, 3)';
+        rowname = mediareactions1(:, 2);
 
-% Excess flux
-xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
-xlswrite(filename1, excess_flux, string(epsilon2), 'B2:U51');
-% Depleted flux
-xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
-xlswrite(filename1, depletion_flux, string(epsilon2), 'X2:AQ51');
-% Excess reduced cost
-xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
-xlswrite(filename1, excess_redcost, string(epsilon2), 'B54:U103');
-% Depleted reduced cost
-xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
-xlswrite(filename1, depletion_redcost, string(epsilon2), 'X54:AQ103');
-% Excess shadow price
-xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
-xlswrite(filename1, excess_shadow, string(epsilon2), 'B106:U155');
-% Depleted shadow price
-xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
-xlswrite(filename1, depletion_shadow, string(epsilon2), 'X106:AQ155');
+        % Excess flux
+        xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
+        xlswrite(filename1, excess_flux, string(epsilon2), 'B2:U51');
+        % Depleted flux
+        xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A2:A51');
+        xlswrite(filename1, depletion_flux, string(epsilon2), 'X2:AQ51');
+        % Excess reduced cost
+        xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
+        xlswrite(filename1, excess_redcost, string(epsilon2), 'B54:U103');
+        % Depleted reduced cost
+        xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A54:A103');
+        xlswrite(filename1, depletion_redcost, string(epsilon2), 'X54:AQ103');
+        % Excess shadow price
+        xlswrite(filename1, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
+        xlswrite(filename1, excess_shadow, string(epsilon2), 'B106:U155');
+        % Depleted shadow price
+        xlswrite(filename1, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename1, rowname, string(epsilon2), 'A106:A155');
+        xlswrite(filename1, depletion_shadow, string(epsilon2), 'X106:AQ155');
+end
 
 %% Save grate data as excel file
-% input filename for saving
-filename2 = './../tables/eGEMn_grate.xlsx';
-colname = metabolites(:,3)';
-rowname = mediareactions1(:,2);
 
-% Excess grate
-xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
-xlswrite(filename2, excess_xgrate, string(epsilon2), 'B2:U51');
-% Depleted grate
-xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
-xlswrite(filename2, depletion_xgrate, string(epsilon2), 'X2:AQ51');
-% Excess reduced cost
-xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
-xlswrite(filename2, excess_xredcost, string(epsilon2), 'B54:U103');
-% Depleted reduced cost
-xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
-xlswrite(filename2, depletion_xredcost, string(epsilon2), 'X54:AQ103');
-% Excess shadow price
-xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
-xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
-xlswrite(filename2, excess_xshadow, string(epsilon2), 'B106:U155');
-% Depleted shadow price
-xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
-xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
-xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
+switch exp
+    % Case 1: Use the most dynamic range of metabolic fluxes
+    case 'fba'  
+        % input filename for saving
+        filename2 = './../tables/eGEMn_grate.xlsx';
+        colname = metabolites(:,3)';
+        rowname = mediareactions1(:,2);
+
+        % Excess grate
+        xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
+        xlswrite(filename2, excess_xgrate, string(epsilon2), 'B2:U51');
+        % Depleted grate
+        xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A2:A51');
+        xlswrite(filename2, depletion_xgrate, string(epsilon2), 'X2:AQ51');
+        % Excess reduced cost
+        xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
+        xlswrite(filename2, excess_xredcost, string(epsilon2), 'B54:U103');
+        % Depleted reduced cost
+        xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A54:A103');
+        xlswrite(filename2, depletion_xredcost, string(epsilon2), 'X54:AQ103');
+        % Excess shadow price
+        xlswrite(filename2, colname, string(epsilon2), 'B1:U1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
+        xlswrite(filename2, excess_xshadow, string(epsilon2), 'B106:U155');
+        % Depleted shadow price
+        xlswrite(filename2, colname, string(epsilon2), 'X1:AQ1');
+        xlswrite(filename2, rowname, string(epsilon2), 'A106:A155');
+        xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
+end
+
+%% Heatmap for FVA
+
+switch exp
+    % Case 1: Use the most dynamic range of metabolic fluxes
+    case 'fva'  
+        % Prepare figure labels and variables
+        medium_labels = mediareactions1(:,2);
+        reaction_labels = metabolites(:,3);
+
+        fig1 = figure;
+        subplot(1,2,1);
+        heatmap(excess_flux)
+        ax1 = gca;
+        ax1.XData = reaction_labels;
+        ax1.YData = medium_labels;
+        ax1.Title = 'Metabolic flux in excess medium';
+        xlabel(ax1, 'Demand reactions');
+        ylabel(ax1, 'Medium component');
+
+        subplot(1,2,2);
+        heatmap(depletion_flux)
+        ax2 = gca;
+        ax2.XData = reaction_labels;
+        ax2.YData = medium_labels;
+        ax2.Title = 'Metabolic flux in depleted medium';
+        xlabel(ax2, 'Demand reactions');
+        ylabel(ax2, 'Medium component');
+end
+
 
 %% Heatmap figures
 % Still needs work:
@@ -346,105 +380,108 @@ xlswrite(filename2, depletion_xshadow, string(epsilon2), 'X106:AQ155');
     % Incorporate plotly
     % Is there a way to dynamically size .pngs?
 
-% Prepare figure labels and variables
-medium_labels = mediareactions1(:,2);
-reaction_labels = metabolites(:,3);
+switch exp
+    % Case 1: Use the most dynamic range of metabolic fluxes
+    case 'fba'  
+        % Prepare figure labels and variables
+        medium_labels = mediareactions1(:,2);
+        reaction_labels = metabolites(:,3);
 
-fig1 = figure;
-subplot(2,3,1);
-heatmap(excess_flux)
-ax1 = gca;
-ax1.XData = reaction_labels;
-ax1.YData = medium_labels;
-ax1.Title = 'Metabolic flux in excess medium';
-xlabel(ax1, 'Demand reactions');
-ylabel(ax1, 'Medium component');
+        fig1 = figure;
+        subplot(2,3,1);
+        heatmap(excess_flux)
+        ax1 = gca;
+        ax1.XData = reaction_labels;
+        ax1.YData = medium_labels;
+        ax1.Title = 'Metabolic flux in excess medium';
+        xlabel(ax1, 'Demand reactions');
+        ylabel(ax1, 'Medium component');
 
-subplot(2,3,4);
-heatmap(depletion_flux)
-ax2 = gca;
-ax2.XData = reaction_labels;
-ax2.YData = medium_labels;
-ax2.Title = 'Metabolic flux in depleted medium';
-xlabel(ax2, 'Demand reactions');
-ylabel(ax2, 'Medium component');
+        subplot(2,3,4);
+        heatmap(depletion_flux)
+        ax2 = gca;
+        ax2.XData = reaction_labels;
+        ax2.YData = medium_labels;
+        ax2.Title = 'Metabolic flux in depleted medium';
+        xlabel(ax2, 'Demand reactions');
+        ylabel(ax2, 'Medium component');
 
-subplot(2,3,2);
-heatmap(excess_shadow)
-ax3 = gca;
-ax3.XData = reaction_labels;
-ax3.YData = medium_labels;
-ax3.Title = 'Shadow price in excess medium';
-xlabel(ax3, 'Demand reactions');
-ylabel(ax3, 'Medium component');
+        subplot(2,3,2);
+        heatmap(excess_shadow)
+        ax3 = gca;
+        ax3.XData = reaction_labels;
+        ax3.YData = medium_labels;
+        ax3.Title = 'Shadow price in excess medium';
+        xlabel(ax3, 'Demand reactions');
+        ylabel(ax3, 'Medium component');
 
-subplot(2,3,5);
-heatmap(depletion_shadow)
-ax4 = gca;
-ax4.XData = reaction_labels;
-ax4.YData = medium_labels;
-ax4.Title = 'Shadow price in depleted medium';
-xlabel(ax4, 'Demand reactions');
-ylabel(ax4, 'Medium component');
+        subplot(2,3,5);
+        heatmap(depletion_shadow)
+        ax4 = gca;
+        ax4.XData = reaction_labels;
+        ax4.YData = medium_labels;
+        ax4.Title = 'Shadow price in depleted medium';
+        xlabel(ax4, 'Demand reactions');
+        ylabel(ax4, 'Medium component');
 
-subplot(2,3,3);
-heatmap(excess_redcost)
-ax5 = gca;
-ax5.XData = reaction_labels;
-ax5.YData = medium_labels;
-ax5.Title = 'Reduced cost in excess medium';
-xlabel(ax5, 'Demand reactions');
-ylabel(ax5, 'Medium component');
+        subplot(2,3,3);
+        heatmap(excess_redcost)
+        ax5 = gca;
+        ax5.XData = reaction_labels;
+        ax5.YData = medium_labels;
+        ax5.Title = 'Reduced cost in excess medium';
+        xlabel(ax5, 'Demand reactions');
+        ylabel(ax5, 'Medium component');
 
-subplot(2,3,6);
-heatmap(depletion_redcost)
-ax6 = gca;
-ax6.XData = reaction_labels;
-ax6.YData = medium_labels;
-ax6.Title = 'Reduced cost in depleted medium';
-xlabel(ax6, 'Demand reactions');
-ylabel(ax6, 'Medium component');
+        subplot(2,3,6);
+        heatmap(depletion_redcost)
+        ax6 = gca;
+        ax6.XData = reaction_labels;
+        ax6.YData = medium_labels;
+        ax6.Title = 'Reduced cost in depleted medium';
+        xlabel(ax6, 'Demand reactions');
+        ylabel(ax6, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
-fig1_str = strcat(base, '.fig');
+        base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+        fig1_str = strcat(base, '.fig');
 
-saveas(fig1, fig1_str);
+        saveas(fig1, fig1_str);
 
-% Create a heatmap for the growth rates in excess and depleted medium
-fig2 = figure;
+        % Create a heatmap for the growth rates in excess and depleted medium
+        fig2 = figure;
 
-dat = [excess_xgrate; depletion_xgrate];
-dat = dat';
+        dat = [excess_xgrate; depletion_xgrate];
+        dat = dat';
 
-heatmap(dat)
-ax1 = gca;
-%ax1.XData = ['Excess Medium'; 'Depleted Medium'];
-ax1.YData = medium_labels;
-ax1.Title = 'Growth rate in excess medium';
-xlabel(ax1, 'Growth Rates');
-ylabel(ax1, 'Medium component');
+        heatmap(dat)
+        ax1 = gca;
+        %ax1.XData = ['Excess Medium'; 'Depleted Medium'];
+        ax1.YData = medium_labels;
+        ax1.Title = 'Growth rate in excess medium';
+        xlabel(ax1, 'Growth Rates');
+        ylabel(ax1, 'Medium component');
 
-subplot(1,2,1);
-heatmap(excess_xgrate)
-ax1 = gca;
-ax1.XData = 'Growth Rate';
-ax1.YData = medium_labels;
-ax1.Title = 'Growth rate in excess medium';
-xlabel(ax1, 'Demand reactions');
-ylabel(ax1, 'Medium component');
+        subplot(1,2,1);
+        heatmap(excess_xgrate)
+        ax1 = gca;
+        ax1.XData = 'Growth Rate';
+        ax1.YData = medium_labels;
+        ax1.Title = 'Growth rate in excess medium';
+        xlabel(ax1, 'Demand reactions');
+        ylabel(ax1, 'Medium component');
 
-subplot(1,2,2);
-heatmap(depletion_xgrate)
-ax2 = gca;
-ax2.XData = 'Growth Rate';
-ax2.YData = medium_labels;
-ax2.Title = 'Growth rate in depleted medium';
-xlabel(ax2, 'Demand reactions');
-ylabel(ax2, 'Medium component');
+        subplot(1,2,2);
+        heatmap(depletion_xgrate)
+        ax2 = gca;
+        ax2.XData = 'Growth Rate';
+        ax2.YData = medium_labels;
+        ax2.Title = 'Growth rate in depleted medium';
+        xlabel(ax2, 'Demand reactions');
+        ylabel(ax2, 'Medium component');
 
-base = strcat('./../figures/new-model/eGEMn_grate_', string(epsilon2));
-fig2_str = strcat(base, '.fig');
-saveas(fig2, fig2_str);
-
+        base = strcat('./../figures/new-model/eGEMn_grate_', string(epsilon2));
+        fig2_str = strcat(base, '.fig');
+        saveas(fig2, fig2_str);
+end
 %clear
 end
