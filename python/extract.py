@@ -491,10 +491,9 @@ def make_medium_conditions():
 
         # This will change based on medium component
         df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
-        print(df)
 
         # Create a column that will be written back into the excel file
-        default_uptake['Adjusted uptake rate'] = default_uptake['Substrate Uptake Rate'].multiply(df['Scaling factor'], axis=0, fill_value=0)
+        default_uptake['Adjusted uptake rate'] = default_uptake['Substrate Uptake Rate'].multiply(df['Scaling factor'], axis=0, fill_value=-0.005)
         default_uptake.to_excel(writer, sheet_name=medium,index=True)
         writer.save()
 
