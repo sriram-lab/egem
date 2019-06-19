@@ -10,6 +10,7 @@ import scipy.io as spio
 import os
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
+import pandas as pd
 
 
 """
@@ -168,55 +169,33 @@ SEARCHING FOR KEGG DATA
 """
 HISTONE AVERAGING
 """
-#H3K4me1 --> MLL3 and SETD7
-h3k4me1 = (2, len(common_celllines))
-h3k4me1  = np.zeros(h3k4me1)
 
-h3k4me1[0] = ccle_common_cellline_expression[no_repeat_genes.index('MLL3')]
-h3k4me1[1] = ccle_common_cellline_expression[no_repeat_genes.index('SETD7')]
+def histone_averaging(list_of_genes):
+    matrix = (len(list_of_genes), len(common_celllines))
+    matrix = np.zeros(matrix)
+    
+    i=0
+    for genes in list_of_genes:
+        matrix[i] = ccle_common_cellline_expression[no_repeat_genes.index(genes)]
+        i = i+1
+    
+    result = np.mean(matrix, axis = 0)
+    return result
 
-h3k4me1_averaged = np.mean(h3k4me1 ,axis = 0)
+h3k4me1_list = ['MLL3', 'SETD7']
+h3k9me1k14ac0_list = ['SETDB1', 'EHMT1', 'EHMT2']
+h3k9me2k14ac0_list = ['EHMT1', 'EHMT2', 'SUV39H1', 'SUV39H2']
+h3k9me3k14ac0_list = ['SETDB1', 'SETDB2', 'SUV39H1', 'SUV39H2']
+h3k79me1_list = ['DOT1L']
+h3k79me2_list = ['DOT1L']
 
+h3k4me1_averaged = histone_averaging(h3k4me1_list)
+h3k9me1k14ac0_averaged = histone_averaging(h3k9me1k14ac0_list )
+h3k9me2k14ac0_averaged = histone_averaging(h3k9me2k14ac0_list )
+h3k9me3k14ac0_averaged = histone_averaging(h3k9me3k14ac0_list)
+h3k79me1_averaged = histone_averaging(h3k79me1_list)
+h3k79me2_averaged = histone_averaging(h3k79me2_list)
 
-#H3K9me1K14ac0 --> EHMT1, EHMT2, and SETDB1
-h3k9me1k14ac0 = (3,len(common_celllines))
-h3k9me1k14ac0 = np.zeros(h3k9me1k14ac0)
-
-h3k9me1k14ac0[0] = ccle_common_cellline_expression[no_repeat_genes.index('EHMT1')]
-h3k9me1k14ac0[1] = ccle_common_cellline_expression[no_repeat_genes.index('EHMT2')]
-h3k9me1k14ac0[2] = ccle_common_cellline_expression[no_repeat_genes.index('SETDB1')]
-
-h3k9me1k14ac0_averaged = np.mean(h3k9me1k14ac0, axis = 0)
-
-#H3K9me2K14ac0 --> EHMT1, EHMT2, SUV39H1 and SUV39H2
-h3k9me2k14ac0 = (4,len(common_celllines))
-h3k9me2k14ac0 = np.zeros(h3k9me2k14ac0)
-
-h3k9me2k14ac0[0] = ccle_common_cellline_expression[no_repeat_genes.index('EHMT1')]
-h3k9me2k14ac0[1] = ccle_common_cellline_expression[no_repeat_genes.index('EHMT2')]
-h3k9me2k14ac0[2] = ccle_common_cellline_expression[no_repeat_genes.index('SUV39H1')]
-h3k9me2k14ac0[3] = ccle_common_cellline_expression[no_repeat_genes.index('SUV39H2')]
-
-h3k9me2k14ac0_averaged = np.mean(h3k9me2k14ac0, axis = 0)
-
-#H3K9me3K14ac0 --> SETDB1, SETDB2, SUV39H1 and SUV39H2
-h3k9me3k14ac0 = (4,len(common_celllines))
-h3k9me3k14ac0 = np.zeros(h3k9me3k14ac0)
-
-h3k9me3k14ac0[0] = ccle_common_cellline_expression[no_repeat_genes.index('SETDB1')]
-h3k9me3k14ac0[1] = ccle_common_cellline_expression[no_repeat_genes.index('SETDB2')]
-h3k9me3k14ac0[2] = ccle_common_cellline_expression[no_repeat_genes.index('SUV39H1')]
-h3k9me3k14ac0[3] = ccle_common_cellline_expression[no_repeat_genes.index('SUV39H2')]
-
-h3k9me3k14ac0_averaged = np.mean(h3k9me3k14ac0, axis = 0)
-
-#H3K79me1 --> DOT1L
-
-h3k79me1 = ccle_common_cellline_expression[no_repeat_genes.index('DOT1L')]
-
-#H3K79me2 --> DOT1L
-
-h3k79me2 = ccle_common_cellline_expression[no_repeat_genes.index('DOT1L')]
 
 """
 REMOVING OUTLIERS
@@ -234,23 +213,18 @@ CORRELATION CALCULATION
 
 h3_markers_list =list(dict.fromkeys(h3_markers))
 
-h3k4me1_correlation = pearsonr(h3k4me1_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K4me1")])
-h3k4me1_correlation = h3k4me1_correlation[0]
+def correlation(x,y):
+    result = pearsonr(x,y)
+    result = result[0]
+    return result
 
-h3k9me1k14ac0_correlation = pearsonr(h3k9me1k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me1K14ac0")])
-h3k9me1k14ac0_correlation = h3k9me1k14ac0_correlation[0]
 
-h3k9me2k14ac0_correlation = pearsonr(h3k9me2k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me2K14ac0")])
-h3k9me2k14ac0_correlation = h3k9me2k14ac0_correlation[0]
-
-h3k9me3k14ac0_correlation = pearsonr(h3k9me3k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me3K14ac0")])
-h3k9me3k14ac0_correlation = h3k9me3k14ac0_correlation[0]
-
-h3k79me1_correlation = pearsonr(h3k79me1, h3_common_cellline_expression[h3_markers_list.index("H3K79me1")])
-h3k79me1_correlation = h3k79me1_correlation[0]
-
-h3k79me2_correlation = pearsonr(h3k79me2, h3_common_cellline_expression[h3_markers_list.index("H3K79me2")])
-h3k79me2_correlation = h3k79me2_correlation[0]
+h3k4me1_correlation = correlation(h3k4me1_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K4me1")])
+h3k9me1k14ac0_correlation = correlation(h3k9me1k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me1K14ac0")])
+h3k9me2k14ac0_correlation = correlation(h3k9me2k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me2K14ac0")])
+h3k9me3k14ac0_correlation = correlation(h3k9me3k14ac0_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K9me3K14ac0")])
+h3k79me1_correlation = correlation(h3k79me1_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K79me1")])
+h3k79me2_correlation = correlation(h3k79me2_averaged, h3_common_cellline_expression[h3_markers_list.index("H3K79me2")])
 
 #New calculation with removed outlier at row 352
 h3k9me2k14ac0_averaged = np.delete(h3k9me2k14ac0_averaged, 382)
@@ -259,46 +233,239 @@ deleted_outlier = np.delete(h3_common_cellline_expression[h3_markers_list.index(
 h3k9me2k14ac0_correlation = pearsonr(h3k9me2k14ac0_averaged,deleted_outlier)
 h3k9me2k14ac0_correlation = h3k9me2k14ac0_correlation[0]
 
+#Temporary individualized correlation
+def individual_correlation(gene, histone):
+    result = pearsonr(ccle_common_cellline_expression[no_repeat_genes.index(gene)],h3_common_cellline_expression[h3_markers_list.index(histone)])
+    result = result[0]
+    return result
+
+MLL3 = individual_correlation('MLL3', 'H3K4me1')
+SETD7 = individual_correlation('SETD7', 'H3K4me1')
+SETDB1_w_h3k9me1 = individual_correlation('SETDB1', 'H3K9me1K14ac0')
+EHMT1_w_h3k9me1 = individual_correlation('EHMT1', 'H3K9me1K14ac0')
+EHMT2_w_h3k9me1 = individual_correlation('EHMT2', 'H3K9me1K14ac0')
+EHMT1_w_h3k9me2 = individual_correlation('EHMT1', 'H3K9me2K14ac0')
+EHMT2_w_h3k9me2 = individual_correlation('EHMT2', 'H3K9me2K14ac0')
+SUV39H1_w_h3k9me2 = individual_correlation('SUV39H1', 'H3K9me2K14ac0')
+SUV39H2_w_h3k9me2 = individual_correlation('SUV39H2', 'H3K9me2K14ac0')
+SUV39H1_w_h3k9me2 = individual_correlation('SUV39H1', 'H3K9me2K14ac0')
+SUV39H2_w_h3k9me2 = individual_correlation('SUV39H2', 'H3K9me2K14ac0')
+SUV39H1_w_h3k9me3 = individual_correlation('SUV39H1', 'H3K9me3K14ac0')
+SUV39H2_w_h3k9me3 = individual_correlation('SUV39H2', 'H3K9me3K14ac0')
+SETDB1_w_h3k9me3 = individual_correlation('SETDB1', 'H3K9me3K14ac0')
+SETDB2_w_h3k9me3 = individual_correlation('SETDB2', 'H3K9me3K14ac0')
+
+"""
+TESTING ALL POSSIBLE CORRELATIONS
+"""
+#for histone in h3_markers_list:
+#    for gene in no_repeat_genes:
+#        correlation = pearsonr(ccle_common_cellline_expression[no_repeat_genes.index(gene)],h3_common_cellline_expression[h3_markers_list.index(histone)])
+#        correlation = correlation[0]
+#        if correlation > 0.15:
+#            print(gene, "-->", histone, ":", correlation)
+
+"""
+CONVERT ARRAYS INTO PANDAS 
+"""
+
+#For now just start with these and then convert as you go
+#Eventually convert the whole thing to pandas but rightnow that seems a little more challenging than I thought
+#ccle_common_cellline_expression = pd.DataFrame(ccle_common_cellline_expression)
+#h3_common_cellline_expression = pd.DataFrame(h3_common_cellline_expression)
+
+"""
+CORRELATION OF LE ROY DATA AND H3
+"""
+
+os.chdir('/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/matlab/vars')
+
+leroy_celllines =  spio.loadmat('supplementary_software_code', squeeze_me=True)["acetlevellist"]
+leroy_markers = spio.loadmat('methylation_proteomics_validation_data', squeeze_me=True)["acet_meth_list_rowlab"]
+leroy_expression=  spio.loadmat('hist_proteomics', squeeze_me=True)["acet_meth_listval"]
+
+
+i = 0
+for markers in leroy_markers:
+    leroy_markers[i] = "H3" + markers
+    i=i+1
+    
+i = 0
+for markers in leroy_markers:
+    if 'un' in markers:
+        leroy_markers[i] = markers.replace('un', 'ac0')
+    if 'ac' in markers:
+        leroy_markers[i] = markers.replace('ac', 'ac1')
+    i = i+1
+    
+leroy_markers_list =list(dict.fromkeys(leroy_markers))
+    
+common_celllines_h3_leroy = list(set(leroy_celllines).intersection(h3_celllines))
+common_celllines_h3_leroy.sort()
+
+common_markers_h3_leroy = list(set(leroy_markers).intersection(h3_markers))
+common_markers_h3_leroy.sort()
+
+h3_leroy_common_marker_expression = (len(common_markers_h3_leroy), len(common_celllines_h3_leroy))
+h3_leroy_common_marker_expression = np.zeros(h3_leroy_common_marker_expression)
+
+i = 0
+for markers in common_markers_h3_leroy:
+    h3_leroy_common_marker_expression[i] = leroy_expression[leroy_markers_list.index(markers)]
+    i = i+1   
+
+h3_common_marker_expression = (len(common_markers_h3_leroy), 885)
+h3_common_marker_expression = np.zeros(h3_common_marker_expression)
+
+i=0
+for markers in common_markers_h3_leroy:
+    h3_common_marker_expression[i] = h3_common_cellline_expression[h3_markers_list.index(markers)]
+    i = i+1   
+
+h3_common_marker_expression = np.transpose(h3_common_marker_expression)
+
+h3_common_marker = (len(common_celllines_h3_leroy), len(common_markers_h3_leroy))
+h3_common_marker = np.zeros(h3_common_marker)
+
+
+h3_cellline_list =list(dict.fromkeys(h3_celllines))
+
+
+i = 0 
+for celllines in common_celllines_h3_leroy:
+    h3_common_marker[i] = h3_common_marker_expression[h3_cellline_list.index(celllines)]
+    i = i+1
+    
+h3_common_marker = np.transpose(h3_common_marker)
+
+#Correlation of Le Roy
+leroy_correlation =[]
+
+i = 0
+for marker in h3_common_marker:
+    leroy_correlation.append(correlation(h3_common_marker[i], h3_leroy_common_marker_expression[i]))
+    i = i +1    
+    
+"""
+CORRELATION BETWEEN CCLE AND LE ROY
+"""
+
+ccle_cellline_list = list(dict.fromkeys(ccle_celllines))
+
+common_celllines_ccle_leroy = list(set(leroy_celllines).intersection(ccle_celllines))
+common_celllines_ccle_leroy.sort()
+
+ccle_leroy_expression = (len(common_celllines_ccle_leroy),len(no_repeat_genes))
+ccle_leroy_expression = np.zeros(ccle_leroy_expression)
+
+temp_flipped = np.transpose(expression_gene_no_repeats)
+
+i = 0 
+for celllines in common_celllines_ccle_leroy:
+    ccle_leroy_expression[i] = temp_flipped[ccle_cellline_list.index(celllines)]
+    i = i+1
+    
+ccle_leroy_expression = np.transpose(ccle_leroy_expression)
+
+#def individual_correlation(gene, histone):
+#    result = pearsonr(ccle_leroy_expression[no_repeat_genes.index(gene)], h3_leroy_common_marker_expression[h3_markers_list.index(histone)])
+#    result = result[0]
+#    return result
+#
+#MLL3 = individual_correlation('MLL3', 'H3K4me1')
+#SETD7 = individual_correlation('SETD7', 'H3K4me1')
+#SETDB1_w_h3k9me1 = individual_correlation('SETDB1', 'H3K9me1K14ac0')
+#EHMT1_w_h3k9me1 = individual_correlation('EHMT1', 'H3K9me1K14ac0')
+#EHMT2_w_h3k9me1 = individual_correlation('EHMT2', 'H3K9me1K14ac0')
+#EHMT1_w_h3k9me2 = individual_correlation('EHMT1', 'H3K9me2K14ac0')
+#EHMT2_w_h3k9me2 = individual_correlation('EHMT2', 'H3K9me2K14ac0')
+#SUV39H1_w_h3k9me2 = individual_correlation('SUV39H1', 'H3K9me2K14ac0')
+#SUV39H2_w_h3k9me2 = individual_correlation('SUV39H2', 'H3K9me2K14ac0')
+#SUV39H1_w_h3k9me2 = individual_correlation('SUV39H1', 'H3K9me2K14ac0')
+#SUV39H2_w_h3k9me2 = individual_correlation('SUV39H2', 'H3K9me2K14ac0')
+#SUV39H1_w_h3k9me3 = individual_correlation('SUV39H1', 'H3K9me3K14ac0')
+#SUV39H2_w_h3k9me3 = individual_correlation('SUV39H2', 'H3K9me3K14ac0')
+#SETDB1_w_h3k9me3 = individual_correlation('SETDB1', 'H3K9me3K14ac0')
+#SETDB2_w_h3k9me3 = individual_correlation('SETDB2', 'H3K9me3K14ac0')
+    
+
+
+
 """
 GRAPHING CORRELATION
 """
 
-#All correlations
-markers = ('H3K4me1', 'H3K9me1K14ac0', 'H3K9me2K14ac0', 'H3K9me3K14ac0', 'H3K79me1', 'H3K79me2')
-y_pos = np.arange(len(markers))
-correlation = [h3k4me1_correlation, h3k9me1k14ac0_correlation, h3k9me2k14ac0_correlation, h3k9me3k14ac0_correlation, h3k79me1_correlation, h3k79me2_correlation]
-
-plt.bar(y_pos, correlation, align='center', alpha=0.5)
-plt.xticks(y_pos, markers)
-plt.xticks(rotation=45)
-plt.xlabel('Histone Markers')
-plt.ylabel('Correlation')
-plt.title('Histone Marker Correlation Values')
-
-plt.show()
+#All correlations --> Averaged
+#markers = ('H3K4me1', 'H3K9me1K14ac0', 'H3K9me2K14ac0', 'H3K9me3K14ac0', 'H3K79me1', 'H3K79me2')
+#y_pos = np.arange(len(markers))
+#correlation = [h3k4me1_correlation, h3k9me1k14ac0_correlation, h3k9me2k14ac0_correlation, h3k9me3k14ac0_correlation, h3k79me1_correlation, h3k79me2_correlation]
+#
+#plt.bar(y_pos, correlation, align='center', alpha=0.5)
+#plt.xticks(y_pos, markers)
+#plt.xticks(rotation=45)
+#plt.xlabel('Histone Markers')
+#plt.ylabel('Correlation')
+#plt.title('Histone Marker Correlation Values')
+#
+#plt.show()
 
 #Scatter Plot
-ccle_expression_axis = h3k9me2k14ac0_averaged
-h3_expression_axis = deleted_outlier 
-
-plt.scatter(ccle_expression_axis, h3_expression_axis, label = 'Celllines')
-plt.xlabel('CCLE Expression Data')
-plt.ylabel('H3 Expression Data')
-plt.legend(loc=4)
-plt.title('H3K9me2K14ac0 Expression Comparison')
-
-plt.show()
-
-#ccle_expression_axis = h3k9me3k14ac0_averaged
-#h3_expression_axis = h3_common_cellline_expression[h3_markers_list.index("H3K9me3K14ac0")] 
+#ccle_expression_axis = h3k9me2k14ac0_averaged
+#h3_expression_axis = deleted_outlier 
 #
 #plt.scatter(ccle_expression_axis, h3_expression_axis, label = 'Celllines')
 #plt.xlabel('CCLE Expression Data')
 #plt.ylabel('H3 Expression Data')
 #plt.legend(loc=4)
-#plt.title('H3K9me3K14ac0 Expression Comparison')
+#plt.title('H3K9me2K14ac0 Expression Comparison')
 #
 #plt.show()
+
+#All correlations --> Individual
+#genes = ('MLL3', 'SETD7', 'SETDB1 w h3k9me1', 'EHMT1 w h3k9me1', 'EHMT2 w h3k9me1', 'EHMT1 w h3k9me2', 'EHMT2 w h3k9me2', 'SUV39H1 w h3k9me2', 'SUV39H2 w h3k9me2', 'SETDB1 w h3k9me3', 'SETDB2 w h3k9me3', 'SUV39H1 w h3k9me3', 'SUV39H2 w h3k9me3', 'DOT1L', 'DOT1L')
+#y_pos = np.arange(len(genes))
+#correlation = [MLL3, SETD7,SETDB1_w_h3k9me1,EHMT1_w_h3k9me1, EHMT2_w_h3k9me1, EHMT1_w_h3k9me2, EHMT2_w_h3k9me2, SUV39H1_w_h3k9me2, SUV39H2_w_h3k9me2, SUV39H1_w_h3k9me3, SUV39H2_w_h3k9me3, SETDB1_w_h3k9me3, SETDB2_w_h3k9me3, h3k79me1_correlation, h3k79me2_correlation]
+#
+#plt.bar(y_pos, correlation, align='center', alpha=0.5)
+#plt.xticks(y_pos, genes)
+#plt.xticks(rotation=90)
+#plt.xlabel('Genes w Histone Markers')
+#plt.ylabel('Correlation')
+#plt.title('H3 Individualized Genes and CCLE Data')
+#
+#plt.show()
+
+#Le Roy et al Correlation Plot
+markers = common_markers_h3_leroy
+y_pos = np.arange(len(markers))
+correlation = leroy_correlation
+
+plt.bar(y_pos, correlation, align='center', alpha=0.5)
+plt.xticks(y_pos, markers)
+plt.xticks(rotation=90)
+plt.xlabel('Histone Markers')
+plt.ylabel('Correlation')
+plt.title('H3 Data and Le Roy et al Data')
+
+plt.show()
+
+def plot(x,y,title, x_axis, y_axis):
+    x_plot = x
+    y_pos = np.arange(len(x_plot))
+    y_plot = y
+
+    plt.bar(y_pos, y_plot, align='center', alpha=0.5)
+    plt.xticks(y_pos, x_plot)
+    plt.xticks(rotation=90)
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
+    plt.title(title)
+
+    plt.show()
+    
+
+
+    
 
 
  
