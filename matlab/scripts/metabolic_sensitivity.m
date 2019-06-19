@@ -35,6 +35,126 @@ rxnname = char(metabolites(:, 1)); % reaction positions of interest
 
 % Switch between modules for different types of analyses
 switch exp
+    
+    case 'single-reaction-analysis'
+        % Add demand reactions from the metabolite list to the metabolic model
+        for m = 1:length(metabolites(:,1))
+            tmp_met = char(metabolites(m,2));
+            tmp = [tmp_met '[' compartment '] -> '];
+            tmpname = char(metabolites(m,1));
+            %tmpname = 'EX_KAC';
+            model2 = addReaction(model, tmpname, 'reactionFormula', tmp);
+
+            % Kappa values are weights for both excess and depletion of medium.
+            % kappa = 10 is excess, and kappa = 0.01 is depletion
+            for kappatype = 1:2
+                if kappatype == 1 
+                    kappa  = 10; 
+                elseif kappatype == 2
+                    kappa = 0.01;
+                end
+
+                for j = 1:length(mediareactions1(:,1))
+                    kappa1 = kappa;
+                    if (kappatype == 2) & (ismember(j,[2,3,5:19])) % trace elements
+                        kappa1 = kappa/100;
+                    elseif (kappatype == 1) & (ismember(j,[1;4])) % glucose or glutamine
+                        kappa1 = 3;
+                    end
+
+                    % Make the methylation exchange reaction have a fixed LB of
+                    % -0.5 to be non-limiting
+                    [~, pos] = ismember({'EX_met_L(e)'}, model2.rxns);
+                    model2.lb(pos) = -0.5;     
+
+                    % Get the reaction position for the various medium components
+                    % and constrain the lower bound with a value proportional to
+                    % the weight kappa1
+                    [~, pos]  = ismember(mediareactions1(j,1), model2.rxns);
+                    model2.lb(pos) = -media_exchange1(j,1)*kappa1;
+
+                    %% solve using FBA (cobratoolbox) without setting the reaction of interest objective coefficient to epsilon2 
+                    soln = optimizeCbModel(model2);
+
+                    % Metabolic fluxes for a single reaction
+                    flux_str = ['media_xchange_flux_', num2str(kappatype),...
+                        '(j,1) = soln.v(biomassobjpos);'];
+
+                    % Reduced costs for a single reaction
+                    rc_str = ['media_xchange_rc_', num2str(kappatype),...
+                        '(j,1) = soln.w(biomassobjpos);'];
+
+                    % Shadow prices for a single metabolite
+                    tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
+                    met_pos = find(ismember(model2.mets,tmp_met));
+                    sp_str = ['media_xchange_sp_', num2str(kappatype),...
+                        '(j,1) = soln.y(met_pos);'];
+
+                    if ~isempty(soln.v) & ~isnan(soln.v)
+                        eval(flux_str)
+                    end
+                    if ~isempty(soln.w) & ~isnan(soln.w)
+                        eval(rc_str)
+                    end
+                    if ~isempty(soln.y) & ~isnan(soln.y)
+                        eval(sp_str)
+                    end
+
+                    if kappatype == 1
+                        excess_xchange_flux(j,m) = media_xchange_flux_1(j,1);
+                        excess_xchange_redcost(j,m) = media_xchange_rc_1(j,1);
+                        excess_xchange_shadow(j,m) = media_xchange_sp_1(j,1);
+                    end
+                    if kappatype == 2
+                        depletion_xchange_flux(j,m) = media_xchange_flux_2(j,1);
+                        depletion_xchange_redcost(j,m) = media_xchange_rc_2(j,1);
+                        depletion_xchange_shadow(j,m) = media_xchange_sp_2(j,1);
+                    end
+
+                    %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
+                    model3 = model2;
+                    rxnpos = [find(ismember(model3.rxns,tmpname))];
+                    model3.c(rxnpos) = epsilon2;
+                    soln = optimizeCbModel(model3);
+
+                    % Metabolic fluxes
+                    flux_str = ['media_xchange_rxn_flux_', num2str(kappatype),...
+                        '(j,1) = soln.v(rxnpos);'];
+                    % Reduced costs
+                    rc_str = ['media_xchange_rxn_rc_', num2str(kappatype),...
+                        '(j,1) = soln.w(rxnpos);'];
+                    % Shadow prices
+                    tmp_met = [char(metabolites(m,2)) '[' compartment ']'];
+                    met_pos = find(ismember(model3.mets,tmp_met));
+                    sp_str = ['media_xchange_rxn_sp_', num2str(kappatype),...
+                        '(j,1) = soln.y(met_pos);'];
+
+                    if ~isempty(soln.v) & ~isnan(soln.v)
+                        eval(flux_str)
+                    end
+                    if ~isempty(soln.w) & ~isnan(soln.w)
+                        eval(rc_str)
+                    end
+                    if ~isempty(soln.y) & ~isnan(soln.y)
+                        eval(sp_str)
+                    end
+
+                    if kappatype == 1
+                        excess_xchange_rxn_flux(j,m) = media_xchange_rxn_flux_1(j,1);
+                        excess_xchange_rxn_redcost(j,m) = media_xchange_rxn_rc_1(j,1);
+                        excess_xchange_rxn_shadow(j,m) = media_xchange_rxn_sp_1(j,1);
+                    end
+                    if kappatype == 2
+                        depletion_xchange_rxn_flux(j,m) = media_xchange_rxn_flux_2(j,1);
+                        depletion_xchange_rxn_redcost(j,m) = media_xchange_rxn_rc_2(j,1);
+                        depletion_xchange_rxn_shadow(j,m) = media_xchange_rxn_sp_2(j,1);
+                    end
+                    disp(j)
+                end
+                disp(kappatype)
+            end
+        end
+
     % Case 1: Use the most dynamic range of metabolic fluxes
     case 'fba'  
         % Kappa values are weights for both excess and depletion of medium.
@@ -255,13 +375,15 @@ switch exp
 end
 
 %% Scaling the data for visualization purposes
-excess_flux = zscore(excess_flux);
-excess_redcost = zscore(excess_redcost);
-excess_shadow = zscore(excess_shadow);
+if scaling == 'zscore'
+    excess_flux = zscore(excess_flux);
+    excess_redcost = zscore(excess_redcost);
+    excess_shadow = zscore(excess_shadow);
 
-depletion_flux = zscore(depletion_flux);
-depletion_redcost = zscore(depletion_redcost);
-depletion_shadow = zscore(depletion_shadow);
+    depletion_flux = zscore(depletion_flux);
+    depletion_redcost = zscore(depletion_redcost);
+    depletion_shadow = zscore(depletion_shadow);
+end
 
 %% Replace 0 with NaN
 %excess_flux(excess_flux==0) = NaN;
