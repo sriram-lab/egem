@@ -1,25 +1,34 @@
 %% Make Model
-% @author: Scott Campit
+% @author: Scott Campit & Lauren Fane
 
-% metabolic model with nuclear acetylation reaction
-%load supplementary_software_code acetylation_model 
-
-% Init
+% Initialize parameters
 initCobraToolbox;
 changeCobraSolver('gurobi');
-%model = acetylation_model;
 
+% Load AcGEM model (Shen et al., 2019)
+load ./../shen-et-al/supplementary_software_code acetylation_model;
+model = acetylation_model;
+
+% Check for duplicate reactions
+model = checkDuplicateRxn(model,'S',1,1);
 %% Add transport reactions to nucleus:
-    % L-Methionine
-    % Succinate
-    % Alpha-ketoglutarate
-    % Fumarate
-    % Glycine
-    % Serine
-    % Acetate
-    % Pyruvate
-    % Formate
     
+    % Methylation-related reactions
+        % L-Methionine
+        % ATP
+    % Demethylation-related reactiosn
+        % Succinate
+        % Alpha-ketoglutarate
+        % Fumarate
+    % Acetylation-related reactions
+        % Acetate
+        % Pyruvate
+        % Citrate (Shen et al., 2019)
+    % One-carbon-related reactions
+        % Formate
+        % Glycine
+        % Serine
+
 model = addReaction(model, 'METtn',...
     'reactionFormula', 'met-L[c] <=> met-L[n]');
 model = addReaction(model, 'SUCCtn',...
@@ -240,4 +249,5 @@ model = addReaction(model, 'H3K9MT',...
 %same chemical rxn as H3K9 methylation -> should i add it? How do i
 %distinguish between locations?
 %% save
+model = checkDuplicateRxn(model,'S',1,1);
 save('./../models/eGEM.mat', 'model');

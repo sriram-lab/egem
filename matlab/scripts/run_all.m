@@ -1,12 +1,12 @@
-%% Code to run modules
+%% Run analyses for epigenome-scale metabolic models
 initCobraToolbox;
 changeCobraSolver('gurobi');
 
 %% load different models
 
 % Minial eGEM -> does not contain other one carbon reactions
-%load ./../models/model.mat % minimal eGEM model - need to 
-
+%load ./../models/eGEM_min.mat % minimal eGEM model - need to 
+%model = eGEM_min;
 % Human metabolic reconstruction 1
 %load ./../models/recon1
 %model = metabolicmodel;
@@ -42,14 +42,6 @@ minfluxflag = 0;
 % Run with multiple objective coefficients to obtain dynamic range of
 % values
 %epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
-%compartment = ['n', 'c', 'm'];
-%for n = 1:length(epsilon2)
-    %for m = 1:length(compartment)
-    %[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-    %excess_shadow, depletion_shadow] = metabolic_sensitivity(model, compartment,...
-    %epsilon2(n), scaling, 'single-reaction-analysis')
-    %end
-%end
 
 % Run with the optimized objective coefficients
 epsilon2_excess = [1E-6, 1E-6, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-6, 1E-6,...
@@ -94,6 +86,19 @@ rowname = mediareactions1(:,2);
 % Metabolic sensitivity analysis for optimized epsilon values obtained from
 % single optimization steps:
 
+% Single test case for epsilon
+epsilon2 = 1E-3
+exp = 'single-reaction-analysis'
+
+%compartment = ['n', 'c', 'm'];
+%for n = 1:length(epsilon2)
+    %for m = 1:length(compartment)
+    %[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
+    %excess_shadow, depletion_shadow] = metabolic_sensitivity(model, compartment,...
+    %epsilon2(n), scaling, 'single-reaction-analysis')
+    %end
+%end
+
 % Use epsilon values that gave the largest dynamic range in metabolic
 % fluxes. !This was manually done, but should also be codified at some point! 
 epsilon2_excess = [1E-6, 1E-6, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-6, 1E-6,...
@@ -105,10 +110,13 @@ epsilon2_depletion = [1E-6, 1E-5, 1E-5, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-5,...
 epsilon2 = [epsilon2_excess; epsilon2_depletion];
 epsilon2 = epsilon2';
 
-% For optimizing multiple reactions simultaneously:
+% For optimizing multiple reactions simultaneously using FBA:
+[~, fba, ~, tmp] = metabolic_sensitivity(model, 'n',...
+    epsilon2, 'zscore', 'fba', 'RPMI');
+
 [excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
     excess_shadow, depletion_shadow] = metabolic_sensitivity(model, 'n',...
-    epsilon2, [], 'dyn');
+    epsilon2, 'zscore', 'fva');
 
 %% Density plot
 A = densityplot('eGEMn');
