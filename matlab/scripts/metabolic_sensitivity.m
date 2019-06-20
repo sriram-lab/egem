@@ -1,5 +1,5 @@
 %% @author: Scott Campit
-function [sra, fba, fva] = metabolic_sensitivity(model, compartment,...
+function [sra, fba, fva, tmp] = metabolic_sensitivity(model, compartment,...
     epsilon2, scaling, exp, medium)
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
@@ -40,8 +40,8 @@ end
 
 % Initialize parameters needed
 minfluxflag = 0;
-posgluc = 1385;  % glucose uptake reaction in RECON1
-biomassobjpos = 3743; % biomass rxn position
+posgluc = 1382;  % glucose uptake reaction in eGEM model
+biomassobjpos = 3734; % biomass rxn position in eGEM model
 rxnname = char(metabolites(:, 1)); % reaction positions of interest
 
 % Set the scaling proportion for RPMI substrate uptake rates to
@@ -74,15 +74,15 @@ for kappatype = 1:2
         if kappatype == 1 % glucose or glutamine
             excess_model = tmp;
             
+            [~, pos]  = ismember(mediareactions1(component,1), excess_model.rxns);
             if ismember(component,[1;4])
                 kappa = 3;
+                excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
             else
                 kappa = weight;
+                excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
             end
-            
-            [~, pos]  = ismember(mediareactions1(component,1), excess_model.rxns);
-            excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
-            
+
             switch exp
             
             % Single reaction optimization
@@ -124,6 +124,7 @@ for kappatype = 1:2
                     
                     % Reset models
                     excess_model = removeRxns(excess_model, tmprxn);
+                    disp([component, rxn])
                 end
                 
             % FBA optimization for all reactions simultaneously
@@ -176,21 +177,21 @@ for kappatype = 1:2
                         rxn_nam, exp);
                 excess_maxflux(component, :) = maxflux;
                 excess_minflux(component, :) = minflux;
-                
+                disp(component)
             end
         
         %% Depleted medium conditions
         elseif kappatype == 2 % trace elements
             depletion_model = tmp;
+            [~, pos]  = ismember(mediareactions1(component,1), depletion_model.rxns);
             
             if ismember(component,[2,3,5:19])
                 kappa = weight/100;
+                depletion_model.lb(pos) = -media_exchange1(component,1)*kappa;
             else
                 kappa = weight;
+                depletion_model.lb(pos) = -media_exchange1(component,1)*kappa;
             end
-            
-            [~, pos]  = ismember(mediareactions1(component,1), depletion_model.rxns);
-            depletion_model.lb(pos) = -media_exchange1(component,1)*kappa;
             
             switch exp
             
@@ -231,6 +232,7 @@ for kappatype = 1:2
                     
                     % Reset models
                     depletion_model = removeRxns(depletion_model, tmprxn);
+                    disp([component, rxn])
                 end
                 
             % FBA optimization for all reactions simultaneously
@@ -255,6 +257,7 @@ for kappatype = 1:2
                 depletion_flux(component, :) = flux;
                 depletion_flux_sp(component, :) = flux_sp;
                 depletion_flux_rc(component, :) = flux_rc;
+                disp(component)
             
             % FVA optimization for all reactions simultaneously  
             case 'fva'
@@ -269,6 +272,7 @@ for kappatype = 1:2
                         rxn_nam, exp);
                 depletion_maxflux(component, :) = maxflux;
                 depletion_minflux(component, :) = minflux;
+                disp(component)
                 
             end
         end
@@ -277,55 +281,65 @@ end
 
 %% Package results into prettified structures
 if exp == 'sra'
+    medium_labels = mediareactions1(:,2);
+    reaction_labels = metabolites(:,3);
     fields = {...
         'excess_grate'; 'depletion_grate';...
         'excess_grate_sp'; 'depletion_grate_sp';...
         'excess_grate_rc'; 'depletion_grate_rc';...
         'excess_flux'; 'depletion_flux';...
         'excess_flux_sp'; 'depletion_flux_sp';...
-        'excess_flux_rc'; 'depletion_flux_rc'...
-        };
+        'excess_flux_rc'; 'depletion_flux_rc';...
+        'medium_components'; 'reactions'};
     values = {...
         excess_grate; depletion_grate;...
         excess_grate_sp; depletion_grate_sp;...
         excess_grate_rc; depletion_grate_rc;...
         excess_flux; depletion_flux;...
         excess_flux_sp; depletion_flux_sp;...
-        excess_flux_rc; depletion_flux_rc...
+        excess_flux_rc; depletion_flux_rc;...
+        medium_labels; reaction_labels...
         };
     for i=1:length(fields)
-        sra.(fields{i}) = values{i};
+        fba.(fields{i}) = values{i};
     end
     
 elseif exp == 'fba'
+    medium_labels = mediareactions1(:,2);
+    reaction_labels = metabolites(:,3);
     fields = {...
         'excess_grate'; 'depletion_grate';...
         'excess_grate_sp'; 'depletion_grate_sp';...
         'excess_grate_rc'; 'depletion_grate_rc';...
         'excess_flux'; 'depletion_flux';...
         'excess_flux_sp'; 'depletion_flux_sp';...
-        'excess_flux_rc'; 'depletion_flux_rc'...
-        };
+        'excess_flux_rc'; 'depletion_flux_rc';...
+        'medium_components'; 'reactions'};
     values = {...
         excess_grate; depletion_grate;...
         excess_grate_sp; depletion_grate_sp;...
         excess_grate_rc; depletion_grate_rc;...
         excess_flux; depletion_flux;...
         excess_flux_sp; depletion_flux_sp;...
-        excess_flux_rc; depletion_flux_rc...
+        excess_flux_rc; depletion_flux_rc;...
+        medium_labels; reaction_labels...
         };
     for i=1:length(fields)
         fba.(fields{i}) = values{i};
     end
     
 elseif exp == 'fva'
+    medium_labels = mediareactions1(:,2);
+    reaction_labels = metabolites(:,3);
     fields = {...
         'Excess max flux'; 'Excess min flux';...
-        'Depletion max flux'; 'Depletion min flux'
+        'Depletion max flux'; 'Depletion min flux';...
+        'medium_components'; 'reactions'...
         };
     values = {...
         excess_maxflux; excess_minflux;...
-        depletion_maxflux; depletion_minflux
+        depletion_maxflux; depletion_minflux;...
+        medium_labels; reaction_labels...
         };
     for i=1:length(fields)
         fva.(fields{i}) = values{i};
@@ -334,17 +348,17 @@ end
 
 % %% Scaling the data for visualization purposes
 % if scaling == 'zscore'
-%     if exp == 'sra':
+%     if exp == 'sra'
 %         for fld=1:numel(fieldnames(sra))
-%             sra(fld) = zscore(src(fld))
+%             sra(fld) = zscore(src(fld));
 %         end
-%     elseif exp == 'fba':
+%     elseif exp == 'fba'
 %         for fld=1:numel(fieldnames(fba))
-%             fba(fld) = zscore(fba(fld))
+%             fba(fld) = zscore(fba(fld));
 %         end
-%     elseif exp == 'fva':
+%     elseif exp == 'fva'
 %         for fld=1:numel(fieldnames(fva))
-%             fva(fld) = zscore(fva(fld))
+%             fva(fld) = zscore(fva(fld));
 %         end
 %     end
 % end
@@ -388,74 +402,75 @@ end
 % end
 % 
 % 
-% %% Heatmap figures
-% % Still needs work:
-%     % Make `excess` green and `depletion` red
-%     % Color gradient: metabolic flux > reduced costs > shadow prices
-%     % Incorporate plotly
-%     % Is there a way to dynamically size .pngs?
-% 
-% switch exp
-%     % Case 1: Use the most dynamic range of metabolic fluxes
-%     case 'fba'  
-%         % Prepare figure labels and variables
-%         medium_labels = mediareactions1(:,2);
-%         reaction_labels = metabolites(:,3);
-% 
-%         fig1 = figure;
-%         subplot(2,3,1);
-%         heatmap(excess_flux)
-%         ax1 = gca;
-%         ax1.XData = reaction_labels;
-%         ax1.YData = medium_labels;
-%         ax1.Title = 'Metabolic flux in excess medium';
-%         xlabel(ax1, 'Demand reactions');
-%         ylabel(ax1, 'Medium component');
-% 
-%         subplot(2,3,4);
-%         heatmap(depletion_flux)
-%         ax2 = gca;
-%         ax2.XData = reaction_labels;
-%         ax2.YData = medium_labels;
-%         ax2.Title = 'Metabolic flux in depleted medium';
-%         xlabel(ax2, 'Demand reactions');
-%         ylabel(ax2, 'Medium component');
-% 
-%         subplot(2,3,2);
-%         heatmap(excess_shadow)
-%         ax3 = gca;
-%         ax3.XData = reaction_labels;
-%         ax3.YData = medium_labels;
-%         ax3.Title = 'Shadow price in excess medium';
-%         xlabel(ax3, 'Demand reactions');
-%         ylabel(ax3, 'Medium component');
-% 
-%         subplot(2,3,5);
-%         heatmap(depletion_shadow)
-%         ax4 = gca;
-%         ax4.XData = reaction_labels;
-%         ax4.YData = medium_labels;
-%         ax4.Title = 'Shadow price in depleted medium';
-%         xlabel(ax4, 'Demand reactions');
-%         ylabel(ax4, 'Medium component');
-% 
-%         subplot(2,3,3);
-%         heatmap(excess_redcost)
-%         ax5 = gca;
-%         ax5.XData = reaction_labels;
-%         ax5.YData = medium_labels;
-%         ax5.Title = 'Reduced cost in excess medium';
-%         xlabel(ax5, 'Demand reactions');
-%         ylabel(ax5, 'Medium component');
-% 
-%         subplot(2,3,6);
-%         heatmap(depletion_redcost)
-%         ax6 = gca;
-%         ax6.XData = reaction_labels;
-%         ax6.YData = medium_labels;
-%         ax6.Title = 'Reduced cost in depleted medium';
-%         xlabel(ax6, 'Demand reactions');
-%         ylabel(ax6, 'Medium component');
+%% Heatmap figures
+% Still needs work:
+    % Make `excess` green and `depletion` red
+    % Color gradient: metabolic flux > reduced costs > shadow prices
+    % Incorporate plotly
+    % Is there a way to dynamically size .pngs?
+
+switch exp
+    % Case 1: Use the most dynamic range of metabolic fluxes
+    case 'fba'  
+        % Prepare figure labels and variables
+        medium_labels = mediareactions1(:,2);
+        reaction_labels = metabolites(:,3);
+
+        fig1 = figure;
+        subplot(2,3,1);
+        heatmap(excess_flux)
+        ax1 = gca;
+        ax1.XData = reaction_labels;
+        ax1.YData = medium_labels;
+        ax1.Title = 'Metabolic flux in excess medium';
+        xlabel(ax1, 'Demand reactions');
+        ylabel(ax1, 'Medium component');
+
+        subplot(2,3,4);
+        heatmap(depletion_flux)
+        ax2 = gca;
+        ax2.XData = reaction_labels;
+        ax2.YData = medium_labels;
+        ax2.Title = 'Metabolic flux in depleted medium';
+        xlabel(ax2, 'Demand reactions');
+        ylabel(ax2, 'Medium component');
+
+        subplot(2,3,2);
+        heatmap(excess_flux_sp)
+        ax3 = gca;
+        ax3.XData = reaction_labels;
+        ax3.YData = medium_labels;
+        ax3.Title = 'Shadow price in excess medium';
+        xlabel(ax3, 'Demand reactions');
+        ylabel(ax3, 'Medium component');
+
+        subplot(2,3,5);
+        heatmap(depletion_flux_sp)
+        ax4 = gca;
+        ax4.XData = reaction_labels;
+        ax4.YData = medium_labels;
+        ax4.Title = 'Shadow price in depleted medium';
+        xlabel(ax4, 'Demand reactions');
+        ylabel(ax4, 'Medium component');
+
+        subplot(2,3,3);
+        heatmap(excess_flux_rc)
+        ax5 = gca;
+        ax5.XData = reaction_labels;
+        ax5.YData = medium_labels;
+        ax5.Title = 'Reduced cost in excess medium';
+        xlabel(ax5, 'Demand reactions');
+        ylabel(ax5, 'Medium component');
+
+        subplot(2,3,6);
+        heatmap(depletion_flux_rc)
+        ax6 = gca;
+        ax6.XData = reaction_labels;
+        ax6.YData = medium_labels;
+        ax6.Title = 'Reduced cost in depleted medium';
+        xlabel(ax6, 'Demand reactions');
+        ylabel(ax6, 'Medium component');
+end
 % 
 %         base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
 %         fig1_str = strcat(base, '.fig');
