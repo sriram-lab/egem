@@ -10,7 +10,8 @@ posgluc = 1385;  % glucose uptake reaction in recon1.
 rxnpos  = [find(ismember(acetylation_model.rxns,'EX_KAC'));];
 objpos = find(acetylation_model.c) %biomass objective
 minfluxflag = 0; % no PFBA
-epsilon_methylation = 1E-3;
+epsilon_methylation = 1E-6;
+acetylation_model = min;
 
     for kappatype = 1:2
         if kappatype == 1, kappa  = 10; else kappa = 0.01;end 

@@ -5,7 +5,7 @@ changeCobraSolver('gurobi');
 %% load different models
 
 % Minial eGEM -> does not contain other one carbon reactions
-load ./../models/min.mat % minimal eGEM model - need to 
+load ./../models/min.mat % minimal eGEM model
 %model = eGEM_min;
 % Human metabolic reconstruction 1
 %load ./../models/recon1
@@ -91,12 +91,12 @@ exp = 'single-reaction-analysis'
 
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 %compartment = ['n', 'c', 'm'];
-for n = 1:length(epsilon2)
+%for n = 1:length(epsilon2)
     %for m = 1:length(compartment)
-    [sra, ~, ~] = metabolic_sensitivity(min, 'n',...
-    epsilon2(n), [], 'single-reaction-analysis');
+[sra, ~, ~] = metabolic_sensitivity(min, 'n',...
+1E-6, [], 'sra');
     %end
-end
+%end
 
 % Use epsilon values that gave the largest dynamic range in metabolic
 % fluxes. !This was manually done, but should also be codified at some point! 
@@ -110,12 +110,12 @@ epsilon2 = [epsilon2_excess; epsilon2_depletion];
 epsilon2 = epsilon2';
 
 % For optimizing multiple reactions simultaneously using FBA:
-[~, fba, ~, tmp] = metabolic_sensitivity(min, 'n',...
+[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
     epsilon2, 'zscore', 'fba', 'RPMI');
 
-[excess_flux, depletion_flux, excess_redcost, depletion_redcost,...
-    excess_shadow, depletion_shadow] = metabolic_sensitivity(model, 'n',...
-    epsilon2, 'zscore', 'fva', []);
+% For optimizing multiple reactions simultaneously using FVA
+[~, ~, fva, ~] = metabolic_sensitivity(min, 'n',...
+    epsilon2, 'zscore', 'fva', 'RPMI', 99);
 
 %% Density plot
 A = densityplot('eGEMn');
