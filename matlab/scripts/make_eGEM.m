@@ -11,6 +11,10 @@ min = acetylation_model;
 
 % Check for duplicate reactions
 min = checkDuplicateRxn(min,'S',1,1);
+
+%% Reactions to remove:
+min = removeRxns(min, {'peplyexn'});
+
 %% Add transport reactions to nucleus:
     
     % Methylation-related reactions
