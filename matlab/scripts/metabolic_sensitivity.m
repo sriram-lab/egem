@@ -42,17 +42,14 @@ end
 minfluxflag = 0;
 posgluc = 1382;  % glucose uptake reaction in eGEM model
 biomassobjpos = 3734; % biomass rxn position in eGEM model
-rxnname = char(metabolites(:, 1)); % reaction positions of interest
+rxnname = metabolites(:, 1); % reaction positions of interest
+rxnname(5) = {'EX_KAC'};
+rxnname = char(rxnname);
 
 % Set the scaling proportion for RPMI substrate uptake rates to
 % a fixed amount. weight = 10 is excess, and weight = 0.01 is
 % depletion
 for kappatype = 1:2
-    if kappatype == 1 
-        weight  = 10; 
-    elseif kappatype == 2
-        weight = 0.01;
-    end
     
     % Create a temporary metabolic model that will have substrate uptake
     % rates fitted on
@@ -64,8 +61,7 @@ for kappatype = 1:2
     tmp.lb(pos) = -0.5;    
     
     % Set the substrate uptake rates based on medium
-    % formulation (taken from medium sources). The uptake rates will
-    % further be modified by the weights
+    % formulation (taken from medium sources). 
     tmp = media(tmp, medium);
     
     % For each medium component, set the substrate uptake rate. 
@@ -73,6 +69,7 @@ for kappatype = 1:2
         %% Excess medium conditions
         if kappatype == 1 % glucose or glutamine
             excess_model = tmp;
+            weight  = 10;
             
             [~, pos]  = ismember(mediareactions1(component,1), excess_model.rxns);
             if ismember(component,[1;4])
@@ -89,6 +86,7 @@ for kappatype = 1:2
             case 'sra'
                 fba = 0;
                 fva = 0;
+                
                 % Add demand reactions from the metabolite list to the metabolic model
                 for rxn = 1:length(metabolites(:,1)) % 20 reactions of interest
 
@@ -131,15 +129,19 @@ for kappatype = 1:2
             case 'fba'
                 sra=0;
                 fva=0;
+                
+                % Get all the reactions you are interested in
                 mets = cellstr(metabolites(:,2));
                 for i=1:length(mets)
                     met{i} = [char(mets(i)) '[' compartment ']'];
                 end
                 met = string(met);
-                % Get growth rate and other metrics from the 
+                
+                % Get growth rate and other metrics from the function
                 [grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
                         biomassobjpos, met, [], [], [], 1, exp);
-               
+                
+                % Stuff you want
                 excess_grate(component,:) = grate;
                 excess_grate_sp(component,:) = grate_sp;
                 excess_grate_rc(component,:) = grate_rc;
@@ -148,28 +150,29 @@ for kappatype = 1:2
                 model3 = excess_model;
                 rxnpos = [find(ismember(model3.rxns, rxnname))];
                 
+                % Get metabolic flux and other metrics from the function
                 [flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
                         rxnpos, met, [], [], [], epsilon2(:, 1), exp);
+                
+                % Stuff you want
                 excess_flux(component,:) = flux;
                 excess_flux_sp(component,:) = flux_sp;
                 excess_flux_rc(component,:) = flux_rc;
+                
                 disp(component)
 
             % FVA optimization for all reactions simultaneously  
             case 'fva'
                 sra=0;
                 fba=0;
+                
                 % Not interested in growth rates - just get the fluxes
                 model3 = excess_model;
                 rxnpos = [find(ismember(model3.rxns, rxnname))];
                 rxn_nam = model3.rxns(rxnpos);
                 
-                % epsilon values for excess and depletion respectively
-                if kappatype == 1
-                    model3.c(rxnpos) = epsilon2(:, 1);
-                elseif kappatype == 2
-                    model3.c(rxnpos) = epsilon2(:, 2);
-                end
+                % epsilon values for excess
+                model3.c(rxnpos) = epsilon2(:, 1);
                 
                 % Run FVA for methylation and acetylation reactions.
                 [~, ~, ~, maxflux, minflux] = calc_metabolic_metrics(model3,...
@@ -183,6 +186,8 @@ for kappatype = 1:2
         %% Depleted medium conditions
         elseif kappatype == 2 % trace elements
             depletion_model = tmp;
+            weight = 0.01;
+            
             [~, pos]  = ismember(mediareactions1(component,1), depletion_model.rxns);
             
             if ismember(component,[2,3,5:19])
@@ -237,13 +242,16 @@ for kappatype = 1:2
                 
             % FBA optimization for all reactions simultaneously
             case 'fba'
+                
                 mets = cellstr(metabolites(:,2));
                 for i=1:length(mets)
                     met{i} = [char(mets(i)) '[' compartment ']'];
                 end
                 met = string(met);
+                
                 [grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(depletion_model,...
                         biomassobjpos, met, [], [], [], 1, exp);
+                
                 depletion_grate(component, :) = grate;
                 depletion_grate_sp(component, :) = grate_sp;
                 depletion_grate_rc(component, :) = grate_rc;
@@ -254,9 +262,11 @@ for kappatype = 1:2
                 
                 [flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
                         rxnpos, met, [], [], [], epsilon2(:, 2), exp);
+                
                 depletion_flux(component, :) = flux;
                 depletion_flux_sp(component, :) = flux_sp;
                 depletion_flux_rc(component, :) = flux_rc;
+                
                 disp(component)
             
             % FVA optimization for all reactions simultaneously  
@@ -265,6 +275,9 @@ for kappatype = 1:2
                 model3 = depletion_model;
                 rxnpos = [find(ismember(model3.rxns, rxnname))];
                 rxn_nam = model3.rxns(rxnpos);
+                
+                % epsilon values for depletion
+                model3.c(rxnpos) = epsilon2(:, 2);
                 
                 % Run FVA for methylation and acetylation reactions.
                 [~, ~, ~, maxflux, minflux] = calc_metabolic_metrics(model3,...
