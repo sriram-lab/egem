@@ -20,6 +20,7 @@ load ./../models/min.mat % minimal eGEM model
 % Old acetylation metabolic model
 %load supplementary_software_code acetylation_model
 %model = acetylation_model; %Shen et al., 2019
+model = acetylation_model;
 
 %% Correlation values between histone markers and metabolic flux
 % INPUTS:
@@ -93,8 +94,8 @@ epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 %compartment = ['n', 'c', 'm'];
 %for n = 1:length(epsilon2)
     %for m = 1:length(compartment)
-[sra, ~, ~] = metabolic_sensitivity(min, 'n',...
-1E-6, [], 'sra');
+[sra, ~, ~] = metabolic_sensitivity(min, 'n', 1E-6, 'zscore', 'sra',...
+    'RPMI', []);
     %end
 %end
 
@@ -109,14 +110,24 @@ epsilon2_depletion = [1E-6, 1E-5, 1E-5, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-5,...
 epsilon2 = [epsilon2_excess; epsilon2_depletion];
 epsilon2 = epsilon2';
 
-% For optimizing multiple reactions simultaneously using FBA:
 [~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
-    epsilon2, 'zscore', 'fba', 'RPMI');
+        epsilon2, 'zscore', 'fba', 'RPMI');
 
-% For optimizing multiple reactions simultaneously using FVA
-[~, ~, fva, ~] = metabolic_sensitivity(min, 'n',...
-    epsilon2, 'zscore', 'fva', 'RPMI', 99);
+% For optimizing multiple reactions simultaneously using FBA with different
+% media:
+[~, media] = xlsfinfo('./../../data/uptake.xlsx');
+for fil=1:length(sheets)
+    [~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+        epsilon2, 'zscore', 'fba', media(fil));
+end
 
+% For optimizing multiple reactions simultaneously using FVA with different
+% media:
+[~, media] = xlsfinfo('./../../data/uptake.xlsx');
+for fil=1:length(sheets)
+    [~, ~, fva, ~] = metabolic_sensitivity(min, 'n',...
+        epsilon2, 'zscore', 'fva', media(fil), 99);
+end
 %% Density plot
 A = densityplot('eGEMn');
 

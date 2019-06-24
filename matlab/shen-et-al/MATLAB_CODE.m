@@ -6,71 +6,73 @@
 
 load supplementary_software_code acetylation_model %contains metabolic model with nuclear acetylation reaction
 load supplementary_software_code labels media_exchange1 mediareactions1 %list of nutrient conditions and uptake rates
-posgluc = 1385;  % glucose uptake reaction in recon1. 
-rxnpos  = [find(ismember(acetylation_model.rxns,'EX_KAC'));];
-objpos = find(acetylation_model.c) %biomass objective
+model = acetylation_model;
+%model = min;
+posgluc = find(ismember(model.rxns, 'EX_glc(e)'));;  % glucose uptake reaction in recon1. 
+rxnpos  = [find(ismember(model.rxns,'EX_KAC'));];
+objpos = find(ismember(model.rxns, 'biomass_objective')); %biomass objective
 minfluxflag = 0; % no PFBA
-epsilon_methylation = 1E-6;
-acetylation_model = min;
+epsilon_methylation = 1E-3;
 
-    for kappatype = 1:2
-        if kappatype == 1, kappa  = 10; else kappa = 0.01;end 
-        
-        for i = 1:50
-            kappa1 = kappa;
-            if (kappatype == 2) & (ismember(i,[2,3,5:19])) % trace elements
-                kappa1 = kappa/100;
-            elseif (kappatype == 1) & (ismember(i,[1;4])) % glucose or glutamine
-                kappa1 = 3;
-            end
-            model2 = acetylation_model;
-            % change media..
-            [ix pos]  = ismember(mediareactions1(i), model2.rxns);
-            model2.lb(pos) = -media_exchange1(i,1)*kappa1;
-            
-            [solf.x,sol11] =  constrain_flux_regulation(model2,[],[],0,0,0,[],[],minfluxflag);
-            
-            str = ['media_change_growth_',num2str(kappatype),'(i,1) = solf.x(objpos);'];
-            if ~isempty(solf.x) &  ~isnan(solf.x)
-                eval(str)
-            end
-            
-            j = 1;
-            model3 = model2;
-            model3.c(rxnpos) = epsilon_methylation;
-            [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
-            str = ['media_change_histone_acet_nuc_',num2str(kappatype),'(i,j) = solf.x(rxnpos);'];
-            if ~isempty(solf.x) &  ~isnan(solf.x)
-                eval(str)
-            end
-            disp(i)
+
+for kappatype = 1:2
+    if kappatype == 1, kappa  = 10; else kappa = 0.01;end 
+
+    for i = 1:50
+        kappa1 = kappa;
+        if (kappatype == 2) & (ismember(i,[2,3,5:19])) % trace elements
+            kappa1 = kappa/100;
+        elseif (kappatype == 1) & (ismember(i,[1;4])) % glucose or glutamine
+            kappa1 = 3;
         end
-        
-        
-        disp(kappatype)
+        model2 = model;
+        % change media..
+        [ix pos]  = ismember(mediareactions1(i), model2.rxns);
+        model2.lb(pos) = -media_exchange1(i,1)*kappa1;
+
+        [solf.x,sol11] =  constrain_flux_regulation(model2,[],[],0,0,0,[],[],minfluxflag);
+
+        str = ['media_change_growth_',num2str(kappatype),'(i,1) = solf.x(objpos);'];
+        if ~isempty(solf.x) &  ~isnan(solf.x)
+            eval(str)
+        end
+
+        j = 1;
+        model3 = model2;
+        model3.c(rxnpos) = epsilon_methylation;
+        [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
+        str = ['media_change_histone_acet_nuc_',num2str(kappatype),'(i,j) = solf.x(rxnpos);'];
+        if ~isempty(solf.x) &  ~isnan(solf.x)
+            eval(str)
+        end
+        disp(i)
     end
-    
-    labels(2) = {'Glutathione'};
-    idx = [1:4,20:50];
-    figure;
-    bar([media_change_histone_acet_nuc_1(idx,1) media_change_histone_acet_nuc_2(idx,1) ],1,'edgecolor','w');
-    title('Acetylation levels in different growth conditions','fontweight','bold')
-    set(gca,'xtick',[1:length(mediareactions1(idx))],'xticklabel',labels(idx),'fontsize',8,'fontweight','bold','XTickLabelRotation',45)
-    set(gca,'TickDir', 'out')
-    set(gca,'box','off')
-    set(gca,'linewidth',2)
-    set(gcf,'color','white')
-    set(gca,'fontsize',12)
-    ylabel('Acetyl- Flux')
-h = legend({'Excess','Depletion'})
+
+
+    disp(kappatype)
+end
+
+labels(2) = {'Glutathione'};
+idx = [1:4,20:50];
+figure;
+bar([media_change_histone_acet_nuc_1(idx,1) media_change_histone_acet_nuc_2(idx,1) ],1,'edgecolor','w');
+title('Acetylation levels in different growth conditions','fontweight','bold')
+set(gca,'xtick',[1:length(mediareactions1(idx))],'xticklabel',labels(idx),'fontsize',8,'fontweight','bold','XTickLabelRotation',45)
+set(gca,'TickDir', 'out')
+set(gca,'box','off')
+set(gca,'linewidth',2)
+set(gcf,'color','white')
+set(gca,'fontsize',12)
+ylabel('Acetyl- Flux')
+h = legend({'Excess','Depletion'});
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       %% impact of gene deletion on acetylation - figure 2B
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-            unqgenes = unique(acetylation_model.genes); %all genes in the model
+            unqgenes = unique(model.genes); %all genes in the model
 
     for i = 2:length(unqgenes)
         
-        modeltemp = acetylation_model ;
+        modeltemp = model ;
          modeltemp = deleteModelGenes(modeltemp,unqgenes(i));
         model3 = modeltemp;
       
@@ -109,20 +111,20 @@ glucflag1 = [ ones(1,6),  0 ,0, 0,  0];
 expval1 = [ ones(1,7),  0 , 1,  0];
 
 
-[ix,  aapos] = ismember( mediareactions1(20:37),acetylation_model.rxns);
+[ix,  aapos] = ismember( mediareactions1(20:37),model.rxns);
 posgluc = 1385;  % glucose uptake reaction in recon1.
 glnpos = 1386; % glutamine
 pyrpos = 1509; % pyruvate
 acetatepos = 1238; % acetate
 fattyacidpos = 1445; % linoleic acid
 
-model3 = acetylation_model;
+model3 = model;
 model3.c(rxnpos) = epsilon_methylation ;
 [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
 wild_type_acet = solf.x(rxnpos); % default acetylation flux
 
 for i = 1:10
-    model3 = acetylation_model;
+    model3 = model;
     if ~glucflag(i)
         model3.lb(posgluc) = 0;
     end
@@ -152,7 +154,7 @@ sum((acet_media_screen_dmem > 0.05*wild_type_acet) == expval') % 9
 
 
 for i = 1:10
-    model3 = acetylation_model;
+    model3 = model;
     if ~glucflag1(i)
         model3.lb(posgluc) = 0;
     end
@@ -160,11 +162,11 @@ for i = 1:10
     
     switch i 
         case 2 % no ca+
-                    model3.lb(ismember( {'EX_ca2(e)'},acetylation_model.rxns)) = 0;
+                    model3.lb(ismember( {'EX_ca2(e)'},model.rxns)) = 0;
         case 4 % no Phosphate
-                    model3.lb(ismember( {'EX_pi(e)'},acetylation_model.rxns)) = 0;
+                    model3.lb(ismember( {'EX_pi(e)'},model.rxns)) = 0;
         case 6 % no vitamins in dmem.. compmosition from sigma 
-                    model3.lb(ismember( {'EX_thm(e)';'EX_ribflv(e)';'EX_pydx(e)';'EX_ncam(e)';'EX_inost(e)';'EX_5mthf(e)';'EX_pnto_R(e)';'EX_chol(e)'},acetylation_model.rxns)) = 0;
+                    model3.lb(ismember( {'EX_thm(e)';'EX_ribflv(e)';'EX_pydx(e)';'EX_ncam(e)';'EX_inost(e)';'EX_5mthf(e)';'EX_pnto_R(e)';'EX_chol(e)'},model.rxns)) = 0;
         case 7 %  add acetate
                     model3.lb(acetatepos) = -20;
         case 9 % add fatty acid
@@ -195,7 +197,7 @@ minfluxflag = 0; % no PFBA
     iii = find(ismember(celllinenames_ccle1, acetlevellist(i)));
     if ~isempty(iii)
         iii  = iii(1);
-        model2 = acetylation_model;
+        model2 = model;
                  %find up and down-regulated genes in each cell line
         ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
         offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
@@ -248,7 +250,7 @@ xlabel('Acetylation flux');ylabel('Bulk H3K9 Acetylation')
  load supplementary_software_code recon1biologpm1match biologratio biolognewpm196 %contains BIOLOG phenotype array data
 
 for i = 1:96
-      model2 = acetylation_model;
+      model2 = model;
     if ~isnan(recon1biologpm1match(i))
         model2.lb(posgluc) = -0.1;
         model2.lb(recon1biologpm1match(i)) = -10;
@@ -311,7 +313,7 @@ for i = 1:length(exptidcelllinemediamatch)
     iii = find(ismember(celllinenames_ccle1, ctd2celllineidname(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
-        model2 = acetylation_model;
+        model2 = model;
       
         %find up and down-regulated genes in each cell line that matches
         %CCLE and CTD2
