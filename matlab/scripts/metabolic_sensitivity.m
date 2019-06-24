@@ -40,8 +40,8 @@ end
 
 % Initialize parameters needed
 minfluxflag = 0;
-posgluc = 1382;  % glucose uptake reaction in eGEM model
-biomassobjpos = 3734; % biomass rxn position in eGEM model
+posgluc = find(ismember(model.rxns, 'EX_glc(e)'));  % glucose uptake reaction in eGEM model
+biomassobjpos = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn position in eGEM model
 rxnname = metabolites(:, 1); % reaction positions of interest
 rxnname(5) = {'EX_KAC'}; % I need to rename this reaction in the metabolites folder
 rxnname = char(rxnname);
@@ -131,7 +131,7 @@ for kappatype = 1:2
                     fva=0;
 
                     % Get all the reactions you are interested in
-                    mets = cellstr(metabolites(:,2));
+                    mets = cellstr(metabolites(:, 2)); 
                     for i=1:length(mets)
                         met{i} = [char(mets(i)) '[' compartment ']'];
                     end
@@ -245,7 +245,7 @@ for kappatype = 1:2
                     % FBA optimization for all reactions simultaneously
                     case 'fba'
 
-                        mets = cellstr(metabolites(:,2));
+                        mets = cellstr(metabolites(:, 2)); 
                         for i=1:length(mets)
                             met{i} = [char(mets(i)) '[' compartment ']'];
                         end
@@ -303,7 +303,8 @@ if exp == 'sra'
         'excess_flux'; 'depletion_flux';...
         'excess_flux_sp'; 'depletion_flux_sp';...
         'excess_flux_rc'; 'depletion_flux_rc';...
-        'medium_components'; 'reactions'};
+        %'medium_components'; 'reactions'
+        };
     values = {...
         excess_grate; depletion_grate;...
         excess_grate_sp; depletion_grate_sp;...
@@ -311,7 +312,7 @@ if exp == 'sra'
         excess_flux; depletion_flux;...
         excess_flux_sp; depletion_flux_sp;...
         excess_flux_rc; depletion_flux_rc;...
-        medium_labels; reaction_labels...
+        %medium_labels; reaction_labels...
         };
     for i=1:length(fields)
         fba.(fields{i}) = values{i};
@@ -327,7 +328,8 @@ elseif exp == 'fba'
         'excess_flux'; 'depletion_flux';...
         'excess_flux_sp'; 'depletion_flux_sp';...
         'excess_flux_rc'; 'depletion_flux_rc';...
-        'medium_components'; 'reactions'};
+        %'medium_components'; 'reactions'...
+        };
     values = {...
         excess_grate; depletion_grate;...
         excess_grate_sp; depletion_grate_sp;...
@@ -335,7 +337,7 @@ elseif exp == 'fba'
         excess_flux; depletion_flux;...
         excess_flux_sp; depletion_flux_sp;...
         excess_flux_rc; depletion_flux_rc;...
-        medium_labels; reaction_labels...
+        %medium_labels; reaction_labels...
         };
     for i=1:length(fields)
         fba.(fields{i}) = values{i};
@@ -347,12 +349,12 @@ elseif exp == 'fva'
     fields = {...
         'excess_max_flux'; 'excess_min_flux';...
         'depletion_max_flux'; 'depletion_min_flux';...
-        'medium_components'; 'reactions'...
+        %'medium_components'; 'reactions'...
         };
     values = {...
         excess_maxflux; excess_minflux;...
         depletion_maxflux; depletion_minflux;...
-        medium_labels; reaction_labels...
+        %medium_labels; reaction_labels...
         };
     for i=1:length(fields)
         fva.(fields{i}) = values{i};
@@ -360,22 +362,16 @@ elseif exp == 'fva'
 end
 
 % %% Scaling the data for visualization purposes
-% if scaling == 'zscore'
-%     if exp == 'sra'
-%         for fld=1:numel(fieldnames(sra))
-%             sra(fld) = zscore(src(fld));
-%         end
-%     elseif exp == 'fba'
-%         for fld=1:numel(fieldnames(fba))
-%             fba(fld) = zscore(fba(fld));
-%         end
-%     elseif exp == 'fva'
-%         for fld=1:numel(fieldnames(fva))
-%             fva(fld) = zscore(fva(fld));
-%         end
-%     end
-% end
-% 
+if scaling == 'zscore'
+    if exp == 'sra'
+        sra = structfun(@zscore, sra, 'UniformOutput', false);
+    elseif exp == 'fba'
+        fba = structfun(@zscore, fba, 'UniformOutput', false);
+    elseif exp == 'fva'
+        fva = structfun(@zscore, fva, 'UniformOutput', false);
+    end
+end
+ 
 % %% Replace 0 with NaN
 % %excess_flux(excess_flux==0) = NaN;
 % %excess_redcost(excess_redcost==0) = NaN;
@@ -384,7 +380,7 @@ end
 % %depletion_flux(depletion_flux==0) = NaN;
 % %depletion_redcost(depletion_redcost==0) = NaN;
 % %depletion_shadow(depletion_shadow==0) = NaN;
-% 
+ 
 %% Heatmap for FVA
 
 switch exp
@@ -394,24 +390,29 @@ switch exp
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
 
-        fig1 = figure;
+        fig = figure;
         subplot(1,2,1);
-        heatmap(excess_flux)
+        heatmap(excess_maxflux)
         ax1 = gca;
         ax1.XData = reaction_labels;
         ax1.YData = medium_labels;
-        ax1.Title = 'Metabolic flux in depletion medium';
+        ax1.Title = 'Metabolic flux in excess medium';
         xlabel(ax1, 'Demand reactions');
         ylabel(ax1, 'Medium component');
 
         subplot(1,2,2);
-        heatmap(depletion_flux)
+        heatmap(depletion_maxflux)
         ax2 = gca;
         ax2.XData = reaction_labels;
         ax2.YData = medium_labels;
         ax2.Title = 'Metabolic flux in depleted medium';
         xlabel(ax2, 'Demand reactions');
         ylabel(ax2, 'Medium component');
+        
+        % Save figure
+        
+        fig_str = strcat(string(medium), '.fig');
+        saveas(fig, fig_str);
 end
 % 
 % 
