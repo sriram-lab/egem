@@ -92,16 +92,17 @@ for kappatype = 1:2
 
                         % Create the demand reactions dynamically
                         tmp_met = char(metabolites(rxn, 2)); % example: accoa
+                        met = [tmp_met '[' compartment ']'];
                         tmprxn = [tmp_met '[' compartment '] -> ']; % example: accoa[n] ->
                         tmpname = char(metabolites(rxn, 1)); % example: DM_accoa
-
+                        
                         % Add the new reaction to the excess and depletion models
                         excess_model = addReaction(excess_model, tmpname,...
                             'reactionFormula', tmprxn);
 
                         % Calculate growth rates, reduced costs, and shadow prices
                         [soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
-                            biomassobjpos, tmp_met, [], [], [], 1, exp);
+                            biomassobjpos, met, [], [], [], 1, exp);
                         excess_grate(component, rxn) = grate;
                         excess_grate_sp(component, rxn) = grate_sp;
                         excess_grate_rc(component, rxn) = grate_rc;
@@ -115,7 +116,7 @@ for kappatype = 1:2
 
                         % Solve for metabolic fluxes
                         [flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
-                            rxnpos, tmp_met, [], [], [], epsilon2, exp);
+                            rxnpos, met, [], [], [], epsilon2, exp);
                         excess_flux(component, rxn) = flux;
                         excess_flux_sp(component,rxn) = flux_sp;
                         excess_flux_rc(component,rxn) = flux_rc;
@@ -209,6 +210,7 @@ for kappatype = 1:2
 
                             % Create the demand reactions dynamically
                             tmp_met = char(metabolites(rxn, 2)); % example: accoa
+                            met = [tmp_met '[' compartment ']'];
                             tmprxn = [tmp_met '[' compartment '] -> ']; % example: accoa[n] ->
                             tmpname = char(metabolites(rxn, 1)); % example: DM_accoa
 
@@ -218,7 +220,7 @@ for kappatype = 1:2
 
                             % Calculate growth rates, reduced costs, and shadow prices
                             [soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(depletion_model,...
-                                biomassobjpos, tmp_met, [], [], [], 1, exp);
+                                biomassobjpos, met, [], [], [], 1, exp);
                             depletion_grate(component, rxn) = grate;
                             depletion_grate_sp(component,rxn) = grate_sp;
                             depletion_grate_rc(component,rxn) = grate_rc;
@@ -232,10 +234,10 @@ for kappatype = 1:2
 
                             % Solve for metabolic fluxes
                             [soln, flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
-                                rxnpos, tmp_met, [], [], [], epsilon2, exp);
+                                rxnpos, met, [], [], [], epsilon2, exp);
                             depletion_flux(component, rxn) = flux;
-                            depletion_flux_sp(component,rxn) = flux_sp;
-                            depletion_flux_rc(component,rxn) = flux_rc;
+                            depletion_flux_sp(component, rxn) = flux_sp;
+                            depletion_flux_rc(component, rxn) = flux_rc;
 
                             % Reset models
                             depletion_model = removeRxns(depletion_model, tmprxn);
@@ -315,7 +317,7 @@ if exp == 'sra'
         %medium_labels; reaction_labels...
         };
     for i=1:length(fields)
-        fba.(fields{i}) = values{i};
+        sra.(fields{i}) = values{i};
     end
     
 elseif exp == 'fba'
@@ -360,8 +362,8 @@ elseif exp == 'fva'
         fva.(fields{i}) = values{i};
     end
 end
-
-% %% Scaling the data for visualization purposes
+ 
+%% Scaling the data for visualization purposes
 if scaling == 'zscore'
     if exp == 'sra'
         sra = structfun(@zscore, sra, 'UniformOutput', false);
@@ -371,68 +373,27 @@ if scaling == 'zscore'
         fva = structfun(@zscore, fva, 'UniformOutput', false);
     end
 end
- 
-% %% Replace 0 with NaN
-% %excess_flux(excess_flux==0) = NaN;
-% %excess_redcost(excess_redcost==0) = NaN;
-% %excess_shadow(excess_shadow==0) = NaN;
-% 
-% %depletion_flux(depletion_flux==0) = NaN;
-% %depletion_redcost(depletion_redcost==0) = NaN;
-% %depletion_shadow(depletion_shadow==0) = NaN;
+  
+%% Replace 0 with NaN -> used in heatmap figures
+excess_flux(excess_flux==0) = NaN;
+excess_redcost(excess_redcost==0) = NaN;
+excess_shadow(excess_shadow==0) = NaN;
+
+depletion_flux(depletion_flux==0) = NaN;
+depletion_redcost(depletion_redcost==0) = NaN;
+depletion_shadow(depletion_shadow==0) = NaN;
  
 %% Heatmap for FVA
 
 switch exp
-    % Case 1: Use the most dynamic range of metabolic fluxes
-    case 'fva'  
-        % Prepare figure labels and variables
-        medium_labels = mediareactions1(:,2);
-        reaction_labels = metabolites(:,3);
-
-        fig = figure;
-        subplot(1,2,1);
-        heatmap(excess_maxflux)
-        ax1 = gca;
-        ax1.XData = reaction_labels;
-        ax1.YData = medium_labels;
-        ax1.Title = 'Metabolic flux in excess medium';
-        xlabel(ax1, 'Demand reactions');
-        ylabel(ax1, 'Medium component');
-
-        subplot(1,2,2);
-        heatmap(depletion_maxflux)
-        ax2 = gca;
-        ax2.XData = reaction_labels;
-        ax2.YData = medium_labels;
-        ax2.Title = 'Metabolic flux in depleted medium';
-        xlabel(ax2, 'Demand reactions');
-        ylabel(ax2, 'Medium component');
-        
-        % Save figure
-        
-        fig_str = strcat(string(medium), '.fig');
-        saveas(fig, fig_str);
-end
-% 
-% 
-%% Heatmap figures
-% Still needs work:
-    % Make `excess` green and `depletion` red
-    % Color gradient: metabolic flux > reduced costs > shadow prices
-    % Incorporate plotly
-    % Is there a way to dynamically size .pngs?
-
-switch exp
-    % Case 1: Use the most dynamic range of metabolic fluxes
-    case 'fba'  
-        % Prepare figure labels and variables
+    
+    case ('fba' | 'sra') 
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
 
         fig1 = figure;
         subplot(2,3,1);
-        heatmap(excess_flux)
+        heatmap(excess_flux, 'MissingDataLabel', 0)
         ax1 = gca;
         ax1.XData = reaction_labels;
         ax1.YData = medium_labels;
@@ -441,7 +402,7 @@ switch exp
         ylabel(ax1, 'Medium component');
 
         subplot(2,3,4);
-        heatmap(depletion_flux)
+        heatmap(depletion_flux, 'MissingDataLabel', 0)
         ax2 = gca;
         ax2.XData = reaction_labels;
         ax2.YData = medium_labels;
@@ -484,14 +445,46 @@ switch exp
         ax6.Title = 'Reduced cost in depleted medium';
         xlabel(ax6, 'Demand reactions');
         ylabel(ax6, 'Medium component');
-end
-% 
+        
+        %base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+        %fig_str = strcat(base, '.fig');
+
+        %saveas(fig, fig_str);
+    
+    case 'fva'  
+        medium_labels = mediareactions1(:,2);
+        reaction_labels = metabolites(:,3);
+
+        fig = figure;
+        subplot(1,2,1);
+        heatmap(excess_maxflux)
+        ax1 = gca;
+        ax1.XData = reaction_labels;
+        ax1.YData = medium_labels;
+        ax1.Title = 'Metabolic flux in excess medium';
+        xlabel(ax1, 'Demand reactions');
+        ylabel(ax1, 'Medium component');
+
+        subplot(1,2,2);
+        heatmap(depletion_maxflux)
+        ax2 = gca;
+        ax2.XData = reaction_labels;
+        ax2.YData = medium_labels;
+        ax2.Title = 'Metabolic flux in depleted medium';
+        xlabel(ax2, 'Demand reactions');
+        ylabel(ax2, 'Medium component');
+        
+        %base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+        %fig_str = strcat(base, '.fig');
+
+        %saveas(fig, fig_str);
+
 %         base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
 %         fig1_str = strcat(base, '.fig');
 % 
 %         saveas(fig1, fig1_str);
 % 
-%         % Create a heatmap for the growth rates in excess and depleted medium
+%         Create a heatmap for the growth rates in excess and depleted medium
 %         fig2 = figure;
 % 
 %         dat = [excess_xgrate; depletion_xgrate];
@@ -499,7 +492,7 @@ end
 % 
 %         heatmap(dat)
 %         ax1 = gca;
-%         %ax1.XData = ['Excess Medium'; 'Depleted Medium'];
+%         ax1.XData = ['Excess Medium'; 'Depleted Medium'];
 %         ax1.YData = medium_labels;
 %         ax1.Title = 'Growth rate in excess medium';
 %         xlabel(ax1, 'Growth Rates');
@@ -526,6 +519,6 @@ end
 %         base = strcat('./../figures/new-model/eGEMn_grate_', string(epsilon2));
 %         fig2_str = strcat(base, '.fig');
 %         saveas(fig2, fig2_str);
-% end
+end
 % %clear
 end
