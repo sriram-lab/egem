@@ -13,11 +13,18 @@ which can be used for the histone correlation calculations
 
 import GEOparse
 import mygene
+<<<<<<< HEAD
 import pandas as pd
 
 """
 GETTING GENE NAMES
 """ 
+=======
+
+"""
+GETTING GENE NAMES
+"""
+>>>>>>> aba65861ab151789e4308118fc0845516a72ace9
 
 file = open("GPL15308.txt", 'r')
 
@@ -49,6 +56,11 @@ for line in gene_information:
 GETTING EXPRESSION DATA
 """
 
+<<<<<<< HEAD
 #gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
 gse = GEOparse.get_GEO(geo="GSE36133", destdir="./")
+=======
+gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
+
+>>>>>>> aba65861ab151789e4308118fc0845516a72ace9
 
