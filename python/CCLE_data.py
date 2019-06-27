@@ -18,8 +18,11 @@ import mygene
 GETTING GENE NAMES
 """
 
+<<<<<<< HEAD
 gse = GEOparse.get_GEO(geo="GPL15308", destdir="./")
 
+=======
+>>>>>>> aba65861ab151789e4308118fc0845516a72ace9
 file = open("GPL15308.txt", 'r')
 
 gene_ids = []
@@ -50,6 +53,7 @@ for line in gene_information:
 GETTING EXPRESSION DATA
 """
 
+<<<<<<< HEAD
 #This file thing was working but I am not sure why its not working now 
 #This file originally had all the GSM files in it
 gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
@@ -60,3 +64,8 @@ gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
 
 
 
+=======
+gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
+
+
+>>>>>>> aba65861ab151789e4308118fc0845516a72ace9
