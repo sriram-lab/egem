@@ -42,21 +42,18 @@ exp = 'single-reaction-analysis';
 [sra, ~, ~, ~, ~] = metabolic_sensitivity(min, 'n', 1E-6, 'zscore', 'sra',...
     'RPMI', []);
 
-% Get the optimal s
-medium_of_interest = {'RPMI', 'DMEM', 'L15', 'McCoy 5A', 'Iscove'};
+% Different epsilon
+medium_of_interest = ['RPMI', 'DMEM', 'L15', 'McCoy 5A', 'Iscove'];
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
-    disp(medium_of_interest(med))
     for n = 1:length(epsilon2)
-        
         % Run all
-        str =  strcat("[sra", string(n), '_', medium_of_interest(med), ", ~, ~, ~, ~] = metabolic_sensitivity(min, 'n', epsilon2(n), 'zscore', 'sra',medium_of_interest(med), []);");
+        str =  strcat("[sra", string(n), ", ~, ~, ~, ~] = metabolic_sensitivity(min, 'n', epsilon2(n), 'zscore', 'sra',medium_of_interest(med), []);");
         eval(str)
         
         % Plot all
-        str = strcat("plot_heatmap(sra", string(n), '_', medium_of_interest(med), ",'sra', epsilon2(n), medium_of_interest(med))");
+        str = strcat("plot_heatmap(sra", string(n), ",'sra', epsilon2(n))");
         eval(str)
-        
     end
 end
 
@@ -95,12 +92,10 @@ end
 
 % For optimizing multiple reactions simultaneously using FVA with different
 % media:
-%[~, media] = xlsfinfo('./../../data/uptake.xlsx');
-medium_of_interest = {'RPMI', 'DMEM', 'L15', 'McCoy 5A', 'Iscove'};
-for fil=1:length(medium_of_interest)
+[~, media] = xlsfinfo('./../../data/uptake.xlsx');
+for fil=1:length(sheets)
     [~, ~, fva, ~] = metabolic_sensitivity(min, 'n',...
-        epsilon2, 'zscore', 'fva', 'RPMI', 99);
-    plot_heatmap(fva, 'fva', epsilon2, 'RPMI')
+        epsilon2, 'zscore', 'fva', media(fil), 99);
 end
 
 %% Correlation values between histone markers and metabolic flux
