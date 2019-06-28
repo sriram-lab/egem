@@ -86,8 +86,6 @@ for kappatype = 1:2
                 case 'sra'
                     fba = 0;
                     fva = 0;
-                    excess_soln = 0;
-                    depletion_soln = 0;
 
                     % Add demand reactions from the metabolite list to the metabolic model
                     for rxn = 1:length(metabolites(:,1)) % 20 reactions of interest
@@ -158,9 +156,9 @@ for kappatype = 1:2
                             rxnpos, met, [], [], [], epsilon2(:, 1), exp);
 
                     % Stuff you want
-                    excess_flux(component,:) = flux;
-                    excess_flux_sp(component,:) = flux_sp;
-                    excess_flux_rc(component,:) = flux_rc;
+                    excess_flux(component,:) = flux';
+                    excess_flux_sp(component,:) = flux_sp';
+                    excess_flux_rc(component,:) = flux_rc';
 
                     disp(component)
 
@@ -366,35 +364,35 @@ elseif exp == 'fva'
 end
  
 %% Scaling the data for visualization purposes
-%if scaling == 'zscore'
-%    if exp == 'sra'
-%        sra = structfun(@zscore, sra, 'UniformOutput', false);
-%    elseif exp == 'fba'
-%        fba = structfun(@zscore, fba, 'UniformOutput', false);
-%    elseif exp == 'fva'
-%        fva = structfun(@zscore, fva, 'UniformOutput', false);
-%    end
-%end
+if scaling == 'zscore'
+    if exp == 'sra'
+        sra = structfun(@zscore, sra, 'UniformOutput', false);
+    elseif exp == 'fba'
+        fba = structfun(@zscore, fba, 'UniformOutput', false);
+    elseif exp == 'fva'
+        fva = structfun(@zscore, fva, 'UniformOutput', false);
+    end
+end
   
 %% Replace 0 with NaN -> used in heatmap figures
-%excess_flux(excess_flux==0) = NaN;
-%excess_redcost(excess_redcost==0) = NaN;
-%excess_shadow(excess_shadow==0) = NaN;
+excess_flux(excess_flux==0) = NaN;
+excess_redcost(excess_redcost==0) = NaN;
+excess_shadow(excess_shadow==0) = NaN;
 
-%depletion_flux(depletion_flux==0) = NaN;
-%depletion_redcost(depletion_redcost==0) = NaN;
-%depletion_shadow(depletion_shadow==0) = NaN;
+depletion_flux(depletion_flux==0) = NaN;
+depletion_redcost(depletion_redcost==0) = NaN;
+depletion_shadow(depletion_shadow==0) = NaN;
  
-%% Generate Heatmaps for Downstream Analysis
+%% Heatmaps
+
 switch exp
     case ('fba' | 'sra') 
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
-        
-        % Metabolic fluxes
+
         fig1 = figure;
         subplot(1,2,1);
-        heatmap(excess_flux)
+        heatmap(excess_flux, 'MissingDataLabel', 0)
         ax1 = gca;
         ax1.XData = reaction_labels;
         ax1.YData = medium_labels;
@@ -403,7 +401,7 @@ switch exp
         ylabel(ax1, 'Medium component');
 
         subplot(1,2,2);
-        heatmap(depletion_flux)
+        heatmap(depletion_flux, 'MissingDataLabel', 0)
         ax2 = gca;
         ax2.XData = reaction_labels;
         ax2.YData = medium_labels;
@@ -411,7 +409,6 @@ switch exp
         xlabel(ax2, 'Demand reactions');
         ylabel(ax2, 'Medium component');
         
-        % Shadow prices
         fig2 = figure;
         subplot(1,2,1);
         heatmap(excess_flux_sp)
@@ -422,7 +419,7 @@ switch exp
         xlabel(ax3, 'Demand reactions');
         ylabel(ax3, 'Medium component');
 
-        subplot(1,2,2);
+        subplot(2,3,5);
         heatmap(depletion_flux_sp)
         ax4 = gca;
         ax4.XData = reaction_labels;
@@ -430,10 +427,8 @@ switch exp
         ax4.Title = 'Shadow price in depleted medium';
         xlabel(ax4, 'Demand reactions');
         ylabel(ax4, 'Medium component');
-        
-        % Reduced cost
-        fig3 = figure;
-        subplot(1,2,1);
+
+        subplot(2,3,3);
         heatmap(excess_flux_rc)
         ax5 = gca;
         ax5.XData = reaction_labels;
@@ -442,7 +437,7 @@ switch exp
         xlabel(ax5, 'Demand reactions');
         ylabel(ax5, 'Medium component');
 
-        subplot(1,2,2);
+        subplot(2,3,6);
         heatmap(depletion_flux_rc)
         ax6 = gca;
         ax6.XData = reaction_labels;
@@ -451,40 +446,10 @@ switch exp
         xlabel(ax6, 'Demand reactions');
         ylabel(ax6, 'Medium component');
         
-        % Growth rate
-        fig4 = figure;
-        subplot(1,2,1);
-        heatmap(excess_grate)
-        ax5 = gca;
-        ax5.XData = reaction_labels;
-        ax5.YData = medium_labels;
-        ax5.Title = 'Growth rate in excess medium';
-        xlabel(ax5, 'Demand reactions');
-        ylabel(ax5, 'Medium component');
+        %base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+        %fig_str = strcat(base, '.fig');
 
-        subplot(1,2,2);
-        heatmap(depletion_grate)
-        ax6 = gca;
-        ax6.XData = reaction_labels;
-        ax6.YData = medium_labels;
-        ax6.Title = 'Growth rate in depleted medium';
-        xlabel(ax6, 'Demand reactions');
-        ylabel(ax6, 'Medium component');
-        
-        base = strcat('./../figures/new-model/eGEMn_',...
-            string(epsilon2),...
-            '_', exp);
-        
-        % Create filenames for all figures
-        fig1_str = strcat(base, '_flux.fig');
-        fig2_str = strcat(base, '_sp.fig');
-        fig3_str = strcat(base, '_rc.fig');
-        fig4_str = strcat(base, '_grate.fig');
-
-        saveas(fig1, fig1_str);
-        saveas(fig2, fig2_str);
-        saveas(fig3, fig3_str);
-        saveas(fig4, fig4_str);
+        %saveas(fig, fig_str);
     
     case 'fva'  
         medium_labels = mediareactions1(:,2);
@@ -509,13 +474,10 @@ switch exp
         xlabel(ax2, 'Demand reactions');
         ylabel(ax2, 'Medium component');
         
-        base = strcat('./../figures/new-model/eGEMn_',...
-            string(epsilon2),...
-            '_', exp);
-        
-        % Create filenames for all figures
-        fig_str = strcat(base, '_flux.fig');
-        saveas(fig, fig_str);
+        %base = strcat('./../figures/new-model/eGEMn_', string(epsilon2));
+        %fig_str = strcat(base, '.fig');
+
+        %saveas(fig, fig_str);
 
 end
 end
