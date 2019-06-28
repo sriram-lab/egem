@@ -1,8 +1,9 @@
 %% Run analyses for epigenome-scale metabolic models
 initCobraToolbox;
 changeCobraSolver('gurobi');
-
-%% load different models
+%% load models. Must run from "scripts" directory
+load ./../models/eGEM.mat % minimal eGEM model 
+%load ./../models/acetyl2.mat % new acetylation model
 
 % Minial eGEM -> does not contain other one carbon reactions
 load ./../models/min.mat % minimal eGEM model - need to 
