@@ -29,15 +29,15 @@ function model = media(model, medium)
         % Contains Inositol in high concentrations
         % Contains Choline in high concentrations
 if ismember({'RPMI'}, medium)
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx', 'Sheet', 'RPMI');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 % If medium condition is not specified, set to RPMI
 elseif ismember({'nan'}, medium)
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx', 'Sheet', 'RPMI');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 %% DMEM
@@ -46,9 +46,9 @@ elseif ismember({'nan'}, medium)
     % Contains 2.25x more D-glc than RPMI
     % Also contains excess of basically everything
 elseif ismember({'DMEM'}, medium)
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx', 'Sheet', 'DMEM');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
     
 
@@ -58,116 +58,116 @@ elseif ismember({'DMEM'}, medium)
     % embryonic and adult human tissue
     % includes galactose, phenol red, glutamine and sodium pyruvate
 elseif ismember({'L15'}, medium)
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'L15');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'L15');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.83.html
 elseif ismember({'McCoy 5A'} , medium) % McCoy 5A
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'McCoy 5A');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'McCoy 5A');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.76.html
 elseif ismember({'Iscove'} , medium) % IMDM
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'Iscove');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'Iscove');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.126.html
 elseif ismember({'Waymouth'}, medium) % Waymouth
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'Waymouth');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx', 'Waymouth');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.227.html
 elseif ismember({'DMEM:F12 (1:1)'}, medium) % 1:1 DMEM and F12
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-F12');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'DMEM-F12');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.64.html
 elseif ismember({'HAM F-12'}, medium) % F12
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM F-12');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'HAM F-12');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/order/catalog/product/12571071?SID=srch-srp-12571071
 % It is different from DMEM, but need to encode glutamine and nucleosides
 % into the code...
 elseif ismember({'alpha-MEM'}, medium) % Alternative form to MEM
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'alpha-MEM');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'alpha-MEM');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.114.html
 elseif ismember({'RPMI w Gln'}, medium) % RPMI ++ L-gln
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI w Gln');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'RPMI w Gln');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.61.html
 elseif ismember({'HAM F-10'}, medium) % F10
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM F10');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'HAM F10');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % No one sells it - calc'd ratio
 elseif ismember({'DMEM:RPMI (2:1)'}, medium) % 2:1 DMEM:RPMI
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-RPMI 2-1');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'DMEM-RPMI 2-1');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % No one sells it - calc'd ratio
 elseif ismember({'MCDB105:M199'}, medium) % MCDB 105: Medium 199
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'MCDB105-M199');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'MCDB105-M199');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.314.html
 elseif ismember({'Williams E Medium'}, medium) % Williams E Medium
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'Williams E');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'Williams E');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % Same as DMEM:F12 
 elseif ismember({'ACL-4'}, medium) % ACL-4
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-F12');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx', 'Sheet',  'DMEM-F12');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end  
 
 % No one sells it - calc'd ratio
 elseif ismember({'RPMI:F12'}, medium) % 1:1 RPMI and F12
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI-F12');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'RPMI-F12');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end   
 
 % No one sells it - calc'd ratio
 elseif ismember({'DMEM:Iscove'}, medium) % 1:1 DMEM and Iscove 
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-Iscove');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'DMEM-Iscove');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 
 % No one sells it - calc'd ratio  
 elseif ismember({'RPMI:Iscove'}, medium) % 1:1 RPMI and Iscove
-    [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI-Iscove');
-    for rxn=2:length(txt)
-        model.lb(find(ismember(model.rxns, txt(rxn)))) = num(rxn);
+    num = readcell('./../../data/uptake.xlsx',  'Sheet', 'RPMI-Iscove');
+    for rxn=2:length(num)
+        model.lb(find(ismember(model.rxns, char(num(rxn, 2))))) = cell2mat(num(rxn, 4));
     end
 end
 

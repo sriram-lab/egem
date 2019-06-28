@@ -73,7 +73,7 @@ compartment = 'n';
 epsilon2 = 1E-3;
 scaling = [];
 
-var = {'./../var/metabolites.mat', './../var/cellmedia.mat', './../var/mediareactions1.mat'};
+var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat', './../vars/mediareactions1.mat'};
 for kk = 1:numel(var)
     load(var{kk})
 end
@@ -87,14 +87,14 @@ rowname = mediareactions1(:,2);
 % single optimization steps:
 
 % Single test case for epsilon
-epsilon2 = 1E-3
-exp = 'single-reaction-analysis'
+epsilon2 = 1E-3;
+exp = 'single-reaction-analysis';
 
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 %compartment = ['n', 'c', 'm'];
 %for n = 1:length(epsilon2)
     %for m = 1:length(compartment)
-[sra, ~, ~] = metabolic_sensitivity(min, 'n', 1E-6, 'zscore', 'sra',...
+[sra, ~, ~, ~, ~] = metabolic_sensitivity(min, 'n', 1E-6, 'zscore', 'sra',...
     'RPMI', []);
     %end
 %end
