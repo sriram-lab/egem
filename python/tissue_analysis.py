@@ -6,6 +6,12 @@ Created on Wed Jun 26 09:37:33 2019
 @author: marcdimeo
 """
 
+"""
+This script is intended to serve as test/method to group cell lines according to their tissues
+which will that be used for tissue specific analysis and histone correlation
+"""
+
+
 import pandas as pd
 import numpy as np
 
@@ -19,24 +25,23 @@ TISSUE SPECIFIC ANALYSIS
 #Change directory so it finds this file in 'data' and not in 'python' where I moved it.
 df = pd.read_csv('CCLE_GCP.csv')
 
-cellline_df = df['CellLineName'].copy()
 
-cellline_dic = {}
-for celllines in cellline_df:
-    split = celllines.split('_')
-    cellline_dic[split[0]] = " ".join(split[1:])
+temp_df = pd.DataFrame(df['CellLineName'].str.split('_',1).tolist(),columns=['CellLine', 'Tissue'])
 
-cellline_list =[]
-tissue_list = []
-for keys in cellline_dic:
-    cellline_list.append(keys)
-    value = cellline_dic[keys]
-    tissue_list.append(value)
-
-df.index.name = "Cell Line"
-
-temp_df = {'Cell Line' : cellline_list, 'Tissue' : tissue_list }
-temp_df = pd.DataFrame(temp_df)
-
+i = 0 
+for tissue in temp_df.Tissue:
+    tissue = tissue.split('_')
+    tissue = " ".join(tissue)
+    temp_df.Tissue[i] = tissue
+    i = i+1
+    
 del df['CellLineName']
 
+df.insert(0, 'CellLine', temp_df.CellLine , True)
+df.insert(2, 'Tissue', temp_df.Tissue, True)
+
+#Fill NaN values
+df = df.fillna(method='ffill')
+
+matrix = df.to_numpy()
+        
