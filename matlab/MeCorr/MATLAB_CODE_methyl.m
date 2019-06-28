@@ -96,7 +96,7 @@ h = legend({'Excess','Depletion'})
             acet_screen_rpmi(i,2) = solf.x(objpos); % impact on growth
         end
         
-        model3.c(rxnpos) = epsilon_acetylation; % epsilon is a weight
+        model3.c(rxnpos) = epsilon_methylation; % epsilon is a weight
         [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
         if ~isempty(solf.x) && ~isnan(solf.x)
             acet_screen_rpmi(i,1) = solf.x(rxnpos); % impact on acetylation flux
@@ -133,7 +133,7 @@ acetatepos = 1238; % acetate
 fattyacidpos = 1445; % linoleic acid
 
 model3 = acetylation_model;
-model3.c(rxnpos) = epsilon_acetylation ;
+model3.c(rxnpos) = epsilon_methylation ;
 [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
 wild_type_acet = solf.x(rxnpos); % default acetylation flux
 
@@ -156,7 +156,7 @@ for i = 1:10
     end
     
     
-    model3.c(rxnpos) = epsilon_acetylation;
+    model3.c(rxnpos) = epsilon_methylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
     acet_media_screen_dmem(i,1) = solf.x(rxnpos); % impact on acetylation flux
     
@@ -188,7 +188,7 @@ for i = 1:10
     end
 
         
-    model3.c(rxnpos) = epsilon_acetylation;
+    model3.c(rxnpos) = epsilon_methylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
     acet_media_screen_dmem1(i,1) = solf.x(rxnpos); % impact on acetylation flux
 end
@@ -240,7 +240,7 @@ minfluxflag = 0; % no PFBA
        
             [fluxstate_gurobi,grate_ccle_exp_acetdat(i,1), solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);  % impact on growth
             
-            model2.c(rxnpos) = epsilon_acetylation;
+            model2.c(rxnpos) = epsilon_methylation;
             [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[],minfluxflag);
             grate_ccle_exp_acetdat(i,2) = fluxstate_gurobi(rxnpos); %acetylation flux
             
@@ -273,7 +273,7 @@ for i = 1:96
         disp(i)
         
         growth_basal2(i,1) = solf.x(objpos);  % impact on growth
-        model2.c(rxnpos) = epsilon_acetylation;
+        model2.c(rxnpos) = epsilon_methylation;
         [solf.x,sol11] =  constrain_flux_regulation(model2,[],[],0,0,0,[],[],minfluxflag);
         growth_basal2(i,2) = solf.x(rxnpos); %acetylation flux
         
@@ -342,8 +342,8 @@ for i = 1:height(exptidcelllinemediamatch)
     iii = find(ismember(celllinenames_ccle1, ctd2celllineidname_me(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
-         model2 = acetylation_model;      
-         %model2 = min;
+        model2 = min;
+        %model2 = acetylation_model;      
          
          %find up and down-regulated genes in each cell line
         ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
@@ -367,8 +367,19 @@ for i = 1:height(exptidcelllinemediamatch)
         end
         
         %find reactions from differentially expressed genes
-        [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
-        [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
+        onreactions= findRxnsFromGenes(model2, ongenes);
+        onreactions= struct2cell(onreactions);
+        for jj=1:length(onreactions)
+            onreactions(jj)= onreactions{jj}(1);
+        end
+        offreactions= findRxnsFromGenes(model2, offgenes);
+        offreactions= struct2cell(offreactions);
+        for jj=1:length(offreactions)
+            offreactions(jj)= offreactions{jj}(1);
+        end
+        % Below 2 lines work for acetyl model, not min methyl model.
+        %[~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
+        %[~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
        
         disp(i)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -429,7 +440,7 @@ hmei_list= {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='compound_name';
-%% I created this section to surpass the long for loop
+%% I created this section to surpass the long for-loop
 for j = 1:height(hmei_list)
 fx = find(ismember(ctd2compoundidname_name_me, hmei_list(j,1))) 
 ix = ismember(drug_auc_me(:,1), ctd2compoundidname_id_me(fx,1)); 

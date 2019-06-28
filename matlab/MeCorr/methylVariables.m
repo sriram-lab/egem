@@ -1,8 +1,10 @@
 % Plot correlation values between AUC of growth inhibition of cell 
 % lines and methylation flux
 
-% Workflow: 1)Run make_eGEM 2)Run this script 3)Assign epsilon_methylation
-% 3)Run last module of MATLAB_CODE_methyl (3 sections)
+% Workflow: 1)Run make_eGEM  
+cd '.\..\MeCorr';
+% 2)Run this script 3)Assign epsilon_methylation 4)Run last module of 
+...MATLAB_CODE_methyl (3 sections)
 
 % initCobraToolbox;
 % changeCobraSolver('gurobi');
