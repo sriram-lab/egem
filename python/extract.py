@@ -11,7 +11,9 @@ The files created from this script:
 @author: Scott Campit
 """
 
+import numpy as np
 import pandas as pd
+from openpyxl import load_workbook
 
 def get_media(dictionary, key, lst):
     """
@@ -391,7 +393,6 @@ def make_medium_conditions():
 
     # Get the default substrate uptake rates from RECON1. For those with uptake rates set to 0 initially, I changed it to a small number (-0.005 = default value)
     path = r'/mnt/c/Users/scampit/Desktop/MeGEM/data/'
-    default_uptake = pd.read_excel(path+'default_uptake.xlsx')
 
     # For all medium, I will use RPMI as the base condition, and will scale the substrate uptake rates accordingly.
 
@@ -399,6 +400,7 @@ def make_medium_conditions():
 
         # If the specific formulation was not provided, I simply divided the amount according to stoichiometric equivalents and added the medium concentrations together. If the amount of the medium component = infinity, I kept the infinity, as the amount will still be in excess. All infinity values will be converted into -100 for the substrate uptake rates.
 
+    # Single medium conditions I already have that I need to make the mixed media that are not already measured...
     rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI')
     dmem = pd.read_excel(path+'medium.xlsx', sheet_name='DMEM')
     mcdb105 = pd.read_excel(path+'medium.xlsx', sheet_name='MCDB105')
@@ -406,7 +408,96 @@ def make_medium_conditions():
     f12 = pd.read_excel(path+'medium.xlsx', sheet_name='HAM F-12')
     iscove = pd.read_excel(path+'medium.xlsx', sheet_name='Iscove')
 
-    
+    # load the excel file so you don't overwrite the excel sheet (again...)
+    book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
+    writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    # Media that I need to "make". Let's start with 2:1 DMEM: RPMI
+    dmem_21 = dmem.copy(deep=True)
+    dmem_21['mM'] = dmem_21['mM'].replace('Infinity', np.inf)
+    dmem_21['mM'] = dmem_21['mM']*2/3
+    rpmi_21 = rpmi.copy(deep=True)
+    rpmi_21['mM'] = rpmi_21['mM']*1/3
+    dmem_rpmi = pd.concat([dmem_21, rpmi_21]).groupby('Components')['mM'].sum().reset_index()
+    #dmem_rpmi.to_excel(writer, sheet_name='DMEM-RPMI 2-1', index=False)
+
+    # MCDB105-M199
+    mcdb105_11 = mcdb105.copy(deep=True)
+    mcdb105_11['mM'] = mcdb105_11['mM']*1/2
+    m199_11 = m199.copy(deep=True)
+    m199_11['mM'] = m199_11['mM'].replace('Infinity', np.inf)
+    m199_11['mM'] = m199_11['mM']*1/2
+    mcdb105_m199 = pd.concat([mcdb105_11, m199_11]).groupby('Components')['mM'].sum().reset_index()
+    #mcdb105_m199.to_excel(writer, sheet_name='MCDB105-M199', index=False)
+
+    # RPMI-F12
+    rpmi_11 = rpmi.copy(deep=True)
+    rpmi_11['mM'] = rpmi_11['mM']*1/2
+    f12_11 = f12.copy(deep=True)
+    f12_11['mM'] = f12_11['mM']*1/2
+    rpmi_f12 = pd.concat([rpmi_11, f12_11]).groupby('Components')['mM'].sum().reset_index()
+    #rpmi_f12.to_excel(writer, sheet_name='RPMI-F12', index=False)
+
+    # DMEM-iscove
+    dmem_11 = dmem.copy(deep=True)
+    dmem_11['mM'] = dmem_11['mM'].replace('Infinity', np.inf)
+    dmem_11['mM'] = dmem_11['mM']*1/2
+    iscove_11 = iscove.copy(deep=True)
+    iscove_11['mM'] = iscove_11['mM']*1/2
+    dmem_iscove = pd.concat([dmem_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
+    #dmem_iscove.to_excel(writer, sheet_name='DMEM-Iscove', index=False)
+
+    # RPMI-Iscove
+    rpmi_11 = rpmi.copy(deep=True)
+    rpmi_11['mM'] = rpmi_11['mM']*1/2
+    iscove_11 = iscove.copy(deep=True)
+    iscove_11['mM'] = iscove_11['mM']*1/2
+    rpmi_iscove = pd.concat([rpmi_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
+    #rpmi_iscove.to_excel(writer, sheet_name='RPMI-Iscove', index=False)
+
+    #writer.save()
+
+    # Now that I made the medium conditions, I need to calculate those scaling coefficients that I will use for each medium condition. Divide all dataframes by RPMI.
+    xlfil = pd.ExcelFile(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
+    media_conditions = xlfil.sheet_names
+
+    for medium in media_conditions:
+        # Hold this constant
+        rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI', index_col='Components')
+
+        # New medium condition
+        df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
+        df['mM'] = df['mM'].replace('Infinity', np.inf)
+
+        # Create a column that will be written back into the excel file.
+        df['Scaling factor'] = df['mM'].divide(rpmi['mM'], axis='index', fill_value=0)
+        df['Scaling factor'] = df['Scaling factor'].replace(np.inf, 10)
+        #df.to_excel(writer, sheet_name=medium, index=True)
+        #writer.save()
+
+    # I have scaling factors. Now I will add to the uptake.xlsx excel sheet to  map them back to specific substrate uptake rates in the metabolic model per medium condition.
+
+    # load the excel file so you don't overwrite the excel sheet
+    book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx')
+    writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    for medium in media_conditions:
+        # Keep this constant
+        default_uptake = pd.read_excel(path+'uptake.xlsx', sheet_name='RPMI', index_col='Metabolite')
+
+        # This will change based on medium component
+        df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
+
+        # Create a column that will be written back into the excel file
+        default_uptake['Adjusted uptake rate'] = default_uptake['Substrate Uptake Rate'].multiply(df['Scaling factor'], axis=0, fill_value=1.00)
+        default_uptake.to_excel(writer, sheet_name=medium,index=True)
+        writer.save()
+
+make_medium_conditions()
 
 def iterred(sheetnam=''):
     """
