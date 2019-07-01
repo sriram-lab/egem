@@ -23,16 +23,20 @@ s2= readtable('Data\Ludlow2015_SmallMolecInformer.xlsx','Sheet','s2');
 %index_DNMTi = [2 , 78, 181, 402, 444];     % DNMT = DNA MT
 
 % Get all 3 rows of s3 for drug_auc_me. Replaces drug_auc_expt
-drug_auc_me= zeros(664*8, 3);
+% 7/1: drug_auc_expt has all drugs tested. drug_auc_me only has methyl drugs 
+% advantage: less to search. matlab_code already extracts interested drugs
+% (variable hmei_auc_expt_me).
+drug_auc_me= s3;
 
-drug_auc_me(1:597, :)= s3(1293:1889, :); % drug 3
-drug_auc_me(665:1291, :)= s3(96133:96759, :); %drug 178
-drug_auc_me(1328:1766, :)= s3(149039:149477, :); %drug 280
-drug_auc_me(1992:2435, :)= s3(201699:202142, :); %drug 374
-drug_auc_me(2656:3302, :)= s3(204605:205251, :); %drug 380
-drug_auc_me(3320:3630, :)= s3(228209:228519, :); %drug 421
-drug_auc_me(3984:4606, :)= s3(232799:233421, :); %drug 431
-drug_auc_me(4648:4718, :)= s3(257167:257237, :); %drug 475
+% drug_auc_me= zeros(664*8, 3);
+% drug_auc_me(1:597, :)= s3(1293:1889, :); % drug 3
+% drug_auc_me(665:1291, :)= s3(96133:96759, :); %drug 178
+% drug_auc_me(1328:1766, :)= s3(149039:149477, :); %drug 280
+% drug_auc_me(1992:2435, :)= s3(201699:202142, :); %drug 374
+% drug_auc_me(2656:3302, :)= s3(204605:205251, :); %drug 380
+% drug_auc_me(3320:3630, :)= s3(228209:228519, :); %drug 421
+% drug_auc_me(3984:4606, :)= s3(232799:233421, :); %drug 431
+% drug_auc_me(4648:4718, :)= s3(257167:257237, :); %drug 475
 % Col 1 is drug id #, col 2 is cell line id #, col 3 is auc. Switch col 2 
 ...and 3 to match drug_auc_expt
 celllineid_tmp= drug_auc_me(:, 2);

@@ -300,17 +300,19 @@ ylabel('Acetylation flux');xlabel('Vorinostat treatment vs control ratio from Bi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        %% impact of basal metabolic state of CCLE cell lines on sensitivity to demethylase inhibitors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-load supplementary_software_code  ctd2celllineidname exptidcelllinemediamatch ctd2celllineidname_id r* 
-%data from seashore-ludlow study, contains cell line names, growth media
-load supplementary_software_code  ctd2compoundidname_id drug_auc_expt ctd2compoundidname_name 
-%data from seashore-ludlow study, contains drug names, drug sensitivity data
+%load supplementary_software_code  ctd2celllineidname ctd2celllineidname_id 
+load supplementary_software_code exptidcelllinemediamatch r* 
+% data from seashore-ludlow study, contains cell line names, growth media
+%load supplementary_software_code  ctd2compoundidname_id ctd2compoundidname_name 
+load supplementary_software_code drug_auc_expt
+% data from seashore-ludlow study, contains drug names, drug sensitivity data
 load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz  
-%contains CCLE cell line names, gene expression data (z-transformed)
+% contains CCLE cell line names, gene expression data (z-transformed)
 load supplementary_software_code hcommon_exptdat hcommon1 
-%data from seashore-ludlow study, contains drug names, drug sensitivity data 
+% data from seashore-ludlow study, contains drug names, drug sensitivity data 
 ...for cell lines that were screened against all 4 hdac inhibitors
-load supplementary_software_code hdacexpfcs hdacexpallgeneids 
-%contains gene expression data after treatment with hdac inhibitors
+%load supplementary_software_code hdacexpfcs hdacexpallgeneids 
+% contains gene expression data after treatment with hdac inhibitors
 
 rxnpos = 2451; % loading the above variables changes rxnpos to 3754, which is out of bounds for fluxstate_gurobi
 % Change data type to be compatible with functions
@@ -320,7 +322,8 @@ exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch2'}='
 celllinenames_ccle1= cell2table(celllinenames_ccle1);
 hcommon1= array2table(hcommon1);
 hcommon1.Properties.VariableNames{'hcommon1'}= 'index_cpd';
-% Name table variables for clarity
+% Name table variables for clarity. draw_auc_expt is not used in code, but 
+% useful to look at
 drug_auc_expt_t= array2table(drug_auc_expt);
 drug_auc_expt_t.Properties.VariableNames{'drug_auc_expt1'}='index_cpd';
 drug_auc_expt_t.Properties.VariableNames{'drug_auc_expt2'}='auc';
@@ -384,12 +387,15 @@ for i = 1:height(exptidcelllinemediamatch)
         disp(i)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % get basal metabolic state based on transcriptome
-            if basalflag
-        [fluxstate_gurobi,grate_ccle_exp_soft(i,1), solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-        model2.c(rxnpos) = epsilon_methylation ;
-        [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-        grate_ccle_exp_soft(i,2) = fluxstate_gurobi(rxnpos); %acetylation flux
-           end
+        if basalflag
+            [fluxstate_gurobi,grate_ccle_exp_soft(i,1), solverobj_ccle(i,1)] =...
+                constrain_flux_regulation(model2,onreactions,offreactions,...
+                kappa,rho,epsilon,MODE,[], minfluxflag); %impact on growth
+            model2.c(rxnpos) = epsilon_methylation ;
+            [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,...
+                offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+            grate_ccle_exp_soft(i,2) = fluxstate_gurobi(rxnpos); %methylation flux
+        end
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % hdac inhibitor impact on transcriptome
 %         if hdactransint
@@ -428,19 +434,19 @@ end
 
 
 figure; h = histogram(grate_ccle_exp_soft(:,2),70);
- xlabel('Predicted acetylation flux')
+ xlabel('Predicted methylation flux')
  ylabel('Total cell lines')
-title('Distribution of acetylation flux among CCLE cell lines','fontweight','normal')
+title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%predicting sensitivity to hdac inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
+%% I created this section to surpass the long for-loop
+% predicting sensitivity to hdac inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %hdaclist = {'LBH-589','vorinostat','entinostat','belinostat'}
 hmei_list= {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='compound_name';
-%% I created this section to surpass the long for-loop
+ 
 for j = 1:height(hmei_list)
 fx = find(ismember(ctd2compoundidname_name_me, hmei_list(j,1))) 
 ix = ismember(drug_auc_me(:,1), ctd2compoundidname_id_me(fx,1)); 
@@ -464,15 +470,20 @@ ix01 = (v2(:,2) > 0.05);sum(ix01) % both sum(ix0) and sum(ix01) = 0
  vv(1:sum(groups == 2),2) = v1(groups == 2); %Col2 is values > 0.05
 
  figure;
- %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
- %hold on; 
- bh = boxplot(v1)
-% bh = boxplot(v1, groups,'Symbol','') % groups contains only NaN values.
-% No groups found.
- set(gca,'xticklabel',{'Low flux','High flux'})
-ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-xlabel(hmei_list{j,1});
-ylim([0 20])
+ scatter(v1, v2)
+ figure;
+ scatter(KMTi_auc(:,j), grate_ccle_exp_soft(:,2))
+ 
+%  figure;
+%  %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+%  %hold on; 
+%  bh = boxplot(v1)
+% % bh = boxplot(v1, groups,'Symbol','') % groups contains only NaN values.
+% % No groups found.
+%  set(gca,'xticklabel',{'Low flux','High flux'})
+% ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+% xlabel(hmei_list{j,1});
+% ylim([0 20])
 
 ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0)
 ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01)
@@ -491,12 +502,12 @@ disp(pp_basal) %t-test p-values for each drug
 g1 = grate_ccle_exp_soft_hdacsign(:, 5:8);
 g1 = g1 - repmat(ignoreNaN(g1, @median,2),1,4); % 
 
-[ix pos] = ismember(hcommon1, exptidcelllinemediamatch(:,1)); sum(ix) % match cell lines
+[ix pos] = ismember(ctd2compoundidname_id_me, exptidcelllinemediamatch(:,1)); sum(ix) % match cell lines
+%[ix pos] = ismember(hcommon1, exptidcelllinemediamatch(:,1)); sum(ix) % original
 v1 = KMTi_auc;
 v1 = v1 - repmat(median(v1,2), 1, height(hmei_list));
 v2 = g1(pos,:);
 v1 = v1(:);
-
 
 ix0 = (v2(:) <= prctile(v2(:), 25)); sum(ix0)
 ix01 = (v2(:) >= prctile(v2(:), 25)); sum(ix01)
