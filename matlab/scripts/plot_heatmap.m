@@ -192,8 +192,7 @@ switch exp
         ylabel(ax6, 'Medium component');
         
         base = strcat('./../figures/new-model/eGEMn_',...
-            string(epsilon2),...
-            '_', exp);
+            '_', exp, '_', medium);
         
         % Create filenames for all figures
         fig1_str = strcat(base, '_flux.fig');
@@ -229,9 +228,7 @@ switch exp
         xlabel(ax2, 'Demand reactions');
         ylabel(ax2, 'Medium component');
         
-        base = strcat('./../figures/new-model/eGEMn_',...
-            string(epsilon2),...
-            '_', exp);
+        base = strcat('./../figures/new-model/eGEMn_', exp, '_', medium);
         
         % Create filenames for all figures
         fig_str = strcat(base, '_flux.fig');

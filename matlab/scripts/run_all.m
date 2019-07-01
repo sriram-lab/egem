@@ -20,7 +20,7 @@ load ./../models/min.mat % minimal eGEM model
 % Old acetylation metabolic model
 %load supplementary_software_code acetylation_model
 %model = acetylation_model; %Shen et al., 2019
-model = acetylation_model;
+%model = acetylation_model;
 
 %% Metabolic sensitivity analysis for excess and depleted medium components
     % INPUT:
@@ -48,42 +48,68 @@ epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     for n = 1:length(epsilon2)
-        
         % Run all
         str =  strcat("[sra", string(n), '_', medium_of_interest(med), ", ~, ~, ~, ~] = metabolic_sensitivity(min, 'n', epsilon2(n), 'zscore', 'sra',medium_of_interest(med), []);");
         eval(str)
-        
         % Plot all
         str = strcat("plot_heatmap(sra", string(n), '_', medium_of_interest(med), ",'sra', epsilon2(n), medium_of_interest(med))");
         eval(str)
-        
     end
 end
 
 % Calculate epsilon2 values to use for fba/fva
-epsilon2_excess = dynamic_range(sra1, sra2, sra3, sra4, sra5, sra6, 'excess');
-epsilon2_depletion = dynamic_range(sra1, sra2, sra3, sra4, sra5, sra6, 'depletion');
-epsilon2 = [epsilon2_excess; epsilon2_depletion];
-epsilon2 = epsilon2';
+% DMEM
+epsilon2_excess = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "excess");
+epsilon2_depletion = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "depletion");
+epsilon2_dmem = [epsilon2_excess, epsilon2_depletion];
 
+% RPMI
+epsilon2_excess = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "excess");
+epsilon2_depletion = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "depletion");
+epsilon2_rpmi = [epsilon2_excess, epsilon2_depletion];
 
+% L15
+epsilon2_excess = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "excess");
+epsilon2_depletion = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "depletion");
+epsilon2_l15 = [epsilon2_excess, epsilon2_depletion];
 
-
-% Use epsilon values that gave the largest dynamic range in metabolic
-% fluxes. !This was manually done, but should also be codified at some point! 
-epsilon2_excess = [1E-6, 1E-6, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-6, 1E-6,...
-   1E-5, 1E-6, 1, 1E-6, 1E-6, 1, 1E-6, 1E-6, 1E-6, 1E-6, 1E-5];
-epsilon2_depletion = [1E-6, 1E-5, 1E-5, 1E-5, 1E-5, 1E-5, 1E-6, 1E-6, 1E-5,...
-   1E-6, 1E-4, 1, 1E-5, 1E-6, 1, 1E-6, 1E-6, 1E-6, 1E-6, 1E-6];
-epsilon2 = [epsilon2_excess; epsilon2_depletion];
-epsilon2 = epsilon2';
-
-% Test epsilon2. Results change drastically. This suggests the set of
-% epsilon2 values I'm using doesn't really work together. 
-% epsilon2 = [1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3,...
-%     1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3, 1E-3];
+% Run FBA with different epsilon values obtained by maximizing the dynamic range:
 [~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
-        epsilon2, 'zscore', 'fba', 'RPMI');
+        epsilon2_rpmi, 'zscore', 'fba', 'RPMI');
+[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+        epsilon2_dmem, 'zscore', 'fba', 'DMEM');
+[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+        epsilon2_l15, 'zscore', 'fba', 'L15');
+
+medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+for med = 1:length(medium_of_interest)
+    disp(medium_of_interest(med))
+    % Run all
+    str =  strcat("[~, fba_", lower(medium_of_interest(med)),", ~, ~, ~] =metabolic_sensitivity(min, 'n', epsilon2_", lower(medium_of_interest(med)), ", 'zscore', 'fba', medium_of_interest(med), []);");
+    eval(str)
+    % Plot all
+    str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ",'fba', epsilon2, medium_of_interest(med))");
+    eval(str)
+end
+    
+    
+% Run FBA with all the reactions maximized to 1:
+proxy = ones(20,2);
+for med = 1:length(medium_of_interest)
+    disp(medium_of_interest(med))
+    % Run all
+    str =  strcat("[~, fba_", lower(medium_of_interest(med)),", ~, ~, ~] = metabolic_sensitivity(min, 'n', proxy, 'zscore', 'fba', medium_of_interest(med), []);");
+    eval(str)
+    % Plot all
+    str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ",'fba', epsilon2, medium_of_interest(med))");
+    eval(str)
+end
 
 % For optimizing multiple reactions simultaneously using FBA with different
 % media:
@@ -96,11 +122,14 @@ end
 % For optimizing multiple reactions simultaneously using FVA with different
 % media:
 %[~, media] = xlsfinfo('./../../data/uptake.xlsx');
-medium_of_interest = {'RPMI', 'DMEM', 'L15', 'McCoy 5A', 'Iscove'};
-for fil=1:length(medium_of_interest)
-    [~, ~, fva, ~] = metabolic_sensitivity(min, 'n',...
-        epsilon2, 'zscore', 'fva', 'RPMI', 99);
-    plot_heatmap(fva, 'fva', epsilon2, 'RPMI')
+medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+for med=1:length(medium_of_interest)
+    % Run all
+    str =  strcat("[~, ~,  fva_", lower(medium_of_interest(med)), " ~, ~] = metabolic_sensitivity(min, 'n', epsilon2_", lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 99);");
+    eval(str)
+    % Plot all
+    str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)), ",'fva', epsilon2, medium_of_interest(med))");
+    eval(str)
 end
 
 %% Correlation values between histone markers and metabolic flux
