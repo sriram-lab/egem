@@ -422,9 +422,8 @@ end
 
 
 figure; h = histogram(grate_ccle_exp_soft(:,2),70);
-<<<<<<< HEAD
- xlabel('Predicted methylation flux')
- ylabel('Total cell lines')
+xlabel('Predicted methylation flux')
+ylabel('Total cell lines')
 title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
 %% I created this section to surpass the long for-loop
@@ -459,7 +458,6 @@ ix01 = (v2(:,2) > 0.05);sum(ix01) % both sum(ix0) and sum(ix01) = 0
  vv(1:sum(groups == 2),2) = v1(groups == 2); %Col2 is values > 0.05
 
  figure;
-<<<<<<< HEAD
  scatter(v1, v2)
  figure;
  scatter(KMTi_auc(:,j), grate_ccle_exp_soft(:,2))
