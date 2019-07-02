@@ -5,19 +5,18 @@
 % originally assigned in 1st module.
 epsilon_methylation = 1E-2; % or 1E-1
 
+% Bulk methylation model:
+% 1) cd ./../scripts. Run make_eGEM to create bulk methylation model
+% model = min;
+% 2) cd ./../MeCorr. Run methylVariables.m to create variables for methylation drug data.
+% 3) Run the last module of this script, which is split into 3 sections
+
 % Acetylation model:
 % 1) Load it
 % load supplementary_software_code acetylation_model %contains metabolic model with nuclear acetylation reaction
 % model = acetylation_model;
 % 2) Run methylVariables.m to create variables for methylation drug data.
 % 3) Run the last module of this script, which is split into 3 sections
-
-% Bulk methylation model:
-% 1) Run make_eGEM to create bulk methylation model
-% model = min;
-% 2) Run methylVariables.m to create variables for methylation drug data.
-% 3) Run the last module of this script, which is split into 3 sections
-
 %% impact of nutrient sources on acetylation - figure 2A
 load supplementary_software_code acetylation_model %contains metabolic model with nuclear acetylation reaction
 % load recon1    % contains a methylation rxn, but genes are number ID's, so 
@@ -295,7 +294,7 @@ load supplementary_software_code drug_auc_expt
 % data from seashore-ludlow study, contains drug names, drug sensitivity data
 load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz  
 % contains CCLE cell line names, gene expression data (z-transformed)
-load supplementary_software_code hcommon_exptdat hcommon1 
+%load supplementary_software_code hcommon_exptdat hcommon1 
 % data from seashore-ludlow study, contains drug names, drug sensitivity data 
 ...for cell lines that were screened against all 4 hdac inhibitors
 %load supplementary_software_code hdacexpfcs hdacexpallgeneids 
@@ -315,7 +314,7 @@ drug_auc_expt_t= array2table(drug_auc_expt);
 drug_auc_expt_t.Properties.VariableNames{'drug_auc_expt1'}='index_cpd';
 drug_auc_expt_t.Properties.VariableNames{'drug_auc_expt2'}='auc';
 drug_auc_expt_t.Properties.VariableNames{'drug_auc_expt3'}='index_ccl';
-
+%%
 MODE = 1;  % reaction (1) or gene list (0)
 epsilon = 1E-2; rho = 1;
 kappa = 1; % parameters for integrating transcriptomics data. kappa is the strength of down regulation of genes (Chandrasekaran & Price, PNAS, 2010)
@@ -328,8 +327,8 @@ grate_ccle_exp_soft_hdacsign = NaN(height(exptidcelllinemediamatch),8); %contain
 
 for i = 1:height(exptidcelllinemediamatch)
     % match cell line data in CCLE with CTD2
-    ii = find(ismember(ctd2celllineidname_id_me,  exptidcelllinemediamatch(i,2)));
-    iii = find(ismember(celllinenames_ccle1, ctd2celllineidname_me(ii,1)));
+    ii = find(ismember(ctd2clidname_id_me,  exptidcelllinemediamatch(i,2)));
+    iii = find(ismember(celllinenames_ccle1, ctd2clidname_me(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
 
@@ -434,16 +433,17 @@ hmei_list= {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='compound_name';
-
+ 
 for j = 1:height(hmei_list)
-fx = find(ismember(ctd2compoundidname_name_me, hmei_list(j,1))) 
-ix = ismember(drug_auc_me(:,1), ctd2compoundidname_id_me(fx,1)); 
+fx = find(ismember(ctd2cpdidname_name_me, hmei_list(j,1))) 
+ix = ismember(drug_auc_me(:,1), ctd2cpdidname_id_me(fx,1)); 
 sum(ix) %597. ix is 1D logical array & 423 drugs tested -> Each drug 
 ...appears multiple times (appears for each medium in drug_auc_expt)
 hmei_auc_dat_me = drug_auc_me(ix,:);
 
-[ix pos] = ismember(hmei_auc_dat_me(:,1), exptidcelllinemediamatch(:,1)); sum(ix) % 597
 v1 = hmei_auc_dat_me(:,2); v1= table2array(v1);
+% Match index_cpd
+[ix pos] = ismember(hmei_auc_dat_me(:,3), exptidcelllinemediamatch(:,1)); sum(ix) % 597
 v2 = grate_ccle_exp_soft(pos,:);
 
 ix0 = (v2(:,2) < 0.05);sum(ix0) % 0.05 is  the default threshold value 
@@ -458,7 +458,7 @@ ix01 = (v2(:,2) > 0.05);sum(ix01) % both sum(ix0) and sum(ix01) = 0
  vv(1:sum(groups == 2),2) = v1(groups == 2); %Col2 is values > 0.05
 
  figure;
- scatter(v1, v2)
+ scatter(v1, v2(:,2))
  figure;
  scatter(KMTi_auc(:,j), grate_ccle_exp_soft(:,2))
  
@@ -490,7 +490,7 @@ disp(pp_basal) %t-test p-values for each drug
 g1 = grate_ccle_exp_soft_hdacsign(:, 5:8);
 g1 = g1 - repmat(ignoreNaN(g1, @median,2),1,4); % 
 
-[ix pos] = ismember(ctd2compoundidname_id_me, exptidcelllinemediamatch(:,1)); sum(ix) % match cell lines
+[ix pos] = ismember(ctd2cpdidname_id_me, exptidcelllinemediamatch(:,1)); sum(ix) % match cell lines
 %[ix pos] = ismember(hcommon1, exptidcelllinemediamatch(:,1)); sum(ix) % original
 v1 = KMTi_auc;
 v1 = v1 - repmat(median(v1,2), 1, height(hmei_list));

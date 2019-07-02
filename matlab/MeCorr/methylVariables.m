@@ -51,14 +51,14 @@ drug_auc_me.Properties.VariableNames{'drug_auc_me2'}='auc';
 drug_auc_me.Properties.VariableNames{'drug_auc_me3'}='index_ccl';
 
 % Other variables to replace with methylation data
-ctd2celllineidname_id_me= s2(:, 1);
+ctd2clidname_id_me= s2(:, 1);
 
-ctd2celllineidname_me= [s2(:,2), s2(:,4), s2(:,5)]; 
-ctd2celllineidname_me.Properties.VariableNames{'cell_line_name'}='celllinenames_ccle1';
+ctd2clidname_me= [s2(:,2), s2(:,4), s2(:,5)]; 
+ctd2clidname_me.Properties.VariableNames{'cell_line_name'}='celllinenames_ccle1';
 
 s1= readtable('Data\Ludlow2015_SmallMolecInformer.xlsx','Sheet','s1','Range','A:B');
-ctd2compoundidname_id_me= s1(:, 1); 
-ctd2compoundidname_name_me= s1(:, 2);
+ctd2cpdidname_id_me= s1(:, 1); 
+ctd2cpdidname_name_me= s1(:, 2);
 
 % Below: written into MATALB_CODE_methyl
 % exptidcelllinemediamatch= array2table(exptidcelllinemediamatch);
