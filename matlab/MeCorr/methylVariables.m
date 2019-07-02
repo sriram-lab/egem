@@ -3,7 +3,7 @@
 
 % Workflow: 1)Run make_eGEM  
 cd '.\..\MeCorr';
-% 2)Run this script 3)Assign epsilon_methylation 4)Run last module of 
+% 2)Run methylVariables 3)Assign epsilon_methylation 4)Run last module of 
 ...MATLAB_CODE_methyl (3 sections)
 
 % initCobraToolbox;
@@ -37,6 +37,7 @@ drug_auc_me= s3;
 % drug_auc_me(3320:3630, :)= s3(228209:228519, :); %drug 421
 % drug_auc_me(3984:4606, :)= s3(232799:233421, :); %drug 431
 % drug_auc_me(4648:4718, :)= s3(257167:257237, :); %drug 475
+
 % Col 1 is drug id #, col 2 is cell line id #, col 3 is auc. Switch col 2 
 ...and 3 to match drug_auc_expt
 celllineid_tmp= drug_auc_me(:, 2);

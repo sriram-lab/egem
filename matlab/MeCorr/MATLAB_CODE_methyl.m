@@ -25,7 +25,7 @@ load supplementary_software_code acetylation_model %contains metabolic model wit
 load supplementary_software_code labels media_exchange1 mediareactions1 %list of nutrient conditions and uptake rates
 posgluc = 1385;  % glucose uptake reaction in recon1. 
 % Changed the reaction to be found from acetylation to methylation
- rxnpos  = find(ismember(acetylation_model.rxns,'LYSMTF1n')); % rxnpos = 2451
+rxnpos  = find(ismember(acetylation_model.rxns,'LYSMTF1n')); % rxnpos = 2451
 objpos = find(acetylation_model.c); %biomass objective
 minfluxflag = 0; % no PFBA
 
@@ -87,15 +87,13 @@ h = legend({'Excess','Depletion'})
     for i = 2:length(unqgenes)
         
         modeltemp = acetylation_model ;
-         modeltemp = deleteModelGenes(modeltemp,unqgenes(i));
+        modeltemp = deleteModelGenes(modeltemp,unqgenes(i));
         model3 = modeltemp;
-      
         
         [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
         if ~isempty(solf.x) && ~isnan(solf.x)
             acet_screen_rpmi(i,2) = solf.x(objpos); % impact on growth
         end
-        
         model3.c(rxnpos) = epsilon_methylation; % epsilon is a weight
         [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
         if ~isempty(solf.x) && ~isnan(solf.x)
@@ -106,9 +104,9 @@ h = legend({'Excess','Depletion'})
     end
     
     acet_screen_rpmi(1,:) = NaN;
-
-     [sx spos] = sort(acet_screen_rpmi(:,1));
- acetgenessorted = unqgenes(spos);
+    
+    [sx spos] = sort(acet_screen_rpmi(:,1));
+    acetgenessorted = unqgenes(spos);
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        %% impact of culture media components on acetylation - figure 2C
@@ -123,7 +121,6 @@ expval = [1 0 1 1 1 1 1 0 1 1];
 % part 2
 glucflag1 = [ ones(1,6),  0 ,0, 0,  0];
 expval1 = [ ones(1,7),  0 , 1,  0];
-
 
 [ix, aapos] = ismember( mediareactions1(20:37),acetylation_model.rxns);
 posgluc = 1385;  % glucose uptake reaction in recon1.
@@ -155,24 +152,18 @@ for i = 1:10
         model3.lb(pyrpos) = -10;
     end
     
-    
     model3.c(rxnpos) = epsilon_methylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
     acet_media_screen_dmem(i,1) = solf.x(rxnpos); % impact on acetylation flux
-    
-
 end
 disp('consistency with 10 different experimental conditions - Part I')
 sum((acet_media_screen_dmem > 0.05*wild_type_acet) == expval') % 9
-
-
 
 for i = 1:10
     model3 = acetylation_model;
     if ~glucflag1(i)
         model3.lb(posgluc) = 0;
     end
-   
     
     switch i 
         case 2 % no ca+
@@ -186,8 +177,6 @@ for i = 1:10
         case 9 % add fatty acid
                 model3.lb(fattyacidpos) = -5;
     end
-
-        
     model3.c(rxnpos) = epsilon_methylation;
     [solf.x,sol11] =  constrain_flux_regulation(model3,[],[],0,0,0,[],[],minfluxflag);
     acet_media_screen_dmem1(i,1) = solf.x(rxnpos); % impact on acetylation flux
@@ -238,11 +227,10 @@ minfluxflag = 0; % no PFBA
         
         disp(i)
        
-            [fluxstate_gurobi,grate_ccle_exp_acetdat(i,1), solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);  % impact on growth
-            
-            model2.c(rxnpos) = epsilon_methylation;
-            [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[],minfluxflag);
-            grate_ccle_exp_acetdat(i,2) = fluxstate_gurobi(rxnpos); %acetylation flux
+        [fluxstate_gurobi,grate_ccle_exp_acetdat(i,1), solverobj_ccle(i,1)] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[], minfluxflag);  % impact on growth
+        model2.c(rxnpos) = epsilon_methylation;
+        [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE ,[],minfluxflag);
+        grate_ccle_exp_acetdat(i,2) = fluxstate_gurobi(rxnpos); %acetylation flux
             
     end
  end
@@ -271,7 +259,6 @@ for i = 1:96
         
         [solf.x,sol11] =  constrain_flux_regulation(model2,[],[],0,0,0,[],[],minfluxflag);
         disp(i)
-        
         growth_basal2(i,1) = solf.x(objpos);  % impact on growth
         model2.c(rxnpos) = epsilon_methylation;
         [solf.x,sol11] =  constrain_flux_regulation(model2,[],[],0,0,0,[],[],minfluxflag);
@@ -345,15 +332,16 @@ for i = 1:height(exptidcelllinemediamatch)
     iii = find(ismember(celllinenames_ccle1, ctd2celllineidname_me(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
+
         model2 = min;
-        %model2 = acetylation_model;      
+        %model2 = acetylation_model;
          
-         %find up and down-regulated genes in each cell line
+        % find up and down-regulated genes in each cell line
         ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
         offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
         
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %  set the glucose uptake based on media
+        % set the glucose uptake based on media
         % default glucose is -5 for rpmi
         if r1(i)
             model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5;% no change rpmi
@@ -434,6 +422,7 @@ end
 
 
 figure; h = histogram(grate_ccle_exp_soft(:,2),70);
+<<<<<<< HEAD
  xlabel('Predicted methylation flux')
  ylabel('Total cell lines')
 title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
@@ -446,7 +435,7 @@ hmei_list= {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='compound_name';
- 
+
 for j = 1:height(hmei_list)
 fx = find(ismember(ctd2compoundidname_name_me, hmei_list(j,1))) 
 ix = ismember(drug_auc_me(:,1), ctd2compoundidname_id_me(fx,1)); 
@@ -470,6 +459,7 @@ ix01 = (v2(:,2) > 0.05);sum(ix01) % both sum(ix0) and sum(ix01) = 0
  vv(1:sum(groups == 2),2) = v1(groups == 2); %Col2 is values > 0.05
 
  figure;
+<<<<<<< HEAD
  scatter(v1, v2)
  figure;
  scatter(KMTi_auc(:,j), grate_ccle_exp_soft(:,2))
