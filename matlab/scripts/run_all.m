@@ -57,34 +57,78 @@ for med = 1:length(medium_of_interest)
     end
 end
 
-% Calculate epsilon2 values to use for fba/fva
+% Calculate epsilon2 values to use for fba by dynamic range
 % DMEM
 epsilon2_excess = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
-    sra5_DMEM, sra6_DMEM, sra7_DMEM, "excess");
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "excess", "dynamic");
 epsilon2_depletion = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
-    sra5_DMEM, sra6_DMEM, sra7_DMEM, "depletion");
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "depletion", "dynamic");
 epsilon2_dmem = [epsilon2_excess, epsilon2_depletion];
 
 % RPMI
 epsilon2_excess = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
-    sra5_RPMI, sra6_RPMI, sra7_RPMI, "excess");
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "excess", "dynamic");
 epsilon2_depletion = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
-    sra5_RPMI, sra6_RPMI, sra7_RPMI, "depletion");
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "depletion", "dynamic");
 epsilon2_rpmi = [epsilon2_excess, epsilon2_depletion];
 
 % L15
 epsilon2_excess = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
-    sra5_L15, sra6_L15, sra7_L15, "excess");
+    sra5_L15, sra6_L15, sra7_L15, "excess", "dynamic");
 epsilon2_depletion = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
-    sra5_L15, sra6_L15, sra7_L15, "depletion");
+    sra5_L15, sra6_L15, sra7_L15, "depletion", "dynamic");
+epsilon2_l15 = [epsilon2_excess, epsilon2_depletion];
+
+% Calculate epsilon2 values to use for fba by max value
+% DMEM
+epsilon2_excess = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "excess", "max");
+epsilon2_depletion = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "depletion", "max");
+epsilon2_dmem = [epsilon2_excess, epsilon2_depletion];
+
+% RPMI
+epsilon2_excess = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "excess", "max");
+epsilon2_depletion = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "depletion", "max");
+epsilon2_rpmi = [epsilon2_excess, epsilon2_depletion];
+
+% L15
+epsilon2_excess = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "excess", "max");
+epsilon2_depletion = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "depletion", "max");
+epsilon2_l15 = [epsilon2_excess, epsilon2_depletion];
+
+% Calculate epsilon2 values to use for fba by min value
+% DMEM
+epsilon2_excess = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "excess", "min");
+epsilon2_depletion = dynamic_range(sra1_DMEM, sra2_DMEM, sra3_DMEM, sra4_DMEM,...
+    sra5_DMEM, sra6_DMEM, sra7_DMEM, "depletion", "min");
+epsilon2_dmem = [epsilon2_excess, epsilon2_depletion];
+
+% RPMI
+epsilon2_excess = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "excess", "min");
+epsilon2_depletion = dynamic_range(sra1_RPMI, sra2_RPMI, sra3_RPMI, sra4_RPMI,...
+    sra5_RPMI, sra6_RPMI, sra7_RPMI, "depletion", "min");
+epsilon2_rpmi = [epsilon2_excess, epsilon2_depletion];
+
+% L15
+epsilon2_excess = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "excess", "min");
+epsilon2_depletion = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
+    sra5_L15, sra6_L15, sra7_L15, "depletion", "min");
 epsilon2_l15 = [epsilon2_excess, epsilon2_depletion];
 
 % Run FBA with different epsilon values obtained by maximizing the dynamic range:
-[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+[~, fba_rpmi, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
         epsilon2_rpmi, 'zscore', 'fba', 'RPMI');
-[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+[~, fba_dmem, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
         epsilon2_dmem, 'zscore', 'fba', 'DMEM');
-[~, fba, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
+[~, fba_l15, ~, excess_soln, depletion_soln] = metabolic_sensitivity(min, 'n',...
         epsilon2_l15, 'zscore', 'fba', 'L15');
 
 medium_of_interest = {'RPMI', 'DMEM', 'L15'};
@@ -128,8 +172,8 @@ for med=1:length(medium_of_interest)
     str =  strcat("[~, ~,  fva_", lower(medium_of_interest(med)), " ~, ~] = metabolic_sensitivity(min, 'n', epsilon2_", lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 99);");
     eval(str)
     % Plot all
-    str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)), ",'fva', epsilon2, medium_of_interest(med))");
-    eval(str)
+    %str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)), ",'fva', epsilon2, medium_of_interest(med))");
+    %eval(str)
 end
 
 %% Correlation values between histone markers and metabolic flux
