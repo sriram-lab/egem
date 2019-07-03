@@ -306,8 +306,8 @@ exptidcelllinemediamatch= array2table(exptidcelllinemediamatch);
 exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch1'}='index_cpd';
 exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch2'}='index_ccl';
 celllinenames_ccle1= cell2table(celllinenames_ccle1);
-hcommon1= array2table(hcommon1);
-hcommon1.Properties.VariableNames{'hcommon1'}= 'index_cpd';
+% hcommon1= array2table(hcommon1);
+% hcommon1.Properties.VariableNames{'hcommon1'}= 'index_cpd';
 % Name table variables for clarity. draw_auc_expt is not used in code, but 
 % useful to look at
 drug_auc_expt_t= array2table(drug_auc_expt);

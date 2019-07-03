@@ -2,8 +2,11 @@
 % @author: Scott Campit & Lauren Fane
 
 % Initialize parameters
-initCobraToolbox;
-changeCobraSolver('gurobi');
+x=input('Initialize Cobra Toolbox and change solver? yes/no');
+if x == 'yes'
+    initCobraToolbox;
+    changeCobraSolver('gurobi');
+end
 
 % Load AcGEM model (Shen et al., 2019)
 load ./../shen-et-al/supplementary_software_code acetylation_model;
