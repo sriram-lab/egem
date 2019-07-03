@@ -1,4 +1,5 @@
-function [fluxstate_gurobi,grate, solverobj] =  constrain_flux_regulation(model1,onreactions,offreactions,kappa,rho,epsilon,mode,epsilon2,minfluxflag)
+function [fluxstate_gurobi, grate, solverobj] =  constrain_flux_regulation(model1,...
+    onreactions,offreactions,kappa,rho,epsilon,mode,epsilon2,minfluxflag)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if (~exist('mode','var')) || (isempty(mode))

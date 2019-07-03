@@ -7,14 +7,14 @@ epsilon_methylation = 1E-2; % or 1E-1
 
 % Bulk methylation model:
 % 1) cd ./../scripts. Run make_eGEM to create bulk methylation model
-% model = min;
+model2 = min;
 % 2) cd ./../MeCorr. Run methylVariables.m to create variables for methylation drug data.
 % 3) Run the last module of this script, which is split into 3 sections
 
 % Acetylation model:
 % 1) Load it
 % load supplementary_software_code acetylation_model %contains metabolic model with nuclear acetylation reaction
-% model = acetylation_model;
+% model2 = acetylation_model;
 % 2) Run methylVariables.m to create variables for methylation drug data.
 % 3) Run the last module of this script, which is split into 3 sections
 %% impact of nutrient sources on acetylation - figure 2A
@@ -306,8 +306,8 @@ exptidcelllinemediamatch= array2table(exptidcelllinemediamatch);
 exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch1'}='index_cpd';
 exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch2'}='index_ccl';
 celllinenames_ccle1= cell2table(celllinenames_ccle1);
-hcommon1= array2table(hcommon1);
-hcommon1.Properties.VariableNames{'hcommon1'}= 'index_cpd';
+%hcommon1= array2table(hcommon1);
+%hcommon1.Properties.VariableNames{'hcommon1'}= 'index_cpd';
 % Name table variables for clarity. draw_auc_expt is not used in code, but 
 % useful to look at
 drug_auc_expt_t= array2table(drug_auc_expt);
@@ -332,7 +332,7 @@ for i = 1:height(exptidcelllinemediamatch)
     if ~isempty(iii)
         iii  = iii(1);
 
-        model2 = min;
+        %model2 = min;
         %model2 = acetylation_model;
          
         % find up and down-regulated genes in each cell line
