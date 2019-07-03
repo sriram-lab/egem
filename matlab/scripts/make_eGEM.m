@@ -2,10 +2,11 @@
 % @author: Scott Campit & Lauren Fane
 
 % Initialize parameters
-x=input('Initialize Cobra Toolbox and change solver? yes/no');
-if x == 'yes'
+x=input('Initialize Cobra Toolbox and change solver? yes/no: ');
+if x == "yes"
     initCobraToolbox;
     changeCobraSolver('gurobi');
+elseif x == "no"
 end
 
 % Load AcGEM model (Shen et al., 2019)
