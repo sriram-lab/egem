@@ -299,7 +299,7 @@ load supplementary_software_code hdacexpfcs hdacexpallgeneids
 % Converting arrays to tables and renaming some Variables to make
 % caompatible with function ismember
 ctd2celllineidname= array2table(ctd2celllineidname);
-ctd2celllineidname.Properties.VariableNames{'ctd2celllineidname1'}= 'ccl_name';
+ctd2celllineidname.Properties.VariableNames{'ctd2celllineidname'}= 'ccl_name';
 ctd2celllineidname_id= array2table(ctd2celllineidname_id);
 ctd2celllineidname_id.Properties.VariableNames{'ctd2celllineidname_id'}= 'master_ccl_id';
 ctd2compoundidname_name= array2table(ctd2compoundidname_name);
