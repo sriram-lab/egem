@@ -2,7 +2,7 @@
 % @author: Scott Campit & Lauren Fane
 
 % Initialize parameters
-x=input('Initialize Cobra Toolbox and change solver? yes/no: ');
+x=input('Initialize Cobra Toolbox and change solver? "yes"/"no": ');
 if x == "yes"
     initCobraToolbox;
     changeCobraSolver('gurobi');
@@ -262,7 +262,10 @@ min = addReaction(min,'SLC17A3','reactionName','Sodium/phosphate cotransporter 4
     'reactionFormula','po4[e] + 3 na1[e] -> po4[c] + 3 na1[c]',...
     'subSystem','Transport, Extracellular',...
     'geneRule','(SLC17A1) or (SLC17A2) or (SLC17A3) or (SLC17A4)');
-%% save
+%% save 
+% rename so that variable does not conflict with the function min
 min = checkDuplicateRxn(min,'S',1,1);
 %save('./../models/min.mat', 'min');
 %save('./../models/min2SLC.mat', 'min');
+min_model=min;
+clearvars min
