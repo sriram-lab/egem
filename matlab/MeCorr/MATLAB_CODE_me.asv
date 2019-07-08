@@ -3,7 +3,7 @@
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Bulk methylation model:
 % 1) cd ./../scripts. Run make_eGEM to create bulk methylation model
-model2 = min;
+model2 = min_model;
 % 2) cd ./../MeCorr. Run section 1 and 3 of this script. Only run Section 2 if you want to 
 % run the long for-loop
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,7 +42,7 @@ exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch2'}= 
 hcommon1= array2table(hcommon1);
 hcommon1.Properties.VariableNames{'hcommon1'}= 'experiment_id';
 
-rxnpos  = find(ismember(min.rxns,'LYSMTF1n')); % rxnpos = 2451
+rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n')); % rxnpos = 2451
 epsilon_methylation = 1E-2; % or 1E-1
 
 MODE = 1;  % reaction (1) or gene list (0)
@@ -65,7 +65,7 @@ for i = 1:height(exptidcelllinemediamatch)
     iii = find(ismember(celllinenames_ccle1, ctd2celllineidname(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
-%         model2 = min; 
+%         model2 = min_model; 
 %        model2 = metabolicmodel;
       
          %find up and down-regulated genes in each cell line
@@ -164,8 +164,8 @@ hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
-r_basal= cell(height(hmei_list),1);
-%r_basal(height(hmei_list))= struct('r',0, 'p',0, 'RL',0, 'RP',0);
+%r_basal= cell(height(hmei_list),1);
+r_basal(height(hmei_list))= struct('r',0, 'p',0, 'RL',0, 'RP',0);
 pp_basal= zeros(height(hmei_list), 3);
 for j = 1:height(hmei_list)
     fx = find(ismember(ctd2compoundidname_name, hmei_list(j,1)));
@@ -183,9 +183,9 @@ for j = 1:height(hmei_list)
     ylabel({'Methylation Flux'},'fontname','helvetica'); %'fontweight','bold')
     xlabel({'Sensitivity (AUC)'; hmei_list.cpd_name{j}},'fontname','helvetica');
     ylim([0, 0.06])
-    %r_basal(j).r=R; r_basal(j).p=P; r_basal(j).rl=RL; r_basal(j).ru=RU;
-    r_basal{j}= corrcoef(v1, v3);
-    str=sprintf('r= %1.3f',r_basal{j}(1,2));
+    %r_basal{j}= corrcoef(v1, v3);
+    r_basal(j).r=R; r_basal(j).p=P; r_basal(j).rl=RL; r_basal(j).ru=RU;
+    str=sprintf('r= %1.3f',r_basal(j).r(1,2));
     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
     set(T, 'fontsize', 14, 'verticalalignment', 'top', 'horizontalalignment', 'left');
     
