@@ -11,6 +11,7 @@ import os
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
 
 """
@@ -154,15 +155,15 @@ h3_common_cellline_expression[inds] = np.take(row_mean, inds[0])
 SEARCHING FOR KEGG DATA
 """
 
-#search = ""
-#
-#search = search.split(", ")
-#
-#for gene in search:
-#    if gene in no_repeat_genes:
-#        print(gene + ":", "YES")
-#    else:
-#        print(gene+ ":","No")
+search = "HDAC4, AHO3, BDMR, HA6116, HD4, HDAC-4, HDAC-A, HDACA"
+
+search = search.split(", ")
+
+for gene in search:
+    if gene in no_repeat_genes:
+        print(gene + ":", "YES")
+    else:
+        print(gene+ ":","No")
         
 #found = [EHMT2, KMT5A --> SETD8, KMT2C --> MLL3, SUV39H1, SUV39H2, EHMT1, SETD7, SETDB2, DOT1L, SETDB1]
         
@@ -436,18 +437,18 @@ GRAPHING CORRELATION
 #plt.show()
 
 #Le Roy et al Correlation Plot
-markers = common_markers_h3_leroy
-y_pos = np.arange(len(markers))
-correlation = leroy_correlation
-
-plt.bar(y_pos, correlation, align='center', alpha=0.5)
-plt.xticks(y_pos, markers)
-plt.xticks(rotation=90)
-plt.xlabel('Histone Markers')
-plt.ylabel('Correlation')
-plt.title('H3 Data and Le Roy et al Data')
-
-plt.show()
+#markers = common_markers_h3_leroy
+#y_pos = np.arange(len(markers))
+#correlation = leroy_correlation
+#
+#plt.bar(y_pos, correlation, align='center', alpha=0.5)
+#plt.xticks(y_pos, markers)
+#plt.xticks(rotation=90)
+#plt.xlabel('Histone Markers')
+#plt.ylabel('Correlation')
+#plt.title('H3 Data and Le Roy et al Data')
+#
+#plt.show()
 
 def plot(x,y,title, x_axis, y_axis):
     x_plot = x
@@ -463,6 +464,91 @@ def plot(x,y,title, x_axis, y_axis):
 
     plt.show()
     
+"""
+HEAT MAP
+"""
+
+gene_list = ['MLL3', 'SETD7','SETDB1', 'EHMT1', 'EHMT2', 'SUV39H1', 'SUV39H2', 'DOT1L', 'SETDB2']
+
+
+
+
+
+
+heatmap_matrix = (len(gene_list), len(h3_markers_list))
+heatmap_matrix = np.zeros(heatmap_matrix)
+
+i = 0
+for gene in gene_list:
+    j = 0
+    for histone in h3_markers_list:
+        correlation = pearsonr(ccle_common_cellline_expression[no_repeat_genes.index(gene)],h3_common_cellline_expression[h3_markers_list.index(histone)])
+        correlation = correlation[0]
+        heatmap_matrix[i][j] = correlation
+        j = j+1
+    i = i+1
+
+def heatmap(data, row_labels, col_labels, ax=None,
+            cbar_kw={}, cbarlabel="", **kwargs):
+    """
+    Create a heatmap from a numpy array and two lists of labels.
+
+    Parameters
+    ----------
+    data
+        A 2D numpy array of shape (N, M).
+    row_labels
+        A list or array of length N with the labels for the rows.
+    col_labels
+        A list or array of length M with the labels for the columns.
+    ax
+        A `matplotlib.axes.Axes` instance to which the heatmap is plotted.  If
+        not provided, use current axes or create a new one.  Optional.
+    cbar_kw
+        A dictionary with arguments to `matplotlib.Figure.colorbar`.  Optional.
+    cbarlabel
+        The label for the colorbar.  Optional.
+    **kwargs
+        All other arguments are forwarded to `imshow`.
+    """
+
+    if not ax:
+        ax = plt.gca()
+
+    # Plot the heatmap
+    im = ax.imshow(data, **kwargs)
+
+    # Create colorbar
+    cbar = ax.figure.colorbar(im, ax=ax, **cbar_kw)
+    cbar.ax.set_ylabel(cbarlabel, rotation=-90, va="bottom")
+
+    # We want to show all ticks...
+    ax.set_xticks(np.arange(data.shape[1]))
+    ax.set_yticks(np.arange(data.shape[0]))
+    # ... and label them with the respective list entries.
+    ax.set_xticklabels(col_labels, fontsize = 5)
+    ax.set_yticklabels(row_labels, fontsize = 5)
+
+    # Let the horizontal axes labeling appear on top.
+    ax.tick_params(top=False, bottom=True,
+                   labeltop=False, labelbottom=True)
+
+    # Rotate the tick labels and set their alignment.
+    plt.setp(ax.get_xticklabels(), rotation=90, ha="right",
+             rotation_mode="anchor")
+
+    plt.figure(figsize=(100,200))
+   
+    return im, cbar
+
+
+#fig, ax = plt.subplots()
+#
+#im, cbar = heatmap(heatmap_matrix, gene_list, h3_markers_list, ax=ax,
+#                   cmap="YlGn", cbarlabel="Correlation")
+#
+#fig.tight_layout()
+#plt.show()
 
 
     

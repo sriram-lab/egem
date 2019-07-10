@@ -1,4 +1,7 @@
+%% plot_heatmap.m 
+% Author: Scott Campit
 function plot_heatmap(struct, exp, epsilon2, medium)
+
 %% Generate Heatmaps for Downstream Analysis
 load ./../vars/supplementary_software_code media_exchange1
 var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
@@ -102,10 +105,10 @@ switch exp
         fig3_str = strcat(base, '_rc.fig');
         fig4_str = strcat(base, '_grate.fig');
 
-        saveas(fig1, fig1_str);
-        saveas(fig2, fig2_str);
-        saveas(fig3, fig3_str);
-        saveas(fig4, fig4_str);
+        saveas(fig1, char(fig1_str));
+        saveas(fig2, char(fig2_str));
+        saveas(fig3, char(fig3_str));
+        saveas(fig4, char(fig4_str));
     
     case 'fba' 
         medium_labels = mediareactions1(:,2);
@@ -191,8 +194,8 @@ switch exp
         xlabel(ax6, 'Demand reactions');
         ylabel(ax6, 'Medium component');
         
-        base = strcat('./../figures/new-model/eGEMn_',...
-            '_', exp, '_', medium);
+        base = strcat('./../figures/new-model/eGEMn',...
+            '_', exp,'_', medium);
         
         % Create filenames for all figures
         fig1_str = strcat(base, '_flux.fig');
@@ -200,10 +203,10 @@ switch exp
         fig3_str = strcat(base, '_rc.fig');
         fig4_str = strcat(base, '_grate.fig');
 
-        saveas(fig1, fig1_str);
-        saveas(fig2, fig2_str);
-        saveas(fig3, fig3_str);
-        saveas(fig4, fig4_str);
+        saveas(fig1, char(fig1_str));
+        saveas(fig2, char(fig2_str));
+        saveas(fig3, char(fig3_str));
+         saveas(fig4, char(fig4_str));
     
     case 'fva'  
         medium_labels = mediareactions1(:,2);
@@ -232,7 +235,7 @@ switch exp
         
         % Create filenames for all figures
         fig_str = strcat(base, '_flux.fig');
-        saveas(fig, fig_str);
+        saveas(fig, char(fig_str));
 
 end
 end

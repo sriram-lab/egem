@@ -1,0 +1,4 @@
+function save_json(data, filename)
+
+fid = fopen(strcat(filename, '.json'), 'w');
+
