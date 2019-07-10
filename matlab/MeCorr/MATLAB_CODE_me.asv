@@ -165,7 +165,7 @@ hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
 %r_basal= cell(height(hmei_list),1);
-r_basal(height(hmei_list))= struct('r',0, 'p',0, 'RL',0, 'RP',0);
+r_basal(height(hmei_list))= struct('r',0, 'p',0, 'rl',0, 'ru',0);
 pp_basal= zeros(height(hmei_list), 3);
 for j = 1:height(hmei_list)
     fx = find(ismember(ctd2compoundidname_name, hmei_list(j,1)));
@@ -175,9 +175,10 @@ for j = 1:height(hmei_list)
     
     [ix, pos] = ismember(hme_auc_dat(:,1), exptidcelllinemediamatch(:,1)); sum(ix); %
     v1 = hme_auc_dat(:,2); v1= table2array(v1);
-    %v2 = grate_ccle_exp_soft(pos,:);
+    v2 = grate_ccle_exp_soft(pos,:);
     v3 = fluxstate_gurobi(pos,:);
     
+    % Scatter plots of methylation (metabolic) flux & calculate correlation
     figure;
     scatter(v1, v3)
     ylabel({'Methylation Flux'},'fontname','helvetica'); %'fontweight','bold')
@@ -189,38 +190,69 @@ for j = 1:height(hmei_list)
     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
     set(T, 'fontsize', 14, 'verticalalignment', 'top', 'horizontalalignment', 'left');
     
-%     ix0 = (v2(:,2) < 0.05);sum(ix0); % 0.05 is  the default threshold value
-%     ix01 = (v2(:,2) > 0.05);sum(ix01);
-%     [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
-%     
-%     groups = NaN(size(ix0));
-%     groups(ix0) = 1; groups(ix01) = 2;
-%     vv = NaN(length(v1), 2);
-%     vv(1:sum(groups == 1),1) = v1(groups == 1);
-%     vv(1:sum(groups == 2),2) = v1(groups == 2);
-%     
-%     figure;
-%     %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
-%     %hold on;
-%     bh = boxplot(v1, groups,'symbol','')
-%     set(gca,'xticklabel',{'Low flux','High flux'})
-%     ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-%     xlabel(hmei_list{j,1});
-%     ylim([0 20])
-%     
-%     ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0);
-%     ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01);
-%     [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
-%     
-%     ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0);
-%     ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01);
-%     [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
+    % Boxplot pairs of methylation flux (Actually grapphing metabolic flux, 
+    ...but we hypothesize met flux approximates methyl flux)
+    ix0 = (v3 < 0.05);sum(ix0); % 0.05 is  the default threshold value
+    ix01 = (v3 > 0.05);sum(ix01);
+    [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
+    
+    groups = NaN(size(ix0));
+    groups(ix0) = 1; groups(ix01) = 2;
+    vv = NaN(length(v1), 2);
+    vv(1:sum(groups == 1),1) = v1(groups == 1);
+    vv(1:sum(groups == 2),2) = v1(groups == 2);
+    
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on;
+    bh = boxplot(v1, groups,'symbol','')
+    set(gca,'xticklabel',{'Low flux','High flux'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hmei_list{j,1});
+    ylim([0 20])
+    
+    ix0 = (v3 <= prctile(v3, 25)); sum(ix0);
+    ix01 = (v3 > prctile(v3, 25)); sum(ix01);
+    [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
+    
+    ix0 = (v3 <= prctile(v3, 50)); sum(ix0);
+    ix01 = (v3 > prctile(v3, 50)); sum(ix01);
+    [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
+    
+    % Boxplot pairs of growth rate
+    ix0 = (v2(:,2) < 0.05);sum(ix0); % 0.05 is  the default threshold value
+    ix01 = (v2(:,2) > 0.05);sum(ix01);
+    [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
+    
+    groups = NaN(size(ix0));
+    groups(ix0) = 1; groups(ix01) = 2;
+    vv = NaN(length(v1), 2);
+    vv(1:sum(groups == 1),1) = v1(groups == 1);
+    vv(1:sum(groups == 2),2) = v1(groups == 2);
+    
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on;
+    bh = boxplot(v1, groups,'symbol','')
+    set(gca,'xticklabel',{'Low flux','High flux'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hmei_list{j,1});
+    ylim([0 20])
+    
+    ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0);
+    ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01);
+    [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
+    
+    ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0);
+    ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01);
+    [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
 end
-r_basal= cell2table(r_basal); 
+r_basal= struct2table(r_basal); 
 r_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
-% pp_basal= array2table(pp_basal);
-% pp_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
-%disp(pp_basal) %t-test p-values for each drug
+disp(r_basal)
+pp_basal= array2table(pp_basal);
+pp_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
+disp(pp_basal) %t-test p-values for each drug
 
 %% Last section uses grate_ccle_exp_soft_hdacsign, which was not calculated. Do not run this section.
 %predicting variation in sensitivity between hme inhibitors based on basal 

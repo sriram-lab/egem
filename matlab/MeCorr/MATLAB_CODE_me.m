@@ -3,9 +3,12 @@
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Bulk methylation model:
 % 1) cd ./../scripts. Run make_eGEM to create bulk methylation model
-model2 = min_model;
 % 2) cd ./../MeCorr. Run section 1 and 3 of this script. Only run Section 2 if you want to 
 % run the long for-loop
+% 3) Parameters of interest to vary: epsilon_methylation, model2
+% 4) Change name of files to which variables are saved
+model2 = min_model;
+epsilon_methylation = 1E-4; % 1E-2 and 1E-1 are probably accurate (Scott)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        % impact of basal metabolic state of CCLE cell lines on sensitivity to demethylase inhibitors
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -42,8 +45,7 @@ exptidcelllinemediamatch.Properties.VariableNames{'exptidcelllinemediamatch2'}= 
 hcommon1= array2table(hcommon1);
 hcommon1.Properties.VariableNames{'hcommon1'}= 'experiment_id';
 
-rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n')); % rxnpos = 2451
-epsilon_methylation = 1E-2; % or 1E-1
+rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n'));
 
 MODE = 1;  % reaction (1) or gene list (0)
 epsilon = 1E-2; rho = 1;
@@ -65,7 +67,7 @@ for i = 1:height(exptidcelllinemediamatch)
     iii = find(ismember(celllinenames_ccle1, ctd2celllineidname(ii,1)));
     if ~isempty(iii)
         iii  = iii(1);
-%         model2 = min_model; 
+%        model2 = min_model; 
 %        model2 = metabolicmodel;
       
          %find up and down-regulated genes in each cell line
@@ -155,17 +157,17 @@ figure; h = histogram(grate_ccle_exp_soft(:,2),70);
  ylabel('Total cell lines')
 title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
-save('VariablesSaved\grate_ccle_exp_soft', 'grate_ccle_exp_soft');
-save('VariablesSaved\fluxstate_gurobi', 'fluxstate_gurobi');
-save('VariablesSaved\solverobj_ccle', 'solverobj_ccle');
+save('VariablesSaved\grate_ccle_exp_soft_1E-4', 'grate_ccle_exp_soft');
+save('VariablesSaved\fluxstate_gurobi_1E-4', 'fluxstate_gurobi');
+save('VariablesSaved\solverobj_ccle_1E-4', 'solverobj_ccle');
 %% predicting sensitivity to hme inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
-%r_basal= cell(height(hmei_list),1);
-r_basal(height(hmei_list))= struct('r',0, 'p',0, 'rl',0, 'ru',0);
+clearvars r_basal
+r_basal(height(hmei_list))= struct('rho',0, 'p',0, 'rlowerbound',0, 'rupperbound',0);
 pp_basal= zeros(height(hmei_list), 3);
 for j = 1:height(hmei_list)
     fx = find(ismember(ctd2compoundidname_name, hmei_list(j,1)));
@@ -175,24 +177,56 @@ for j = 1:height(hmei_list)
     
     [ix, pos] = ismember(hme_auc_dat(:,1), exptidcelllinemediamatch(:,1)); sum(ix); %
     v1 = hme_auc_dat(:,2); v1= table2array(v1);
-    v2 = grate_ccle_exp_soft(pos,:);
+    v2 = grate_ccle_exp_soft(pos,:); % growth rate
     v3 = fluxstate_gurobi(pos,:);
     
-%     figure;
-%     scatter(v1, v3)
-%     ylabel({'Methylation Flux'},'fontname','helvetica'); %'fontweight','bold')
-%     xlabel({'Sensitivity (AUC)'; hmei_list.cpd_name{j}},'fontname','helvetica');
-%     ylim([0, 0.06])
-%     %r_basal{j}= corrcoef(v1, v3);
-%     r_basal(j).r=R; r_basal(j).p=P; r_basal(j).rl=RL; r_basal(j).ru=RU;
-%     str=sprintf('r= %1.3f',r_basal(j).r(1,2));
-%     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
-%     set(T, 'fontsize', 14, 'verticalalignment', 'top', 'horizontalalignment', 'left');
+    % Scatter plots of methylation (metabolic) flux & calculate correlation
+    figure;
+    scatter(v1, v3)
+    ylabel({'Methylation Flux'},'fontname','helvetica'); %'fontweight','bold')
+    xlabel({'Sensitivity (AUC)'; hmei_list.cpd_name{j}},'fontname','helvetica');
+    ylim([0, 0.06])
+    [R, P, RL, RU]= corrcoef(v1, v3);
+    r_basal(j).rho=R; r_basal(j).p=P; r_basal(j).rlowerbound=RL; r_basal(j).rupperbound=RU;
+    str=sprintf('r= %1.3f',r_basal(j).rho(1,2));
+    T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
+    set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
     
-    % Methylation flux (metabolic flux was actually calculated. But we 
-    ... hypothesize met flux approximates methyl flux)
-%     ix0 = (v3 < 0.05);sum(ix0); % 0.05 is  the default threshold value
-%     ix01 = (v3 > 0.05);sum(ix01);
+    % Boxplot pairs of methylation flux (Actually grapphing metabolic flux, 
+    ...but we hypothesize met flux approximates methyl flux)
+    ix0 = (v3 < 0.05);sum(ix0); % 0.05 is  the default threshold value
+    ix01 = (v3 > 0.05);sum(ix01);
+    [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
+    
+    groups = NaN(size(ix0));
+    groups(ix0) = 1; groups(ix01) = 2;
+    vv = NaN(length(v1), 2);
+    vv(1:sum(groups == 1),1) = v1(groups == 1);
+    vv(1:sum(groups == 2),2) = v1(groups == 2);
+    
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on;
+    bh = boxplot(v1, groups,'symbol','')
+    set(gca,'xticklabel',{'Low growth','High growth'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hmei_list{j,1});
+    ylim([0 20])
+    str=sprintf('p= %1.3f',pp_basal(j,3));
+    T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
+    set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
+    
+    ix0 = (v3 <= prctile(v3, 25)); sum(ix0);
+    ix01 = (v3 > prctile(v3, 25)); sum(ix01);
+    [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
+    
+    ix0 = (v3 <= prctile(v3, 50)); sum(ix0);
+    ix01 = (v3 > prctile(v3, 50)); sum(ix01);
+    [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
+    
+    % Boxplot pairs of growth rate %%%%%%
+%     ix0 = (v2(:,2) < 0.05);sum(ix0); % 0.05 is  the default threshold value
+%     ix01 = (v2(:,2) > 0.05);sum(ix01);
 %     [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
 %     
 %     groups = NaN(size(ix0));
@@ -210,47 +244,23 @@ for j = 1:height(hmei_list)
 %     xlabel(hmei_list{j,1});
 %     ylim([0 20])
 %     
-%     ix0 = (v3 <= prctile(v3, 25)); sum(ix0);
-%     ix01 = (v3 > prctile(v3, 25)); sum(ix01);
+%     ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0);
+%     ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01);
 %     [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
 %     
-%     ix0 = (v3 <= prctile(v3, 50)); sum(ix0);
-%     ix01 = (v3 > prctile(v3, 50)); sum(ix01);
+%     ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0);
+%     ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01);
 %     [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
-    
-    % Growth rate
-    ix0 = (v2(:,2) < 0.05);sum(ix0); % 0.05 is  the default threshold value
-    ix01 = (v2(:,2) > 0.05);sum(ix01);
-    [hh, pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
-    
-    groups = NaN(size(ix0));
-    groups(ix0) = 1; groups(ix01) = 2;
-    vv = NaN(length(v1), 2);
-    vv(1:sum(groups == 1),1) = v1(groups == 1);
-    vv(1:sum(groups == 2),2) = v1(groups == 2);
-    
-    figure;
-    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
-    %hold on;
-    bh = boxplot(v1, groups,'symbol','')
-    set(gca,'xticklabel',{'Low flux','High flux'})
-    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-    xlabel(hmei_list{j,1});
-    ylim([0 20])
-    
-    ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0);
-    ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01);
-    [hh, pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01));
-    
-    ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0);
-    ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01);
-    [hh, pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01));
 end
-% r_basal= struct2table(r_basal); 
-% r_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
-% pp_basal= array2table(pp_basal);
-% pp_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
-%disp(pp_basal) %t-test p-values for each drug
+r_basal= struct2table(r_basal); 
+r_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
+disp(r_basal)
+pp_basal= array2table(pp_basal);
+pp_basal.Properties.RowNames= {hmei_list.cpd_name{1:8}};
+pp_basal.Properties.VariableNames{'pp_basal3'}= 'pp_highlow';
+pp_basal.Properties.VariableNames{'pp_basal1'}= 'pp_25prctile';
+pp_basal.Properties.VariableNames{'pp_basal2'}= 'pp_50prctile';
+disp(pp_basal) %t-test p-values for each drug
 
 %% Last section uses grate_ccle_exp_soft_hdacsign, which was not calculated. Do not run this section.
 %predicting variation in sensitivity between hme inhibitors based on basal 
