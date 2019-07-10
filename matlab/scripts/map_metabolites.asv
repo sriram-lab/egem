@@ -1,0 +1,34 @@
+function dict = map_metabolites(struct, flag)
+
+% Load substrate uptake rates, medium components, reactions of interest
+load ./../vars/supplementary_software_code media_exchange1
+var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
+    './../vars/mediareactions1.mat'};
+for kk = 1:numel(var)
+    load(var{kk});
+end
+
+% Need labels
+medium_labels = mediareactions1(:,2);
+reaction_labels = metabolites(:,3);
+
+switch flag
+    case 'fva'
+        zscr = normalize(struct.excess_max_flux);
+        keep = zscr > 2;
+        media = medium_labels;
+        rxns = string(reaction_labels);
+        for i=1:length(media)
+            for j = 1:length(rxns)
+                if (keep(i,j) == 1)
+                    m(i,j) = string(media(i))
+                elseif (keep(i,j) == 0)
+                    new(i,j) = "NaN"
+                end
+                disp(j)
+            end
+            disp(i)
+        end
+
+        tmp = num2cell(cellstr(new)',2)
+        dict = containers.Map(rxns, tmp, 'UniformValues', false)
