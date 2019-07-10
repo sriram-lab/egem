@@ -42,7 +42,6 @@ end
 
 % impute missing values using KNN
 h3_relval = knnimpute(h3_relval);
-h3_relval = normalize(h3_relval, 'range');
 
 % Match data from gene expression and histone proteomics to get proteomics
 % data that will be used downstream
@@ -91,8 +90,10 @@ for i = 1:tmp
         onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
         minfluxflag);
     
-    % Concatenate onto the growth rate array
+    % Concatenate onto the grate
     grate_ccle_exp_dat(:,i) = fluxstate_gurobi(rxnpos);
+    %model3.c(rxnpos) = 0; 
+    
 end
 
 % Calculate the pearson correlation coefficients for every demand reaction
@@ -100,7 +101,10 @@ end
 grate_ccle_exp_dat = grate_ccle_exp_dat';
 [rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
 rxns = metabolites(:,3);
-
+=======
+    [fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] = ...
+        constrain_flux_regulation(model2, onreactions, offreactions,...
+        kappa, rho, epsilon, mode, [], minfluxflag);
 %% I created this section, because it's before the printing of numbers 2-885
     % Add demand reactions from the metabolite list to the metabolic model
     for m = 1:length(metabolites(:,1))  
@@ -112,7 +116,7 @@ rxns = metabolites(:,3);
         model3 = model2;
         [~, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
         model3.lb(pos) = -0.5;
-        model3.c(find(ismember(model.rxns, 'biomass_objective'))) = 1;
+        %model3.c(3743) = 0;
         rxnpos = find(ismember(model3.rxns, tmpname));
         
         % LF created an if-branch
