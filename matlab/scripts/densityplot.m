@@ -11,7 +11,7 @@ function densityplot(fil)
     % density plots
     
 %% densityplot.m
-filename = ['C:\Users\scampit\Desktop\MeGEM\matlab\tables\', fil];
+filename = ['./../tables/', fil];
 [~, sheets] = xlsfinfo(filename);
 for sheet = 1:length(sheets)
     % Metabolic flux or growth rate

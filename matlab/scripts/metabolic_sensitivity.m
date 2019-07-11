@@ -128,8 +128,53 @@ for kappatype = 1:2
                         disp([component, rxn])
                     end
                     
+                % FBA optimization for each reaction using optimal
+                % epsilon2
+                case 'fba_noComp'
+                    sra=0;
+                    fva=0;
+                    
+                    % Get all the reactions you are interested in
+                    mets = cellstr(metabolites(:, 2)); 
+                    for i=1:length(mets)
+                        met{i} = [char(mets(i)) '[' compartment ']'];
+                    end
+                    met = string(met);
+                    
+                    % Get histone reactions only
+                    mets_hist = cellstr(metabolites(:,2));
+                    mets_hist = mets_hist(2:5,1);
+                    for i=1:length(mets_hist)
+                        hist{i} = [char(mets_hist(i)) '[' compartment ']'];
+                    end
+                    hist = string(hist);
+                    
+                    % Get growth rate and other metrics from the function
+                    [excess_soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
+                            biomassobjpos, met, [], [], [], 1, exp);
+
+                    % Stuff you want
+                    excess_grate(component,:) = grate;
+                    excess_grate_sp(component,:) = grate_sp;
+                    excess_grate_rc(component,:) = grate_rc;
+
+                    %% Simultaneously solve several reactions and get the flux
+                    model3 = excess_model;
+                    rxnpos = [find(ismember(model3.rxns, rxnname))];
+
+                    % Get metabolic flux and other metrics from the function
+                    [excess_soln, flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
+                            rxnpos, met, [], [], [], epsilon2(:, 1), exp);
+
+                    % Stuff you want
+                    excess_flux(component,:) = flux;
+                    excess_flux_sp(component,:) = flux_sp;
+                    excess_flux_rc(component,:) = flux_rc;
+
+                    disp(component)    
+                    
                 % FBA optimization for all reactions simultaneously
-                case 'fba'
+                case 'fbaComp'
                     sra=0;
                     fva=0;
 
@@ -139,6 +184,14 @@ for kappatype = 1:2
                         met{i} = [char(mets(i)) '[' compartment ']'];
                     end
                     met = string(met);
+                    
+                    % Get histone reactions only
+                    mets_hist = cellstr(metabolites(:,2));
+                    mets_hist = mets_hist(2:5,1);
+                    for i=1:length(mets_hist)
+                        hist{i} = [char(mets_hist(i)) '[' compartment ']'];
+                    end
+                    hist = string(hist);
 
                     % Get growth rate and other metrics from the function
                     [excess_soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
