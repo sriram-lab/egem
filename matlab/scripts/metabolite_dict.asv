@@ -1,4 +1,4 @@
-function [excess, depletion] = metabolite_dict(struct, media,...
+function [excess, depletion] = metabolite_dict(struct, filename, media,...
     sheetname, flag)
 
 % Load substrate uptake rates, medium components, reactions of interest
@@ -61,7 +61,7 @@ end
 rows = {'Excess', 'Depletion'};
 columns = metabolites(:,3);
 
-if flag == 'competition' 
+if flag == 'competition'
     if media == 'RPMI'
         xlswrite('./metabolic_sensitivity.xlsx', strcat(flag,'_',media), sheetname, 'A1')
         xlswrite('./metabolic_sensitivity.xlsx', rows, sheetname, 'A2:A3')
@@ -99,26 +99,6 @@ elseif flag == 'no_competition'
         xlswrite('./metabolic_sensitivity.xlsx', rows, sheetname, 'W10:W11')
         xlswrite('./metabolic_sensitivity.xlsx', columns, sheetname, 'X9:AQ9')
         xlswrite('./metabolic_sensitivity.xlsx', excess, sheetname, 'X10:AQ10')
-        xlswrite('./metabolic_sensitivity.xlsx', depletion, sheetname, 'X11:AQ11')
-    end
-elseif flag == 'fva'
-    if media == 'RPMI'
-        xlswrite('./metabolic_sensitivity.xlsx', strcat(flag,'_',media), sheetname, 'A1')
-        xlswrite('./metabolic_sensitivity.xlsx', rows, sheetname, 'A2:A3')
-        xlswrite('./metabolic_sensitivity.xlsx', columns, sheetname, 'B1:U1')
-        xlswrite('./metabolic_sensitivity.xlsx', excess, sheetname, 'B2:U2')
-        xlswrite('./metabolic_sensitivity.xlsx', depletion, sheetname, 'B3:U3')
-    elseif media == 'DMEM'
-        xlswrite('./metabolic_sensitivity.xlsx', strcat(flag,'_',media), sheetname, 'A5')
-        xlswrite('./metabolic_sensitivity.xlsx', rows, sheetname, 'A6:A7')
-        xlswrite('./metabolic_sensitivity.xlsx', columns, sheetname, 'B5:U5')
-        xlswrite('./metabolic_sensitivity.xlsx', excess, sheetname, 'B6:U6')
-        xlswrite('./metabolic_sensitivity.xlsx', depletion, sheetname, 'B7:U7')
-    elseif media == 'L15'
-        xlswrite('./metabolic_sensitivity.xlsx', strcat(flag,'_',media), sheetname, 'A9')
-        xlswrite('./metabolic_sensitivity.xlsx', rows, sheetname, 'A10:A11')
-        xlswrite('./metabolic_sensitivity.xlsx', columns, sheetname, 'B9:U9')
-        xlswrite('./metabolic_sensitivity.xlsx', excess, sheetname, 'B10:U10')
         xlswrite('./metabolic_sensitivity.xlsx', depletion, sheetname, 'B11:U11')
     end
 end

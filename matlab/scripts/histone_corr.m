@@ -1,6 +1,6 @@
 %% histone_corr calculates the correlation value between various histone 
 ...markers and the metabolic flux obtained from the iMAT algorithm
-function [rho, pval] = histone_corr(model, compartment, media, mode,...
+function [rho, pval] = histone_corr(model, dat, compartment, media, mode,...
 epsilon, epsilon2, rho, kappa, minfluxflag)
 
 %% INPUTS:
@@ -40,7 +40,12 @@ for kk = 1:numel(vars)
     load(vars{kk})
 end
 
-% impute missing values using KNN
+% Default dataset is from CCLE data
+if (~exist('dat', 'var')) || (isempty('dat'))
+    dat = h3_relval;
+end
+
+% impute missing values using KNN and scale from [0,1]
 h3_relval = knnimpute(h3_relval);
 h3_relval = normalize(h3_relval, 'range');
 

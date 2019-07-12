@@ -25,9 +25,7 @@ for m = 1:length(metabolites(:,1))
     eGEM = addReaction(eGEM, tmpname, 'reactionFormula', tmp);
 end
 
-%% Histone position specific metabolic reactions
-[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
-
+%% 
 
 %% Add transport reactions to nucleus:
     

@@ -214,7 +214,7 @@ switch exp
 
         fig = figure;
         subplot(1,2,1);
-        heatmap(normalize(struct.excess_max_flux))
+        heatmap(normalize(struct.excess_maxflux))
         ax1 = gca;
         ax1.XData = reaction_labels;
         ax1.YData = medium_labels;
@@ -223,7 +223,7 @@ switch exp
         ylabel(ax1, 'Medium component');
 
         subplot(1,2,2);
-        heatmap(normalize(struct.depletion_max_flux))
+        heatmap(normalize(struct.depletion_maxflux))
         ax2 = gca;
         ax2.XData = reaction_labels;
         ax2.YData = medium_labels;

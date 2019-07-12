@@ -153,7 +153,7 @@ switch exp
         end
     
     case 'fva'
-        try % MATLAB 2018
+        try
             %% Max Flux
             excess_maxflux = struct.excess_maxflux;
             depletion_maxflux = struct.depletion_maxflux;
@@ -185,8 +185,7 @@ switch exp
             xlswrite(filename, rowname,  epsilon2,'X53:AQ53');
             xlswrite(filename, columnname,  epsilon2,'W54:W103');
             xlswrite(filename, depletion_minflux,  epsilon2,'X53:AQ103');
-        
-        catch % MATLAB 2019
+        catch
             %% Max Flux
             excess_maxflux = struct.excess_maxflux;
             depletion_maxflux = struct.depletion_maxflux;
@@ -218,9 +217,7 @@ switch exp
             writematrix(rowname, filename, 'Sheet', epsilon2, 'Range', 'X53:AQ53');
             writematrix(columnname, filename, 'Sheet', epsilon2, 'Range', 'W54:W103');
             writematrix(depletion_minflux, filename, 'Sheet', epsilon2, 'Range', 'X53:AQ103');
-        
         end
-end
 end    
 
 
