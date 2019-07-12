@@ -114,26 +114,25 @@ for i = 1:height(exptidcelllinemediamatch)
         disp(i)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % get basal metabolic state based on transcriptome
-%         if basalflag
-%             [fluxes, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-%             grate_ccle_exp_soft(i,1:2)= grate; % first 2 columns are basal met flux. 
-%             ...3rd column will be met flux with a rxn maximized
-%             fluxes_allrxns(i,:) = fluxes; % correlate each row of fluxes_allreactions with auc
-%             model2.c(rxnpos) = epsilon_methylation ;
-%             [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-%             grate_ccle_exp_soft(i,3) = fluxstate_gurobi(rxnpos); %methylation flux
-%         end
-        
-        for rxncount = 1:length(model2.rxns)
-            if basalflag
-                %minfluxflag = 1;
-                %[~, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-                model2.c(rxncount) = epsilon_methylation ;
-                [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-                g_rate(i,rxncount) = fluxstate_gurobi(rxncount); %methylation flux
-            end
-            disp(rxncount)
+        if basalflag
+            [fluxes, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
+            grate_ccle_exp_soft(i,1:2)= grate; % first 2 columns are basal met flux. 
+            ...3rd column will be met flux with a rxn maximized
+            fluxes_allrxns(i,:) = fluxes; % correlate each row of fluxes_allreactions with auc
+            model2.c(rxnpos) = epsilon_methylation ;
+            [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+            grate_ccle_exp_soft(i,3) = fluxstate_gurobi(rxnpos); %methylation flux
         end
+        
+%         for rxncount = 1:length(model2.rxns)
+%             if basalflag
+%                 %minfluxflag = 1;
+%                 %[~, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
+%                 model2.c(rxncount) = epsilon_methylation ;
+%                 [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+%                 g_rate(i,rxncount) = fluxstate_gurobi(rxncount); %methylation flux
+%             end
+%         end
     else
         grate_ccle_exp_soft(i,:) = NaN;
     end
@@ -145,15 +144,16 @@ end
 % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
 % save('VariablesSaved\g_rate_1E-1', 'g_rate');
-% save('VariablesSaved\fluxesAll_1E-6', 'fluxes_allrxns');
+save('VariablesSaved\fluxesAll_1E-1_pFBA', 'fluxes_allrxns');
 % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
 % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 %% Correlation between flux and auc for a reaction
 % flux_allreactions: 1031 cell lines by 3777 reactions
-% drug_auc_expt: use auc values for the 8 methyl drugs
+% drug_auc_expt: extract auc values for the 8 methyl drugs
 % 8 x 3000 rhos
 rho= NaN(height(hmei_list),length(model2.rxns));
-rho2= NaN(height(hmei_list),length(model2.rxns));
+%rho2= NaN(height(hmei_list),length(model2.rxns));
+rho_p= NaN(height(hmei_list),length(model2.rxns));
 
 for j = 1:height(hmei_list)
     fx = find(ismember(ctd2compoundidname_name, hmei_list(j,1)));
@@ -165,7 +165,7 @@ for j = 1:height(hmei_list)
     v1 = hmei_auc_dat(:,2); v1= table2array(v1);
     for nCol=1:size(fluxes_allrxns,2)
         v4= fluxes_allrxns(pos,nCol);
-        rho(j,nCol)= corr(v4, v1, 'rows', 'complete');
+        [rho(j,nCol), rho_p(j,nCol)]= corr(v4, v1, 'rows', 'complete');
     end
 %     for nCol=1:size(fluxes_allrxns,2)
 %         v4= fluxes_allrxns(pos,nCol);
@@ -175,14 +175,34 @@ for j = 1:height(hmei_list)
 %         rho2(j,nCol)= corr2(v4, v1);
 %     end
 end
-threshold= [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2];
-j2=7;
-sigIndTF= (abs(rho) > threshold(j2));
-nSigExpt= sum(sigIndTF); % sum number of signif expts per rxn (sum each column)
-sigRxnInd= (nSigExpt >= 1);
-sum(sigRxnInd)
-sigRxn= model2.rxns(sigRxnInd);
+%%
+% threshold= [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2];
+% j2=7;
+sigRhoTF= (abs(rho) > 0.3);
+nSigExpt= sum(sigRhoTF); % sum number of signif expts per rxn (sum each column)
+sigIndRxn= (nSigExpt >= 1);
+sum(sigIndRxn)
+sigRxn= model2.rxns(sigIndRxn);
 disp(sigRxn) 
+
+[iDrug,iRxn]= find(sigRhoTF);
+drug= hmei_list(iDrug,1); rxn= model2.rxns(iRxn);
+sigRho= rho(sigRhoTF); n= length(sigRho);
+sigRhoP= rho_p(sigRhoTF);
+sigRxn1.above3(1:n,1)= rxn;
+sigRxn1.above3(1:n,2)= drug{:,1};
+sigRxn1.above3(1:n,3)= num2cell(sigRho);
+sigRxn1.above3(1:n,4)= num2cell(sigRhoP);
+sigRxn1.above3(1:n,5)= model2.subSystems(iRxn);
+sigRxn1.above3(1:n,6)= model2.rxnNames(iRxn);
+%save('VariablesSaved\sigRxn1pFBA', 'sigRxn1');
+
+%sigRxn4cell=cell(a,b);
+%sigRxn4cell(:,1)=sigRxn;
+%sigRxn4table=cell2table(sigRxn4cell);
+%sigRxn4table.VariableNames{'sigRxn4cell1'}='rhoAbove5';
+%writetable(sigRxn4table,('sigRxn_4_FBA.xlsx'))
+
 %% Calculate correlation between flux and auc. Each reaction maximized.
 rho3= NaN(height(hmei_list),length(model2.rxns));
 for j= 1:height(hmei_list)
@@ -200,7 +220,6 @@ for j= 1:height(hmei_list)
         rho3(j,nCol)= corr(v5, v1, 'rows', 'complete');
     end
 end
-save('VariablesSaved\rho3_1E-1', rho3);
 
 sigRho3Ind= false(1,length(model2.rxns));
 for j2= 13:13%length(model2.rxns)
@@ -209,6 +228,8 @@ for j2= 13:13%length(model2.rxns)
 end
 sigRxn3= model2.rxns(sigRho3Ind);
 disp(sigRxn3)
+
+save('VariablesSaved\rho3_1E-1', rho3);
 save('VariablesSabed\sigRxn3_1E-1', sigRxn3);
 %% predicting sensitivity to hme inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -319,8 +340,6 @@ pp_flux.Properties.VariableNames{'pp_flux3'}= 'pf_hilo';
 pp_flux.Properties.VariableNames{'pp_flux1'}= 'pf_25prctile';
 pp_flux.Properties.VariableNames{'pp_flux2'}= 'pf_50prctile';
 disp(pp_flux) %t-test p-values for each drug
-%save('VariablesSaved\pp_flux_1E-2_pFBA', 'pp_flux');
-%load('VariablesSaved\pp_flux_1E-2_pFBA');
 pp_grate= array2table(pp_grate);
 pp_grate.Properties.RowNames= {hmei_list.cpd_name{1:8}};
 pp_grate.Properties.VariableNames{'pp_grate3'}= 'pg_hilo';
