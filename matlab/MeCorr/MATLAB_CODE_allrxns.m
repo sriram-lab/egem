@@ -54,6 +54,11 @@ kappa = 1; % parameters for integrating transcriptomics data. kappa is the stren
 hmetransint = 1;
 basalflag = 1;
 
+hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
+    'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
+hmei_list= cell2table(hmei_list);
+hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
+
 % If I don't want to run next for-loop:
 %load('VariablesSaved\fluxstate_gurobi');
 %load('VariablesSaved\grate_ccle_exp_soft');
@@ -139,15 +144,10 @@ end
 %  ylabel('Total cell lines')
 % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
-save('VariablesSaved\g_rate_1E-1', 'g_rate');
+% save('VariablesSaved\g_rate_1E-1', 'g_rate');
 % save('VariablesSaved\fluxesAll_1E-6', 'fluxes_allrxns');
 % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
 % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
-
-hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
-    'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
-hmei_list= cell2table(hmei_list);
-hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
 %% Correlation between flux and auc for a reaction
 % flux_allreactions: 1031 cell lines by 3777 reactions
 % drug_auc_expt: use auc values for the 8 methyl drugs
@@ -175,15 +175,14 @@ for j = 1:height(hmei_list)
 %         rho2(j,nCol)= corr2(v4, v1);
 %     end
 end
-sumSigRho= zeros(1,length(model2.rxns));
-for j2= 1:length(model2.rxns)
-    sig= abs(rho(:, j2)) > 0.1;
-    sumSigRho(1,j2)= sum(sig);
-end
-sigRxnIndex= (sumSigRho > 4); 
-sum(sigRxnIndex)
-sigRxn= model2.rxns(sigRxnIndex);
-disp(sigRxn)
+threshold= [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2];
+j2=7;
+sigIndTF= (abs(rho) > threshold(j2));
+nSigExpt= sum(sigIndTF); % sum number of signif expts per rxn (sum each column)
+sigRxnInd= (nSigExpt >= 1);
+sum(sigRxnInd)
+sigRxn= model2.rxns(sigRxnInd);
+disp(sigRxn) 
 %% Calculate correlation between flux and auc. Each reaction maximized.
 rho3= NaN(height(hmei_list),length(model2.rxns));
 for j= 1:height(hmei_list)
@@ -201,7 +200,7 @@ for j= 1:height(hmei_list)
         rho3(j,nCol)= corr(v5, v1, 'rows', 'complete');
     end
 end
-save('VariablesSabed\rho3_1E-1', rho3);
+save('VariablesSaved\rho3_1E-1', rho3);
 
 sigRho3Ind= false(1,length(model2.rxns));
 for j2= 13:13%length(model2.rxns)
