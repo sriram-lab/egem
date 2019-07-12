@@ -307,8 +307,6 @@ for kappatype = 1:2
     end
 end
 
-exp = exp;
-
 %% Saving data structures, generating figures, etc.
 switch exp
     case {'sra', 'competition', 'no_competition'}
@@ -337,11 +335,9 @@ switch exp
         for i=1:length(fields)
             if exp == 'sra'
                 sra.(fields{i}) = values{i};
-            end
-            if exp == 'competition'
+            elseif exp == 'competition'
                 competition.(fields{i}) = values{i};
-            end
-            if exp == 'no_competition'
+            elseif exp == 'no_competition'
                 no_competition.(fields{i}) = values{i};
             end
         end
@@ -356,8 +352,8 @@ switch exp
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
         fields = {...
-            'excess_max_flux'; 'excess_maxflux';...
-            'depletion_max_flux'; 'depletion_maxflux';...
+            'excess_max_flux'; 'excess_min_flux';...
+            'depletion_max_flux'; 'depletion_min_flux';...
             'medium_components'; 'reactions'...
             };
         values = {...
