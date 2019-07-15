@@ -53,12 +53,6 @@ if isequal(size(epsilon2),[1,1])
     epsilon2 = repmat(epsilon2, 20, 2);
 end
 
-% Structures that we'll save info to
-sra = struct('Name','SRA');
-competition = struct('Name','Competition');
-no_competition = struct('Name','NoCompetition');
-fva = struct('Name','FVA');
-
 % Set the scaling proportion for RPMI substrate uptake rates to
 % a fixed amount. weight = 10 is excess, and weight = 0.01 is
 % depletion
@@ -307,6 +301,12 @@ for kappatype = 1:2
     end
 end
 
+% Initialize some structure variables
+sra = struct('Name','SRA');
+competition = struct('Name','Competition');
+no_competition = struct('Name','NoCompetition');
+fva = struct('Name','FVA');
+
 %% Saving data structures, generating figures, etc.
 switch exp
     case {'sra', 'competition', 'no_competition'}
@@ -335,9 +335,11 @@ switch exp
         for i=1:length(fields)
             if exp == 'sra'
                 sra.(fields{i}) = values{i};
-            elseif exp == 'competition'
+            end
+            if exp == 'competition'
                 competition.(fields{i}) = values{i};
-            elseif exp == 'no_competition'
+            end
+            if exp == 'no_competition'
                 no_competition.(fields{i}) = values{i};
             end
         end
@@ -352,8 +354,8 @@ switch exp
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
         fields = {...
-            'excess_max_flux'; 'excess_min_flux';...
-            'depletion_max_flux'; 'depletion_min_flux';...
+            'excess_max_flux'; 'excess_maxflux';...
+            'depletion_max_flux'; 'depletion_maxflux';...
             'medium_components'; 'reactions'...
             };
         values = {...
@@ -365,5 +367,5 @@ switch exp
             fva.(fields{i}) = values{i};
         end
 end
- 
+
 end

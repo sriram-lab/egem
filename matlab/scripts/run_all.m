@@ -47,11 +47,12 @@ for med = 1:length(medium_of_interest)
     for n = 1:length(epsilon2)
         % Run all
         str =  strcat("[sra", string(n), '_', medium_of_interest(med),...
-            ", ~, ~, ~] = metabolic_sensitivity(model, metabolites, 'n',", ...
+            "] = metabolic_sensitivity(model, metabolites, 'n',", ...
             "epsilon2(n), 'zscore', 'sra', medium_of_interest(med), []);");
         eval(str)
         % Plot all
-        str = strcat("plot_heatmap(sra", string(n), '_', medium_of_interest(med), ",'sra', epsilon2(n), medium_of_interest(med))");
+        str = strcat("plot_heatmap(sra", string(n), '_',...
+            medium_of_interest(med), ", metabolites'sra', epsilon2(n), medium_of_interest(med))");
         eval(str)
     end
 end
@@ -68,16 +69,15 @@ epsilon2_l15 = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
 medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
-    
     % Run all without competition for all reactions
-    str =  strcat("[~, fba_", lower(medium_of_interest(med)),"_noComp, ~, ~]", ...
+    str =  strcat("[fba_", lower(medium_of_interest(med)),"_noComp]", ...
         "= metabolic_sensitivity(model, metabolites, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'no_competition',", ...
         "medium_of_interest(med), []);");
     eval(str)
 
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)),...
-        "_noComp, 'fba', epsilon2, medium_of_interest(med))");
+        "_noComp, metabolites, 'fba', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
@@ -85,14 +85,14 @@ medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     % Run all w/ competition for all reactions
-    str =  strcat("[~, fba_", lower(medium_of_interest(med)),"_comp, ", ...
-        "~, ~] = metabolic_sensitivity(model, metabolites, 'n', epsilon2_", ...
+    str =  strcat("[fba_", lower(medium_of_interest(med)),"_comp, ", ...
+        "] = metabolic_sensitivity(model, metabolites, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'competition',", ...
         "medium_of_interest(med), []);"); 
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ...
-        "_compAll, 'fba', epsilon2, medium_of_interest(med))");
+        "_comp, metabolites, 'fba', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
@@ -100,27 +100,27 @@ end
 medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med=1:length(medium_of_interest)
     % Run FVA for all reactions
-    str =  strcat("[~, ~,  fva_", lower(medium_of_interest(med)),...
-        " ~] = metabolic_sensitivity(model, metabolites, 'n', epsilon2_",...
-        lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 99);");
+    str =  strcat("[fva_", lower(medium_of_interest(med)),...
+        "] = metabolic_sensitivity(model, metabolites, 'n', epsilon2_",...
+        lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 90);");
     eval(str)
     
     % Plot all reactions
     str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)),...
-        ",'fva', epsilon2, medium_of_interest(med))");
+        ", metabolites, 'fva', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
-% Save results
-[~, ~] = metabolite_dict(fba_rpmi_noComp, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_dmem_noComp, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_l15_noComp, 'L15', 'T2| All Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_rpmi_comp, 'RPMI', 'T2| All Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fba_dmem_comp, 'DMEM', 'T2| All Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fba_l15_comp, 'L15', 'T2| All Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fva_rpmi, 'RPMI', 'T3| All Rxns FVA', 'fva');
-[~, ~] = metabolite_dict(fva_dmem, 'DMEM', 'T3| All Rxns FVA', 'fva');
-[~, ~] = metabolite_dict(fva_l15, 'L15', 'T3| All Rxns FVA', 'fva');
+% Save results for all reactions
+[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, 'L15', 'T2| All Rxns FBA', 'no_competition');
+[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, 'RPMI', 'T2| All Rxns FBA', 'competition');
+[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, 'DMEM', 'T2| All Rxns FBA', 'competition');
+[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp, 'L15', 'T2| All Rxns FBA', 'competition');
+[fba_fva_rpmi_excess, fba_fva_rpmi_depletion] = metabolite_dict(fva_rpmi, 'RPMI', 'T3| All Rxns FVA', 'fva');
+[fba_fva_dmem_excess, fba_fva_dmem_depletion] = metabolite_dict(fva_dmem, 'DMEM', 'T3| All Rxns FVA', 'fva');
+[fba_fva_l15_excess, fba_fva_l15_depletion] = metabolite_dict(fva_l15, 'L15', 'T3| All Rxns FVA', 'fva');
 
 % Histone reactions only
 histone_rxns_only = metabolites(2:5, :);
@@ -134,11 +134,12 @@ for med = 1:length(medium_of_interest)
     for n = 1:length(epsilon2)
         % Run all
         str =  strcat("[sra", string(n), '_', medium_of_interest(med),...
-            ", ~, ~, ~] = metabolic_sensitivity(model, histone_rxns_only, 'n',", ...
+            "] = metabolic_sensitivity(model, histone_rxns_only, 'n',", ...
             "epsilon2(n), 'zscore', 'sra', medium_of_interest(med), []);");
         eval(str)
         % Plot all
-        str = strcat("plot_heatmap(sra", string(n), '_', medium_of_interest(med), ",'sra', epsilon2(n), medium_of_interest(med))");
+        str = strcat("plot_heatmap(sra", string(n), '_',...
+            medium_of_interest(med), ", histone_rxns_only, 'sra', epsilon2(n), medium_of_interest(med))");
         eval(str)
     end
 end
@@ -157,25 +158,29 @@ for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     
     % Run all without competition for histone reactions
-    str =  strcat("[~, fba_", lower(medium_of_interest(med)),"_noComp, ~, ~]", ...
+    str =  strcat("[fba_", lower(medium_of_interest(med)),"_noComp]", ...
         "= metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'no_competition',", ...
         "medium_of_interest(med), []);");
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)),...
-        "_noComp, 'fba', epsilon2, medium_of_interest(med))");
+        "_noComp, histone_rxns_only, 'fba', epsilon2, medium_of_interest(med))");
     eval(str)
-    
+end
+
+medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+for med = 1:length(medium_of_interest)
+    disp(medium_of_interest(med))
     % Run all w/ competition for histone reactions
-    str =  strcat("[~, fba_", lower(medium_of_interest(med)),"_comp, ", ...
-        "~, ~] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
+    str =  strcat("[fba_", lower(medium_of_interest(med)),"_comp", ...
+        "] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'competition',", ...
         "medium_of_interest(med), []);"); 
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ...
-        "_compAll, 'fba', epsilon2, medium_of_interest(med))");
+        "_comp, histone_rxns_only, 'fba', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
@@ -183,26 +188,27 @@ end
 % reactions
 medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med=1:length(medium_of_interest)
-    str =  strcat("[~, ~,  fva_", lower(medium_of_interest(med)),...
-        " ~, ~] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_",...
-        lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 99);");
+    str =  strcat("[fva_", lower(medium_of_interest(med)),...
+        "] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_",...
+        lower(medium_of_interest(med)), ", 'zscore', 'fva', medium_of_interest(med), 100);");
     eval(str)
     
     % Plot
     str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)),...
-        ",'fva', epsilon2, medium_of_interest(med))");
+        ", histone_rxns_only, 'fva', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
-[~, ~] = metabolite_dict(fba_rpmi_noComp, 'RPMI', 'T4| Hist Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_dmem_noComp, 'DMEM', 'T4| Hist Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_l15_noComp, 'L15', 'T4| Hist Rxns FBA', 'no_competition');
-[~, ~] = metabolite_dict(fba_rpmi_comp, 'RPMI', 'T4| Hist Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fba_dmem_comp, 'DMEM', 'T4| Hist Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fba_l15_comp, 'L15', 'T4| Hist Rxns FBA', 'competition');
-[~, ~] = metabolite_dict(fva_rpmi, 'RPMI', 'T5| Hist Rxns FVA', 'fva');
-[~, ~] = metabolite_dict(fva_dmem, 'DMEM', 'T5| Hist Rxns FVA', 'fva');
-[~, ~] = metabolite_dict(fva_l15, 'L15', 'T5| Hist Rxns FVA', 'fva');
+% Save results for histone reactions only
+[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'no_competition');
+[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'competition');
+[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'competition');
+[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'competition');
+[fba_fva_rpmi_excess, fba_fva_rpmi_depletion] = metabolite_dict(fva_rpmi, histone_rxns_only, 'RPMI', 'T3| All Rxns FVA', 'fva');
+[fba_fva_dmem_excess, fba_fva_dmem_depletion] = metabolite_dict(fva_dmem, histone_rxns_only, 'DMEM', 'T3| All Rxns FVA', 'fva');
+[fba_fva_l15_excess, fba_fva_l15_depletion] = metabolite_dict(fva_l15, histone_rxns_only, 'L15', 'T3| All Rxns FVA', 'fva');
 
 %% Correlation values between histone markers and metabolic flux
 % INPUTS:
