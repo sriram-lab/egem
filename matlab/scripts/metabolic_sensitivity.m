@@ -1,7 +1,6 @@
 %% @author: Scott Campit
-function [sra, competition, no_competition, fva] = ...
-    metabolic_sensitivity(model, reactions_of_interest, compartment,...
-    epsilon2, scaling, exp, medium, fva_grate)
+function STRUCT = metabolic_sensitivity(model, reactions_of_interest,...
+    compartment, epsilon2, scaling, exp, medium, fva_grate)
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
 
@@ -52,12 +51,6 @@ rxnName = char(rxnName);
 if isequal(size(epsilon2),[1,1])
     epsilon2 = repmat(epsilon2, 20, 2);
 end
-
-% Structures that we'll save info to
-sra = struct('Name','SRA');
-competition = struct('Name','Competition');
-no_competition = struct('Name','NoCompetition');
-fva = struct('Name','FVA');
 
 % Set the scaling proportion for RPMI substrate uptake rates to
 % a fixed amount. weight = 10 is excess, and weight = 0.01 is
@@ -307,7 +300,8 @@ for kappatype = 1:2
     end
 end
 
-exp = exp;
+% Initialize some structure variables
+STRUCT = struct('Name', exp);
 
 %% Saving data structures, generating figures, etc.
 switch exp
@@ -335,15 +329,7 @@ switch exp
             };
         
         for i=1:length(fields)
-            if exp == 'sra'
-                sra.(fields{i}) = values{i};
-            end
-            if exp == 'competition'
-                competition.(fields{i}) = values{i};
-            end
-            if exp == 'no_competition'
-                no_competition.(fields{i}) = values{i};
-            end
+            STRUCT.(fields{i}) = values{i};
         end
 
         base = strcat('./../tables/eGEM_', exp);   
@@ -356,8 +342,8 @@ switch exp
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
         fields = {...
-            'excess_max_flux'; 'excess_maxflux';...
-            'depletion_max_flux'; 'depletion_maxflux';...
+            'excess_maxflux'; 'excess_minflux';...
+            'depletion_maxflux'; 'depletion_minflux';...
             'medium_components'; 'reactions'...
             };
         values = {...
@@ -366,8 +352,8 @@ switch exp
             medium_labels; reaction_labels...
             };
         for i=1:length(fields)
-            fva.(fields{i}) = values{i};
+            STRUCT.(fields{i}) = values{i};
         end
 end
- 
+
 end
