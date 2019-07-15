@@ -111,7 +111,7 @@ for kappatype = 1:2
                         excess_grate(component, rxn) = grate;
                         excess_grate_sp(component, rxn) = grate_sp;
                         excess_grate_rc(component, rxn) = grate_rc;
-
+                    
                         %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
                         model3 = excess_model;
 
@@ -132,6 +132,7 @@ for kappatype = 1:2
                         excess_model = removeRxns(excess_model, tmprxn);
                         disp([component, rxn])
                     end
+
      
                 % FBA optimization for all reactions simultaneously
                 case 'competition'
