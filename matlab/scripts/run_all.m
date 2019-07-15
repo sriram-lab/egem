@@ -165,7 +165,7 @@ for med = 1:length(medium_of_interest)
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)),...
-        "_noComp, histone_rxns_only, 'fba', epsilon2, medium_of_interest(med))");
+        "_noComp, histone_rxns_only, 'no_competition', 'noComp', medium_of_interest(med))");
     eval(str)
 end
 
@@ -180,11 +180,11 @@ for med = 1:length(medium_of_interest)
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ...
-        "_comp, histone_rxns_only, 'fba', epsilon2, medium_of_interest(med))");
+        "_comp, histone_rxns_only, 'competition', 'comp', medium_of_interest(med))");
     eval(str)
 end
 
-% Optimization 3B: Run Flux variability analysis (FVA) for histone
+% Optimization 3C: Run Flux variability analysis (FVA) for histone
 % reactions
 medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med=1:length(medium_of_interest)
@@ -195,7 +195,7 @@ for med=1:length(medium_of_interest)
     
     % Plot
     str = strcat("plot_heatmap(fva_", lower(medium_of_interest(med)),...
-        ", histone_rxns_only, 'fva', epsilon2, medium_of_interest(med))");
+        ", histone_rxns_only, 'fva', 'fva_hist', medium_of_interest(med))");
     eval(str)
 end
 
@@ -223,9 +223,37 @@ epsilon = 1E-3;
 rho = 1;
 kappa = 1E-3;
 minfluxflag = 0;
+
+% Load the relative H3 proteomics dataset from the CCLE
+% New variables
+path1 = './../new_var/';
+path2 = './../vars/';
+vars = {...
+    [path1 'h3_ccle_names.mat'],... % CCLE cellline names for H3 proteomics, 
+    [path1 'h3_marks.mat'],... % H3 marker IDs
+    [path1 'h3_media.mat'],... % H3 growth media
+    [path1 'h3_relval.mat'],...% H3 proteomics data, Z-transformed
+    [path2 'metabolites.mat'] % Map of demand rxns, metabolite and descriptor
+    }; 
+
+for kk = 1:numel(vars) 
+    load(vars{kk})
+end
+
+% Run histone_corr using the H3 z-score normalized proteomics dataset and
+% running flux balance analysis. Optimize using single reaction analysis
+epsilon2 = [epsilon2_dmem, epsilon2_rpmi, epsilon2_l15];
+media = ['DMEM', 'RPMI', 'L15'];
+for eps = 1:length(epsilon2)
+    str = strcat("[correl_", media(eps), ", pval_", media(eps), "] = histone_corr(model,", ...
+    "compartment = 'n', mode=1, epsilon=1E-3, epsilon2(", eps, "), rho=1," ,...
+    "kappa=1E-3, minfluxflag=0, type='cfr')");
+    eval(str)
+end
+
     
-[correl, pval] = histone_corr(model, compartment,...
-        mode, epsilon, epsilon2(n), rho, kappa, minfluxflag);
+% Load the LeRoy et al., proteomics dataset
+
     
 %% Density plot
 % A = densityplot('eGEMn');

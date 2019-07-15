@@ -82,11 +82,9 @@ for i = 1:tmp
     rxnpos = [find(ismember(model3.rxns, rxnname))];
     model3.c(rxnpos) = epsilon2(:, 1); 
     
-    switch type
-        case 'cfr'
-            [fluxstate_gurobi, ~, ~] =  constrain_flux_regulation(model3,...
-                onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
-                minfluxflag);
+    [fluxstate_gurobi, ~, ~] =  constrain_flux_regulation(model3,...
+        onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
+        minfluxflag);
     
     % Concatenate onto the growth rate array
     grate_ccle_exp_dat(:,i) = fluxstate_gurobi(rxnpos);

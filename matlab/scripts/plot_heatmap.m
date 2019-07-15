@@ -97,14 +97,12 @@ switch exp
         xlabel(ax6, 'Demand reactions');
         ylabel(ax6, 'Medium component');
         
-        base = strcat('./../figures/new-model/eGEMn_',...
-            string(epsilon2),...
-            '_', exp, medium);
+        base = strcat('./../figures/new-model/', medium, '_', exp);
         
         % Create filenames for all figures
         fig1_str = strcat(base, '_flux.fig');
-        fig2_str = strcat(base, '_sp.fig');
-        fig3_str = strcat(base, '_rc.fig');
+        fig2_str = strcat(base, '_shadowPrice.fig');
+        fig3_str = strcat(base, '_reducedCosts.fig');
         fig4_str = strcat(base, '_grate.fig');
 
         saveas(fig1, char(fig1_str));
