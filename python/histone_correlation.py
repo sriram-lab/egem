@@ -549,12 +549,7 @@ def heatmap(data, row_labels, col_labels, ax=None,
 #
 #fig.tight_layout()
 #plt.show()
-<<<<<<< HEAD
-    
 
-
-=======
->>>>>>> aba65861ab151789e4308118fc0845516a72ace9
 
 
     
