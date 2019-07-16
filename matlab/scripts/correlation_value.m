@@ -9,6 +9,8 @@ changeCobraSolver('gurobi');
 %% Load in files
 load supplementary_software_code celllinenames_ccle1 ccleids_met ccle_expression_metz % contains CCLE cellline names for gene exp, enzymes encoding specific metabolites, and gene expression data (z-transformed)
 
+
+
 path = './../new_var/';
 vars = {...
     [path 'h3_ccle_names.mat'], [path 'h3_marks.mat'],...
@@ -31,9 +33,11 @@ h3_ccle_names_python = cellstr(h3_ccle_names);
 h3_marks_python = cellstr(h3_marks);
 common_celllines = cellstr(common_celllines);
 
+save('Recon1_genes.mat', RECON1.genes)
 save("correlation_value.mat")
 
 %% Fooling around
+
 
 
 

@@ -28,8 +28,8 @@ import seaborn as sns
 """
 FUNCTIONS
 """
-#Used to find common celllines
-def common_celllines(a,b):
+#Used to find common genes/celllines
+def common(a,b):
     a_set = set(a)
     b_set = set(b)
     common = a_set.intersection(b_set) 
@@ -61,6 +61,13 @@ def Heatmap(data, size, colour, title):
     ax = sns.heatmap(data, cmap = colour)
     ax.set(xlabel = 'Histone Markers')
     plt.show
+    
+def Remove(duplicate): 
+    final_list = [] 
+    for num in duplicate: 
+        if num not in final_list: 
+            final_list.append(num) 
+    return final_list
 
 """
 GETTING EXPRESSION DATA
@@ -219,7 +226,7 @@ h3_normalized = h3_normalized.fillna(method='ffill')
 REORGANIZING DATA
 """
 #Finding common cell lines
-h3_ccle_cellline = common_celllines(cellline_list, h3_celllines) 
+h3_ccle_cellline = common(cellline_list, h3_celllines) 
 h3_ccle_cellline.sort()
      
 ccle_h3_df = df_normalized[['Gene']+ h3_ccle_cellline]
@@ -268,7 +275,7 @@ leroy_expression.insert(0, 'Histones', leroy_markers , True)
 leroy_expression = leroy_expression.set_index('Histones')
 leroy_expression.columns = leroy_celllines
 
-leroy_ccle_cellline = common_celllines(cellline_list, leroy_celllines) 
+leroy_ccle_cellline = common(cellline_list, leroy_celllines) 
 leroy_ccle_cellline.sort()
 
 leroy_ccle_df = leroy_expression[leroy_ccle_cellline]
@@ -283,13 +290,56 @@ leroy_ccle_matrix.columns = leroy_markers
 leroy_ccle_matrix.insert(0, 'Genes', search , True)
 leroy_ccle_matrix = leroy_ccle_matrix.set_index('Genes')
 
+"""
+RECON1
+"""
+recon1_list = []
+recon1_genes = pd.read_excel(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/RECON1_genes.xlsx')
+for genes in recon1_genes['Genes']:
+    genes = genes.split('\'')
+    recon1_list.append(genes[1])
+    
+i = 0
+for genes in recon1_list:
+    genes = genes.split('_')
+    recon1_list[i] = genes[0]
+    i = i+1
+    
+recon1info = mg.querymany(recon1_list, scopes='entrezgene', fields='symbol', species='human')
 
+recon1_list = []
+for entry in recon1info:
+    if entry.get('symbol') != None:
+        recon1_list.append(entry['symbol'])
+    else:
+        pass
+    
+recon1_list = Remove(recon1_list)
+recon1_list = common(gene, recon1_list)
+
+"""
+CCLE(RECON1) and LEROY
+"""
+leroy_ccle_r1 = Matrix(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)
+
+leroy_ccle_r1 = pd.DataFrame(leroy_ccle_r1)
+leroy_ccle_r1.columns = leroy_markers
+leroy_ccle_r1.insert(0, 'Genes', recon1_list , True)
+leroy_ccle_r1 = leroy_ccle_r1.set_index('Genes')
+    
 """
 HEATMAP
 """
 
 Heatmap(h3_ccle_matrix, (10,5), 'Blues', 'H3 and CCLE Correlation Plot')
 Heatmap(leroy_ccle_matrix, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot')
+Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
+
+"""
+SAVE AS CSV FIL
+"""
+export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
+export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
 
 
 
