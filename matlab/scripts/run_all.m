@@ -40,7 +40,9 @@ model = eGEM;
 load('./../vars/metabolites.mat')
         
 % Optimization 1A: Run Single reaction activity (SRA)
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+%medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+[~, medium] = xlsfinfo('./../../data/uptake.xlsx');
+medium_of_interest = medium;
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -66,7 +68,6 @@ epsilon2_l15 = dynamic_range(sra1_L15, sra2_L15, sra3_L15, sra4_L15,...
     sra5_L15, sra6_L15, sra7_L15, "dynamic");
 
 % Optimization 2A: Run Flux balance analysis (FBA) w/ and w/o competition
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     % Run all without competition for all reactions
@@ -94,7 +95,6 @@ for med = 1:length(medium_of_interest)
 end
 
 % Optimization 3A: Run Flux variability analysis (FVA) for all reactions
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 for med=1:length(medium_of_interest)
     % Run FVA for all reactions
     str =  strcat("[fva_", lower(medium_of_interest(med)),...
@@ -124,7 +124,6 @@ histone_rxns_only = metabolites(2:5, :);
 
 % Optimization 1B: Run Single reaction activity (SRA) for histone reactions
 % only
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -221,36 +220,25 @@ rho = 1;
 kappa = 1E-3;
 minfluxflag = 0;
 
-% Load the relative H3 proteomics dataset from the CCLE
-% New variables
-path1 = './../new_var/';
-path2 = './../vars/';
-vars = {...
-    [path1 'h3_ccle_names.mat'],... % CCLE cellline names for H3 proteomics, 
-    [path1 'h3_marks.mat'],... % H3 marker IDs
-    [path1 'h3_media.mat'],... % H3 growth media
-    [path1 'h3_relval.mat'],...% H3 proteomics data, Z-transformed
-    [path2 'metabolites.mat'] % Map of demand rxns, metabolite and descriptor
-    }; 
-
-for kk = 1:numel(vars) 
-    load(vars{kk})
-end
-
 % Run histone_corr using the H3 z-score normalized proteomics dataset and
 % running flux balance analysis. Optimize using single reaction analysis
 epsilon2 = {epsilon2_dmem, epsilon2_rpmi, epsilon2_l15};
-media = {'DMEM', 'RPMI', 'L15'};
 for eps = 1:length(epsilon2)
     new_eps = epsilon2(eps);
-    str = strcat("[dat, correl_", media(eps), ", pval_", media(eps), "] = histone_corr(model,", ...
-    "h3_relval, h3_ccle_names, metabolites, 'n', media(eps), new_eps, 1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', [])");
+    str = strcat("[CCLE] = histone_corr(model, metabolites, new_eps,", ...
+        "1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', [])");
     eval(str)
 end
     
 % Load the LeRoy et al., proteomics dataset
 
-    
+%% Transform figures
+path = './../figures/new-model/';
+new_ext = '.tif';
+old_ext = '.fig';
+transform_fig(path, old_ext, new_ext)
+
+
 %% Density plot
 % A = densityplot('eGEMn');
 % 
