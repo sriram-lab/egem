@@ -6,8 +6,9 @@
 % 2) cd ./../MeCorr. Run section 1 and 3 of this script. Only run Section 2 if you want to 
 % run the long for-loop
 % 3) Parameters of interest to vary: epsilon_methylation, model2
+clearvars -except min_model % If don't want to run make_eGEM
 model2 = min_model;
-epsilon_methylation = 1E-1;
+epsilon_methylation = 1E-3;
 rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n'));
 minfluxflag = 0; % 0: no Pfba, 1: Pfba 
 % 4) Change name of files to which variables are saved. End of section 1
@@ -58,6 +59,9 @@ hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
+cpd_info= readtable('./../DataRees2016/nchembio.1986-S3_cpd.xlsx');
+cpd_infoMe= cpd_info(ismember(cpd_info(:, 1), hmei_list), [1,5,6,7,8]);
+cpd_infoMe= table2cell(cpd_infoMe);
 
 % If I don't want to run next for-loop:
 %load('VariablesSaved\fluxstate_gurobi');
@@ -144,7 +148,7 @@ end
 % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
 % save('VariablesSaved\g_rate_1E-1', 'g_rate');
-save('VariablesSaved\fluxesAll_1E-1_pFBA', 'fluxes_allrxns');
+save('VariablesSaved\fluxesAll_5FBA', 'fluxes_allrxns');
 % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
 % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 %% Correlation between flux and auc for a reaction
@@ -175,32 +179,47 @@ for j = 1:height(hmei_list)
 %         rho2(j,nCol)= corr2(v4, v1);
 %     end
 end
-%%
-% threshold= [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2];
-% j2=7;
+disp('rho & p-value calculated')
+%% Create Table of Significant Reactions & other info about them
+% Workflow: Change threshold. Change struct field name (e.g. above3)
+% accordingly
 sigRhoTF= (abs(rho) > 0.3);
 nSigExpt= sum(sigRhoTF); % sum number of signif expts per rxn (sum each column)
 sigIndRxn= (nSigExpt >= 1);
-sum(sigIndRxn)
 sigRxn= model2.rxns(sigIndRxn);
 disp(sigRxn) 
+sum(sigIndRxn)
 
 [iDrug,iRxn]= find(sigRhoTF);
-drug= hmei_list(iDrug,1); rxn= model2.rxns(iRxn);
 sigRho= rho(sigRhoTF); n= length(sigRho);
 sigRhoP= rho_p(sigRhoTF);
-sigRxn1.above3(1:n,1)= rxn;
-sigRxn1.above3(1:n,2)= drug{:,1};
-sigRxn1.above3(1:n,3)= num2cell(sigRho);
-sigRxn1.above3(1:n,4)= num2cell(sigRhoP);
-sigRxn1.above3(1:n,5)= model2.subSystems(iRxn);
-sigRxn1.above3(1:n,6)= model2.rxnNames(iRxn);
-%save('VariablesSaved\sigRxn1pFBA', 'sigRxn1');
+sigRxnS.above3(1:n,1)= num2cell(sigRho);
+sigRxnS.above3(1:n,2)= num2cell(sigRhoP);
+sigRxnS.above3(1:n,3)= model2.rxns(iRxn);
+sigRxnS.above3(1:n,4)= model2.rxnNames(iRxn);
+sigRxnS.above3(1:n,5)= model2.subSystems(iRxn);
+sigRxnS.above3(1:n,6)= cpd_infoMe(iDrug, 1); 
+sigRxnS.above3(1:n,7)= cpd_infoMe(iDrug, 3);
+sigRxnS.above3(1:n,8)= cpd_infoMe(iDrug, 2);
+
+sigRxnT= sortrows(sigRxnS.above3, 1); % sort by correlation 
+sigRxnT= cell2table(sigRxnT);
+sigRxnT.Properties.VariableNames{'sigRxnT1'}='Correlation';
+sigRxnT.Properties.VariableNames{'sigRxnT2'}='Pvalue';
+sigRxnT.Properties.VariableNames{'sigRxnT3'}='Rxn';
+sigRxnT.Properties.VariableNames{'sigRxnT4'}='RxnName';
+sigRxnT.Properties.VariableNames{'sigRxnT5'}='Subsystem';
+sigRxnT.Properties.VariableNames{'sigRxnT6'}='Compound';
+sigRxnT.Properties.VariableNames{'sigRxnT7'}='CpdActivity';
+sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdGeneTarget';
+sigRxnT_3FBA=sigRxnT;
+save('sigRxnT_5FBA', 'sigRxnT');
+writetable(sigRxnT,('sigRxnT_5FBA.xlsx'));
 
 %sigRxn4cell=cell(a,b);
 %sigRxn4cell(:,1)=sigRxn;
 %sigRxn4table=cell2table(sigRxn4cell);
-%sigRxn4table.VariableNames{'sigRxn4cell1'}='rhoAbove5';
+%sigRxn4table.Properties.VariableNames{'sigRxn4cell1'}='rhoAbove5';
 %writetable(sigRxn4table,('sigRxn_4_FBA.xlsx'))
 
 %% Calculate correlation between flux and auc. Each reaction maximized.
@@ -233,6 +252,7 @@ save('VariablesSaved\rho3_1E-1', rho3);
 save('VariablesSabed\sigRxn3_1E-1', sigRxn3);
 %% predicting sensitivity to hme inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%load('grate_pFBA_1E-2'); load('fluxstate_pFBA_1E-2');
 clearvars r_basal
 r_basal(height(hmei_list))= struct('rho',0, 'p',0, 'rlowerbound',0, 'rupperbound',0);
 pp_flux= zeros(height(hmei_list), 3);
@@ -271,18 +291,18 @@ for j = 1:height(hmei_list)
     vv = NaN(length(v1), 2);
     vv(1:sum(groups == 1),1) = v1(groups == 1);
     vv(1:sum(groups == 2),2) = v1(groups == 2);
-%     
-%     figure;
-%     %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
-%     %hold on;
-%     bh = boxplot(v1, groups,'symbol','');
-%     set(gca,'xticklabel',{'Low flux','High flux'})
-%     ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-%     xlabel(hmei_list{j,1});
-%     %ylim([0 20])
-%     str=sprintf('p= %1.4f',pp_flux(j,3));
-%     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
-%     set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
+    
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on;
+    bh = boxplot(v1, groups,'symbol','');
+    set(gca,'xticklabel',{'Low flux','High flux'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hmei_list{j,1});
+    %ylim([0 20])
+    str=sprintf('p= %1.4f',pp_flux(j,3));
+    T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
+    set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
     
     ix0 = (v3 <= prctile(v3, 25)); sum(ix0);
     ix01 = (v3 > prctile(v3, 25)); sum(ix01);
@@ -303,17 +323,17 @@ for j = 1:height(hmei_list)
     vv(1:sum(groups == 1),1) = v1(groups == 1);
     vv(1:sum(groups == 2),2) = v1(groups == 2);
     
-%     figure;
-%     %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
-%     %hold on;
-%     bh = boxplot(v1, groups,'symbol','');
-%     set(gca,'xticklabel',{'Low growth','High growth'})
-%     ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-%     xlabel(hmei_list{j,1});
-%     %ylim([0 20])
-%     str=sprintf('p= %1.4f',pp_grate(j,3));
-%     T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
-%     set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on;
+    bh = boxplot(v1, groups,'symbol','');
+    set(gca,'xticklabel',{'Low growth','High growth'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hmei_list{j,1});
+    %ylim([0 20])
+    str=sprintf('p= %1.4f',pp_grate(j,3));
+    T = text(min(get(gca, 'xlim')), max(get(gca, 'ylim')), str);
+    set(T, 'fontsize', 14, 'verticalAlignment', 'top', 'horizontalAlignment', 'left');
     
     ix0 = (v2(:,3) <= prctile(v2(:,3), 25)); sum(ix0);
     ix01 = (v2(:,3) > prctile(v2(:,3), 25)); sum(ix01);
