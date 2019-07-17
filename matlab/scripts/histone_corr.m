@@ -1,25 +1,29 @@
-%% histone_corr calculates the correlation value between various histone 
+%% histone_corr calculates the correlation value between various histone
 ...markers and the metabolic flux obtained from the iMAT algorithm
-function [rho, pval] = histone_corr(model, dat, reactions_of_interest,...
-compartment, media, mode, epsilon, epsilon2, rho, kappa, minfluxflag, type,...
+function [grate_ccle_exp_dat, rho, pval] = histone_corr(model, dat, cell_names, reactions_of_interest,...
+compartment, medium, epsilon2, mode, epsilon, rho, kappa, minfluxflag, type,...
 fva_grate)
 
 %% INPUTS:
-    % model: Initial genome scale model
-    % dat: The proteomics data used for the correlation
-    % compartment: Subcellular compartment of interest
-    % mode: for constrain flux regulation
-    % epsilon: for constrain flux regulation
-    % epsilon2: obj coef weight for reaction of interest
-    % rho: for constrain flux regulation
-    % kappa: for constrain flux regulation
-    % minfluxflag: for parsimonious flux balance analysis
+    % model: A structure representing the initial genome scale model
+    % dat: A numerical array containing proteomics data used for the correlation
+    % reactions_of_interest: A cell array containing reactions that will be studied
+    % compartment: A character specifying the subcellular compartment of interest based on BiGG classifications
+    % mode: describes the input list for constrain flux regulation
+        % 0 =  genes
+        % 1 = reactions
+    % epsilon: The parameter for the minimum flux of on-reactions for constrain flux regulation. The default value is 1E-3
+    % epsilon2: The array of objective coefficients for reaction of interest
+    % rho: The relative weight for on-reactions. Used as a parameter for constrain flux regulation
+    % kappa: The relative weight for off-reactions. Used as a parameter for constrain flux regulation
+    % minfluxflag: Binary input for parsimonious flux balance analysis
+        % 0 = no pFBA
+        % 1 = pFBA
+
 %% OUTPUTS:
-    % correl: correlation values associated with each histone marker/rxn 
-    % pval: the p-value associated with correl
-    % cell_line_match: cell lines that matched between gene expression and
-    % proteomics
-    % heatmap that visualizes the correlation values
+    % correl: A numerical array of correlation values associated with each histone marker/rxn
+    % pval: A numerical array of the p-value associated from the pearson correlation computation
+    % cell_line_match: A cell array containing the cell lines that matched between gene expression and proteomics
 
 %% histone_corr
 load ./../vars/supplementary_software_code...
@@ -27,10 +31,9 @@ load ./../vars/supplementary_software_code...
     ccleids_met... % Gene symbols
     ccle_expression_metz % Z-transformed gene expression
 
-% Default dataset is from CCLE data
-if (~exist('dat', 'var')) || (isempty('dat'))
-    dat = h3_relval;
-end
+BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn position in eGEM model
+obj_coefs = epsilon2{:};
+%obj_coefs = cell2mat(obj_coefs);
 
 % impute missing values using KNN and scale from [0,1]
 dat = knnimpute(dat);
@@ -38,142 +41,83 @@ dat = normalize(dat, 'range');
 
 % Match data from gene expression and histone proteomics to get proteomics
 % data that will be used downstream
-idx = find(ismember(h3_ccle_names, celllinenames_ccle1));
+idx = find(ismember(cell_names, celllinenames_ccle1));
 tmp = length(idx);
 dat = dat(idx, :);
-h3_ccle_names = h3_ccle_names(idx,1);
+cell_names = cell_names(idx,1);
 
 % Change idx to map to gene expression array and iterate for all 885 cancer
 % cell lines that match between genexp and proteomics dataset
-idx = find(ismember(celllinenames_ccle1, h3_ccle_names));
+idx = find(ismember(celllinenames_ccle1, cell_names));
 for i = 1:tmp
+    disp(i)
     model2 = model;
-    
+
     ongenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) >= 2));
     offgenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) <= -2));
     ongenes = intersect(ongenes, model2.rxns);
     offgenes = intersect(offgenes, model2.rxns);
-    
     [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
-    model2 = media(model2, media);
-    
+    model2 = media(model2, medium);
+    model2.lb(pos) = -0.5;
+    model2.c(BIOMASS_OBJ_POS) = 1;
+
     [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
     [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
-    
-    % Get the WT growth rate associated with different media components
-    switch type
-        case 'cfr'
-            [~, grate_ccle_exp_dat(i,1), ~] =...
-             constrain_flux_regulation(model2, onreactions, offreactions,...
-             kappa, rho, epsilon, mode, [], minfluxflag);
-        case 'fva'
-            [~, ~, ~, ~, maxflux(i,:), minflux(i,:)] =...
-                calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
-                'max', reactions_of_interest, epsilon2(:, 1), type);
-    end
-        
-    % Make methionine levels non-limiting in the metabolic model
-    model3 = model2;
-    model3.lb(pos) = -0.5;
-    
+
     % Get the demand reaction positions of interest and calculate metabolic
     % flux for each cell line using the iMAT algorithm
-    rxnname = char(reactions_of_interest(:, 1)); 
-    rxnpos = [find(ismember(model3.rxns, rxnname))];
-    model3.c(rxnpos) = epsilon2(:, 1); 
-    
+    rxnname = char(reactions_of_interest(:, 1));
     switch type
-        case 'cfr'
-            [fluxstate_gurobi, ~, ~] =  constrain_flux_regulation(model3,...
-                onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
+        case 'non-competitive_cfr'
+            for rxn = 1:length(reactions_of_interest)
+                disp(rxn)
+                rxnpos = [find(ismember(model2.rxns, reactions_of_interest(rxn)))];
+                model2.c(rxnpos) = obj_coefs(rxn, 1);
+                [flux, ~, ~] = constrain_flux_regulation(model2,  ...
+                    onreactions, offreactions, kappa, rho, epsilon, mode, [], ...
+                    minfluxflag);
+                grate_ccle_exp_dat(i,rxn) = flux(rxnpos);
+            end
+        case 'competitive_cfr'
+            rxnpos = [find(ismember(model2.rxns, rxnname))];
+            model2.c(rxnpos) = obj_coefs(:, 1);
+            [flux, ~, ~] =  constrain_flux_regulation(model2,...
+                onreactions, offreactions, kappa, rho, epsilon, mode , [], ...
                 minfluxflag);
-    
-    % Concatenate onto the growth rate array
-    grate_ccle_exp_dat(:,i) = fluxstate_gurobi(rxnpos);
+            grate_ccle_exp_dat(i,:) = flux(rxnpos);
+        case 'fva'
+            rxnpos = [find(ismember(model2.rxns, rxnname))];
+            model2.c(rxnpos) = obj_coefs(:, 1);
+            [~, ~, ~, ~, flux, ~] =...
+                calc_metabolic_metrics(model2, rxnpos, [], fva_grate,...
+                'max', reactions_of_interest, obj_coefs(:, 1), type);
+            grate_ccle_exp_dat(i,:) = flux(rxnpos);
 end
 
 % Calculate the pearson correlation coefficients for every demand reaction
-% w.r.t to H3 expression
-grate_ccle_exp_dat = grate_ccle_exp_dat';
+disp(size(grate_ccle_exp_dat))
+disp(size(dat))
 [rho, pval] = corr(grate_ccle_exp_dat, dat);
-rxns = reactions_of_interest(:,3);
+rxns = metabolites(:,3);
 
-%% I created this section, because it's before the printing of numbers 2-885
-    % Add demand reactions from the metabolite list to the metabolic model
-    for m = 1:length(reactions_of_interest(:,1))  
-        %tmp_met = char(reactions_of_interest(m,2));
-        %tmp = [tmp_met '[' compartment '] -> '];
-        tmpname = char(reactions_of_interest(m,1));
-        
-        % limit methionine levels for all reactions in the model; it has to be non limiting
-        model3 = model2;
-        [~, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
-        model3.lb(pos) = -0.5;
-        model3.c(find(ismember(model.rxns, 'biomass_objective'))) = 1;
-        rxnpos = find(ismember(model3.rxns, tmpname));
-        
-        % LF created an if-branch
-        if rxnpos ~= []
-            model3.c(rxnpos) = epsilon2;
-            
-            % get the flux values from iMAT
-            [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
-                onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
-                minfluxflag);
-            grate_ccle_exp_dat(i,1+m) = fluxstate_gurobi(rxnpos);
-            model3.c(rxnpos) = 0;
-        end
-% =======
-%         rxnpos = [find(ismember(model3.rxns, tmpname))];
-%         model3.c(rxnpos) = epsilon2; 
-% 
-%         % get the flux values from iMAT
-%         [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
-%             onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
-%             minfluxflag);
-%         grate_ccle_exp_dat(i,1+m) = fluxstate_gurobi(rxnpos);
-%         model3.c(rxnpos) = 0; 
-% >>>>>>> 5c15a54a070a7bdf1d569795eb445600f9381482
-    end
-end
-
-% Calculate the pearson correlation coefficients for every demand reaction
-[row, col] = size(grate_ccle_exp_dat);
-
-test = interp1(1:numel(grate_ccle_exp_dat), grate_ccle_exp_dat,...
-    linspace(1, numel(grate_ccle_exp_dat), numel(h3_relval)));
-% LF: For each gene, calculate correl & pval across all cell lines
-for i = 1:length(h3_relval(:,1))
-    [correl, pval] = corr(grate_ccle_exp_dat(i,:), h3_relval(i,:));
-end
-% LF: For each cell line, calculate correl and pval between flux data and
-% expression level for all genes?
-
-%% I created this section. (I did not write new code)
-c=zeros(length(h3_ccle_names), size(h3_relval,2));
-for i = 1:length(h3_ccle_names)
-    tmp1 = grate_ccle_exp_dat(i,:);
-    tmp2 = h3_relval(i,:);
-    [correl, pval] = corr(tmp1, tmp2);
-    c(i,:)=correl;
-    %tmp3 = diag(correl);        % Why? What used for?
-end
-
-% Make a heatmap of correlation coefficients versus histone markers for
-% several demand reactions
-rxns = reactions_of_interest(:,1);
+%% Save data in Excel
+filename1 = './../tables/eGEMn_allDM.xlsx';
+colname = rxns';
+rowname = h3_marks;
+xlswrite(filename1, colname, string(obj_coefs), 'B1:U1');
+xlswrite(filename1, rowname, string(obj_coefs), 'A2:A51');
+xlswrite(filename1, excess_flux, string(obj_coefs), 'B2:U51');
 
 %% Make Figures
 fig = figure;
-heatmap(correl)
+heatmap(rho)
 ax = gca;
 ax.Colormap = parula;
-ax.Title = 'Histone markers and metabolic flux correlation';
 ax.XData = h3_marks;
 ax.YData = rxns;
+ax.Title = 'Histone markers and metabolic flux correlation'
 xlabel(ax, 'Histone Markers');
-ylabel(ax, 'Demand Reactions');
-base = strcat('./../figures/corr/histone_mark_corr_', string(epsilon2)); 
-fig_str = strcat(base, '.fig');
-%saveas(fig, fig_str);
-end 
+ylabel(ax, 'Cancer Cell Lines (CCLE)');
+saveas(fig, ['./../figures/corr/histone_mark_corr.fig']);
+end
