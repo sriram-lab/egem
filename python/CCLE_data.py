@@ -28,8 +28,10 @@ import seaborn as sns
 """
 FUNCTIONS
 """
-#Used to find common genes/celllines
+
 def common(a,b):
+    """ This functions purpose is to find common elements of lists by converting
+    each list to a set"""
     a_set = set(a)
     b_set = set(b)
     common = a_set.intersection(b_set) 
@@ -38,6 +40,8 @@ def common(a,b):
 
 #Used to create correlation matrix
 def Matrix(gene_list, histone_list, data1, data2):
+    """This functions purpose is to create a numpy matrix which is filled with 
+    correlation values based on two data sets and corresponding lists"""
     name = (len(gene_list), len(histone_list))
     name = np.zeros(name)
     i = 0 
@@ -53,8 +57,9 @@ def Matrix(gene_list, histone_list, data1, data2):
         i = i+1
     return name
 
-#Used to make heatmaps
 def Heatmap(data, size, colour, title):
+    """Using dataframes based on the Matrix fucntion, this function will create 
+    a heatmap"""
     plt.figure(figsize=size)
     plt.xlabel('Histone Markers')
     plt.title(title)
@@ -63,11 +68,17 @@ def Heatmap(data, size, colour, title):
     plt.show
     
 def Remove(duplicate): 
+    """This function will remove duplicated elements from lists"""
     final_list = [] 
     for num in duplicate: 
         if num not in final_list: 
             final_list.append(num) 
     return final_list
+
+def Clustermap(data, size, colour, method, metric):
+    plt.figure(figsize=size)
+    ax = sns.clustermap(data, cmap = colour, method = method, metric= metric)
+    plt.show
 
 """
 GETTING EXPRESSION DATA
@@ -328,18 +339,18 @@ leroy_ccle_r1.insert(0, 'Genes', recon1_list , True)
 leroy_ccle_r1 = leroy_ccle_r1.set_index('Genes')
     
 """
-HEATMAP
+GRAPHING
 """
 
 Heatmap(h3_ccle_matrix, (10,5), 'Blues', 'H3 and CCLE Correlation Plot')
 Heatmap(leroy_ccle_matrix, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot')
 Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
+Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
 
 """
 SAVE AS CSV FIL
 """
 export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
 export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
-
 
 
