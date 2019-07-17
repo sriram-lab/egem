@@ -139,7 +139,7 @@ end
 %  ylabel('Total cell lines')
 % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
-save('VariablesSaved\g_rate_1E-1', 'g_rate');
+save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
 % save('VariablesSaved\fluxesAll_1E-6', 'fluxes_allrxns');
 % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
 % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
