@@ -40,7 +40,8 @@ model = eGEM;
 load('./../vars/metabolites.mat')
         
 % Optimization 1A: Run Single reaction activity (SRA)
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+%medium_of_interest = {'RPMI', 'DMEM', 'L15'};
+medium_of_interest = {'Iscove', 'M
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -52,7 +53,7 @@ for med = 1:length(medium_of_interest)
         eval(str)
         % Plot all
         str = strcat("plot_heatmap(sra", string(n), '_',...
-            medium_of_interest(med), ", metabolites'sra', epsilon2(n), medium_of_interest(med))");
+            medium_of_interest(med), ", metabolites, 'sra', epsilon2(n), medium_of_interest(med))");
         eval(str)
     end
 end
@@ -77,12 +78,9 @@ for med = 1:length(medium_of_interest)
     eval(str)
 
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)),...
-        "_noComp, metabolites, 'fba', epsilon2, medium_of_interest(med))");
+        "_noComp, metabolites, 'no_competition', epsilon2, medium_of_interest(med))");
     eval(str)
-end
 
-medium_of_interest = {'RPMI', 'DMEM', 'L15'};
-for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     % Run all w/ competition for all reactions
     str =  strcat("[fba_", lower(medium_of_interest(med)),"_comp, ", ...
@@ -92,7 +90,7 @@ for med = 1:length(medium_of_interest)
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ...
-        "_comp, metabolites, 'fba', epsilon2, medium_of_interest(med))");
+        "_comp, metabolites, 'competition', epsilon2, medium_of_interest(med))");
     eval(str)
 end
 
@@ -112,15 +110,15 @@ for med=1:length(medium_of_interest)
 end
 
 % Save results for all reactions
-[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, 'L15', 'T2| All Rxns FBA', 'no_competition');
-[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, 'RPMI', 'T2| All Rxns FBA', 'competition');
-[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, 'DMEM', 'T2| All Rxns FBA', 'competition');
-[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp, 'L15', 'T2| All Rxns FBA', 'competition');
-[fba_fva_rpmi_excess, fba_fva_rpmi_depletion] = metabolite_dict(fva_rpmi, 'RPMI', 'T3| All Rxns FVA', 'fva');
-[fba_fva_dmem_excess, fba_fva_dmem_depletion] = metabolite_dict(fva_dmem, 'DMEM', 'T3| All Rxns FVA', 'fva');
-[fba_fva_l15_excess, fba_fva_l15_depletion] = metabolite_dict(fva_l15, 'L15', 'T3| All Rxns FVA', 'fva');
+[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
+[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, metabolites, 'L15', 'T2| All Rxns FBA', 'no_competition');
+[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'competition');
+[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'competition');
+[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp,  metabolites,'L15', 'T2| All Rxns FBA', 'competition');
+[fva_rpmi_excess, fva_rpmi_depletion] = metabolite_dict(fva_rpmi,  metabolites, 'RPMI', 'T3| All Rxns FVA', 'fva');
+[fva_dmem_excess, fva_dmem_depletion] = metabolite_dict(fva_dmem,  metabolites, 'DMEM', 'T3| All Rxns FVA', 'fva');
+[fva_l15_excess, fva_l15_depletion] = metabolite_dict(fva_l15,  metabolites, 'L15', 'T3| All Rxns FVA', 'fva');
 
 % Histone reactions only
 histone_rxns_only = metabolites(2:5, :);
@@ -224,35 +222,25 @@ rho = 1;
 kappa = 1E-3;
 minfluxflag = 0;
 
-% Load the relative H3 proteomics dataset from the CCLE
-% New variables
-path1 = './../new_var/';
-path2 = './../vars/';
-vars = {...
-    [path1 'h3_ccle_names.mat'],... % CCLE cellline names for H3 proteomics, 
-    [path1 'h3_marks.mat'],... % H3 marker IDs
-    [path1 'h3_media.mat'],... % H3 growth media
-    [path1 'h3_relval.mat'],...% H3 proteomics data, Z-transformed
-    [path2 'metabolites.mat'] % Map of demand rxns, metabolite and descriptor
-    }; 
-
-for kk = 1:numel(vars) 
-    load(vars{kk})
-end
-
 % Run histone_corr using the H3 z-score normalized proteomics dataset and
 % running flux balance analysis. Optimize using single reaction analysis
-epsilon2 = [epsilon2_dmem, epsilon2_rpmi, epsilon2_l15];
+epsilon2 = {epsilon2_dmem, epsilon2_rpmi, epsilon2_l15};
 for eps = 1:length(epsilon2)
-    str = strcat("[correl_", eps, ", pval_", eps, "] = histone_corr(model,", ...
-    compartment='n',...
-            mode=1, epsilon=1E-3, epsilon2(eps), rho=1, kappa=1E-3,...
-            minfluxflag=0);)"
-
+    new_eps = epsilon2(eps);
+    str = strcat("[CCLE] = histone_corr(model, metabolites, new_eps,", ...
+        "1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', [])");
+    eval(str)
+end
     
 % Load the LeRoy et al., proteomics dataset
 
-    
+%% Transform figures
+path = './../figures/new-model/';
+new_ext = '.tif';
+old_ext = '.fig';
+transform_fig(path, old_ext, new_ext)
+
+
 %% Density plot
 % A = densityplot('eGEMn');
 % 

@@ -14,6 +14,9 @@ end
 
 switch exp
     case {'sra', 'competition', 'no_competition'} 
+        if ~isequal(size(epsilon2), [1,1])
+            epsilon2 = '';
+        end
         medium_labels = mediareactions1(:,2);
         reaction_labels = metabolites(:,3);
         
@@ -77,38 +80,41 @@ switch exp
         xlabel(ax6, 'Demand reactions');
         ylabel(ax6, 'Medium component');
         
-        % Growth rate
-        fig4 = figure;
-        subplot(1,2,1);
-        heatmap(normalize(struct.excess_grate))
-        ax5 = gca;
-        ax5.XData = reaction_labels;
-        ax5.YData = medium_labels;
-        ax5.Title = 'Growth rate in excess medium';
-        xlabel(ax5, 'Demand reactions');
-        ylabel(ax5, 'Medium component');
-
-        subplot(1,2,2);
-        heatmap(normalize(struct.depletion_grate))
-        ax6 = gca;
-        ax6.XData = reaction_labels;
-        ax6.YData = medium_labels;
-        ax6.Title = 'Growth rate in depleted medium';
-        xlabel(ax6, 'Demand reactions');
-        ylabel(ax6, 'Medium component');
+%         % Growth rate
+%         fig4 = figure;
+%         subplot(1,2,1);
+%         heatmap(normalize(struct.excess_grate))
+%         ax5 = gca;
+%         ax5.XData = reaction_labels;
+%         ax5.YData = medium_labels;
+%         ax5.Title = 'Growth rate in excess medium';
+%         xlabel(ax5, 'Demand reactions');
+%         ylabel(ax5, 'Medium component');
+% 
+%         subplot(1,2,2);
+%         heatmap(normalize(struct.depletion_grate))
+%         ax6 = gca;
+%         ax6.XData = reaction_labels;
+%         ax6.YData = medium_labels;
+%         ax6.Title = 'Growth rate in depleted medium';
+%         xlabel(ax6, 'Demand reactions');
+%         ylabel(ax6, 'Medium component');
         
-        base = strcat('./../figures/new-model/', medium, '_', exp);
+        base = strcat('./../figures/new-model/', ...
+            medium, '_', ...
+            string(epsilon2), '_', ...
+            exp);
         
         % Create filenames for all figures
         fig1_str = strcat(base, '_flux.fig');
         fig2_str = strcat(base, '_shadowPrice.fig');
         fig3_str = strcat(base, '_reducedCosts.fig');
-        fig4_str = strcat(base, '_grate.fig');
+        %fig4_str = strcat(base, '_grate.fig');
 
-        saveas(fig1, char(fig1_str));
-        saveas(fig2, char(fig2_str));
-        saveas(fig3, char(fig3_str));
-        saveas(fig4, char(fig4_str));
+        saveas(fig1, fig1_str);
+        saveas(fig2, fig2_str);
+        saveas(fig3, fig3_str);
+        %saveas(fig4, char(fig4_str));
     
     case 'fva'  
         medium_labels = mediareactions1(:,2);
@@ -133,10 +139,13 @@ switch exp
         xlabel(ax2, 'Demand reactions');
         ylabel(ax2, 'Medium component');
         
-        base = strcat('./../figures/new-model/eGEMn_', exp, '_', medium);
+        base = strcat('./../figures/new-model/',...
+            medium, '_', ...
+            epsilon2, '_', ...
+            exp);
         
         % Create filenames for all figures
-        fig_str = strcat(base, '_flux.fig');
+        fig_str = strcat(base, '.fig');
         saveas(fig, char(fig_str));
 
 end

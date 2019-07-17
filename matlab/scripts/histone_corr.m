@@ -1,8 +1,8 @@
 %% histone_corr calculates the correlation value between various histone
 ...markers and the metabolic flux obtained from the iMAT algorithm
-function [grate_ccle_exp_dat, rho, pval] = histone_corr(model, dat, cell_names, reactions_of_interest,...
-compartment, medium, epsilon2, mode, epsilon, rho, kappa, minfluxflag, type,...
-fva_grate)
+function [STRUCT] = histone_corr(model, reactions_of_interest,...
+    epsilon2, mode, epsilon, rho, kappa, minfluxflag, exp,...
+    dataset, fva_grate)
 
 %% INPUTS:
     % model: A structure representing the initial genome scale model
@@ -26,6 +26,47 @@ fva_grate)
     % cell_line_match: A cell array containing the cell lines that matched between gene expression and proteomics
 
 %% histone_corr
+
+switch dataset
+    case 'CCLE'
+        % Load the relative H3 proteomics dataset from the CCLE
+        path1 = './../new_var/';
+        path2 = './../vars/';
+        vars = {...
+            [path1 'h3_ccle_names.mat'],... % CCLE cellline names for H3 proteomics, 
+            [path1 'h3_marks.mat'],... % H3 marker IDs
+            [path1 'h3_media.mat'],... % H3 growth media
+            [path1 'h3_relval.mat'],...% H3 proteomics data, Z-transformed
+            }; 
+
+        for kk = 1:numel(vars) 
+            load(vars{kk})
+        end
+        
+        cell_names = h3_ccle_names;
+        marks = h3_marks;
+        medium = h3_media;
+        proteomics = h3_relval;
+        
+    case 'LeRoy'
+        path1 = './../new_var/';
+        path2 = './../vars/';
+        vars = {...
+            [path1 'leroy_cellline.mat'],... % CCLE cellline names for H3 proteomics, 
+            [path1 'leroy_mark.mat'],... % Marker IDs
+            [path1 'leroy_val.mat'],...% Average values
+            }; 
+        
+        for kk = 1:numel(vars) 
+            load(vars{kk})
+        end
+        
+        cell_names = cell(:,1);
+        medium = cell(:,2);
+        marks = leroy_mark;
+        proteomics = leroy_val;
+end
+        
 load ./../vars/supplementary_software_code...
     celllinenames_ccle1... % CCLE cellline names
     ccleids_met... % Gene symbols
@@ -36,21 +77,21 @@ obj_coefs = epsilon2{:};
 %obj_coefs = cell2mat(obj_coefs);
 
 % impute missing values using KNN and scale from [0,1]
-dat = knnimpute(dat);
-dat = normalize(dat, 'range');
+proteomics = knnimpute(proteomics);
+proteomics = normalize(proteomics, 'range');
 
 % Match data from gene expression and histone proteomics to get proteomics
 % data that will be used downstream
 idx = find(ismember(cell_names, celllinenames_ccle1));
 tmp = length(idx);
-dat = dat(idx, :);
+proteomics = proteomics(idx, :);
 cell_names = cell_names(idx,1);
 
 % Change idx to map to gene expression array and iterate for all 885 cancer
 % cell lines that match between genexp and proteomics dataset
 idx = find(ismember(celllinenames_ccle1, cell_names));
 for i = 1:tmp
-    disp(i)
+    disp(['Cell line: ', cellnames(i)])
     model2 = model;
 
     ongenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) >= 2));
@@ -58,7 +99,8 @@ for i = 1:tmp
     ongenes = intersect(ongenes, model2.rxns);
     offgenes = intersect(offgenes, model2.rxns);
     [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
-    model2 = media(model2, medium);
+    
+    model2 = media(model2, medium(i));
     model2.lb(pos) = -0.5;
     model2.c(BIOMASS_OBJ_POS) = 1;
 
@@ -70,54 +112,60 @@ for i = 1:tmp
     rxnname = char(reactions_of_interest(:, 1));
     switch type
         case 'non-competitive_cfr'
-            for rxn = 1:length(reactions_of_interest)
-                disp(rxn)
-                rxnpos = [find(ismember(model2.rxns, reactions_of_interest(rxn)))];
-                model2.c(rxnpos) = obj_coefs(rxn, 1);
-                [flux, ~, ~] = constrain_flux_regulation(model2,  ...
+            for rxn = 1:length(reactions_of_interest(:,1))
+                model3 = model2;
+                rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn)))];
+                model3.c(rxnpos) = obj_coefs(rxn, 1);
+                [flux, ~, ~] = constrain_flux_regulation(model3,  ...
                     onreactions, offreactions, kappa, rho, epsilon, mode, [], ...
                     minfluxflag);
-                grate_ccle_exp_dat(i,rxn) = flux(rxnpos);
+                all_flux_values(i,rxn) = flux(rxnpos);
+                model3.c(rxnpos) = 0;
             end
         case 'competitive_cfr'
-            rxnpos = [find(ismember(model2.rxns, rxnname))];
-            model2.c(rxnpos) = obj_coefs(:, 1);
-            [flux, ~, ~] =  constrain_flux_regulation(model2,...
+            model3 = model2;
+            rxnpos = [find(ismember(model3.rxns, rxnname))];
+            model3.c(rxnpos) = obj_coefs(:, 1);
+            [flux, ~, ~] =  constrain_flux_regulation(model3,...
                 onreactions, offreactions, kappa, rho, epsilon, mode , [], ...
                 minfluxflag);
-            grate_ccle_exp_dat(i,:) = flux(rxnpos);
+            all_flux_values(i,:) = flux(rxnpos);
         case 'fva'
-            rxnpos = [find(ismember(model2.rxns, rxnname))];
-            model2.c(rxnpos) = obj_coefs(:, 1);
+            rxnpos = [find(ismember(model3.rxns, rxnname))];
+            model3.c(rxnpos) = obj_coefs(:, 1);
             [~, ~, ~, ~, flux, ~] =...
-                calc_metabolic_metrics(model2, rxnpos, [], fva_grate,...
+                calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
                 'max', reactions_of_interest, obj_coefs(:, 1), type);
-            grate_ccle_exp_dat(i,:) = flux(rxnpos);
+            all_flux_values(i,:) = flux(rxnpos);
+    end
 end
 
 % Calculate the pearson correlation coefficients for every demand reaction
-disp(size(grate_ccle_exp_dat))
-disp(size(dat))
-[rho, pval] = corr(grate_ccle_exp_dat, dat);
-rxns = metabolites(:,3);
+[rho, pval] = corr(all_flux_values, proteomics);
+rxns = reactions_of_interest(:, 3);
 
-%% Save data in Excel
-filename1 = './../tables/eGEMn_allDM.xlsx';
-colname = rxns';
-rowname = h3_marks;
-xlswrite(filename1, colname, string(obj_coefs), 'B1:U1');
-xlswrite(filename1, rowname, string(obj_coefs), 'A2:A51');
-xlswrite(filename1, excess_flux, string(obj_coefs), 'B2:U51');
-
+%% Save data in struct
+STRUCT = struct('Name', dataset);
+fields = {...
+        'HistoneMark'; 'Reaction'; ...
+        'R'; 'Pvalue'; ...
+    };
+values = {...
+    mark; rxns; ...
+    rho; pval;
+    };
+for i=1:length(fields)
+    STRUCT.(fields{i}) = values{i};
+end
 %% Make Figures
 fig = figure;
 heatmap(rho)
 ax = gca;
 ax.Colormap = parula;
-ax.XData = h3_marks;
+ax.XData = marks;
 ax.YData = rxns;
 ax.Title = 'Histone markers and metabolic flux correlation'
 xlabel(ax, 'Histone Markers');
-ylabel(ax, 'Cancer Cell Lines (CCLE)');
+ylabel(ax, 'Cancer Cell Lines');
 saveas(fig, ['./../figures/corr/histone_mark_corr.fig']);
 end

@@ -70,7 +70,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.83.html
     elseif ismember({'McCoy 5A'} , medium) % McCoy 5A
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'McCoy 5A');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'McCoy-5A');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -102,7 +102,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.64.html
     elseif ismember({'HAM F-12'}, medium) % F12
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM F-12');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM-F-12');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -120,7 +120,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.114.html
     elseif ismember({'RPMI w Gln'}, medium) % RPMI ++ L-gln
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI w Gln');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'RPMI-w-Gln');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -128,7 +128,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.61.html
     elseif ismember({'HAM F-10'}, medium) % F10
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM F10');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'HAM-F10');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -136,7 +136,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % No one sells it - calc'd ratio
     elseif ismember({'DMEM:RPMI (2:1)'}, medium) % 2:1 DMEM:RPMI
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-RPMI 2-1');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'DMEM-RPMI-2-1');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -152,7 +152,7 @@ if verLessThan('matlab', '9.6.0.1072779')
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.314.html
     elseif ismember({'Williams E Medium'}, medium) % Williams E Medium
-        [num, txt] = xlsread('./../../data/uptake.xlsx', 'Williams E');
+        [num, txt] = xlsread('./../../data/uptake.xlsx', 'Williams');
         txt(1,:) = [];
         for rxn=1:length(txt)
             model.lb(find(ismember(model.rxns, txt(rxn, 2)))) = num(rxn, 2);
@@ -232,7 +232,7 @@ else
     %% McCoy
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.83.html
     elseif ismember({'McCoy 5A'} , medium) % McCoy 5A
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'McCoy 5A');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'McCoy-5A');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
@@ -264,7 +264,7 @@ else
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.64.html
     elseif ismember({'HAM F-12'}, medium) % F12
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'HAM F-12');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'HAM-F-12');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
@@ -282,7 +282,7 @@ else
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.114.html
     elseif ismember({'RPMI w Gln'}, medium) % RPMI ++ L-gln
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'RPMI w Gln');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'RPMI-w-Gln');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
@@ -290,7 +290,7 @@ else
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.61.html
     elseif ismember({'HAM F-10'}, medium) % F10
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'HAM F10');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'HAM-F10');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
@@ -298,7 +298,7 @@ else
 
     % No one sells it - calc'd ratio
     elseif ismember({'DMEM:RPMI (2:1)'}, medium) % 2:1 DMEM:RPMI
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'DMEM-RPMI 2-1');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'DMEM-RPMI-2-1');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
@@ -314,7 +314,7 @@ else
 
     % https://www.thermofisher.com/us/en/home/technical-resources/media-formulation.314.html
     elseif ismember({'Williams E Medium'}, medium) % Williams E Medium
-        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'Williams E');
+        arr = readcell('./../../data/uptake.xlsx', 'Sheet', 'Williams');
         arr(1,:) = [];
         for rxn=1:length(arr)
             model.lb(find(ismember(model.rxns, arr(rxn, 2)))) = cell2mat(arr(rxn, 4));
