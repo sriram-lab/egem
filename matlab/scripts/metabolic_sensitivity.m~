@@ -133,6 +133,7 @@ for kappatype = 1:2
                         excess_model = removeRxns(excess_model, tmprxn);
                         disp([component, rxn])
                     end
+            end
                 % FBA optimization for all reactions simultaneously
                 case 'competition'
                     
