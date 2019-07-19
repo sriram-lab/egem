@@ -1,7 +1,7 @@
 %% histone_corr calculates the correlation value between various histone
 ...markers and the metabolic flux obtained from the iMAT algorithm
 function [STRUCT] = histone_corr(model, reactions_of_interest,...
-    epsilon2, mode, epsilon, rho, kappa, minfluxflag, exp,...
+    eps_struct, mode, epsilon, rho, kappa, minfluxflag, exp,...
     dataset, fva_grate)
 
 %% INPUTS:
@@ -65,6 +65,7 @@ switch dataset
         medium = cell(:,2);
         marks = leroy_mark;
         proteomics = leroy_val;
+        proteomics = proteomics';
 end
         
 load ./../vars/supplementary_software_code...
@@ -73,7 +74,7 @@ load ./../vars/supplementary_software_code...
     ccle_expression_metz % Z-transformed gene expression
 
 BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn position in eGEM model
-obj_coefs = epsilon2{:};
+%obj_coefs = epsilon2{:};
 %obj_coefs = cell2mat(obj_coefs);
 
 % impute missing values using KNN and scale from [0,1]
@@ -91,14 +92,27 @@ cell_names = cell_names(idx,1);
 % cell lines that match between genexp and proteomics dataset
 idx = find(ismember(celllinenames_ccle1, cell_names));
 for i = 1:tmp
-    disp(['Cell line: ', cellnames(i)])
+    disp(['Cell line: ', cell_names(i)])
     model2 = model;
-
+    
     ongenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) >= 2));
     offgenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) <= -2));
     ongenes = intersect(ongenes, model2.rxns);
     offgenes = intersect(offgenes, model2.rxns);
     [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
+    
+    disp(medium(i))
+    if string(medium(i)) == 'RPMI'
+        obj_coef = eps_struct.RPMI;
+    elseif string(medium(i)) == 'DMEM'
+        obj_coef = eps_struct.DMEM;
+    elseif string(medium(i)) == 'L15'
+        obj_coef = eps_struct.L15;
+    elseif string(medium(i)) == 'McCoy5A'
+        obj_coef = eps_struct.McCoy5A;
+    elseif string(medium(i)) == 'Iscove'
+        obj_coef = eps_struct.Iscove;
+    end
     
     model2 = media(model2, medium(i));
     model2.lb(pos) = -0.5;
@@ -110,12 +124,12 @@ for i = 1:tmp
     % Get the demand reaction positions of interest and calculate metabolic
     % flux for each cell line using the iMAT algorithm
     rxnname = char(reactions_of_interest(:, 1));
-    switch type
+    switch exp
         case 'non-competitive_cfr'
             for rxn = 1:length(reactions_of_interest(:,1))
                 model3 = model2;
                 rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn)))];
-                model3.c(rxnpos) = obj_coefs(rxn, 1);
+                model3.c(rxnpos) = obj_coef(rxn, 1);
                 [flux, ~, ~] = constrain_flux_regulation(model3,  ...
                     onreactions, offreactions, kappa, rho, epsilon, mode, [], ...
                     minfluxflag);
@@ -125,18 +139,19 @@ for i = 1:tmp
         case 'competitive_cfr'
             model3 = model2;
             rxnpos = [find(ismember(model3.rxns, rxnname))];
-            model3.c(rxnpos) = obj_coefs(:, 1);
+            model3.c(rxnpos) = obj_coef(:, 1);
             [flux, ~, ~] =  constrain_flux_regulation(model3,...
                 onreactions, offreactions, kappa, rho, epsilon, mode , [], ...
                 minfluxflag);
             all_flux_values(i,:) = flux(rxnpos);
         case 'fva'
+            model3 = model2;
             rxnpos = [find(ismember(model3.rxns, rxnname))];
-            model3.c(rxnpos) = obj_coefs(:, 1);
+            model3.c(rxnpos) = obj_coef(:, 1);
             [~, ~, ~, ~, flux, ~] =...
                 calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
-                'max', reactions_of_interest, obj_coefs(:, 1), type);
-            all_flux_values(i,:) = flux(rxnpos);
+                'max', reactions_of_interest, obj_coef(:, 1), 'fva');
+            all_flux_values(i,:) = flux;
     end
 end
 
@@ -148,11 +163,11 @@ rxns = reactions_of_interest(:, 3);
 STRUCT = struct('Name', dataset);
 fields = {...
         'HistoneMark'; 'Reaction'; ...
-        'R'; 'Pvalue'; ...
+        'R'; 'Pvalue'; 'Flux'; 'Proteomics'
     };
 values = {...
-    mark; rxns; ...
-    rho; pval;
+    marks; rxns; ...
+    rho; pval; all_flux_values; proteomics
     };
 for i=1:length(fields)
     STRUCT.(fields{i}) = values{i};
@@ -161,7 +176,6 @@ end
 fig = figure;
 heatmap(rho)
 ax = gca;
-ax.Colormap = parula;
 ax.XData = marks;
 ax.YData = rxns;
 ax.Title = 'Histone markers and metabolic flux correlation'
