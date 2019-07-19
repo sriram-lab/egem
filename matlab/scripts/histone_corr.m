@@ -161,25 +161,18 @@ rxns = reactions_of_interest(:, 3);
 
 %% Save data in struct
 STRUCT = struct('Name', dataset);
+
 fields = {...
         'HistoneMark'; 'Reaction'; ...
         'R'; 'Pvalue'; 'Flux'; 'Proteomics'
     };
+
 values = {...
     marks; rxns; ...
     rho; pval; all_flux_values; proteomics
     };
+
 for i=1:length(fields)
     STRUCT.(fields{i}) = values{i};
 end
-%% Make Figures
-fig = figure;
-heatmap(rho)
-ax = gca;
-ax.XData = marks;
-ax.YData = rxns;
-ax.Title = 'Histone markers and metabolic flux correlation'
-xlabel(ax, 'Histone Markers');
-ylabel(ax, 'Cancer Cell Lines');
-saveas(fig, ['./../figures/corr/histone_mark_corr.fig']);
 end

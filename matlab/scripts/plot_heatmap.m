@@ -1,6 +1,7 @@
 %% plot_heatmap.m 
 % Author: Scott Campit
-function plot_heatmap(struct, metabolites, exp, epsilon2, medium)
+function plot_heatmap(struct,...
+    metabolites, exp, epsilon2, medium)
 
 %% Generate Heatmaps for Downstream Analysis
 load ./../vars/supplementary_software_code media_exchange1
@@ -147,6 +148,37 @@ switch exp
         % Create filenames for all figures
         fig_str = strcat(base, '.fig');
         saveas(fig, char(fig_str));
+    
+    case 'correlation'
+        
+        % Get data
+        rho = STRUCT.R;
+        rxns = STRUCT.Reaction;
+        marks = STRUCT.HistoneMark;
+        
+        fig = figure;
+        
+        heatmap(rho)
+        ax = gca;
+        ax.XData = marks;
+        ax.YData = rxns;
+        ax.Title = 'Histone markers and metabolic flux correlation';
+        xlabel(ax, 'Histone Markers');
+        ylabel(ax, 'Cancer Cell Lines');
+        str = strcat('./../figures/corr/', STRUCT.name, exp, '.fig');
+        saveas(fig, str);
 
+        % Then use Plotly offline
+        fig = plotlyfig(gcf);
+        fig.layout.showlegend = true;
+        fig.layout.title = 'Correlation between LeRoy histone markers and eGEM flux';
+
+        fig.PlotOptions.FileName = 'leroy_histone_corr';
+        fig.PlotOptions.FielOpt = 'overwrite';
+
+        getplotlyoffline('https://cdn.plot.ly/plotly-latest.min.js') 
+        fig.PlotOptions.Offline = true;
+
+        fig.plotly
 end
 end
