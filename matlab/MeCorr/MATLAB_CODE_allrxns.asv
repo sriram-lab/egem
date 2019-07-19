@@ -217,12 +217,45 @@ sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdTarget';
 
 % sigRxnFlux_1pFBA= sigRxnFlux;
 % save('sigRxnFlux_1pFBA', 'sigRxnFlux_1pFBA');
-%% See if fluxes are positive or negative
-sigRxnFlux6= {sigRxnFlux_1FBA, sigRxnFlux_2FBA, sigRxnFlux_3FBA, sigRxnFlux_4FBA, ...
-    sigRxnFlux_5FBA, sigRxnFlux_6FBA};
-for i=1:6
-    sigRxnFlux6(i)
+%% See if fluxes are positive or negative for 6 FBA simulations
+% load fluxesAll for all 6 weights (FBA)
+clearvars intAll6 model2rxns
+intAll6= int.intAll6{1};  model2rxns= cell2table(model2.rxns);
+model2rxns.Properties.VariableNames{'Var1'}='Rxn';
+iRxnAll6= find(ismember(intAll6, model2rxns));
+sigRxnFlux6= {fluxesAll_1FBA, fluxesAll_2FBA, fluxesAll_3FBA, fluxesAll_4FBA, ...
+    fluxesAll_5FBA, fluxesAll_6FBA};
+posneg= zeros(6, height(intAll6));
+for iWeight=1:6
+    fluxesi= sigRxnFlux6{iWeight};
+    sigRxnFlux= fluxesi(:,iRxnAll6);
+    for iRxn= 1:height(intAll6)
+        if sum(sigRxnFlux(:,iRxn)<0) ==0
+            posneg(iWeight,iRxn)= 1;
+        elseif sum(sigRxnFlux(:,iRxn)>0) ==0
+            posneg(iWeight,iRxn)= -1;
+        end % For an element that =1, (rxn, weight) has both pos & neg flux
+    end
 end
+disp(posneg)
+%% See if flux is pos/neg for each sigRxn of large loop
+load('grate_1FBA_allRxns')
+load('sigRxnT_maxAllRxns_1FBA')
+sigRxn= cell2table(sigRxnT_maxAllRxns_1FBA.Rxn);
+model2rxns= cell2table(model2.rxns);
+iRxn= find(ismember(sigRxn, model2rxns));
+sigRxnFlux= fluxesi(:,iRxnAll6);
+
+posneg= zeros(height(sigRxn));
+iWeight=1;
+for iRxn=1:height(sigRxn)
+    if sum(sigRxnFlux(:,iRxn)<0) ==0
+        posneg(iWeight,iRxn)= 1;
+    elseif sum(sigRxnFlux(:,iRxn)>0) ==0
+        posneg(iWeight,iRxn)= -1;
+    end
+end
+disp(posneg)
 %% Calculate correlation between flux and auc. Each reaction maximized.
 rho3= NaN(height(hmei_list),length(model2.rxns));
 for j= 1:height(hmei_list)
