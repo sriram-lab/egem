@@ -221,7 +221,7 @@ sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdTarget';
 sigRxnFlux6= {sigRxnFlux_1FBA, sigRxnFlux_2FBA, sigRxnFlux_3FBA, sigRxnFlux_4FBA, ...
     sigRxnFlux_5FBA, sigRxnFlux_6FBA};
 for i=1:6
-    %sigRxnFlux6(i)
+    sigRxnFlux6(i)
 end
 %% Calculate correlation between flux and auc. Each reaction maximized.
 rho3= NaN(height(hmei_list),length(model2.rxns));
