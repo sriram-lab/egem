@@ -42,7 +42,11 @@ load('./../vars/metabolites.mat')
 % Optimization 1A: Run Single reaction activity (SRA)
 %medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
+<<<<<<< HEAD
 medium_of_interest = medium(:, 16:end);
+=======
+medium_of_interest = medium(:, 1:5);
+>>>>>>> ed4fe0cd1f9301e6dec158043e5c5e2127cc0049
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -90,6 +94,7 @@ for i=1:length(fields)
 end
 save('LeRoy_epsilon2.mat', 'LeRoy_epsilon');
 
+
 % Optimization procedures using FBA and FVA
 for med = 1:length(medium_of_interest)
     % Run all reactions using FBA w/o competition for all reactions
@@ -122,16 +127,16 @@ for med = 1:length(medium_of_interest)
     eval(str);
 end
 
-% Save results for all reactions
-[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, metabolites, 'L15', 'T2| All Rxns FBA', 'no_competition');
-[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'competition');
-[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'competition');
-[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp,  metabolites,'L15', 'T2| All Rxns FBA', 'competition');
-[fva_rpmi_excess, fva_rpmi_depletion] = metabolite_dict(fva_rpmi,  metabolites, 'RPMI', 'T3| All Rxns FVA', 'fva');
-[fva_dmem_excess, fva_dmem_depletion] = metabolite_dict(fva_dmem,  metabolites, 'DMEM', 'T3| All Rxns FVA', 'fva');
-[fva_l15_excess, fva_l15_depletion] = metabolite_dict(fva_l15,  metabolites, 'L15', 'T3| All Rxns FVA', 'fva');
+% Save results for all reactions - FIX AND MAKE THIS AUTOMATIC
+% [fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
+% [fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
+% [fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, metabolites, 'L15', 'T2| All Rxns FBA', 'no_competition');
+% [fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, metabolites, 'RPMI', 'T2| All Rxns FBA', 'competition');
+% [fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, metabolites, 'DMEM', 'T2| All Rxns FBA', 'competition');
+% [fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp,  metabolites,'L15', 'T2| All Rxns FBA', 'competition');
+% [fva_rpmi_excess, fva_rpmi_depletion] = metabolite_dict(fva_rpmi,  metabolites, 'RPMI', 'T3| All Rxns FVA', 'fva');
+% [fva_dmem_excess, fva_dmem_depletion] = metabolite_dict(fva_dmem,  metabolites, 'DMEM', 'T3| All Rxns FVA', 'fva');
+% [fva_l15_excess, fva_l15_depletion] = metabolite_dict(fva_l15,  metabolites, 'L15', 'T3| All Rxns FVA', 'fva');
 
 % Histone reactions only
 histone_rxns_only = metabolites(2:5, :);
@@ -222,22 +227,25 @@ for med=1:length(medium_of_interest)
     eval(str)
 end
 
-% Save results for histone reactions only
-[fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
-[fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'no_competition');
-[fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'competition');
-[fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'competition');
-[fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'competition');
-[fva_rpmi_excess, fva_rpmi_depletion] = metabolite_dict(fva_rpmi, histone_rxns_only, 'RPMI', 'T3| All Rxns FVA', 'fva');
-[fva_dmem_excess, fva_dmem_depletion] = metabolite_dict(fva_dmem, histone_rxns_only, 'DMEM', 'T3| All Rxns FVA', 'fva');
-[fva_l15_excess, fva_l15_depletion] = metabolite_dict(fva_l15, histone_rxns_only, 'L15', 'T3| All Rxns FVA', 'fva');
+% Save results for histone reactions only - FIX AND MAKE THIS AUTOMATIC
+% [fba_nocomp_rpmi_excess, fba_nocomp_rpmi_depletion] = metabolite_dict(fba_rpmi_noComp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'no_competition');
+% [fba_nocomp_dmem_excess, fba_nocomp_dmem_depletion] = metabolite_dict(fba_dmem_noComp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'no_competition');
+% [fba_nocomp_l15_excess, fba_nocomp_l15_depletion] = metabolite_dict(fba_l15_noComp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'no_competition');
+% [fba_comp_rpmi_excess, fba_comp_rpmi_depletion] = metabolite_dict(fba_rpmi_comp, histone_rxns_only, 'RPMI', 'T2| All Rxns FBA', 'competition');
+% [fba_comp_dmem_excess, fba_comp_dmem_depletion] = metabolite_dict(fba_dmem_comp, histone_rxns_only, 'DMEM', 'T2| All Rxns FBA', 'competition');
+% [fba_comp_l15_excess, fba_comp_l15_depletion] = metabolite_dict(fba_l15_comp, histone_rxns_only, 'L15', 'T2| All Rxns FBA', 'competition');
+% [fva_rpmi_excess, fva_rpmi_depletion] = metabolite_dict(fva_rpmi, histone_rxns_only, 'RPMI', 'T3| All Rxns FVA', 'fva');
+% [fva_dmem_excess, fva_dmem_depletion] = metabolite_dict(fva_dmem, histone_rxns_only, 'DMEM', 'T3| All Rxns FVA', 'fva');
+% [fva_l15_excess, fva_l15_depletion] = metabolite_dict(fva_l15, histone_rxns_only, 'L15', 'T3| All Rxns FVA', 'fva');
 
 %% Correlation values between histone markers and metabolic flux
 % INPUTS:
     % h3marks: list of H3 marks from CCLE data (column values)
     % h3names: list of CCLE cell lines (row values)
     % h3vals: matrix containing values corresponding to h3marks and h3names
+
+% Load all epsilon values
+load ./../vars/LeRoy_epsilon;
 
 % Initialize params for iMAT algorithm
 compartment = 'n';
@@ -247,14 +255,31 @@ rho = 1;
 kappa = 1E-3;
 minfluxflag = 0;
 
-% Run histone_corr using the H3 z-score normalized proteomics dataset and
-% running flux balance analysis. Optimize using single reaction analysis
+% LeRoy et al., proteomics dataset
 [LeRoy_fva_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
     1, 1E-3, 1, 1E-3, 0, 'fva', 'LeRoy', 100);
-[LeRoy_sra_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
+[LeRoy_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
     1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', []);
-    
-% Load the LeRoy et al., proteomics dataset
+[LeRoy_no_compeition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
+    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', []);
+
+% Plot the heatmaps for LeRoy et al.,
+plot_heatmap(LeRoy_fva_statistics, [], 'fva', [], []);
+plot_heatmap(LeRoy_competition_statistics, [], 'comp', [], []);
+plot_heatmap(LeRoy_no_competition_statistics, [], 'noComp', [], []);
+
+% CCLE proteomics dataset
+[CCLE_fva_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
+    1, 1E-3, 1, 1E-3, 0, 'fva', 'CCLE', 100);
+[CCLE_competition_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
+    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'CCLE', []);
+[CCLE_no_compeition_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
+    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', []);
+
+% Plot the heatmaps for CCLE dataset
+plot_heatmap(CCLE_fva_statistics, [], 'fva', [], []);
+plot_heatmap(CCLE_competition_statistics, [], 'comp', [], []);
+plot_heatmap(CCLE_no_competition_statistics, [], 'noComp', [], []);
 
 %% Transform figures
 path = './../figures/new-model/';
