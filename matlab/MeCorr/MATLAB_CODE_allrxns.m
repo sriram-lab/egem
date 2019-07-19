@@ -6,11 +6,11 @@
 % 2) cd ./../MeCorr. Run section 1 and 3 of this script. Only run Section 2 if you want to 
 % run the long for-loop
 % 3) Parameters of interest to vary: epsilon_methylation, model2
-%clearvars -except min_model % If don't want to run make_eGEM
+clearvars -except min_model % If don't want to run make_eGEM
 model2 = min_model;
 epsilon_methylation = 1E-1;
 %rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n'));
-minfluxflag = 0; % 0: no Pfba, 1: Pfba 
+minfluxflag = 1; % 0: no Pfba, 1: Pfba 
 % 4) Change name of files to which variables are saved. End of section 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        % impact of basal metabolic state of CCLE cell lines on sensitivity to demethylase inhibitors
@@ -59,7 +59,7 @@ hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
-cpd_info= readtable('DataRees2016/nchembio.1986-S3_cpd.xlsx');
+cpd_info= readtable('./../DataRees2016/nchembio.1986-S3_cpd.xlsx');
 cpd_infoMe= cpd_info(ismember(cpd_info(:, 1), hmei_list), [1,5,6,7,8]);
 cpd_infoMe= table2cell(cpd_infoMe);
 
@@ -147,15 +147,16 @@ end
 %  ylabel('Total cell lines')
 % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
 
+%fluxesAll_1pFBA= fluxes_allrxns;
 % save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
-save('VariablesSaved\fluxesAll_1FBA', 'fluxes_allrxns');
+%save('fluxesAll_1pFBA', 'fluxesAll_1pFBA');
 % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
 % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 %% Correlation between flux and auc for a reaction
 % flux_allrexns: 1031 cell lines by 3777 reactions
 % drug_auc_expt: extract auc values for the 8 methyl drugs
 % 8 x 3000 rhos
-% fluxes_allrxns= g_rate;
+%fluxes_allrxns= g_rate;
 rho= NaN(height(hmei_list),length(model2.rxns));
 rho_p= NaN(height(hmei_list),length(model2.rxns));
 for j = 1:height(hmei_list)
@@ -202,9 +203,9 @@ sigRxnT.Properties.VariableNames{'sigRxnT7'}='CpdActivity';
 sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdGeneTarget';
 
 % Rename variable and save
-% sigRxnT_1pFBA_0717=sigRxnT;
-% save('sigRxnT_1pFBA_0717', 'sigRxnT_1pFBA_0717');
-% writetable(sigRxnT,('sigRxnT_1pFBA_0717.xlsx'));
+% sigRxnT_1pFBA=sigRxnT;
+% save('sigRxnT_1pFBA', 'sigRxnT_1pFBA');
+% writetable(sigRxnT,('sigRxnT_4FBA.xlsx'));
 
 % sigRxnT_maxAllRxns_1FBA=sigRxnT;
 % save('sigRxnT_maxAllRxns_1FBA', 'sigRxnT_maxAllRxns_1FBA');
@@ -224,7 +225,7 @@ sigRxnS.above3(1:n,4)= model2.rxnNames(iRxn);
 sigRxnS.above3(1:n,5)= model2.subSystems(iRxn);
 sigRxnS.above3(1:n,6)= cpd_infoMe(iDrug, 1); 
 sigRxnS.above3(1:n,7)= cpd_infoMe(iDrug, 3);
-sigRxnS.above3(1:n,8)= cpd_infoMe(iDrug, 2);
+sigRxnS.above3(1:n,8)= cpd_infoMe(iDrug, 4);
 
 sigRxnT= sortrows(sigRxnS.above3, 1); % sort by correlation 
 sigRxnT= cell2table(sigRxnT);
@@ -237,13 +238,13 @@ sigRxnT.Properties.VariableNames{'sigRxnT6'}='Compound';
 sigRxnT.Properties.VariableNames{'sigRxnT7'}='CpdActivity';
 sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdGeneTarget';
 % Rename variable and save
-% sigRxnT_1pFBA= sigRxnT;
-% save('sigRxnT_1pFBA', 'sigRxnT_1pFBA');
-% writetable(sigRxnT,('sigRxnT_1pFBA.xlsx'));
+% sigRxnT_3FBA= sigRxnT;
+% save('sigRxnT_3FBA', 'sigRxnT_3FBA');
+% writetable(sigRxnT,('sigRxnT_3FBA.xlsx'));
 
-% sigRxnT_maxAllRxns_1FBA= sigRxnT;
-% save('sigRxnT_maxAllRxns_1FBA', 'sigRxnT_maxAllRxns_1FBA');
-% writetable(sigRxnT_maxAllRxns_1FBA,('sigRxnT_maxAllRxns_1FBA.xlsx'));
+% sigRxnT_allRxns_1FBA= sigRxnT;
+% save('sigRxnT_allRxns_1FBA', 'sigRxnT_allRxns_1FBA');
+% writetable(sigRxnT,('sigRxnT_allRxns_1FBA.xlsx'));
 
 % sigPrxnT_1FBA= sigRxnT;
 %% Calculate correlation between flux and auc. Each reaction maximized.
