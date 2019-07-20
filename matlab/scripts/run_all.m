@@ -42,11 +42,7 @@ load('./../vars/metabolites.mat')
 % Optimization 1A: Run Single reaction activity (SRA)
 %medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
-<<<<<<< HEAD
 medium_of_interest = medium(:, 16:end);
-=======
-medium_of_interest = medium(:, 1:5);
->>>>>>> ed4fe0cd1f9301e6dec158043e5c5e2127cc0049
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -80,20 +76,17 @@ end
 % Construct the LeRoy epsilon dataset
 LeRoy_epsilon = struct('name', 'LeRoy');
 fields = {...
-    'alphaMEM'; 'DMEM_F12'; 'DMEM2_RPMI1'; 'HamF10'; 'HamF12'; 'M199';...
-    'MCDB105'; 'MCDB105_M199'; 'RPMIgln'; 'Waymouth';
+    'DMEM_Iscove'; 'RPMI_F12'; 'RPMI_Iscove'; 'Williams';
     };
 values = {...
-    epsilon2_alphamem; epsilon2_dmemf12; epsilon2_dmemrpmi21;...
-    epsilon2_hamf10; epsilon2_hamf12; epsilon2_m199; epsilon2_mcdb105;...
-    epsilon2_mcdb105m199; epsilon2_rpmiwgln; epsilon2_waymouth;
+    epsilon2_dmemiscove; epsilon2_rpmif12; ...
+    epsilon2_rpmiiscove; epsilon2_williams; 
     };
 
 for i=1:length(fields)
     LeRoy_epsilon.(fields{i}) = values{i};
 end
-save('LeRoy_epsilon2.mat', 'LeRoy_epsilon');
-
+save('LeRoy_epsilon3.mat', 'LeRoy_epsilon');
 
 % Optimization procedures using FBA and FVA
 for med = 1:length(medium_of_interest)
