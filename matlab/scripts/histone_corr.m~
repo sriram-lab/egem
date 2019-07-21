@@ -138,8 +138,8 @@ for i = 1:tmp
         obj_coef = eps_struct.RPMI_F12;
     elseif string(medium(i)) == 'DMEMIscove'
         obj_coef = eps_struct.DMEM_Iscove;
-    elseif string(medium(i)) == 'RPMIIscove'
-        obj_coef = eps_struct.RPMI_Iscove;
+    elseif string(medium(i)) == 'RPMI_Is'
+        obj_coef = eps_struct.Iscove;
     end
     
     model2 = media(model2, medium(i));

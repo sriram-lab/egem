@@ -167,28 +167,7 @@ switch exp
         ylabel(ax, 'Cancer Cell Lines');
         str = strcat('./../figures/corr/', STRUCT.Name, type, '.fig');
         saveas(fig, str);
-    
     case 'pval'
-        % Get data and set values that are not significant to NaN
-        pval = STRUCT.Pvalue;
-        rmv = (pval > 0.05);
-        pval(rmv) = 0;
-        pval(pval == 0) = NaN;
-        
-        rxns = STRUCT.Reaction;
-        marks = STRUCT.HistoneMark;
-        
-        fig = figure;
-        
-        heatmap(pval)
-        ax = gca;
-        ax.XData = marks;
-        ax.YData = rxns;
-        ax.Title = 'Histone markers and metabolic flux correlation';
-        xlabel(ax, 'Histone Markers');
-        ylabel(ax, 'Cancer Cell Lines');
-        str = strcat('./../figures/corr/', STRUCT.Name, type, '.fig');
-        saveas(fig, str);
         % Then use Plotly offline
 %         fig = plotlyfig(gcf);
 %         fig.layout.showlegend = true;
