@@ -42,7 +42,7 @@ load('./../vars/metabolites.mat')
 % Optimization 1A: Run Single reaction activity (SRA)
 %medium_of_interest = {'RPMI', 'DMEM', 'L15'};
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
-medium_of_interest = medium(:, 16:end);
+medium_of_interest = medium(:, 1:5);
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
@@ -76,17 +76,26 @@ end
 % Construct the LeRoy epsilon dataset
 LeRoy_epsilon = struct('name', 'LeRoy');
 fields = {...
-    'DMEM_Iscove'; 'RPMI_F12'; 'RPMI_Iscove'; 'Williams';
+    'DMEM'; 'RPMI'; 'L15'; 'McCoy5A'; 'Iscove';
     };
 values = {...
-    epsilon2_dmemiscove; epsilon2_rpmif12; ...
-    epsilon2_rpmiiscove; epsilon2_williams; 
+    epsilon2_dmem; epsilon2_rpmi; ...
+    epsilon2_l15; epsilon2_mccoy5a; ...
+    epsilon2_iscove;
     };
 
 for i=1:length(fields)
     LeRoy_epsilon.(fields{i}) = values{i};
 end
-save('LeRoy_epsilon3.mat', 'LeRoy_epsilon');
+save('LeRoy_epsilon1.mat', 'LeRoy_epsilon');
+
+CCLE_epsilon = LeRoy_epsilon1;
+f = fieldnames(LeRoy_epsilon3);
+for i=1:length(f)
+    CCLE_epsilon.(f{i}) = LeRoy_epsilon3.(f{i});
+end
+
+CCLE_epsilon = MergeStructs(LeRoy_epsilon1, LeRoy_epsilon2);
 
 % Optimization procedures using FBA and FVA
 for med = 1:length(medium_of_interest)
@@ -238,7 +247,8 @@ end
     % h3vals: matrix containing values corresponding to h3marks and h3names
 
 % Load all epsilon values
-load ./../vars/LeRoy_epsilon;
+load ./../vars/LeRoy_epsilon1;
+load ./../vars/CCLE_epsilon;
 
 % Initialize params for iMAT algorithm
 compartment = 'n';
@@ -249,30 +259,38 @@ kappa = 1E-3;
 minfluxflag = 0;
 
 % LeRoy et al., proteomics dataset
-[LeRoy_fva_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
+[LeRoy_fva_statistics] = histone_corr(model, metabolites, LeRoy_epsilon1, ...
     1, 1E-3, 1, 1E-3, 0, 'fva', 'LeRoy', 100);
-[LeRoy_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
+[LeRoy_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon1, ...
     1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', []);
-[LeRoy_no_compeition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
+[LeRoy_no_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon1, ...
     1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', []);
 
 % Plot the heatmaps for LeRoy et al.,
-plot_heatmap(LeRoy_fva_statistics, [], 'fva', [], []);
-plot_heatmap(LeRoy_competition_statistics, [], 'comp', [], []);
-plot_heatmap(LeRoy_no_competition_statistics, [], 'noComp', [], []);
+plot_heatmap(LeRoy_fva_statistics, [], 'correlation', [], [], 'fva');
+plot_heatmap(LeRoy_competition_statistics, [], 'correlation', [], [], 'comp');
+plot_heatmap(LeRoy_no_competition_statistics, [], 'correlation', [], [], 'noComp');
+
+plot_heatmap(LeRoy_fva_statistics, [], 'pval', [], [], 'fva');
+plot_heatmap(LeRoy_competition_statistics, [], 'pval', [], [], 'comp');
+plot_heatmap(LeRoy_no_competition_statistics, [], 'pval', [], [], 'noComp');
 
 % CCLE proteomics dataset
 [CCLE_fva_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
     1, 1E-3, 1, 1E-3, 0, 'fva', 'CCLE', 100);
 [CCLE_competition_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
     1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'CCLE', []);
-[CCLE_no_compeition_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
+[CCLE_no_competition_statistics] = histone_corr(model, metabolites, CCLE_epsilon, ...
     1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', []);
 
 % Plot the heatmaps for CCLE dataset
-plot_heatmap(CCLE_fva_statistics, [], 'fva', [], []);
-plot_heatmap(CCLE_competition_statistics, [], 'comp', [], []);
-plot_heatmap(CCLE_no_competition_statistics, [], 'noComp', [], []);
+plot_heatmap(CCLE_fva_statistics, [], 'correlation', [], [], 'fva');
+plot_heatmap(CCLE_competition_statistics, [], 'correlation', [], [], 'comp');
+plot_heatmap(CCLE_no_competition_statistics, [], 'correlation', [], [], 'noComp');
+
+plot_heatmap(CCLE_fva_statistics, [], 'pval', [], [], 'fva');
+plot_heatmap(CCLE_competition_statistics, [], 'pval', [], [], 'comp');
+plot_heatmap(CCLE_no_competition_statistics, [], 'pval', [], [], 'noComp');
 
 %% Transform figures
 path = './../figures/new-model/';
