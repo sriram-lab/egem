@@ -1,6 +1,7 @@
 %% Run analyses for epigenome-scale metabolic models
 initCobraToolbox;
 changeCobraSolver('gurobi');
+
 %% Load genome-scale metabolic models. Must run from `/matlab/scripts` directory
 
 % The bulk eGEM model
