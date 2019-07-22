@@ -1,6 +1,6 @@
 %% @author: Scott Campit
 function STRUCT = metabolic_sensitivity(model, reactions_of_interest,...
-    compartment, epsilon2, scaling, exp, medium, fva_grate)
+    compartment, epsilon2, exp, medium, fva_grate, condition)
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
 
@@ -34,6 +34,10 @@ if (~exist('reactions_of_interest', 'var')) || (isempty('reactions_of_interest')
     load('./../vars/metabolites.mat')
 end
 
+if (~exist('condition', 'var')) || (isempty('condition'))
+    condition = '';
+    disp('Normoxic model')
+end
 
 % Load substrate uptake rates, medium components, reactions of interest
 load ./../vars/supplementary_software_code media_exchange1
@@ -69,6 +73,15 @@ for kappatype = 1:2
     % Set the substrate uptake rates based on medium
     % formulation (taken from medium sources). 
     tmp = media(tmp, medium);
+    switch condition 
+        case 'hypoxic'
+            [~, pos] = ismember({'EX_o2(e)'}, tmp.rxns);
+            tmp.lb(pos) = 0;
+            tmp.ub(pos) = 0;
+            disp('Hypoxic model')
+        case 'normoxic'
+            disp('Normoxic model')
+    end
 
     % For each medium component, set the substrate uptake rate. 
     for component = 1:length(mediareactions1(:,1)) % 50 medium components
