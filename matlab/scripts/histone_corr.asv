@@ -148,6 +148,7 @@ for i = 1:tmp
     [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
     [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
 
+<<<<<<< HEAD
     % Get the demand reaction positions of interest and calculate metabolic
     % flux for each cell line using the iMAT algorithm
     rxnname = char(reactions_of_interest(:, 1));
@@ -203,6 +204,9 @@ for i=1:length(fields)
     STRUCT.(fields{i}) = values{i};
 end
 end
+=======
+    % Get the flux redistribution values associated with different media component addition and deletion
+<<<<<<< HEAD
     %[fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] =...
     %   constrain_flux_regulation(model2, onreactions, offreactions,...
     %    kappa, rho, epsilon, mode, [], minfluxflag);
@@ -233,3 +237,122 @@ end
 grate_ccle_exp_dat = grate_ccle_exp_dat';
 [rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
 rxns = metabolites(:,3);
+=======
+    [fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] = ...
+        constrain_flux_regulation(model2, onreactions, offreactions,...
+        kappa, rho, epsilon, mode, [], minfluxflag);
+%% I created this section, because it's before the printing of numbers 2-885
+    % Add demand reactions from the metabolite list to the metabolic model
+    for m = 1:length(metabolites(:,1))  
+        %tmp_met = char(metabolites(m,2));
+        %tmp = [tmp_met '[' compartment '] -> '];
+        tmpname = char(metabolites(m,1));
+        
+        % limit methionine levels for all reactions in the model; it has to be non limiting
+        model3 = model2;
+        [~, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
+        model3.lb(pos) = -0.5;
+        %model3.c(3743) = 0;
+        rxnpos = find(ismember(model3.rxns, tmpname));
+        
+        % LF created an if-branch
+        if rxnpos ~= []
+            model3.c(rxnpos) = epsilon2;
+            
+            % get the flux values from iMAT
+            [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
+                onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
+                minfluxflag);
+            grate_ccle_exp_dat(i,1+m) = fluxstate_gurobi(rxnpos);
+            model3.c(rxnpos) = 0;
+        end
+% =======
+%         rxnpos = [find(ismember(model3.rxns, tmpname))];
+%         model3.c(rxnpos) = epsilon2; 
+% 
+%         % get the flux values from iMAT
+%         [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
+%             onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
+%             minfluxflag);
+%         grate_ccle_exp_dat(i,1+m) = fluxstate_gurobi(rxnpos);
+%         model3.c(rxnpos) = 0; 
+% >>>>>>> 5c15a54a070a7bdf1d569795eb445600f9381482
+    end
+end
+
+% Calculate the pearson correlation coefficients for every demand reaction
+[row, col] = size(grate_ccle_exp_dat);
+
+test = interp1(1:numel(grate_ccle_exp_dat), grate_ccle_exp_dat,...
+    linspace(1, numel(grate_ccle_exp_dat), numel(h3_relval)));
+% LF: For each gene, calculate correl & pval across all cell lines
+for i = 1:length(h3_relval(:,1))
+    [correl, pval] = corr(grate_ccle_exp_dat(i,:), h3_relval(i,:));
+end
+% LF: For each cell line, calculate correl and pval between flux data and
+% expression level for all genes?
+
+%% I created this section. (I did not write new code)
+c=zeros(length(h3_ccle_names), size(h3_relval,2));
+for i = 1:length(h3_ccle_names)
+    tmp1 = grate_ccle_exp_dat(i,:);
+    tmp2 = h3_relval(i,:);
+    [correl, pval] = corr(tmp1, tmp2);
+    c(i,:)=correl;
+    %tmp3 = diag(correl);        % Why? What used for?
+end
+
+% correl is only the correlation values for the last cell line. I commented
+% below out. 
+%correl = correl';
+
+% Make a heatmap of correlation coefficients versus histone markers for
+% several demand reactions
+rxns = metabolites(:,1);
+
+fig = figure;
+%heatmap(correl)
+heatmap(c)
+% =======
+% % w.r.t to H3 expression
+% [rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
+% rxns = metabolites(:,3);
+% rxns = [{'Biomass'}; rxns];
+
+%% Save data in Excel
+% filename1 = './../tables/eGEMn_prot_stats.xlsx';
+% colname = rxns';
+% rowname = h3_marks;
+% 
+% % Rho
+% xlswrite(filename1, colname, string(epsilon2), 'B1:AQ1');
+% xlswrite(filename1, rowname, string(epsilon2), 'A2:A22');
+% xlswrite(filename1, rho, string(epsilon2), 'B2:U22');
+% 
+% % P-value
+% xlswrite(filename1, colname, string(epsilon2), 'B24:AQ24');
+% xlswrite(filename1, rowname, string(epsilon2), 'A25:A45');
+% xlswrite(filename1, pval, string(epsilon2), 'B25:U45');
+% 
+% %% Make Figures
+% 
+% ax = gca;
+% ax.Colormap = parula;
+% ax.XData = h3_marks;
+%<<<<<<< HEAD
+ax.YData = h3_ccle_names;
+ax.Title = 'Histone markers and metabolic flux correlation';
+xlabel(ax, 'Histone Markers');
+ylabel(ax, 'Cancer Cell Lines (CCLE)');
+%saveas(fig, ['./../figures/fig/histone_mark_corr.fig']); %no "fig" folder. I saved it to "figures" folder
+%saveas(fig, './../figures/histone_mark_corr.fig');
+%=======
+ax.YData = rxns;
+xlabel(ax, 'Histone Markers');
+ylabel(ax, 'Demand Reactions');
+base = strcat('./../figures/corr/histone_mark_corr_', string(epsilon2)); 
+fig_str = strcat(base, '.fig');
+%saveas(fig, fig_str);
+%>>>>>>> 5c15a54a070a7bdf1d569795eb445600f9381482
+end 
+>>>>>>> master
