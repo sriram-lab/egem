@@ -186,7 +186,7 @@ switch exp
         ax.YData = rxns;
         ax.Title = 'Histone markers and metabolic flux correlation';
         xlabel(ax, 'Histone Markers');
-        ylabel(ax, 'Cancer Cell Lines');
+        ylabel(ax, 'Demand Reactions');
         str = strcat('./../figures/corr/', STRUCT.Name, type, '.fig');
         saveas(fig, str);
         % Then use Plotly offline
