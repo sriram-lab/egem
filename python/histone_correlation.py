@@ -550,6 +550,48 @@ def heatmap(data, row_labels, col_labels, ax=None,
 #fig.tight_layout()
 #plt.show()
 
+import plotly.figure_factory as ff
+
+import numpy as np
+
+from scipy.spatial.distance import pdist, squareform
+    
+dendro_side = ff.create_dendrogram(leroy_ccle_r1, orientation='right', labels = recon1_list)
+for i in range(len(dendro_side['data'])):
+    dendro_side['data'][i]['xaxis'] = 'x1'
+    
+
+boat = leroy_ccle_r1.T
+
+fig = ff.create_dendrogram(boat, orientation='bottom', labels=leroy_markers)
+for i in range(len(fig['data'])):
+    fig['data'][i]['xaxis'] = 'x2'
+    
+dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
+dendro_leaves = list(dendro_leaves)
+data_dist = pdist(leroy_ccle_r1)
+heat_data = squareform(data_dist)
+#heat_data = heat_data[dendro_leaves,:]
+#heat_data = heat_data[:,dendro_leaves]
+
+heatmap = [
+    go.Heatmap(
+        x = dendro_leaves,
+        y = dendro_leaves,
+        z = heat_data,
+        colorscale = 'Blues'
+    )
+]
+
+heatmap[0]['x'] = fig['layout']['xaxis']['tickvals']
+heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
+for data in heatmap:
+    fig.add_trace(data)
+
+
+
+# Plot!
+fig.show()
 
 
     

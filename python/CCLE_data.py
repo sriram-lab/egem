@@ -20,6 +20,8 @@ import os
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.io as pio
+import plotly.graph_objects as go
 
 
 
@@ -57,13 +59,13 @@ def Matrix(gene_list, histone_list, data1, data2):
         i = i+1
     return name
 
-def Heatmap(data, size, colour, title):
+def Heatmap(data, ylabels, size, colour, title):
     """Using dataframes based on the Matrix fucntion, this function will create 
     a heatmap"""
     plt.figure(figsize=size)
     plt.xlabel('Histone Markers')
     plt.title(title)
-    ax = sns.heatmap(data, cmap = colour)
+    ax = sns.heatmap(data, cmap = colour, square = True, yticklabels = ylabels)
     ax.set(xlabel = 'Histone Markers')
     plt.show
     
@@ -79,6 +81,45 @@ def Clustermap(data, size, colour, method, metric):
     plt.figure(figsize=size)
     ax = sns.clustermap(data, cmap = colour, method = method, metric= metric)
     plt.show
+    
+def PlotlyHeat(df, size, title, xaxis, yaxis):
+    pio.renderers.default = "chrome"
+    fig = go.Figure(
+    data=(go.Heatmap(z = df, x =xaxis, y = yaxis, colorscale = "blues")),
+    layout_title_text=title)
+    
+    if size == None:
+        fig.update_layout(
+                autosize=True)
+    else:
+        fig.update_layout(
+                autosize=False,
+                width = size[0],
+                height = size[1])
+
+    fig.show()
+    
+
+
+"""
+"""
+
+"""
+"""
+
+def TissueAnalysis(dictionary, common_cellline, data1, data2, name ):
+    df1 = data1.copy()
+    df2 = data2.copy()
+    for celllines in common_cellline:
+        if dictionary[celllines] != name:
+            del df1[celllines]
+            del df2[celllines]
+    matrix = Matrix(search, h3_markers, df1, df2)
+    matrix = pd.DataFrame(matrix)
+    matrix.columns = h3_markers
+    matrix.insert(0, 'Genes', search , True)
+    matrix = matrix.set_index('Genes')
+    return matrix
 
 """
 GETTING EXPRESSION DATA
@@ -337,20 +378,110 @@ leroy_ccle_r1 = pd.DataFrame(leroy_ccle_r1)
 leroy_ccle_r1.columns = leroy_markers
 leroy_ccle_r1.insert(0, 'Genes', recon1_list , True)
 leroy_ccle_r1 = leroy_ccle_r1.set_index('Genes')
-    
+
+"""
+TISSUE ANALYSIS: Only Run if you have to it takes a very long time approx 2 hours
+"""
+
+#cellline_tissue = cell_df.values
+#tissue_dict ={}
+#for data in cellline_tissue:
+#    tissue_dict[data[0]] = data[1]
+#
+#
+#h3_ccle_lung = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LUNG')
+#h3_ccle_ovary = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OVARY')
+#h3_ccle_li = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LARGE INTESTINE')
+#h3_ccle_cns = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'CENTRAL NERVOUS SYSTEM')
+#h3_ccle_hlt = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'HAEMATOPOIETIC AND LYMPHOID TISSUE')
+#h3_ccle_pancreas = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PANCREAS')
+#h3_ccle_uat =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'UPPER AERODIGESTIVE TRACT')
+#h3_ccle_breast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BREAST')
+#h3_ccle_prostate =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PROSTATE')
+#h3_ccle_stomach =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'STOMACH')
+#h3_ccle_endometrium =   TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'ENDOMETRIUM')
+#h3_ccle_bone =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BONE')
+#h3_ccle_skin = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SKIN')
+#h3_ccle_liver =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'LIVER')
+#h3_ccle_fibroblast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'FIBROBLAST')
+#h3_ccle_st =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'SOFT TISSUE')
+#h3_ccle_bt=  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,  'BILIARY TRACT')
+#h3_ccle_ag = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'AUTONOMIC GANGLIA')
+#h3_ccle_pleura = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'PLEURA')
+#h3_ccle_ut = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'URINARY TRACT')
+#h3_ccle_kidney = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'KIDNEY')
+#h3_ccle_oesophagus =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OESOPHAGUS')
+#h3_ccle_thyroid = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'THYROID')
+#h3_ccle_sg = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SALIVARY GLAND')
+
+"""
+FULL HISTONE ANALYSIS
+"""
+
+#h3k4 = h3_ccle_df.loc['H3K4me0':'H3K4ac1']
+#h3k9 = h3_ccle_df.loc['H3K9me0K14ac0':'H3K9ac1K14ac1']
+#h3k18 = h3_ccle_df.loc['H3K18ac0K23ac0':'H3K18ac0K23ub1']
+#h3k27 = h3_ccle_df.loc['H3K27me0K36me0':'H3.3K27me0K36me0']
+#h3k56 = h3_ccle_df.loc['H3K56me0':'H3K56me1']
+#h3k79 = h3_ccle_df.loc['H3K79me0':]
+#
+#h3k4 = h3k4.values
+#h3k9 = h3k9.values
+#h3k18 = h3k18.values
+#h3k27 = h3k27.values
+#h3k56 = h3k56.values
+#h3k79 = h3k79.values
+#
+#h3k4 = np.mean(h3k4, axis = 0)
+#h3k9 = np.mean(h3k9, axis = 0)
+#h3k18= np.mean(h3k18, axis = 0)
+#h3k27 = np.mean(h3k27, axis = 0)
+#h3k56 = np.mean(h3k56, axis = 0)
+#h3k79 = np.mean(h3k79, axis = 0)
+#
+#h3_histone_matrix = (6, len(h3_ccle_cellline)+1)
+#h3_histone_matrix = np.zeros(h3_histone_matrix)
+#
+#h3_histone_list = ['H3K4', 'H3K9', 'H3K18', 'H3K27', 'H3K56', 'H3K79']
+#
+#h3_histone_matrix[0] = h3k4
+#h3_histone_matrix[1] = h3k9
+#h3_histone_matrix[2] = h3k18
+#h3_histone_matrix[3] = h3k27
+#h3_histone_matrix[4] = h3k56
+#h3_histone_matrix[5] = h3k79
+#
+#h3_histone_matrix = pd.DataFrame(h3_histone_matrix)
+##h3_histone_matrix.insert(0, 'Histones', h3_histone_list, True)
+##h3_histone_matrix=h3_histone_matrix.set_index('Histones')
+#h3_histone_matrix.columns = 
+#
+#A = list(h3_ccle_df.columns)
+
 """
 GRAPHING
 """
 
-Heatmap(h3_ccle_matrix, (10,5), 'Blues', 'H3 and CCLE Correlation Plot')
-Heatmap(leroy_ccle_matrix, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot')
-Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
-Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
+#Heatmap(h3_ccle_matrix, search, (12,12), 'Blues', 'H3 and CCLE Correlation Plot')
+#Heatmap(leroy_ccle_matrix, search, (12,12), 'Blues', 'LeRoy and CCLE Correlation Plot')
+#Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
+#Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
+#Heatmap(h3_ccle_oesophagus, search, (12,12), 'Blues', 'Oesophagus Correlation Data')
+#Heatmap(h3_ccle_sg, search, (12,12), 'Blues', 'Salivary Gland Correlation Data')
+PlotlyHeat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes',leroy_markers, recon1_list)
+
+"""
+PLOTLY
+"""
+
+
+
+
 
 """
 SAVE AS CSV FIL
 """
-export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
-export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
+#export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
+#export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
 
 
