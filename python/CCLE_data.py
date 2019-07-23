@@ -22,8 +22,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.io as pio
 import plotly.graph_objects as go
-
-
+import plotly.figure_factory as ff
+from scipy.spatial.distance import pdist, squareform
 
 
 
@@ -85,7 +85,7 @@ def Clustermap(data, size, colour, method, metric):
 def PlotlyHeat(df, size, title, xaxis, yaxis):
     pio.renderers.default = "chrome"
     fig = go.Figure(
-    data=(go.Heatmap(z = df, x =xaxis, y = yaxis, colorscale = "blues")),
+    data=(go.Heatmap(z = df, x =xaxis, y = yaxis, colorscale = "rdbu")),
     layout_title_text=title)
     
     if size == None:
@@ -468,15 +468,107 @@ GRAPHING
 #Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
 #Heatmap(h3_ccle_oesophagus, search, (12,12), 'Blues', 'Oesophagus Correlation Data')
 #Heatmap(h3_ccle_sg, search, (12,12), 'Blues', 'Salivary Gland Correlation Data')
-PlotlyHeat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes',leroy_markers, recon1_list)
+#PlotlyHeat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes',leroy_markers, recon1_list)
 
 """
 PLOTLY
 """
+import plotly.graph_objects as go
+import plotly.figure_factory as ff
+
+import numpy as np
+from scipy.spatial.distance import pdist, squareform
 
 
+# get data
+data1 = leroy_ccle_r1.values
+data_array = data1
+data_array1 = data_array.transpose()
 
 
+# Initialize figure by creating upper dendrogram
+fig = ff.create_dendrogram(data_array1, orientation='bottom', labels=leroy_markers)
+for i in range(len(fig['data'])):
+    fig['data'][i]['yaxis'] = 'y2'
+
+# Create Side Dendrogram
+dendro_side = ff.create_dendrogram(data_array, orientation='right', labels = recon1_list)
+for i in range(len(dendro_side['data'])):
+    dendro_side['data'][i]['xaxis'] = 'x2'
+
+# Add Side Dendrogram Data to Figure
+for data1 in dendro_side['data']:
+    fig.add_trace(data1)
+
+# Create Heatmap
+dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
+dendro_leaves = list(map(int, dendro_leaves))
+dendro_leaves1 = fig['layout']['xaxis']['ticktext']
+dendro_leaves1 =list(map(int, dendro_leaves1))
+
+data_dist = pdist(data_array)
+heat_data = squareform(data_dist)
+heat_data = heat_data.reshape(1473,73)
+
+heat_data = heat_data[dendro_leaves,:]
+heat_data = heat_data[:,dendro_leaves]
+
+heatmap = [
+    go.Heatmap(
+        x = dendro_leaves,
+        y = dendro_leaves1,
+        z = heat_data,
+        colorscale = 'Blues'
+    )
+]
+
+heatmap[0]['x'] = fig['layout']['xaxis']['tickvals']
+heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
+
+# Add Heatmap Data to Figure
+for data1 in heatmap:
+    fig.add_trace(data1)
+    
+fig.update_layout({'width':800, 'height':800,
+                         'showlegend':False, 'hovermode': 'closest',
+                         })
+# Edit xaxis
+fig.update_layout(xaxis={'domain': [.15, 1],
+                                  'mirror': False,
+                                  'showgrid': False,
+                                  'showline': False,
+                                  'zeroline': False,
+                                  'ticks':""})
+# Edit xaxis2
+fig.update_layout(xaxis2={'domain': [0, .15],
+                                   'mirror': False,
+                                   'showgrid': False,
+                                   'showline': False,
+                                   'zeroline': False,
+                                   'showticklabels': False,
+                                   'ticks':""})
+
+# Edit yaxis
+fig.update_layout(yaxis={'domain': [0, .85],
+                                  'mirror': False,
+                                  'showgrid': False,
+                                  'showline': False,
+                                  'zeroline': False,
+                                  'showticklabels': False,
+                                  'ticks': ""
+                        })
+# Edit yaxis2
+fig.update_layout(yaxis2={'domain':[.825, .975],
+                                   'mirror': False,
+                                   'showgrid': False,
+                                   'showline': False,
+                                   'zeroline': False,
+                                   'showticklabels': False,
+                                   'ticks':""})
+
+
+# Plot!
+fig.show()
 
 """
 SAVE AS CSV FIL

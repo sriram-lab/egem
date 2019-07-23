@@ -11,7 +11,7 @@ function A = densityplot(fil)
     % density plots
     
 %% densityplot.m
-filename = ['C:\Users\scampit\Desktop\MeGEM\matlab\tables\', fil];
+filename = ['./../tables/', fil];
 [~, sheets] = xlsfinfo(filename);
 
 for sheet = 2:length(sheets)
