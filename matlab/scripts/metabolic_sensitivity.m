@@ -184,7 +184,7 @@ for kappatype = 1:2
 
                 % FVA optimization for all reactions simultaneously  
                 case 'fva'
-
+                    
                     % Not interested in growth rates - just get the fluxes
                     model3 = excess_model;
                     rxnpos = [find(ismember(model3.rxns, rxnName))];
