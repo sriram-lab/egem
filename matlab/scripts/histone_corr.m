@@ -2,7 +2,7 @@
 ...markers and the metabolic flux obtained from the iMAT algorithm
 function [STRUCT] = histone_corr(model, reactions_of_interest,...
     eps_struct, mode, epsilon, rho, kappa, minfluxflag, exp,...
-    dataset, fva_grate)
+    dataset, fva_grate, type)
 
 %% INPUTS:
     % model: A structure representing the initial genome scale model
@@ -67,6 +67,15 @@ switch dataset
         proteomics = leroy_val;
         proteomics = proteomics';
 end
+
+switch type
+    case 'all'
+        load('./../vars/metabolites.mat')
+        rxnname = char(metabolites(:, 1));
+    case 'hist'
+        load('./../vars/metabolites.mat')
+        rxnname = char(metabolites(:, 1));
+end
         
 load ./../vars/supplementary_software_code...
     celllinenames_ccle1... % CCLE cellline names
@@ -126,7 +135,7 @@ for i = 1:tmp
         obj_coef = eps_struct.RPMIgln;
     elseif string(medium(i)) == 'HAMF10'
         obj_coef = eps_struct.HamF10;
-    elseif string(medium(i)) == 'DMRMTPMI21'
+    elseif string(medium(i)) == 'DMEMRPMI21'
         obj_coef = eps_struct.DMEM2_RPMI1;
     elseif string(medium(i)) == 'MCDB105M199'
         obj_coef = eps_struct.MCDB105_M199;
@@ -151,12 +160,11 @@ for i = 1:tmp
 
     % Get the demand reaction positions of interest and calculate metabolic
     % flux for each cell line using the iMAT algorithm
-    rxnname = char(reactions_of_interest(:, 1));
     switch exp
         case 'non-competitive_cfr'
             for rxn = 1:length(reactions_of_interest(:,1))
                 model3 = model2;
-                rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn)))];
+                rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn,1)))];
                 model3.c(rxnpos) = obj_coef(rxn, 1);
                 [flux, ~, ~] = constrain_flux_regulation(model3,  ...
                     onreactions, offreactions, kappa, rho, epsilon, mode, [], ...
@@ -166,20 +174,22 @@ for i = 1:tmp
             end
         case 'competitive_cfr'
             model3 = model2;
-            rxnpos = [find(ismember(model3.rxns, rxnname))];
+            rxnpos = [find(ismember(model3.rxns, reactions_of_interest(:,1)))];
             model3.c(rxnpos) = obj_coef(:, 1);
             [flux, ~, ~] =  constrain_flux_regulation(model3,...
                 onreactions, offreactions, kappa, rho, epsilon, mode , [], ...
                 minfluxflag);
             all_flux_values(i,:) = flux(rxnpos);
         case 'fva'
-            model3 = model2;
-            rxnpos = [find(ismember(model3.rxns, rxnname))];
-            model3.c(rxnpos) = obj_coef(:, 1);
-            [~, ~, ~, ~, flux, ~] =...
-                calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
-                'max', reactions_of_interest, obj_coef(:, 1), 'fva');
-            all_flux_values(i,:) = flux;
+            for rxn = 1:length(reactions_of_interest(:,1))
+                model3 = model2;
+                rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn,1)))];
+                model3.c(rxnpos) = obj_coef(:, 1);
+                [~, ~, ~, ~, flux, ~] =...
+                    calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
+                    'max', reactions_of_interest, obj_coef(:, 1), 'fva');
+                all_flux_values(i,:) = flux;
+            end
     end
 end
 
