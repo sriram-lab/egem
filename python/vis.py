@@ -17,6 +17,7 @@ import plotly.graph_objs as go
 
 import extract
 
+
 def dynamic_surf(dfs):
     """
     """
@@ -25,9 +26,9 @@ def dynamic_surf(dfs):
     df = df.set_index('Unnamed: 0')
     data = [
         go.surface(
-            z = np.array(dfs[0])
-        )
-    ]
+            z=np.array(dfs[0])
+            )
+        ]
 
     layout = go.Layout(
         autosize=True,
@@ -38,17 +39,18 @@ def dynamic_surf(dfs):
             r=50,
             b=50,
             t=50
+            )
         )
-    )
     fig = go.Figure(data=data, layout=layout)
     py.iplot(fig, filename='test')
+
 
 def static_surf(dfs):
     """
     #surf creates the surface plot
     """
 
-    fig, ax = plt.subplots(subplot_kw = dict(projection='3d'), figsize=(12,10))
+    fig, ax = plt.subplots(subplot_kw=dict(projection='3d'), figsize=(12, 10))
 
     for idx, df in enumerate(dfs):
         df = df.set_index('Unnamed: 0')
@@ -58,19 +60,21 @@ def static_surf(dfs):
         z = df.round(decimals=2)
         z = z.fillna(0)
         z = z.astype(int)
-        surf = ax.plot_surface(mx, my, z, cmap=cm.coolwarm, linewidth=0, alpha=(idx+0.01)/5)
+        surf = ax.plot_surface(mx, my, z, cmap=cm.coolwarm,
+                               linewidth=0, alpha=(idx+0.01)/5)
 
-
-    ax.get_proj = lambda: np.dot(Axes3D.get_proj(ax), np.diag([1.0, 1.0, 1.0, 1.0]))
+    ax.get_proj = lambda: np.dot(
+        Axes3D.get_proj(ax), np.diag([1.0, 1.0, 1.0, 1.0]))
     ax.set_xticklabels(df.index)
     ax.set_yticklabels(df.columns)
     ax.set_xlabel('Medium components')
     #ax.set_ylabel('Demand reactions')
     #ax.set_zlabel('Metabolic Flux')
-    ax.view_init(60,35)
+    ax.view_init(60, 35)
     fig.colorbar(surf, shrink=0.5, aspect=5)
     fig.tight_layout()
     fig.savefig('test.png')
+
 
 # Create list of dataframes
 dfs = []
