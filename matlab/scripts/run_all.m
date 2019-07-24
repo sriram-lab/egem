@@ -24,6 +24,7 @@ model = eGEM;
 %load ./../shen-et-al/supplementary_software_code acetylation_model
 %model = acetylation_model; 
 
+
 %% Metabolic sensitivity analysis for excess and depleted medium components
     % INPUT:
         % switch case arguments:
@@ -148,7 +149,7 @@ model = eGEM;
 load('./../vars/metabolites.mat')
 histone_rxns_only = metabolites(3:6, :);
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
-
+medium_of_interest = medium(:, 3:end);
 % Optimization 1B: Run Single reaction activity (SRA) for histone reactions
 % only
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];

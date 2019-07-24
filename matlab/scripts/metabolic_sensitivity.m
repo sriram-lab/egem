@@ -1,11 +1,7 @@
 %% @author: Scott Campit
-<<<<<<< HEAD
 function [STRUCT, excess_soln, depletion_soln] = metabolic_sensitivity(model, reactions_of_interest,...
     epsilon2, exp, medium, fva_grate, condition)
-=======
-function STRUCT = metabolic_sensitivity(model, reactions_of_interest,...
-    compartment, epsilon2, exp, medium, fva_grate, condition)
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
+
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
 
@@ -29,7 +25,6 @@ function STRUCT = metabolic_sensitivity(model, reactions_of_interest,...
     % depletion_shadow: ''' depletion medium
 
 %% metabolic_sensitivity.m
-<<<<<<< HEAD
 % Load medium components and reactions to track
 load('./../vars/mediareactions.mat') % Medium components
 load('./../vars/metabolites.mat') % Reactions you're interested in observing
@@ -57,40 +52,6 @@ BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn
 rxnName = reactions_of_interest(:, 1); % positions of reactions you want to optimize flux through
 rxnName = char(rxnName);
 
-=======
-
-% Default is RPMI medium
-%if (~exist('medium','var')) || (isempty(medium))
-%    medium = 'RPMI';
-%end
-
-if (~exist('reactions_of_interest', 'var')) || (isempty('reactions_of_interest'))
-    load('./../vars/metabolites.mat')
-end
-
-if (~exist('condition', 'var')) || (isempty('condition'))
-    condition = '';
-    disp('Normoxic model')
-end
-
-% Load substrate uptake rates, medium components, reactions of interest
-load ./../vars/supplementary_software_code media_exchange1
-load('./../vars/mediareactions1.mat') % Medium components
-metabolites = reactions_of_interest;
-
-% Initialize parameters needed
-minfluxflag = 0;
-GLUCOSE_UPTAKE_POS = find(ismember(model.rxns, 'EX_glc(e)'));  % glucose uptake reaction in eGEM model
-BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn position in eGEM model
-rxnName = metabolites(:, 1); % reaction positions of interest
-rxnName = char(rxnName);
-
-% SRA: Same epsilon value for all reactions. 
-if isequal(size(epsilon2),[1,1])
-    epsilon2 = repmat(epsilon2, 20, 2);
-end
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-
 % Set the scaling proportion for RPMI substrate uptake rates to
 % a fixed amount. weight = 10 is excess, and weight = 0.01 is
 % depletion
@@ -108,13 +69,10 @@ for kappatype = 1:2
     % Set the substrate uptake rates based on medium
     % formulation (taken from medium sources). 
     tmp = media(tmp, medium);
-<<<<<<< HEAD
     [~, pos] = ismember(mediareactions(:,1), tmp.rxns);
     media_exchange = tmp.lb(pos);
     
     % Create a hypoxic/normoxic model
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
     switch condition 
         case 'hypoxic'
             [~, pos] = ismember({'EX_o2(e)'}, tmp.rxns);
@@ -126,17 +84,14 @@ for kappatype = 1:2
     end
 
     % For each medium component, set the substrate uptake rate. 
-<<<<<<< HEAD
+
     for component = 1:length(mediareactions(:,1)) % 50 medium components
-=======
-    for component = 1:length(mediareactions1(:,1)) % 50 medium components
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         %% Excess medium conditions
         if kappatype == 1 % glucose or glutamine
             excess_model = tmp;
             weight  = 10;
             
-<<<<<<< HEAD
+
             [~, pos]  = ismember(mediareactions(component, 1), excess_model.rxns);
             if ismember(component, [1;4])
                 kappa = 3;
@@ -144,15 +99,6 @@ for kappatype = 1:2
             else
                 kappa = weight;
                 excess_model.lb(pos) = media_exchange(component, 1)*kappa;
-=======
-            [~, pos]  = ismember(mediareactions1(component,1), excess_model.rxns);
-            if ismember(component, [1;4])
-                kappa = 3;
-                excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
-            else
-                kappa = weight;
-                excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
             end
 
             switch exp
@@ -166,15 +112,9 @@ for kappatype = 1:2
 
                         % Create the demand reactions dynamically
                         tmp_met = char(metabolites(rxn, 2)); % example: accoa
-<<<<<<< HEAD
                         met = [tmp_met '[' char(metabolites(rxn, 4)) ']'];
                         
                         tmprxn = [tmp_met '[' char(metabolites(rxn, 4)) '] -> ']; % example: accoa[n] ->
-=======
-                        met = [tmp_met '[' compartment ']'];
-                        
-                        tmprxn = [tmp_met '[' compartment '] -> ']; % example: accoa[n] ->
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                         tmpname = char(metabolites(rxn, 1)); % example: DM_accoa
                   
                         % Add the new reaction to the excess and depletion models
@@ -182,21 +122,13 @@ for kappatype = 1:2
                             'reactionFormula', tmprxn);
                     
                         % Calculate growth rates, reduced costs, and shadow prices
-<<<<<<< HEAD
+
                         [excess_soln, grate, grate_sp, grate_rc, ~, ~] =...
                             calc_metabolic_metrics(excess_model, ...
-=======
-                        [soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                             BIOMASS_OBJ_POS, met, [], [], [], 1, exp);
                         excess_grate(component, rxn) = grate;
                         excess_grate_sp(component, rxn) = grate_sp;
                         excess_grate_rc(component, rxn) = grate_rc;
-<<<<<<< HEAD
-
-=======
-                    
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                         %% Obtain flux values when using epsilon2 as the objective coefficient for the reaction of interest.
                         model3 = excess_model;
 
@@ -206,11 +138,8 @@ for kappatype = 1:2
                         model3.c(rxnpos) = epsilon2_excess(rxn, 1);
 
                         % Solve for metabolic fluxes
-<<<<<<< HEAD
+
                         [excess_soln, flux, flux_sp, flux_rc, ~, ~] =...
-=======
-                        [soln, flux, flux_sp, flux_rc, ~, ~] =...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                             calc_metabolic_metrics(model3,...
                             rxnpos, met, [], [], [], epsilon2_excess(rxn, 1), exp);
                         excess_flux(component, rxn) = flux;
@@ -221,21 +150,14 @@ for kappatype = 1:2
                         excess_model = removeRxns(excess_model, tmprxn);
                         disp([component, rxn])
                     end
-<<<<<<< HEAD
 
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                 % FBA optimization for all reactions simultaneously
                 case 'competition'
                     
                     % Get all the reactions you are interested in
                     mets = cellstr(metabolites(:, 2)); 
                     for i=1:length(mets)
-<<<<<<< HEAD
                         met{i} = [char(mets(i)) '[' char(metabolites(rxn, 4)) ']'];
-=======
-                        met{i} = [char(mets(i)) '[' compartment ']'];
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                     end
                     met = string(met);
 
@@ -290,7 +212,7 @@ for kappatype = 1:2
             depletion_model = tmp;
             weight = 0.01;
 
-<<<<<<< HEAD
+
             [~, pos]  = ismember(mediareactions(component,1), depletion_model.rxns);
 
             if ismember(component,[2,3,5:19])
@@ -299,16 +221,6 @@ for kappatype = 1:2
             else
                 kappa = weight;
                 depletion_model.lb(pos) = media_exchange(component,1)*kappa;
-=======
-            [~, pos]  = ismember(mediareactions1(component,1), depletion_model.rxns);
-
-            if ismember(component,[2,3,5:19])
-                kappa = weight/100;
-                depletion_model.lb(pos) = -media_exchange1(component,1)*kappa;
-            else
-                kappa = weight;
-                depletion_model.lb(pos) = -media_exchange1(component,1)*kappa;
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
             end
 
             switch exp
@@ -322,13 +234,9 @@ for kappatype = 1:2
 
                         % Create the demand reactions dynamically
                         tmp_met = char(metabolites(rxn, 2)); % example: accoa
-<<<<<<< HEAD
+
                         met = [tmp_met '[' char(metabolites(rxn, 4)) ']'];
                         tmprxn = [tmp_met '[' char(metabolites(rxn, 4)) '] -> ']; % example: accoa[n] ->
-=======
-                        met = [tmp_met '[' compartment ']'];
-                        tmprxn = [tmp_met '[' compartment '] -> ']; % example: accoa[n] ->
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                         tmpname = char(metabolites(rxn, 1)); % example: DM_accoa
                         
                         % Add the new reaction to the excess and depletion models
@@ -336,11 +244,8 @@ for kappatype = 1:2
                             'reactionFormula', tmprxn);
 
                         % Calculate growth rates, reduced costs, and shadow prices
-<<<<<<< HEAD
+
                         [depletion_soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(depletion_model,...
-=======
-                        [soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(depletion_model,...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                             BIOMASS_OBJ_POS, met, [], [], [], 1, exp);
                         depletion_grate(component, rxn) = grate;
                         depletion_grate_sp(component, rxn) = grate_sp;
@@ -355,11 +260,7 @@ for kappatype = 1:2
                         model3.c(rxnpos) = epsilon2_depletion(rxn);
 
                         % Solve for metabolic fluxes
-<<<<<<< HEAD
                         [depletion_soln, flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
-=======
-                        [soln, flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                             rxnpos, met, [], [], [], epsilon2_depletion(rxn), exp);
                         depletion_flux(component, rxn) = flux;
                         depletion_flux_sp(component,rxn) = flux_sp;
@@ -375,11 +276,7 @@ for kappatype = 1:2
 
                     mets = cellstr(metabolites(:, 2)); 
                     for i=1:length(mets)
-<<<<<<< HEAD
                         met{i} = [char(mets(i)) '[' char(metabolites(rxn, 4)) ']'];
-=======
-                        met{i} = [char(mets(i)) '[' compartment ']'];
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
                     end
                     met = string(met);
 
@@ -430,11 +327,7 @@ STRUCT = struct('Name', exp);
 %% Saving data structures, generating figures, etc.
 switch exp
     case {'sra', 'competition', 'no_competition'}
-<<<<<<< HEAD
         medium_labels = mediareactions(:,2);
-=======
-        medium_labels = mediareactions1(:,2);
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         reaction_labels = metabolites(:,3)';
         fields = {...
             'excess_grate'; 'depletion_grate';...
@@ -467,11 +360,7 @@ switch exp
         %save_xl18(table_str, rowname, colname, sra, epsilon2, exp)
 
     case 'fva'
-<<<<<<< HEAD
         medium_labels = mediareactions(:,2);
-=======
-        medium_labels = mediareactions1(:,2);
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         reaction_labels = metabolites(:,3);
         fields = {...
             'excess_maxflux'; 'excess_minflux';...
