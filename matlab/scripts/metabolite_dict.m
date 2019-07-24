@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 function [excess, depletion] = metabolite_dict(struct, metabolites, media,...
     sheetname, flag)
 
@@ -8,15 +9,28 @@ var = {...
     './../vars/mediareactions1.mat' ...
     };
 
+=======
+function [excess, depletion] = metabolite_dict(struct, filename, flag)
+
+% Load substrate uptake rates, medium components, reactions of interest
+load ./../vars/supplementary_software_code media_exchange1
+var = {'./../vars/metabolites.mat', './../vars/cellmedia.mat',...
+    './../vars/mediareactions1.mat'};
+>>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 for kk = 1:numel(var)
     load(var{kk});
 end
 
+<<<<<<< HEAD
 % Need labels for x and y axis 
+=======
+% Need labels
+>>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 media = string(mediareactions1(:,2));
 rxns = string(metabolites(:,3));
 
 switch flag
+<<<<<<< HEAD
     case {'sra', 'competition', 'no_competition'}
         ezscr = normalize(struct.excess_flux);
         ekeep = ezscr > 2;
@@ -34,6 +48,22 @@ switch flag
 end
 
 % Capture medium components that have zscr > 2 w.r.t. reaction (excess)
+=======
+    case 'fba'
+        ezscr = normalize(struct.excess_flux);
+        ekeep = ezscr > 2;
+        dzscr = normalize(struct.depletion_flux);
+        dkeep = ezscr > 2;
+    case 'fva'
+        % Create logical with excess and depletion arrays
+        ezscr = normalize(struct.excess_max_flux);
+        ekeep = ezscr > 2;
+        dzscr = normalize(struct.depletion_max_flux);
+        dkeep = dzscr > 2;
+end
+
+% Capture medium components that have zscr > 2 w.r.t. reaction
+>>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 for i=1:length(media)
     for j = 1:length(rxns)
         if ekeep(i,j) == 1
@@ -46,7 +76,11 @@ for i=1:length(media)
     disp(i)
 end
 
+<<<<<<< HEAD
 % Capture medium components that have zscr > 2 w.r.t. reaction (depletion)
+=======
+% Capture medium components that have zscr > 2 w.r.t. reaction
+>>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 for i=1:length(media)
     for j = 1:length(rxns)
         if dkeep(i,j) == 1
@@ -59,6 +93,7 @@ for i=1:length(media)
     disp(i)
 end
 
+<<<<<<< HEAD
 % Output dictionary values and save to Excel File
 rows = {'Excess', 'Depletion'};
 columns = metabolites(:,3);
@@ -146,5 +181,14 @@ end
 % depletion = containers.Map(cellstr(rxns), depletion, 'UniformValues', false);
 % save_json(jsonencode(excess), filename,'_',flag,'_excess_.json'))
 % save_json(jsonencode(depletion), filename,'_',flag,'_depletion_.json'))
+=======
+% Output dictionary object and save to json file
+excess = num2cell(cellstr(excess)',2);
+depletion = num2cell(cellstr(depletion)',2);
+excess = containers.Map(cellstr(rxns), excess, 'UniformValues', false);
+depletion = containers.Map(cellstr(rxns), depletion, 'UniformValues', false);
+save_json(jsonencode(excess), strcat(filename,'_',flag,'_excess_.json'))
+save_json(jsonencode(depletion), strcat(filename,'_',flag,'_depletion_.json'))
+>>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 
 end
