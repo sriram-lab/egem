@@ -13,7 +13,7 @@ cd ./../MeCorr
 model2 = min_model;
 epsilon_methylation = 1E-1;
 %rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n'));
-minfluxflag = 0; % 0: no Pfba, 1: Pfba 
+minfluxflag = 1; % 0: no Pfba, 1: Pfba 
 % 4) Change name of files to which variables are saved. End of section 1
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
        % impact of basal metabolic state of CCLE cell lines on sensitivity to demethylase inhibitors
@@ -62,7 +62,7 @@ hmei_list = {'BRD-A02303741';'BIX-01294';'methylstat';'QW-BI-011';...
     'UNC0321';'CBB-1007';'UNC0638';'GSK-J4'};
 hmei_list= cell2table(hmei_list);
 hmei_list.Properties.VariableNames{'hmei_list'}='cpd_name';
-cpd_info= readtable('DataRees2016/nchembio.1986-S3_cpd.xlsx');
+cpd_info= readtable('./../DataRees2016/nchembio.1986-S3_cpd.xlsx');
 cpd_infoMe= cpd_info(ismember(cpd_info(:, 1), hmei_list), [1,5,6,7,8]);
 cpd_infoMe= table2cell(cpd_infoMe);
 
@@ -156,22 +156,23 @@ for i_weight = 2:length(weights)
     save(s_path1, 'g_rate');
     s_path2= strcat('./../../../MaxAllRxns_local/', s_name);
     save(s_path2, 'g_rate');
+    
+    % figure; h = histogram(grate_ccle_exp_soft(:,3),70);
+    %  xlabel('Predicted methylation flux')
+    %  ylabel('Total cell lines')
+    % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
+    
+    %fluxesAll_1pFBA= fluxes_allrxns;
+    % save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
+    % save('VariablesSaved\fluxesAll_1FBA', 'fluxes_allrxns');
+    % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
+    % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 end
-
-% figure; h = histogram(grate_ccle_exp_soft(:,3),70);
-%  xlabel('Predicted methylation flux')
-%  ylabel('Total cell lines')
-% title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
-
-% save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
-% save('VariablesSaved\fluxesAll_1FBA', 'fluxes_allrxns');
-% save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
-% save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 %% Correlation between flux and auc for a reaction
 % flux_allrexns: 1031 cell lines by 3777 reactions
 % drug_auc_expt: extract auc values for the 8 methyl drugs
 % 8 x 3000 rhos
-% fluxes_allrxns= g_rate;
+%fluxes_allrxns= g_rate;
 rho= NaN(height(hmei_list),length(model2.rxns));
 rho_p= NaN(height(hmei_list),length(model2.rxns));
 for j = 1:height(hmei_list)
@@ -191,46 +192,14 @@ disp('rho & p-value calculated')
 %% Create Table of Significant Reactions by Correlation value
 % Workflow: Change threshold. Change struct field name (e.g. above3)
 % accordingly
-sigRhoTF= (abs(rho) > 0.3);
-nSigExpt= sum(sigRhoTF); % sum number of signif expts per rxn (sum each column)
-sigIndRxn= (nSigExpt >= 1);
-sigRxn= model2.rxns(sigIndRxn); disp(sigRxn)
-
-[iDrug,iRxn]= find(sigRhoTF); n= length(iDrug); disp(n)
-sigRxnS.above3(1:n,1)= num2cell(rho(sigRhoTF));
-sigRxnS.above3(1:n,2)= num2cell(rho_p(sigRhoTF));
-sigRxnS.above3(1:n,3)= model2.rxns(iRxn);
-sigRxnS.above3(1:n,4)= model2.rxnNames(iRxn);
-sigRxnS.above3(1:n,5)= model2.subSystems(iRxn);
-sigRxnS.above3(1:n,6)= cpd_infoMe(iDrug, 1); 
-sigRxnS.above3(1:n,7)= cpd_infoMe(iDrug, 3);
-sigRxnS.above3(1:n,8)= cpd_infoMe(iDrug, 2);
-
-sigRxnT= sortrows(sigRxnS.above3, 1); % sort by correlation 
-sigRxnT= cell2table(sigRxnT);
-sigRxnT.Properties.VariableNames{'sigRxnT1'}='Correlation';
-sigRxnT.Properties.VariableNames{'sigRxnT2'}='Pvalue';
-sigRxnT.Properties.VariableNames{'sigRxnT3'}='Rxn';
-sigRxnT.Properties.VariableNames{'sigRxnT4'}='RxnName';
-sigRxnT.Properties.VariableNames{'sigRxnT5'}='Subsystem';
-sigRxnT.Properties.VariableNames{'sigRxnT6'}='Compound';
-sigRxnT.Properties.VariableNames{'sigRxnT7'}='CpdActivity';
-sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdGeneTarget';
-
-% Rename variable and save
-% sigRxnT_1pFBA_0717=sigRxnT;
-% save('sigRxnT_1pFBA_0717', 'sigRxnT_1pFBA_0717');
-% writetable(sigRxnT,('sigRxnT_1pFBA_0717.xlsx'));
-
-% sigRxnT_maxAllRxns_1FBA=sigRxnT;
-% save('sigRxnT_maxAllRxns_1FBA', 'sigRxnT_maxAllRxns_1FBA');
-% writetable(sigRxnT_maxAllRxns_1FBA,('sigRxnT_maxAllRxns_1FBA.xlsx'));
-%% Significat reactions by correlation or p-value
 sigTF= (abs(rho) > 0.3);
 % sigTF= (abs(rho_p) < 0.001);
 nSigExpt= sum(sigTF); % sum number of signif expts per rxn (sum each column)
 sigIndRxn= (nSigExpt >= 1);
-sigRxn= model2.rxns(sigIndRxn); disp(sigRxn) 
+sigRxn= model2.rxns(sigIndRxn); disp(sigRxn)
+sigRxnFlux= array2table(fluxes_allrxns(:,sigIndRxn));
+VarNames= genvarname(sigRxn);
+sigRxnFlux.Properties.VariableNames=VarNames;
 
 [iDrug,iRxn]= find(sigTF); n= length(iDrug); disp(n)
 sigRxnS.above3(1:n,1)= num2cell(rho(sigTF));
@@ -251,17 +220,58 @@ sigRxnT.Properties.VariableNames{'sigRxnT4'}='RxnName';
 sigRxnT.Properties.VariableNames{'sigRxnT5'}='Subsystem';
 sigRxnT.Properties.VariableNames{'sigRxnT6'}='Compound';
 sigRxnT.Properties.VariableNames{'sigRxnT7'}='CpdActivity';
-sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdGeneTarget';
-% Rename variable and save
-% sigRxnT_1pFBA= sigRxnT;
-% save('sigRxnT_1pFBA', 'sigRxnT_1pFBA');
-% writetable(sigRxnT,('sigRxnT_1pFBA.xlsx'));
+sigRxnT.Properties.VariableNames{'sigRxnT8'}='CpdTarget';
 
-% sigRxnT_maxAllRxns_1FBA= sigRxnT;
+% Rename variable and save
+% sigRxnT_1pFBA=sigRxnT;
+% save('sigRxnT_1pFBA', 'sigRxnT_1pFBA');
+% writetable(sigRxnT,('sigRxnT_4FBA.xlsx'));
+
+% sigRxnT_maxAllRxns_1FBA=sigRxnT;
 % save('sigRxnT_maxAllRxns_1FBA', 'sigRxnT_maxAllRxns_1FBA');
 % writetable(sigRxnT_maxAllRxns_1FBA,('sigRxnT_maxAllRxns_1FBA.xlsx'));
 
-% sigPrxnT_1FBA= sigRxnT;
+% sigRxnFlux_1pFBA= sigRxnFlux;
+% save('sigRxnFlux_1pFBA', 'sigRxnFlux_1pFBA');
+%% See if fluxes are positive or negative for 6 FBA simulations
+% load fluxesAll for all 6 weights (FBA)
+clearvars intAll6 model2rxns
+intAll6= int.intAll6{1};  model2rxns= cell2table(model2.rxns);
+model2rxns.Properties.VariableNames{'Var1'}='Rxn';
+iRxnAll6= find(ismember(intAll6, model2rxns));
+sigRxnFlux6= {fluxesAll_1FBA, fluxesAll_2FBA, fluxesAll_3FBA, fluxesAll_4FBA, ...
+    fluxesAll_5FBA, fluxesAll_6FBA};
+posneg= zeros(6, height(intAll6));
+for iWeight=1:6
+    fluxesi= sigRxnFlux6{iWeight};
+    sigRxnFlux= fluxesi(:,iRxnAll6);
+    for iRxn= 1:height(intAll6)
+        if sum(sigRxnFlux(:,iRxn)<0) ==0
+            posneg(iWeight,iRxn)= 1;
+        elseif sum(sigRxnFlux(:,iRxn)>0) ==0
+            posneg(iWeight,iRxn)= -1;
+        end % For an element that =1, (rxn, weight) has both pos & neg flux
+    end
+end
+disp(posneg)
+%% See if flux is pos/neg for each sigRxn of large loop
+load('grate_1FBA_allRxns')
+load('sigRxnT_maxAllRxns_1FBA')
+sigRxn= cell2table(sigRxnT_maxAllRxns_1FBA.Rxn);
+model2rxns= cell2table(model2.rxns);
+isigRxn= find(ismember(sigRxn, model2rxns));
+sigRxnFlux= g_rate(:,isigRxn);
+
+posneg= zeros(1,height(sigRxn));
+iWeight=1;
+for iRxn=1:height(sigRxn)
+    if sum(sigRxnFlux(:,iRxn)<0) ==0
+        posneg(iWeight,iRxn)= 1;
+    elseif sum(sigRxnFlux(:,iRxn)>0) ==0
+        posneg(iWeight,iRxn)= -1;
+    end
+end
+disp(posneg)
 %% Calculate correlation between flux and auc. Each reaction maximized.
 rho3= NaN(height(hmei_list),length(model2.rxns));
 for j= 1:height(hmei_list)
