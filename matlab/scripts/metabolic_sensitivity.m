@@ -1,29 +1,36 @@
 %% @author: Scott Campit
-function [STRUCT, excess_soln, depletion_soln] = metabolic_sensitivity(model, reactions_of_interest,...
+function [STRUCT] = metabolic_sensitivity(model, reactions_of_interest,...
     epsilon2, exp, medium, fva_grate, condition)
+
 % metabolic_sensitivity.m displays the values corresponding to several demand
 % reactions and excess/depletion of a specific medium component.
 
 % INPUTS:
     % model: genome scale metabolic model
-    % rxnpos: list of reactions that will be used in the analysis
-    % epsilon2: a weight that will be used for the secondary obcomponentective coefficient
-    % scaling: if the data should be scaled/normalized
-    % exp: this flag can take 3 possible values:
+    % reactions_of_interest: list of reactions in a cell array that will be used in the analysis
+    % epsilon2: a weight that will be used for the secondary objective coefficient
+    % exp: this flag can take 4 possible values:
         % 'sra': optimizes single reactions with a fixed epsilon value
-        % 'fba': optimizes multiple reactions using fba
+        % 'competition': optimizes multiple reactions simultaneously using fba
+        % 'no_competition': optimizes multiple reactions sequentially using
+        % fba
         % 'fva': sets the biomass to be at 100% and gets the maximum
         % metabolic fluxes associated
+    % medium: the medium condition used to grow that specific cell line
+    % fva_grate: the percentage used for cell growth in the fva function
+    % condition: this flag can take 2 possible values:
+        % 'normoxic': assumes no additional cellular stressors
+        % 'hypoxic': simulate a no oxygen environment
 
 % OUTPUTS:
-    % excess_flux: metabolic flux corresponding to excess medium
-    % depletion_flux: ''' depletion medium
-    % excess_redcost: reduced cost corresponding to excess medium
-    % depletion_redcost: ''' depletion medium
-    % excess_shadow: shadow costs corresponding to excess medium
-    % depletion_shadow: ''' depletion medium
+    % STRUCT: a structure containing the following fields in excess and
+    % depletion medium conditions
+        % growth rates
+        % metabolic fluxes
+        % shadow price
+        % reduced costs
 
-%% metabolic_sensitivity.m
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Load medium components and reactions to track
 load('./../vars/mediareactions.mat') % Medium components
 load('./../vars/metabolites.mat') % Reactions you're interested in observing
@@ -50,6 +57,7 @@ end
 BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn position in eGEM model
 rxnName = reactions_of_interest(:, 1); % positions of reactions you want to optimize flux through
 rxnName = char(rxnName);
+
 % Set the scaling proportion for RPMI substrate uptake rates to
 % a fixed amount. weight = 10 is excess, and weight = 0.01 is
 % depletion
@@ -84,7 +92,8 @@ for kappatype = 1:2
     % For each medium component, set the substrate uptake rate. 
 
     for component = 1:length(mediareactions(:,1)) % 50 medium components
-        %% Excess medium conditions
+        
+        % Excess medium conditions
         if kappatype == 1 % glucose or glutamine
             excess_model = tmp;
             weight  = 10;
@@ -101,7 +110,7 @@ for kappatype = 1:2
             switch exp
                 
                 % Single reaction optimization and capturing results for
-                % the optimal FBA conditions
+                % the optimal FBA conditions with no competition
                 case {'sra', 'no_competition'}
                     
                     % Add demand reactions from the metabolite list to the metabolic model
@@ -147,54 +156,7 @@ for kappatype = 1:2
                         excess_model = removeRxns(excess_model, tmprxn);
                         disp([component, rxn])
                     end
-                    
-                % FBA optimization for each reaction using optimal
-                % epsilon2
-                case 'fba_noComp'
-                    sra=0;
-                    fva=0;
-                    
-                    % Get all the reactions you are interested in
-                    mets = cellstr(metabolites(:, 2)); 
-                    for i=1:length(mets)
-                        met{i} = [char(mets(i)) '[' compartment ']'];
-                    end
-                    met = string(met);
-                    
-                    % Get histone reactions only
-                    mets_hist = cellstr(metabolites(:,2));
-                    mets_hist = mets_hist(2:5,1);
-                    for i=1:length(mets_hist)
-                        hist{i} = [char(mets_hist(i)) '[' compartment ']'];
-                    end
-                    hist = string(hist);
-                    
-                    % Get growth rate and other metrics from the function
-                    [excess_soln, grate, grate_sp, grate_rc, ~, ~] = calc_metabolic_metrics(excess_model,...
-                            biomassobjpos, met, [], [], [], 1, exp);
 
-                    % Stuff you want
-                    excess_grate(component,:) = grate;
-                    excess_grate_sp(component,:) = grate_sp;
-                    excess_grate_rc(component,:) = grate_rc;
-
-                    %% Simultaneously solve several reactions and get the flux
-                    model3 = excess_model;
-                    rxnpos = [find(ismember(model3.rxns, rxnname))];
-
-                    % Get metabolic flux and other metrics from the function
-                    [excess_soln, flux, flux_sp, flux_rc, ~, ~] = calc_metabolic_metrics(model3,...
-                            rxnpos, met, [], [], [], epsilon2(:, 1), exp);
-
-                    % Stuff you want
-                    excess_flux(component,:) = flux;
-                    excess_flux_sp(component,:) = flux_sp;
-                    excess_flux_rc(component,:) = flux_rc;
-
-                    disp(component)    
-                    
-
-                % FBA optimization for all reactions simultaneously
                 case 'competition'
                     
                     % Get all the reactions you are interested in

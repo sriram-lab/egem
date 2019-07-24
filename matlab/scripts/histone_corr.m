@@ -182,15 +182,13 @@ for i = 1:tmp
                 minfluxflag);
             all_flux_values(i,:) = flux(rxnpos);
         case 'fva'
-            for rxn = 1:length(reactions_of_interest(:,1))
-                model3 = model2;
-                rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn,1)))];
-                model3.c(rxnpos) = obj_coef(:, 1);
-                [~, ~, ~, ~, flux, ~] =...
-                    calc_metabolic_metrics(model3, rxnpos, [], fva_grate,...
-                    'max', reactions_of_interest, obj_coef(:, 1), 'fva');
-                all_flux_values(i,:) = flux;
-            end
+            model3 = model2;
+            %rxnpos = [find(ismember(model3.rxns, reactions_of_interest(rxn,1)))];
+            %model3.c(rxnpos) = obj_coef(:, 1);
+            [~, ~, ~, ~, flux, ~] =...
+                calc_metabolic_metrics(model3, [], [], fva_grate,...
+                'max', reactions_of_interest, [], 'fva');
+            all_flux_values(i,:) = flux;
     end
 end
 
