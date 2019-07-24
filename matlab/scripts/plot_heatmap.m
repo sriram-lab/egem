@@ -4,17 +4,34 @@ function plot_heatmap(STRUCT,...
     metabolites, exp, epsilon2, medium, type)
 
 %% Generate Heatmaps for Downstream Analysis
+<<<<<<< HEAD
 load('./../vars/mediareactions.mat') % Medium components
 load('./../vars/metabolites.mat') % Reactions you're interested in observing
+=======
+load ./../vars/supplementary_software_code media_exchange1
+var = {...
+    './../vars/cellmedia.mat',...
+    './../vars/mediareactions1.mat'...
+    };
+for kk = 1:numel(var)
+    load(var{kk});
+end
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 
 switch exp
     case {'sra', 'competition', 'no_competition'} 
         if ~isequal(size(epsilon2), [1,1])
             epsilon2 = '';
         end
+<<<<<<< HEAD
         medium_labels = mediareactions(:,2);
         reaction_labels = metabolites(:,3);
 
+=======
+        medium_labels = mediareactions1(:,2);
+        reaction_labels = metabolites(:,3);
+        
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         % Metabolic fluxes
         fig1 = figure;
         subplot(1,2,1);
@@ -112,8 +129,12 @@ switch exp
         %saveas(fig4, char(fig4_str));
     
     case 'fva'  
+<<<<<<< HEAD
 
         medium_labels = mediareactions(:,2);
+=======
+        medium_labels = mediareactions1(:,2);
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         reaction_labels = metabolites(:,3);
 
         fig = figure;

@@ -18,24 +18,35 @@ eGEM = removeRxns(eGEM, {'peplyexn'});
 %% Demand reactions that will be used in the study 
 load './../vars/metabolites.mat'
 <<<<<<< HEAD
+<<<<<<< HEAD
 compartment = char(metabolites(rxn, 4));
 for m = 1:length(metabolites(:, 1))
     tmp_met = char(metabolites(m, 2));
     tmp = [tmp_met '[' compartment '] -> '];
     tmpname = char(metabolites(m, 1));
 =======
+=======
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 compartment = 'n';
 for m = 1:length(metabolites(:,1))
     tmp_met = char(metabolites(m,2));
     tmp = [tmp_met '[' compartment '] -> '];
     tmpname = char(metabolites(m,1));
+<<<<<<< HEAD
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
+=======
 >>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
     eGEM = addReaction(eGEM, tmpname, 'reactionFormula', tmp);
 end
 
 %% Histone position specific metabolic reactions
 <<<<<<< HEAD
+<<<<<<< HEAD
 %[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
+=======
+[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
+
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 =======
 [~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
 
@@ -147,6 +158,7 @@ eGEM = addReaction(eGEM, 'JMJDMT1n',...
 % Iron reactions {Not sure how they are introduced so I created sink and demand reactions}
 % % https://www.cell.com/trends/biochemical-sciences/pdf/S0968-0004(15)00237-6.pdf
 <<<<<<< HEAD
+<<<<<<< HEAD
 eGEM = addReaction(eGEM, 'Fe2_sink',...
     'reactionFormula', 'fe2[n] <=> ');
 eGEM = addReaction(eGEM, 'Fe3_sink',...
@@ -157,6 +169,8 @@ eGEM = addReaction(eGEM, 'Fe3_demand',...
     'reactionFormula', 'fe3[n] -> ');
 eGEM = addReaction(eGEM, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
 =======
+=======
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 % eGEM = addReaction(eGEM, 'Fe2_sink',...
 %     'reactionFormula', 'fe2[n] <=> ');
 % eGEM = addReaction(eGEM, 'Fe3_sink',...
@@ -166,6 +180,9 @@ eGEM = addReaction(eGEM, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
 % eGEM = addReaction(eGEM, 'Fe3_demand',...
 %     'reactionFormula', 'fe3[n] -> ');
 %eGEM = addReaction(eGEM, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
+<<<<<<< HEAD
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
+=======
 >>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 
 %% FAD Pool (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4893201/)
