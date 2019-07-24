@@ -1,7 +1,6 @@
 %% Run analyses for epigenome-scale metabolic models
 initCobraToolbox;
 changeCobraSolver('gurobi');
-
 %% Load genome-scale metabolic models. Must run from `/matlab/scripts` directory
 
 % The bulk eGEM model
@@ -11,8 +10,7 @@ model = eGEM;
 % New acetylation model containing ACSS2 and PDH in nucleus
 %load ./../models/acetyl2.mat
 
-% Minial eGEM that does not contain one carbon reactions and demethylation
-% rxns
+% Minimal eGEM -> does not contain other one carbon reactions
 %load ./../models/min.mat % minimal eGEM model
 %model = eGEM_min;
 
@@ -20,14 +18,13 @@ model = eGEM;
 %load ./../models/recon1
 %model = metabolicmodel;
 
-% Acetylation model from Shen et al., 2019
-%load ./../shen-et-al/supplementary_software_code acetylation_model
-%model = acetylation_model; 
+% New acetylation metabolic model. Contains PDC and ACSS2.
+%load ./../models/acetyl2.mat % new acetylation model
 
-<<<<<<< HEAD
+% Old acetylation metabolic model
+%load supplementary_software_code acetylation_model
+%model = acetylation_model; %Shen et al., 2019
 
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 %% Metabolic sensitivity analysis for excess and depleted medium components
     % INPUT:
         % switch case arguments:
@@ -147,40 +144,25 @@ end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Histone reactions only
-<<<<<<< HEAD
 load ./../models/eGEM.mat 
 model = eGEM;
 load('./../vars/metabolites.mat')
 histone_rxns_only = metabolites(3:6, :);
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
 medium_of_interest = medium(:, 3:end);
-=======
-histone_rxns_only = metabolites(2:5, :);
-medium_of_interest = medium;
 
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-% Optimization 1B: Run Single reaction activity (SRA) for histone reactions
-% only
+% Optimization 1: Run Single reaction activity (SRA)
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     for n = 1:length(epsilon2)
         % Run all
         str =  strcat("[sra_hist_", string(n), '_', medium_of_interest(med),...
-<<<<<<< HEAD
             "] = metabolic_sensitivity(model, histone_rxns_only,", ...
             " epsilon2(n), 'sra', medium_of_interest(med), [], 'normoxic');");
-        eval(str)
         
         % Plot all
 %         str = strcat("plot_heatmap(sra_hist_", string(n), '_',...
-=======
-            "] = metabolic_sensitivity(model, histone_rxns_only, 'n',", ...
-            " epsilon2(n), 'sra', medium_of_interest(med), [], 'normoxic');");
-        eval(str)
-        % Plot all
-%         str = strcat("plot_heatmap(sra", string(n), '_',...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 %             medium_of_interest(med), ", histone_rxns_only, 'sra', epsilon2(n), medium_of_interest(med))");
 %         eval(str)
     end
@@ -248,41 +230,20 @@ for i=1:length(fields)
 end
 save('LeRoy_histOnly_epsilon.mat', 'LeRoy_histOnly_epsilon');
 
-<<<<<<< HEAD
 load ./../vars/LeRoy_histOnly_epsilon.mat
-=======
-
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
 % Optimization 2B: Run Flux balance analysis (FBA) w/ and w/o competition
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     
     % Run all without competition for histone reactions
-<<<<<<< HEAD
     str =  strcat("[fba_", lower(medium_of_interest(med)),"histOnly_noComp]", ...
-=======
-    str =  strcat("[fba_", lower(medium_of_interest(med)),"_noComp]", ...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         "= metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'no_competition',", ...
         "medium_of_interest(med), []);");
     eval(str)
-<<<<<<< HEAD
 
     % Run all w/ competition for histone reactions
     str =  strcat("[fba_", lower(medium_of_interest(med)),"histOnly_comp",
-=======
-    
-    str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)),...
-        "_noComp, histone_rxns_only, 'no_competition', 'noComp', medium_of_interest(med))");
-    eval(str)
-end
-
-for med = 1:length(medium_of_interest)
-    disp(medium_of_interest(med))
-    % Run all w/ competition for histone reactions
-    str =  strcat("[fba_", lower(medium_of_interest(med)),"_comp", ...
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
         "] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
         lower(medium_of_interest(med)), ", 'zscore', 'competition',", ...
         "medium_of_interest(med), []);"); 
@@ -331,14 +292,6 @@ load ./../vars/CCLE_epsilon;
 % Reactions of interest
 load('./../vars/metabolites.mat')
 histone_rxns_only = metabolites(2:5, :);
-
-% Initialize params for iMAT algorithm
-compartment = 'n';
-mode = 1;
-epsilon = 1E-3;
-rho = 1;
-kappa = 1E-3;
-minfluxflag = 0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % All reactions
@@ -417,7 +370,6 @@ path = './../figures/new-model/';
 new_ext = '.tif';
 old_ext = '.fig';
 transform_fig(path, old_ext, new_ext)
-
 
 %% Density plot
 % A = densityplot('eGEMn');

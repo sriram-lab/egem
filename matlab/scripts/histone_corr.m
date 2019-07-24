@@ -102,7 +102,9 @@ idx = find(ismember(celllinenames_ccle1, cell_names));
 for i = 1:tmp
     disp(['Cell line: ', cell_names(i)])
     model2 = model;
-
+    
+    % Takes in genes that are differentially expressed from Z-score scale
+    % and that are in metabolic model
     ongenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) >= 2));
     offgenes = unique(ccleids_met(ccle_expression_metz(:,idx(i)) <= -2));
     ongenes = intersect(ongenes, model2.rxns);
@@ -213,33 +215,3 @@ for i=1:length(fields)
     STRUCT.(fields{i}) = values{i};
 end
 end
-    %[fluxstate_gurobi, grate_ccle_exp_dat(i,1), solverobj_ccle(i,1)] =...
-    %   constrain_flux_regulation(model2, onreactions, offreactions,...
-    %    kappa, rho, epsilon, mode, [], minfluxflag);
-
-    % Add demand reactions from the metabolite list to the metabolic model
-    %for m = 1:length(metabolites(:,1))
-    %    tmpname = char(metabolites(m,1));
-        
-    % limit methionine levels for all reactions in the model; it has to be non limiting
-    model3 = model2;
-    [ix, pos]  = ismember({'EX_met_L(e)'}, model3.rxns);
-    model3.lb(pos) = -0.5;
-    rxnname = char(metabolites(:, 1)); % reaction positions of interest
-    rxnpos = [find(ismember(model3.rxns, rxnname))];
-    model3.c(rxnpos) = epsilon2(:,1); 
-
-    % get the flux values from iMAT
-    [fluxstate_gurobi] =  constrain_flux_regulation(model3,...
-        onreactions, offreactions, kappa, rho, epsilon, mode ,[],...
-        minfluxflag);
-    grate_ccle_exp_dat(:,i) = fluxstate_gurobi(rxnpos);
-    %model3.c(rxnpos) = 0; 
-    
-end
-
-% Calculate the pearson correlation coefficients for every demand reaction
-% w.r.t to H3 expression
-grate_ccle_exp_dat = grate_ccle_exp_dat';
-[rho, pval] = corr(grate_ccle_exp_dat, h3_relval);
-rxns = metabolites(:,3);
