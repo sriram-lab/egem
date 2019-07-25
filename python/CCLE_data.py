@@ -21,7 +21,7 @@ from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.io as pio
-import plotly.graph_objects as go
+#import plotly.graph_objects as go
 import plotly.figure_factory as ff
 from scipy.spatial.distance import pdist, squareform
 
@@ -44,8 +44,9 @@ def common(a,b):
 def Matrix(gene_list, histone_list, data1, data2):
     """This functions purpose is to create a numpy matrix which is filled with 
     correlation values based on two data sets and corresponding lists"""
-    name = (len(gene_list), len(histone_list))
-    name = np.zeros(name)
+    Rmat = (len(gene_list), len(histone_list))
+    Rmat = np.zeros(Rmat)
+    Pmat = Rmat
     i = 0 
     for gene in gene_list:
         j = 0
@@ -53,11 +54,11 @@ def Matrix(gene_list, histone_list, data1, data2):
             data1.loc[gene] = data1.loc[gene].fillna(method='ffill')
             data2.loc[histone] = data2.loc[histone].fillna(method='ffill')
             correlation = pearsonr(data1.loc[gene], data2.loc[histone])
-            correlation = correlation[0]
-            name[i][j] = correlation
+            Rmat[i][j] = correlation[0]
+            Pmat[i][j]
             j = j+1
         i = i+1
-    return name
+    return Rmat, Pmat
 
 def Heatmap(data, ylabels, size, colour, title):
     """Using dataframes based on the Matrix fucntion, this function will create 
@@ -68,6 +69,44 @@ def Heatmap(data, ylabels, size, colour, title):
     ax = sns.heatmap(data, cmap = colour, square = True, yticklabels = ylabels)
     ax.set(xlabel = 'Histone Markers')
     plt.show
+    
+def pearson_dfs(gene_list, histone_list, data1, data2):
+    """This functions purpose is to create two dataframes. The first dataframe will contain all the r-values between the two sets of data. The second will contain all the p-values for each r-value.
+    
+    This function is very specific. The dataframe created will contain histone markers as the columns and gene names as the index. 
+    
+    This function assumes you already took the intersection between the two arrays. If you do not do that, then the matrix dimensions will not agree, resulting in an error.
+    
+    The format for inputting matrix should have columns correspond to the celllines.
+    """
+    Rmat = (len(gene_list), len(histone_list))
+    Rmat = np.zeros(Rmat)
+    Pmat = Rmat[:]
+    i = 0 
+    for gene in gene_list:
+        j = 0
+        for histone in histone_list:
+            data1.loc[gene] = data1.loc[gene].fillna(method='ffill')
+            data2.loc[histone] = data2.loc[histone].fillna(method='ffill')
+            correlation = pearsonr(data1.loc[gene], data2.loc[histone])
+            Rmat[i][j] = correlation[0]
+            Pmat[i][j]
+            j = j+1
+        i = i+1
+        
+    Rdf = pd.DataFrame(Rmat)
+    Rdf.columns = histone_list
+    Rdf.insert(0, 'Genes', gene_list, True)
+    Rdf = Rdf.set_index('Genes')
+    
+    Pdf = pd.DataFrame(Pmat)
+    Pdf.columns = histone_list
+    Pdf.insert(0, 'Genes', gene_list, True)
+    Pdf = Pdf.set_index('Genes')
+    return Rdf, Pdf
+
+
+
     
 def Remove(duplicate): 
     """This function will remove duplicated elements from lists"""
@@ -107,7 +146,7 @@ def PlotlyHeat(df, size, title, xaxis, yaxis):
 """
 """
 
-def TissueAnalysis(dictionary, common_cellline, data1, data2, name ):
+def TissueAnalysis(dictionary, common_cellline, data1, data2, name):
     df1 = data1.copy()
     df2 = data2.copy()
     for celllines in common_cellline:
@@ -142,6 +181,13 @@ ginfo = mg.querymany(data['gene_id'], scopes='ensembl.gene', fields='symbol', sp
 
 #removed repeated element
 ginfo.pop(30544)
+#query = []
+#for entry in ginfo:
+#   query.append(entry['query'])
+#   
+#query = Remove(query)
+   
+
 
 """
 CHANGE GENE IDs TO SYMBOLS
@@ -154,6 +200,7 @@ for entry in ginfo:
     else:
         gene.append("delete")
 
+#gene = Remove(gene)
 data['gene_id'] = gene
 
 data.rename(columns={'gene_id' : 'Gene'}, inplace = True)
@@ -291,7 +338,7 @@ h3_ccle_df= h3_ccle_df.fillna(method='ffill')
 ccle_h3_df = ccle_h3_df.fillna(method='ffill')
 
 #H3 and CCLE
-h3_ccle_matrix = Matrix(search, h3_markers, ccle_h3_df, h3_ccle_df)
+h3_ccle_matrix = Matrix(search, h3_markers, ccle_h3_df, h3_ccle_df)[0]
     
 h3_ccle_matrix = pd.DataFrame(h3_ccle_matrix)
 h3_ccle_matrix.columns = h3_markers
@@ -335,7 +382,7 @@ ccle_leroy_df = df_normalized[['Gene']+ leroy_ccle_cellline]
 ccle_leroy_df = ccle_leroy_df.set_index('Gene')
 
         
-leroy_ccle_matrix = Matrix(search, leroy_markers, ccle_leroy_df, leroy_ccle_df)   
+leroy_ccle_matrix = Matrix(search, leroy_markers, ccle_leroy_df, leroy_ccle_df)[0]   
     
 leroy_ccle_matrix = pd.DataFrame(leroy_ccle_matrix)
 leroy_ccle_matrix.columns = leroy_markers
@@ -372,7 +419,7 @@ recon1_list = common(gene, recon1_list)
 """
 CCLE(RECON1) and LEROY
 """
-leroy_ccle_r1 = Matrix(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)
+leroy_ccle_r1 = Matrix(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)[0]
 
 leroy_ccle_r1 = pd.DataFrame(leroy_ccle_r1)
 leroy_ccle_r1.columns = leroy_markers
@@ -470,105 +517,20 @@ GRAPHING
 #Heatmap(h3_ccle_sg, search, (12,12), 'Blues', 'Salivary Gland Correlation Data')
 #PlotlyHeat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes',leroy_markers, recon1_list)
 
+""" 
+Testing
+"""
+os.chdir('/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/python')
+
+import vis
+leroy_ccle_r,leroy_ccle_p = pearson_dfs(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)
+
+vis.hierarchal_clustergram(leroy_ccle_r)
+
 """
 PLOTLY
 """
-import plotly.graph_objects as go
-import plotly.figure_factory as ff
 
-import numpy as np
-from scipy.spatial.distance import pdist, squareform
-
-
-# get data
-data1 = leroy_ccle_r1.values
-data_array = data1
-data_array1 = data_array.transpose()
-
-
-# Initialize figure by creating upper dendrogram
-fig = ff.create_dendrogram(data_array1, orientation='bottom', labels=leroy_markers)
-for i in range(len(fig['data'])):
-    fig['data'][i]['yaxis'] = 'y2'
-
-# Create Side Dendrogram
-dendro_side = ff.create_dendrogram(data_array, orientation='right', labels = recon1_list)
-for i in range(len(dendro_side['data'])):
-    dendro_side['data'][i]['xaxis'] = 'x2'
-
-# Add Side Dendrogram Data to Figure
-for data1 in dendro_side['data']:
-    fig.add_trace(data1)
-
-# Create Heatmap
-dendro_leaves = dendro_side['layout']['yaxis']['ticktext']
-dendro_leaves = list(map(int, dendro_leaves))
-dendro_leaves1 = fig['layout']['xaxis']['ticktext']
-dendro_leaves1 =list(map(int, dendro_leaves1))
-
-data_dist = pdist(data_array)
-heat_data = squareform(data_dist)
-heat_data = heat_data.reshape(1473,73)
-
-heat_data = heat_data[dendro_leaves,:]
-heat_data = heat_data[:,dendro_leaves]
-
-heatmap = [
-    go.Heatmap(
-        x = dendro_leaves,
-        y = dendro_leaves1,
-        z = heat_data,
-        colorscale = 'Blues'
-    )
-]
-
-heatmap[0]['x'] = fig['layout']['xaxis']['tickvals']
-heatmap[0]['y'] = dendro_side['layout']['yaxis']['tickvals']
-
-# Add Heatmap Data to Figure
-for data1 in heatmap:
-    fig.add_trace(data1)
-    
-fig.update_layout({'width':800, 'height':800,
-                         'showlegend':False, 'hovermode': 'closest',
-                         })
-# Edit xaxis
-fig.update_layout(xaxis={'domain': [.15, 1],
-                                  'mirror': False,
-                                  'showgrid': False,
-                                  'showline': False,
-                                  'zeroline': False,
-                                  'ticks':""})
-# Edit xaxis2
-fig.update_layout(xaxis2={'domain': [0, .15],
-                                   'mirror': False,
-                                   'showgrid': False,
-                                   'showline': False,
-                                   'zeroline': False,
-                                   'showticklabels': False,
-                                   'ticks':""})
-
-# Edit yaxis
-fig.update_layout(yaxis={'domain': [0, .85],
-                                  'mirror': False,
-                                  'showgrid': False,
-                                  'showline': False,
-                                  'zeroline': False,
-                                  'showticklabels': False,
-                                  'ticks': ""
-                        })
-# Edit yaxis2
-fig.update_layout(yaxis2={'domain':[.825, .975],
-                                   'mirror': False,
-                                   'showgrid': False,
-                                   'showline': False,
-                                   'zeroline': False,
-                                   'showticklabels': False,
-                                   'ticks':""})
-
-
-# Plot!
-fig.show()
 
 """
 SAVE AS CSV FIL
