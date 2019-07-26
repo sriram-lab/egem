@@ -151,14 +151,14 @@ def plotlyheat(df, size, title, xaxis, yaxis):
 
 
 # Create list of dataframes
-dfs = []
-sheetnam = ['0.0001', '0.001', '0.01', '0.1', '1']
-for val in sheetnam:
-    df = extract.iterred(val)
-    dfs.append(df)
+#dfs = []
+#sheetnam = ['0.0001', '0.001', '0.01', '0.1', '1']
+#for val in sheetnam:
+#    df = extract.iterred(val)
+#    dfs.append(df)
 
 #static_surf(dfs)
-dynamic_surf(dfs)
+#dynamic_surf(dfs)
 
 
 def hierarchal_clustergram(data='path/to/data/file.txt'):

@@ -80,24 +80,34 @@ def gene_conversion(gene_list, scopes, fields, species):
     symbols which is much easier to work with. 
     
     It is important to note that the gene_list may require manipulation 
-    as mygene works differently for each scope you use. 
+    as mygene works differently for each scope you use. The manipulation will 
+    depend on the scope being used. For example 'ensembl.gene' ids look similar
+    to ENSG00000000003 however they can have decimals (ENSG00000000003.3)
+    depending on the version/update of the gene. Mygene is not able to take in 
+    the decimal so the list must have the decimals removed in order to for 
+    mygene to output gene symbols.
     
-    The gene_list may require some editing.
     
     The output is a list of dictionary which contain ids and gene symbols. 
-    Further manipulation is required regarding removing any duplicate IDs.
+    There can be cases were a gene_id can create two different list elements 
+    which has the same id and symbol, but different scores and querys. In this 
+    case further manipulation is required regarding removing any duplicate IDs
+    so that the size of the list matches the same list being used to convert.
     
     INPUT
     
-        gene_list: list of genes which you would like to convert into desired 
+        gene_list: list of genes ids which you would like to convert into desired 
                    id or symbol
-        scopes: the current format type that the gene_list is written in
+        scopes: the current format type that the gene_list is written in; full
+                list can be found here http://docs.mygene.info/en/latest/doc/query_service.html#available-fields
         fields: the resulting gene id or symbol desired
         species: type of species you are looking at
     
     OUTPUT
-        ginfo: list of dictionaries containing gene ids, 
-               symbols, scores, and query
+        ginfo: list of dictionaries containing mygene ids, 
+               symbols, scores (which is the internal score representing how 
+               well the query matches the returned gene object), and query 
+               (which is the gene ids inserted originally).
                
     """
     mg = mygene.MyGeneInfo()
@@ -134,13 +144,13 @@ def gene_symbols(ginfo_list):
 
 
 def tissue_dict(df):
-    """Using a df with number indexing and not gene symbol 
-    indexing (so not pearson_dfs) this will create a dictionary that will 
+    """Using a dataframe with standard indexing, produce a dictionary that will
     match celllines to their tissue type.
     
-    This has tissue types split with an underscore so it will remove 
-    the underscore. This is only really required for tissue analysis.
-   
+    In the data being used for this function the cell line is written in the
+    following way: 'cellline_tissue_type'. Therefore this function will split 
+    the cell line up, removing the underscores from the cell line and creating 
+    a dictionary the following way: 'cellline : tissue type'. 
     INPUT
         df: dataframe of standard indexing, with columns being celllines and 
             corresponding tissue (for the data used in the code, the tissue 
@@ -175,17 +185,20 @@ def tissue_dict(df):
 
 def normalize(df, delete_column, cell_list):
     """Takes in a dataframe with columns being cell lines 
-    (with the exception of a column being genes or gene_ids) and normalizes 
-    the expression values.
+    (with the exception of a column being genes or gene_ids) and min-max 
+    normalizes the expression values.The expected output is an array of 
+    expression values between 0 and 1.
     
-    This will delete the desired column and then normalize the values and 
-    fill in the NaN values. It will then format the dataframe to back 
-    to how it originally looked. 
+    This will remove the desired column which does not contain expression 
+    values (Histones, Genes, etc) and then normalize the values, 
+    filling in the NaN values. It will then output a dataframe of the same 
+    size of the dataframe which was used in the function with the deleted 
+    column inserted back into the dataframe.
     
     INPUT
     
-        df: dataframe with columns of cell lines (with the exception of a 
-            column being genes or gene_ids)
+        df: dataframe with the columns representing cell lines and one column which
+            contains gene names/histone markers
         delete_column: column that does not contain expression values
         cell_list: list of cell lines within dataframe
     
@@ -205,8 +218,8 @@ def normalize(df, delete_column, cell_list):
     x_scaled = min_max_scaler.fit_transform(x)
     df_normalized = pd.DataFrame(x_scaled)
 
-    df_normalized.insert(0, 'Gene', delete , True)
-    df_normalized.columns = ['Gene'] + cell_list
+    df_normalized.insert(0, delete_column, delete, True)
+    df_normalized.columns = [delete_column] + cell_list
     
 
     # Fill in NaN values.
@@ -214,7 +227,7 @@ def normalize(df, delete_column, cell_list):
     return df_normalized
 
 
-def common(a,b):
+def common(list_a,list_b):
     """ This functions purpose is to find common elements of 
     lists by converting each list to a set.
     
@@ -228,14 +241,15 @@ def common(a,b):
         common: list containing common elements from a and b
         
     """
-    a_set = set(a)
-    b_set = set(b)
+    a_set = set(list_a)
+    b_set = set(list_b)
     common = a_set.intersection(b_set) 
     common = list(common)
     return common 
     
-def pearson_dfs(gene_list, histone_list, data1, data2, dtype):
-    """This functions purpose is to create two dataframes. 
+def pearson_dfs(gene_list, histone_list, gene_data, histone_data, dtype):
+    """This functions purpose  is to compute the column-wise pearson 
+    correlation coefficient and p-value for each element in an array 
     
     The first dataframe will contain all the r-values between the two sets of data. 
     The second will contain all the p-values for each r-value.
@@ -256,9 +270,9 @@ def pearson_dfs(gene_list, histone_list, data1, data2, dtype):
     INPUT
         gene_list: list of genes which correlation study will be performed
         histone_list: list of histones which correlation study will be performed
-        data1: dataframe containing genes which you would like to compare
-        data2: dataframe containing histones which you would like to compare
-        dtype: numpy or df, numpy returns a matrix, and df returns a dataframe
+        gene_data: dataframe containing genes which you would like to compare
+        histone_data: dataframe containing histones which you would like to compare
+        dtype: 'numpy' or 'df', numpy returns a matrix, and df returns a dataframe
             
     OUTPUT
     
@@ -276,9 +290,9 @@ def pearson_dfs(gene_list, histone_list, data1, data2, dtype):
     for gene in gene_list:
         j = 0
         for histone in histone_list:
-            data1.loc[gene] = data1.loc[gene].fillna(method='ffill')
-            data2.loc[histone] = data2.loc[histone].fillna(method='ffill')
-            correlation = pearsonr(data1.loc[gene], data2.loc[histone])
+            gene_data.loc[gene] = gene_data.loc[gene].fillna(method='ffill')
+            histone_data.loc[histone] = histone_data.loc[histone].fillna(method='ffill')
+            correlation = pearsonr(gene_data.loc[gene], histone_data.loc[histone])
             Rmat[i][j] = correlation[0]
             Pmat[i][j]
             j = j+1
@@ -301,7 +315,7 @@ def pearson_dfs(gene_list, histone_list, data1, data2, dtype):
         return Rdf, Pdf
     
     
-def tissue_analysis(dictionary, common_cellline, histone_list, gene_list, 
+def tissue_analysis(cell_line_dict, common_cellline, histone_list, gene_list, 
                     data1, data2, tissue_type ):
     """ This function is only necessary if you would like to perform some basic 
     tissue analysis on data. The dictionary input should be a dictionary which 
@@ -311,7 +325,7 @@ def tissue_analysis(dictionary, common_cellline, histone_list, gene_list,
     between the two data sets. 
     
     Both data inputs should be dataframes created from the pearson_dfs
-    function and the name will correspond to the type of tissue wishing 
+    function and the tissue_type will correspond to the type of tissue wishing 
     to be analyzed. The output is a dataframe which can be graphed.
     
     This may not give you the best idea of tissue analysis as most datasets 
@@ -319,7 +333,7 @@ def tissue_analysis(dictionary, common_cellline, histone_list, gene_list,
     
     
     INPUT
-        dictionary: dictionary of cell lines and corresponding tissue
+        cell_line_dict: dictionary of cell lines and corresponding tissue
         common_cellline: list of cell lines both data sets have in common
         histone_list: list of histone markers wishing to be used
         gene_list: list of genes wishing to be used
@@ -335,7 +349,7 @@ def tissue_analysis(dictionary, common_cellline, histone_list, gene_list,
     df1 = data1.copy()
     df2 = data2.copy()
     for celllines in common_cellline:
-        if dictionary[celllines] != tissue_type:
+        if cell_line_dict[celllines] != tissue_type:
             del df1[celllines]
             del df2[celllines]
     matrix = pearson_dfs(gene_list, histone_list, df1, df2, 'numpy')[0]
