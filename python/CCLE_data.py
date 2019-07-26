@@ -3,7 +3,7 @@
 """
 Created on Thu Jun 20 12:10:43 2019
 
-@author: marcdimeo
+@author: Marc Di Meo
 """
 
 """

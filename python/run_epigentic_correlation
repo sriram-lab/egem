@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jul 25 18:54:15 2019
+
+@author: marcdimeo
+"""
+import scipy.io as spio 
+import histone_utility
+import numpy as np
+import pandas as pd
+
+"""
+CODE TO GET CCLE NORMALIZED
+"""
+
+df1 = histone_utility.read_csv_df("./../../../CCLE_RNAseq_rsem_genes_tpm_20180929.txt")
+df1 = histone_utility.column_remove(df1, ['transcript_ids'])
+
+gene_id_list = []
+
+for gene_id in df1['gene_id']:
+    gene_id = gene_id.split('.')
+    gene_id_list.append(gene_id[0])
+    
+df1['gene_id'] = gene_id_list
+
+ginfo = histone_utility.gene_converstion(df1['gene_id'], 'ensembl.gene', 'symbol', 'human')
+
+# Remove any repeated gene_ids from ginfo.
+# In this case there is a repeat at 30544.
+ginfo.pop(30544)
+
+gene = histone_utility.gene_symbols(ginfo)
+
+# Format the my df to my liking based on the gene names.
+df1['gene_id'] = gene
+df1.rename(columns={'gene_id' : 'Gene'}, inplace = True)
+
+# Retrieve the tissue dictionary in case you need it.
+tissue_dictionary, cellline_list = histone_utility.tissue_dict(df1)
+
+# Normalize the expression results
+df1_normalized = histone_utility.normalize(df1, 'Gene', cellline_list)
+
+"""
+CODE TO GET H3 NORMALIZED
+"""
+
+histone_utility.change_filepath('/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/matlab/new_var')
+
+df2_celllines = np.array(spio.loadmat('correlation_value', squeeze_me=True)["h3_ccle_names_python"])
+df2_celllines = df2_celllines.tolist()
+df2_markers =   list(dict.fromkeys(spio.loadmat('correlation_value', squeeze_me=True)["h3_marks_python"]))
+df2_expression = spio.loadmat('h3_relval', squeeze_me=True)["h3_relval"]
+
+# Create the dataframe.
+df2 = pd.DataFrame(df2_expression)
+df2 = df2.T
+df2.insert(0, 'Histone', df2_markers, True)
+df2.columns = ['Histone'] + df2_celllines
+
+df2_normalized = histone_utility.normalize(df2, 'Histone', df2_celllines)
+
+"""
+CODE TO GET LEROY AS DATAFRAME
+"""
+histone_utility.change_filepath('/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/matlab/vars')
+
+df3_celllines =  spio.loadmat('supplementary_software_code', squeeze_me=True)["acetlevellist"]
+df3_celllines = df3_celllines.tolist()
+df3_markers = spio.loadmat('methylation_proteomics_validation_data', squeeze_me=True)["acet_meth_list_rowlab"]
+df3_markers = df3_markers.tolist()
+df3_expression=  spio.loadmat('hist_proteomics', squeeze_me=True)["acet_meth_listval"]
+
+# Slight formating to keep the H3 and LeRoy data consistant 
+# by making sure the histones are represented the same.
+i = 0
+for markers in df3_markers:
+    df3_markers[i] = "H3" + markers
+    i=i+1
+    
+i = 0
+for markers in df3_markers:
+    if 'un' in markers:
+        df3_markers[i] = markers.replace('un', 'ac0')
+    if 'ac' in markers:
+        df3_markers[i] = markers.replace('ac', 'ac1')
+    i = i+1
+ 
+# Create the dataframe.
+df3 = pd.DataFrame(df3_expression)
+df3.insert(0, 'Histones', df3_markers , True)
+df3 = df3_expression.set_index('Histones')
+df3.columns = df3_celllines
+# This is already normalized.
+
+
