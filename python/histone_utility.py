@@ -53,8 +53,7 @@ def remove_columns(data, list_columns):
         
     """
     
-    for columns in list_columns:
-        del data[columns]
+    data = data.drop(columns, axis=1)
     return data
 
 
