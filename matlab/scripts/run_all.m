@@ -149,7 +149,7 @@ model = eGEM;
 load('./../vars/metabolites.mat')
 histone_rxns_only = metabolites(3:6, :);
 [~, medium] = xlsfinfo('./../../data/uptake.xlsx');
-medium_of_interest = medium(:, 3:end);
+medium_of_interest = medium(:, 1:5);
 
 % Optimization 1: Run Single reaction activity (SRA)
 epsilon2 = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 0.1, 1];
@@ -235,22 +235,14 @@ load ./../vars/LeRoy_histOnly_epsilon.mat
 for med = 1:length(medium_of_interest)
     disp(medium_of_interest(med))
     
-    % Run all without competition for histone reactions
-    str =  strcat("[fba_", lower(medium_of_interest(med)),"histOnly_noComp]", ...
-        "= metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
-        lower(medium_of_interest(med)), ", 'zscore', 'no_competition',", ...
-        "medium_of_interest(med), []);");
-    eval(str)
-
-    % Run all w/ competition for histone reactions
-    str =  strcat("[fba_", lower(medium_of_interest(med)),"histOnly_comp",
-        "] = metabolic_sensitivity(model, histone_rxns_only, 'n', epsilon2_", ...
-        lower(medium_of_interest(med)), ", 'zscore', 'competition',", ...
-        "medium_of_interest(med), []);"); 
+    % Run all with competition for histone reactions
+    str =  strcat("[fba_", lower(medium_of_interest(med)),"_histOnly_comp]", ...
+        " = metabolic_sensitivity(model, histone_rxns_only, LeRoy_histOnly_epsilon.", medium_of_interest(med), ...
+        ", 'competition', medium_of_interest(med), [], 'normoxic');");
     eval(str)
     
     str = strcat("plot_heatmap(fba_", lower(medium_of_interest(med)), ...
-        "_comp, histone_rxns_only, 'competition', 'comp', medium_of_interest(med))");
+        "_histOnly_comp, histone_rxns_only, 'competition', 'comp', medium_of_interest(med))");
     eval(str)
 end
 
@@ -297,11 +289,11 @@ histone_rxns_only = metabolites(2:5, :);
 % All reactions
 % LeRoy et al., proteomics dataset
 [LeRoy_fva_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'fva', 'LeRoy', 100, 'all');
+    1, 1E-3, 1, 1E-3, 0, 'fva', 'LeRoy', 100);
 [LeRoy_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', [], 'all');
+    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', []);
 [LeRoy_no_competition_statistics] = histone_corr(model, metabolites, LeRoy_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', [], 'all');
+    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', []);
 
 % Plot the heatmaps for LeRoy et al.,
 plot_heatmap(LeRoy_fva_statistics, [], 'correlation', [], [], 'fva');
@@ -333,11 +325,11 @@ plot_heatmap(CCLE_no_competition_statistics, [], 'pval', [], [], 'noComp');
 % Histone reactions only
 % LeRoy et al., proteomics dataset
 [LeRoy_histOnly_fva_statistics] = histone_corr(model, histone_rxns_only, LeRoy_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'fva', 'LeRoy', 100, 'hist');
+    [], [], [], [], [], 'fva', 'LeRoy', 100);
 [LeRoy_histOnly_competition_statistics] = histone_corr(model, histone_rxns_only, LeRoy_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', [], 'hist');
+    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'LeRoy', []);
 [LeRoy_histOnly_no_competition_statistics] = histone_corr(model, histone_rxns_only, LeRoy_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', [], 'hist');
+    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'LeRoy', []);
 
 % Plot the heatmaps for LeRoy et al.,
 plot_heatmap(LeRoy_histOnly_fva_statistics, [], 'correlation', [], [], 'fva_histOnly');
@@ -350,11 +342,11 @@ plot_heatmap(LeRoy_histOnly_no_competition_statistics, [], 'pval', [], [], 'noCo
 
 % CCLE proteomics dataset
 [CCLE_histOnly_fva_statistics] = histone_corr(model, histone_rxns_only, CCLE_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'fva', 'CCLE', 100, 'hist');
+    1, 1E-3, 1, 1E-3, 0, 'fva', 'CCLE', 100);
 [CCLE_histOnly_competition_statistics] = histone_corr(model, histone_rxns_only, CCLE_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'CCLE', [], 'hist');
+    1, 1E-3, 1, 1E-3, 0, 'competitive_cfr', 'CCLE', []);
 [CCLE_histOnly_no_competition_statistics] = histone_corr(model, histone_rxns_only, CCLE_histOnly_epsilon, ...
-    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', [], 'hist');
+    1, 1E-3, 1, 1E-3, 0, 'non-competitive_cfr', 'CCLE', []);
 
 % Plot the heatmaps for CCLE dataset
 plot_heatmap(CCLE_histOnly_fva_statistics, [], 'correlation', [], [], 'fva_histOnly');
