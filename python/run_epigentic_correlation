@@ -9,14 +9,14 @@ import scipy.io as spio
 import histone_utility
 import numpy as np
 import pandas as pd
-import vis
+#import vis
 
 """
 CODE TO GET CCLE NORMALIZED
 """
 
 df1 = histone_utility.read_csv_df("./../../../CCLE_RNAseq_rsem_genes_tpm_20180929.txt")
-df1 = histone_utility.remove_columns(df1, ['transcript_ids'])
+df1 = histone_utility.remove_columns(df1, 'transcript_ids')
 
 gene_id_list = []
 
@@ -39,7 +39,7 @@ df1['gene_id'] = gene
 df1.rename(columns={'gene_id' : 'Gene'}, inplace = True)
 
 # Retrieve the tissue dictionary in case you need it.
-tissue_dictionary, cellline_list = histone_utility.tissue_dict(df1)
+tissue_dictionary, cellline_list, cell_df = histone_utility.tissue_dict(df1)
 
 # Normalize the expression results
 df1_normalized = histone_utility.normalize(df1, 'Gene', cellline_list)
@@ -156,8 +156,9 @@ for genes in recon1_list:
     genes = genes.split('_')
     recon1_list[i] = genes[0]
     i = i+1
-    
-recon1info = histone_utility.gene_conversion(recon1_list, 'entrezgenes', 'symbol', 'human')
+
+
+recon1info = histone_utility.gene_conversion(recon1_list, 'entrezgene', 'symbol', 'human')
 
 recon1_list = []
 for entry in recon1info:
@@ -166,56 +167,65 @@ for entry in recon1info:
     else:
         pass
     
+recon1_list = pd.DataFrame(recon1_list)
+
+    
 recon1_list = histone_utility.remove_duplicate_entries(recon1_list)
-recon1_list = histone_utility.common(gene, recon1_list)
+recon1_list = recon1_list.values.tolist()
+recon1_genes =[]
+for entry in recon1_list:
+    for item in entry:
+        recon1_genes.append(item)
+
+recon1_genes = histone_utility.common(gene, recon1_genes)
     
 """
 LEROY AND CCLE WITH RECON1 GENES
 """
 
-leroy_ccle_r1 = histone_utility.pearson_dfs(recon1_list, df3_markers, 
+leroy_ccle_r1 = histone_utility.pearson_dfs(recon1_genes, df3_markers, 
                                             df13, df31, 'df')[0]
 
 """
 TISSUE ANALYSIS: Only run if you have to it takes a very long time approx 2 hours
 """
 
-#cellline_tissue = cell_df.values
-#tissue_dict ={}
-#for data in cellline_tissue:
-#    tissue_dict[data[0]] = data[1]
-#
-#
-#h3_ccle_lung = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LUNG')
-#h3_ccle_ovary = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OVARY')
-#h3_ccle_li = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LARGE INTESTINE')
-#h3_ccle_cns = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'CENTRAL NERVOUS SYSTEM')
-#h3_ccle_hlt = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'HAEMATOPOIETIC AND LYMPHOID TISSUE')
-#h3_ccle_pancreas = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PANCREAS')
-#h3_ccle_uat =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'UPPER AERODIGESTIVE TRACT')
-#h3_ccle_breast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BREAST')
-#h3_ccle_prostate =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PROSTATE')
-#h3_ccle_stomach =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'STOMACH')
-#h3_ccle_endometrium =   TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'ENDOMETRIUM')
-#h3_ccle_bone =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BONE')
-#h3_ccle_skin = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SKIN')
-#h3_ccle_liver =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'LIVER')
-#h3_ccle_fibroblast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'FIBROBLAST')
-#h3_ccle_st =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'SOFT TISSUE')
-#h3_ccle_bt=  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,  'BILIARY TRACT')
-#h3_ccle_ag = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'AUTONOMIC GANGLIA')
-#h3_ccle_pleura = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'PLEURA')
-#h3_ccle_ut = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'URINARY TRACT')
-#h3_ccle_kidney = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'KIDNEY')
-#h3_ccle_oesophagus =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OESOPHAGUS')
-#h3_ccle_thyroid = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'THYROID')
-#h3_ccle_sg = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SALIVARY GLAND')
+cellline_tissue = cell_df.values
+tissue_dict ={}
+for data in cellline_tissue:
+    tissue_dict[data[0]] = data[1]
+
+
+h3_ccle_lung = histone_utility.tissue_analysis(tissue_dict, h3_ccle_cellline, df2_markers, recon1_genes, df12, df21,'LUNG')
+#h3_ccle_ovary = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OVARY')
+#h3_ccle_li = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LARGE INTESTINE')
+#h3_ccle_cns = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'CENTRAL NERVOUS SYSTEM')
+#h3_ccle_hlt = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'HAEMATOPOIETIC AND LYMPHOID TISSUE')
+#h3_ccle_pancreas = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PANCREAS')
+#h3_ccle_uat =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'UPPER AERODIGESTIVE TRACT')
+#h3_ccle_breast =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BREAST')
+#h3_ccle_prostate =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PROSTATE')
+#h3_ccle_stomach =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'STOMACH')
+#h3_ccle_endometrium =   histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'ENDOMETRIUM')
+#h3_ccle_bone =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BONE')
+#h3_ccle_skin = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SKIN')
+#h3_ccle_liver =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'LIVER')
+#h3_ccle_fibroblast =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'FIBROBLAST')
+#h3_ccle_st = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'SOFT TISSUE')
+#h3_ccle_bt=  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,  'BILIARY TRACT')
+#h3_ccle_ag = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'AUTONOMIC GANGLIA')
+#h3_ccle_pleura = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'PLEURA')
+#h3_ccle_ut = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'URINARY TRACT')
+#h3_ccle_kidney = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'KIDNEY')
+#h3_ccle_oesophagus =  histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OESOPHAGUS')
+#h3_ccle_thyroid = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'THYROID')
+#h3_ccle_sg = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SALIVARY GLAND')
 
 """
 VISUALIZING
 """
 
-vis.plotlyheat(h3_ccle, None, 'H3 and CCLE Data', df2_markers, kegg_genes)
-vis.plotlyheat(leroy_ccle, None, 'LeRoy and CCLE Data', df3_markers, kegg_genes)
-vis.plotlyheat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes', df3_markers, recon1_list)
+#vis.plotlyheat(h3_ccle, None, 'H3 and CCLE Data', df2_markers, kegg_genes)
+#vis.plotlyheat(leroy_ccle, None, 'LeRoy and CCLE Data', df3_markers, kegg_genes)
+#vis.plotlyheat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes', df3_markers, recon1_genes)
 

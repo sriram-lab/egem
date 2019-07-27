@@ -41,12 +41,12 @@ def change_filepath(path):
     
     os.chdir(path)  
 
-def remove_columns(data, list_columns):    
+def remove_columns(data, columns):    
     """Remove unnecssary dataframe columns
     
     INPUT
         data: dataframe with unnecessary columns
-        list_columns: list of columns to remove from the dataframe
+        columns: columns to remove from the dataframe
     
     OUTPUT
         data: dataframe without the columns you wished to remove
@@ -57,21 +57,18 @@ def remove_columns(data, list_columns):
     return data
 
 
-def remove_duplicate_entries(items_to_remove): 
-    """This function will remove duplicated elements from a list
+def remove_duplicate_entries(df_to_remove): 
+    """This function will remove duplicated elements from a dataframe
     
     INPUT
-        list_of_items: list which you would like to remove any duplicated items
+        df_to_remove: df which you would like to remove any duplicated items
     
     OUTPUT
-        final_list: list with no repeating elements
+        final_df: list with no repeating elements
         
     """
-    final_list = [] 
-    for num in items_to_remove: 
-        if num not in items_to_remove: 
-            final_list.append(num) 
-    return final_list
+    final_df = df_to_remove.drop_duplicates()  
+    return final_df
 
 
 def gene_conversion(gene_list, scopes, fields, species):
@@ -158,6 +155,7 @@ def tissue_dict(df):
     OUTPUT
         tissue_dict: dictionary of cell line and corresponding tissue
         cellline_list: list of cell lines in the dataframe
+        cell_df: dataframe of cell line and corresponding tissue
         
     """
     celllines = list(df)
@@ -179,7 +177,7 @@ def tissue_dict(df):
     tissue_dict ={}
     for data in cellline_tissue:
         tissue_dict[data[0]] = data[1]
-    return tissue_dict, cellline_list
+    return tissue_dict, cellline_list, cell_df
 
 
 def normalize(df, delete_column, cell_list):
@@ -286,11 +284,14 @@ def pearson_dfs(gene_list, histone_list, gene_data, histone_data, dtype):
     Pmat = Rmat[:]
     i = 0 
     
+    
+    gene_data = gene_data.fillna(method='ffill')
+    histone_data = histone_data.fillna(method='ffill')
     for gene in gene_list:
         j = 0
         for histone in histone_list:
-            gene_data.loc[gene] = gene_data.loc[gene].fillna(method='ffill')
-            histone_data.loc[histone] = histone_data.loc[histone].fillna(method='ffill')
+#            gene_data.loc[gene] = gene_data.loc[gene].fillna(method='ffill')
+#            histone_data.loc[histone] = histone_data.loc[histone].fillna(method='ffill')
             correlation = pearsonr(gene_data.loc[gene], histone_data.loc[histone])
             Rmat[i][j] = correlation[0]
             Pmat[i][j]
@@ -347,6 +348,7 @@ def tissue_analysis(cell_line_dict, common_cellline, histone_list, gene_list,
     
     df1 = data1.copy()
     df2 = data2.copy()
+    
     for celllines in common_cellline:
         if cell_line_dict[celllines] != tissue_type:
             del df1[celllines]

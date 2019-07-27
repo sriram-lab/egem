@@ -511,8 +511,8 @@ FULL HISTONE ANALYSIS
 GRAPHING
 """
 
-#Heatmap(h3_ccle_matrix, search, (12,12), 'Blues', 'H3 and CCLE Correlation Plot')
-#Heatmap(leroy_ccle_matrix, search, (12,12), 'Blues', 'LeRoy and CCLE Correlation Plot')
+Heatmap(h3_ccle_matrix, search, (12,12), 'RdBu', 'H3 and CCLE Correlation Plot')
+Heatmap(leroy_ccle_matrix, search, (12,12), 'RdBu', 'LeRoy and CCLE Correlation Plot')
 #Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
 #Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
 #Heatmap(h3_ccle_oesophagus, search, (12,12), 'Blues', 'Oesophagus Correlation Data')
