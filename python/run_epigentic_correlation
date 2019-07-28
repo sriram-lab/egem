@@ -195,8 +195,7 @@ tissue_dict ={}
 for data in cellline_tissue:
     tissue_dict[data[0]] = data[1]
 
-
-h3_ccle_lung = histone_utility.tissue_analysis(tissue_dict, h3_ccle_cellline, df2_markers, recon1_genes, df12, df21,'LUNG')
+h3_ccle_lung = histone_utility.tissue_analysis(cell_df, h3_ccle_cellline, df2_markers, recon1_genes, df12, df21,'LUNG')
 #h3_ccle_ovary = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OVARY')
 #h3_ccle_li = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LARGE INTESTINE')
 #h3_ccle_cns = histone_utility.TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'CENTRAL NERVOUS SYSTEM')
@@ -225,7 +224,7 @@ h3_ccle_lung = histone_utility.tissue_analysis(tissue_dict, h3_ccle_cellline, df
 VISUALIZING
 """
 
-#vis.plotlyheat(h3_ccle, None, 'H3 and CCLE Data', df2_markers, kegg_genes)
-#vis.plotlyheat(leroy_ccle, None, 'LeRoy and CCLE Data', df3_markers, kegg_genes)
+plotlyheat(h3_ccle, None, 'H3 and CCLE Data', df2_markers, kegg_genes)
+plotlyheat(leroy_ccle, None, 'LeRoy and CCLE Data', df3_markers, kegg_genes)
 #vis.plotlyheat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes', df3_markers, recon1_genes)
 

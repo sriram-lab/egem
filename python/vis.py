@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 import seaborn as sns
 
-import plotly.plotly as py
+import chart_studio.plotly as py
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 import plotly.io as pio

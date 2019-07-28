@@ -315,7 +315,7 @@ def pearson_dfs(gene_list, histone_list, gene_data, histone_data, dtype):
         return Rdf, Pdf
     
     
-def tissue_analysis(cell_line_dict, common_cellline, histone_list, gene_list, 
+def tissue_analysis(cell_df, common_cellline, histone_list, gene_list, 
                     data1, data2, tissue_type ):
     """ This function is only necessary if you would like to perform some basic 
     tissue analysis on data. The dictionary input should be a dictionary which 
@@ -333,7 +333,7 @@ def tissue_analysis(cell_line_dict, common_cellline, histone_list, gene_list,
     
     
     INPUT
-        cell_line_dict: dictionary of cell lines and corresponding tissue
+        cell_df: dataframe created from tissue_dict function
         common_cellline: list of cell lines both data sets have in common
         histone_list: list of histone markers wishing to be used
         gene_list: list of genes wishing to be used
@@ -349,9 +349,18 @@ def tissue_analysis(cell_line_dict, common_cellline, histone_list, gene_list,
     df1 = data1.copy()
     df2 = data2.copy()
     
-    for celllines in common_cellline:
-        if cell_line_dict[celllines] != tissue_type:
-            del df1[celllines]
-            del df2[celllines]
-    matrix = pearson_dfs(gene_list, histone_list, df1, df2, 'numpy')[0]
+    cell_df = cell_df.T
+    tissuelist = cell_df.loc['Tissue'].tolist()
+    cell_df.columns = tissuelist
+    cell_df = cell_df.drop(['Tissue'])
+    tissuelist = list(dict.fromkeys(tissuelist))
+    tissuelist.remove(tissue_type)
+    tissuedf = cell_df.drop(tissuelist, axis= 1)
+    celllinelist = tissuedf.loc['Celllines'].tolist()
+    celllinelist = common(celllinelist, common_cellline)
+
+    tissue_matrix1 = pd.DataFrame(df1[celllinelist])
+    tissue_matrix2 = pd.DataFrame(df2[celllinelist])
+    
+    matrix = pearson_dfs(gene_list, histone_list, tissue_matrix1, tissue_matrix2, 'numpy')[0]
     return matrix
