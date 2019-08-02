@@ -42,14 +42,140 @@ def extract():
     Extract will get the medium conditions that were used for the CCLE histone proteomics paper to grow the cells and classify them to simpler medium conditions. The result will be outputted as a table.
     """
 
-    # Basic data clean up
-    df = pd.read_csv(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/CCLE_GCP.csv')
+    df = pd.read_csv(r'./../data/CCLE_GCP.csv')
     df = df.drop('BroadID', axis=1)
 
-    media = pd.read_excel(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/summary.xlsx', sheet_name='Cell Line Annotations', usecols = ['CCLE_ID', 'Growth.Medium'])
+    media = pd.read_excel(r'./../data/summary.xlsx', sheet_name='Cell Line Annotations', usecols = ['CCLE_ID', 'Growth.Medium', 'Supplements'])
+    media["New_medium"] = media["Growth.Medium"] + ' + ' + media["Supplements"]
 
     df = pd.merge(df, media, left_on='CellLineName', right_on='CCLE_ID')
-    unqmed = df['Growth.Medium'].unique()
+    unqmed = df["New_medium"].unique()
+    #unqmed = media["New_medium"].unique()
+    unqmed = pd.DataFrame(unqmed)
+    unqmed[0] = unqmed[0].str.lower()
+    unqmed[0] = unqmed[0].str.replace(' ', '')
+    unqmed[0] = unqmed[0].str.replace('"', '')
+    unqmed[0] = unqmed[0].str.replace('\'', '')
+    unqmed[0] = unqmed[0].str.replace('(\d+)%fbs', '')
+    unqmed[0] = unqmed[0].str.replace('\+', '')
+    unqmed[0] = unqmed[0].str.replace('\-', '')
+    unqmed[0] = unqmed[0].str.replace('empty', '')
+    unqmed[0] = unqmed[0].str.replace('(\d+)nm', '')
+    unqmed[0] = unqmed[0].str.replace('(\d+)%', '')
+    unqmed[0] = unqmed[0].str.replace('(\d+)mg/', '')
+    unqmed[0] = unqmed[0].str.replace('withfetalbovineserum', '')
+    unqmed[0] = unqmed[0].str.replace('withfetalcalfserum', '')
+    unqmed[0] = unqmed[0].str.replace('withfetalcalfserum', '')
+    unqmed[0] = unqmed[0].str.replace('insulin', '')
+    unqmed[0] = unqmed[0].str.replace('transferrin', '')
+    unqmed[0] = unqmed[0].str.replace('sodiumselenite', '')
+    unqmed[0] = unqmed[0].str.replace('hydrocortisone', '')
+    unqmed[0] = unqmed[0].str.replace('betaestradiol', '')
+    unqmed[0] = unqmed[0].str.replace('hepes', '')
+    unqmed[0] = unqmed[0].str.replace('[\.,]', '')
+    unqmed[0] = unqmed[0].str.replace('ml', '')
+    unqmed[0] = unqmed[0].str.replace('ng', '')
+    unqmed[0] = unqmed[0].str.replace('ug', '')
+    unqmed[0] = unqmed[0].str.replace('methanolamine', '')
+    unqmed[0] = unqmed[0].str.replace('phosphorylethanolamine', '')
+    unqmed[0] = unqmed[0].str.replace('triiodothyronine', '')
+    unqmed[0] = unqmed[0].str.replace('bovineserumalbumin', '')
+    unqmed[0] = unqmed[0].str.replace('sodium', '')
+    unqmed[0] = unqmed[0].str.replace('1640', '')
+    unqmed[0] = unqmed[0].str.replace('fbs', '')
+    unqmed[0] = unqmed[0].str.replace('selenite', '')
+    unqmed[0] = unqmed[0].str.replace('mm', '')
+    unqmed[0] = unqmed[0].str.replace('/', '')
+    unqmed[0] = unqmed[0].str.replace('heatictivatedfetalbovineserum', '')
+    unqmed[0] = unqmed[0].str.replace('cisplatin', '')
+    unqmed[0] = unqmed[0].str.replace('seesheet', '')
+    unqmed[0] = unqmed[0].str.replace('plethora', '')
+    unqmed[0] = unqmed[0].str.replace('bovine', '')
+    unqmed[0] = unqmed[0].str.replace('fetalbovineserum', '')
+    unqmed[0] = unqmed[0].str.replace('waymouths', 'Waymouth')
+    unqmed[0] = unqmed[0].str.replace('l15', 'L15')
+    unqmed[0] = unqmed[0].str.replace('dmem:f12(1:1)', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('imdm', 'IMDM')
+    unqmed[0] = unqmed[0].str.replace('rpmi', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('dmem:hamsf12', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('neaa', '')
+    unqmed[0] = unqmed[0].str.replace('eaglesminimalessential', 'EMEM')
+    unqmed[0] = unqmed[0].str.replace('dulbeccosmodifiedeagles', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('hamsf12', 'F12')
+    unqmed[0] = unqmed[0].str.replace('hansf12', 'F12')
+    unqmed[0] = unqmed[0].str.replace('mccoys5a', 'McCoy5A')
+    unqmed[0] = unqmed[0].str.replace('25and25hco3', '')
+    unqmed[0] = unqmed[0].str.replace('(ordm160au)', '')
+    unqmed[0] = unqmed[0].str.replace('williamsemedium', 'Williams')
+    unqmed[0] = unqmed[0].str.replace('dme', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('dmem:f12', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('mediumwiyhfetalserum', '')
+    unqmed[0] = unqmed[0].str.replace('medium', '')
+    unqmed[0] = unqmed[0].str.replace('mediumrefercancerres42:3858(1982)forothermediumwithlowserumconcentratione', '')
+    unqmed[0] = unqmed[0].str.replace('mercaptoethanol', '')
+    unqmed[0] = unqmed[0].str.replace('with', '')
+    unqmed[0] = unqmed[0].str.replace('mediumwithcalfserum(fcscanbeused)', '')
+    unqmed[0] = unqmed[0].str.replace('glutamine', 'Gln')
+    unqmed[0] = unqmed[0].str.replace('hi2mGlnmemnonessentialaminoacids', '')
+    unqmed[0] = unqmed[0].str.replace('rphihi', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('dulbeccosmemiscovesmdmhi', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('alphamemhi', 'alphaMEM')
+    unqmed[0] = unqmed[0].str.replace('RPMI2humamcsf', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('glucose', 'Glc')
+    unqmed[0] = unqmed[0].str.replace('pyruvate', 'Pyr')
+    unqmed[0] = unqmed[0].str.replace('alphamem', 'alphaMEM')
+    unqmed[0] = unqmed[0].str.replace('dulbeccosmem', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('iscovesmdmhi', 'IMDM')
+    unqmed[0] = unqmed[0].str.replace('DMEMm:f12', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('hamf10', 'F10')
+    unqmed[0] = unqmed[0].str.replace('hamf12', 'F12')
+    unqmed[0] = unqmed[0].str.replace('egf', '')
+    unqmed[0] = unqmed[0].str.replace('epidermalgrowthfactor', '')
+    unqmed[0] = unqmed[0].str.replace('bicarbote', '')
+    unqmed[0] = unqmed[0].str.replace('hi', '')
+    unqmed[0] = unqmed[0].str.replace('refercancerres42:3858(1982)forotherlowserumconcentration', '')
+    unqmed[0] = unqmed[0].str.replace('emem', 'EMEM')
+    unqmed[0] = unqmed[0].str.replace('mccoy5a', 'McCoy5A')
+    unqmed[0] = unqmed[0].str.replace('Wayouth', 'Waymouth')
+    unqmed[0] = unqmed[0].str.replace('iscovesdorRPMI1l3(10)orgcsf(10)orvolconditioneDMEMdiuofcellline5637(dsacc35)', 'RPMI')
+    #unqmed[0] = unqmed[0].str.replace('alphaMEMvolconditioneDMEMdiuofcellline5637(dsacc35)(or10gcsf', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('puruvate', 'Pyr')
+    unqmed[0] = unqmed[0].str.replace('glutatone', 'GSH')
+    unqmed[0] = unqmed[0].str.replace('leibovitzsL15', 'L15')
+    unqmed[0] = unqmed[0].str.replace('hamsf10', 'F10')
+    unqmed[0] = unqmed[0].str.replace('f12', 'F12')
+    unqmed[0] = unqmed[0].str.replace('acl4', 'ACL4')
+    unqmed[0] = unqmed[0].str.replace('mcdb1051:1media199', 'MCDB105:M199(1:1)')
+    unqmed[0] = unqmed[0].str.replace('DMEMm', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('mem', 'MEM')
+    unqmed[0] = unqmed[0].str.replace('DMEMF12(1:1)', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('DMEM:f:12', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('dEMEM', 'DMEM')
+    unqmed[0] = unqmed[0].str.replace('(DMEM:F12=1:1)', 'DMEM:F12(1:1)')
+    unqmed[0] = unqmed[0].str.replace('mcdb105(1:1)199', 'MCDB105:M199(1:1)')
+    unqmed[0] = unqmed[0].str.replace('rpm', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('gmcsf', '')
+    unqmed[0] = unqmed[0].str.replace('iscovesmdmorRPMI1l3(10)or(10)orvolconditioneDMEMdiumofcellline5637(dsmacc35)', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('rpm', 'RPMI')
+    unqmed[0] = unqmed[0].str.replace('added5selenium', '')
+    unqmed[0] = unqmed[0].str.replace('adenosinetriphosphateaminoacids', '')
+    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
+    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
+    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
+    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
+
+
+
+
+
+
+
+    unqmed = unqmed[0].unique()
+    unqmed = pd.DataFrame(unqmed)
+
+
+    print(unqmed.head(30))
+    unqmed.to_csv('tmp.csv', index=False)
 
     to_remove = [
         ' +10%FBS',
@@ -157,6 +283,7 @@ def extract():
 
     rpmi = {}
     rpmi_syn = [
+        "Empty",
         "RPMI1640",
         "RPMI-1640",
         "RPMI 1640 medium",
@@ -178,18 +305,24 @@ def extract():
         "80% RPMI 1640 "<
         "90% RPMI",
         "90 % Iscove's MDMD or RPMI 1640",
+        "80-90% Iscove's MDM or RPMI 1640",
         "80-90% RPMI 1640",
         "90%RPMI 1640",
         "80-90% RPHI 1640",
         "RPI-1640",
         "80-90% RPHI 1640",
-        "RPMI-1640 +1 mM Sodium pyruvate",
         "80% RPMI 1640 ",
         "RPMI-1640  ",
         "RPMI-1640",
         "RPMI-1640 ",
     ]
     rpmi = get_media(rpmi, "RPMI", rpmi_syn)
+
+    rpmi_pyr = {}
+    rpmi_pyr_syn = [
+            "RPMI-1640 +1 mM Sodium pyruvate"
+    ]
+    rpmi_pyr = get_media(rpmi_pyr, "RPMIwPyr", rpmi_pyr_syn)
 
     rpmi_gln = {}
     rpmi_gln_syn = [
@@ -208,7 +341,6 @@ def extract():
         "HAMS F12 ",
         "F-12K  ATCC ",
         "F-12",
-        "HAM F-10"
     ]
     ham_f12 = get_media(ham_f12, "HAM F-12", ham_f12_syn)
 
@@ -216,7 +348,8 @@ def extract():
     ham_f10_syn = [
         "HamF10",
         "HAMSF10",
-        "Hams F10"
+        "Hams F10",
+        "HAM F-10"
     ]
     ham_f10 = get_media(ham_f10, "HAM F-10", ham_f10_syn)
 
@@ -237,28 +370,40 @@ def extract():
         "80% Dulbecco's MEM",
         "90% Dulbecco's MEM",
         "DEMEM",
-        "DMEM ",
-        "Eagle's minimal essential medium",
-        "Eagle's minimal essential",
-        "Eagle",
-        "MEM",
-        "EMEM",
-        "Eagle MEM",
-        "EMEM ",
+        "DMEM "
+    ]
+    dmem = get_media(dmem, "DMEM", dmem_syn)
+
+    dmem_w_glc = {}
+    dmem_w_glc_syn = [
         "80% Dulbecco's MEM(4.5g/L glucose)",
         "90% Dulbecco'sMEM(4.5g/l glucose)",
         "90% Dulbecco's MEM (4.5g/L glucose)",
         "90% Dulbecco's MEM(4.5 g/L glucose)",
-
     ]
-    dmem = get_media(dmem, "DMEM", dmem_syn)
+    dmem_w_glc = get_media(dmem_w_glc, "DMEMwGlc", dmem_w_glc_syn)
+
+    mem = {}
+    mem_syn = ["MEM"]
+    mem = get_media(mem, "MEM", mem_syn)
+
+    emem = {}
+    emem_syn = [
+        "Eagle's minimal essential medium",
+        "Eagle's minimal essential",
+        "Eagle",
+        "EMEM",
+        "Eagle MEM",
+        "EMEM ",
+    ]
+    emem = get_media(emem, "EMEM", emem_syn)
 
     mccoy = {}
     mccoy_syn = [
         "McCoy's 5A",
         "McCoy 5A"
     ]
-    mccoy = get_media(mccoy, "McCoy 5A", mccoy_syn)
+    mccoy = get_media(mccoy, "McCoy5A", mccoy_syn)
 
     dmem_f12_11 = {}
     dmem_f12_11_syn = [
@@ -275,14 +420,14 @@ def extract():
         "80% mixture of Ham's F12 + Dulbecco's MEM (at 1:1)",
         "DMEM:HAM's F12  1:1  "
     ]
-    dmem_f12_11 = get_media(dmem_f12_11, "DMEM:F12 (1:1)", dmem_f12_11_syn)
+    dmem_f12_11 = get_media(dmem_f12_11, "DMEM:F12(1:1)", dmem_f12_11_syn)
 
     dmem_rpmi_21 = {}
     dmem_rpmi_21_syn = [
         "2/3 DMEM:1/3 RPMI",
         "DMEM:RPMI (2:1)"
     ]
-    dmem_rpmi_21 = get_media(dmem_rpmi_21, "DMEM:RPMI (2:1)", dmem_rpmi_21_syn)
+    dmem_rpmi_21 = get_media(dmem_rpmi_21, "DMEM:RPMI(2:1)", dmem_rpmi_21_syn)
 
     mcdb_m199 = {}
     mcdb_m199_syn = [
@@ -290,29 +435,33 @@ def extract():
         "MCDB 105:MEDIUM 199 (1:1)",
         "MCDB 105 1:1 Media 199",
     ]
-    mcdb_m199 = get_media(mcdb_m199, "MCDB105:M199", mcdb_m199_syn)
+    mcdb_m199 = get_media(mcdb_m199, "MCDB105:M199(1:1)", mcdb_m199_syn)
 
-    rpmi_dmem_11= {}
-    rpmi_dmem_11_syn = [
+    rpmi_emem_11= {}
+    rpmi_emem_11_syn = [
         "RPMI:EMEM (1:1)",
         "RPMI:Eagles MEM",
         "RPM:MEM ",
         "RPMI:Eagles MEM"
     ]
-    rpmi_dmem_11 = get_media(rpmi_dmem_11, "RPMI:Eagles MEM", rpmi_dmem_11_syn)
+    rpmi_emem_11 = get_media(rpmi_emem_11, "RPMI:EMEM(1:1)", rpmi_emem_11_syn)
+
+    rpmi_mem_11= {}
+    rpmi_mem_11_syn = [
+        "RPM:MEM "
+    ]
+    rpmi_mem_11 = get_media(rpmi_mem_11, "RPMI:MEM(1:1)", rpmi_mem_11_syn)
 
     dmem_iscove = {}
     dmem_iscove_syn = [
         "40% Dulbecco's MEM +40% Iscove's MDM"
     ]
-    dmem_iscove = get_media(dmem_iscove, "DMEM:Iscove", dmem_iscove_syn)
+    dmem_iscove = get_media(dmem_iscove, "DMEM:IMEM(1:1)", dmem_iscove_syn)
 
     rpmi_iscove = {}
     rpmi_iscove_syn = [
-        "90 % Iscove's MDMD or RPMI 1640",
-        "80-90% Iscove's MDM or RPMI 1640"
     ]
-    rpmi_iscove = get_media(rpmi_iscove, "RPMI:Iscove", rpmi_iscove_syn)
+    rpmi_iscove = get_media(rpmi_iscove, "RPMI:IMEM(1:1)", rpmi_iscove_syn)
 
     iscove = {}
     iscove_syn = [
@@ -322,7 +471,7 @@ def extract():
         "IMDM",
         "IMDM "
     ]
-    iscove = get_media(iscove, "Iscove", iscove_syn)
+    iscove = get_media(iscove, "IMEM", iscove_syn)
 
     rpmi_f12 = {}
     rpmi_f12_syn = [
@@ -335,16 +484,21 @@ def extract():
         waymouth,
         l15,
         rpmi,
+        rpmi_pyr,
         rpmi_gln,
         ham_f12,
         ham_f10,
         aMEM,
         dmem,
+        dmem_w_glc,
+        mem,
+        emem,
         mccoy,
         dmem_f12_11,
         dmem_rpmi_21,
         mcdb_m199,
-        rpmi_dmem_11,
+        rpmi_emem_11,
+        rpmi_mem_11,
         dmem_iscove,
         rpmi_iscove,
         iscove,
@@ -363,27 +517,25 @@ def extract():
     #unqmed = unqmed.unique()
 
     # Print out a file for all corresponding medium to common identifiers (ccle_media.txt)
-    for medium in medium_map:
-        print(medium)
+    #for medium in medium_map:
+    #    print(medium)
 
-    #df['CellLineName'] = df['CellLineName'].str.split('_').str[0]
+    df['CellLineName'] = df['CellLineName'].str.split('_').str[0]
 
     # output everything for matlab
 
-    #df['CellLineName'].to_csv(r'/mnt/c/Users/scampit/Desktop/MeGEM/matlab/ccle_names.txt', header=False, index=False)
+    df['CellLineName'].to_csv(r'./../matlab/ccle_names.txt', header=False, index=False)
 
-    #_ = df.pop('CellLineName')
+    _ = df.pop('CellLineName')
 
-    #h3marks = df.columns.tolist()
+    h3marks = df.columns.tolist()
 
-    #with open(r'/mnt/c/Users/scampit/Desktop/MeGEM/matlab/ccle_h3marks2.txt', 'w') as f:
-    #    for i in h3marks:
-    #        print(i)
-    #        f.write("%s\n" % i)
+    with open(r'./../matlab/ccle_h3marks2.txt', 'w') as f:
+        for i in h3marks:
+            f.write("%s\n" % i)
 
-    #df.to_csv(r'/mnt/c/Users/scampit/Desktop/MeGEM/matlab/h3_relval.txt', header=False, index=False)
-
-#extract()
+    #df.to_csv(r'./../matlab/h3_relval.txt', header=False, index=False)
+extract()
 
 def make_medium_conditions():
     """
@@ -497,7 +649,7 @@ def make_medium_conditions():
         default_uptake.to_excel(writer, sheet_name=medium,index=True)
         writer.save()
 
-make_medium_conditions()
+#make_medium_conditions()
 
 def iterred(sheetnam=''):
     """
