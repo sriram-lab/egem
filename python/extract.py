@@ -13,7 +13,10 @@ The files created from this script:
 
 import numpy as np
 import pandas as pd
+from openpyxl import Workbook
 from openpyxl import load_workbook
+from itertools import chain
+import string
 
 def get_media(dictionary, key, lst):
     """
@@ -37,7 +40,7 @@ def mapper(dict, series):
         series[idx] = tmp
     return series
 
-def extract():
+def rename_medium_to_common_IDs():
     """
     Extract will get the medium conditions that were used for the CCLE histone proteomics paper to grow the cells and classify them to simpler medium conditions. The result will be outputted as a table.
     """
@@ -49,607 +52,457 @@ def extract():
     media["New_medium"] = media["Growth.Medium"] + ' + ' + media["Supplements"]
 
     df = pd.merge(df, media, left_on='CellLineName', right_on='CCLE_ID')
-    unqmed = df["New_medium"].unique()
-    #unqmed = media["New_medium"].unique()
-    unqmed = pd.DataFrame(unqmed)
-    unqmed[0] = unqmed[0].str.lower()
-    unqmed[0] = unqmed[0].str.replace(' ', '')
-    unqmed[0] = unqmed[0].str.replace('"', '')
-    unqmed[0] = unqmed[0].str.replace('\'', '')
-    unqmed[0] = unqmed[0].str.replace('(\d+)%fbs', '')
-    unqmed[0] = unqmed[0].str.replace('\+', '')
-    unqmed[0] = unqmed[0].str.replace('\-', '')
-    unqmed[0] = unqmed[0].str.replace('empty', '')
-    unqmed[0] = unqmed[0].str.replace('(\d+)nm', '')
-    unqmed[0] = unqmed[0].str.replace('(\d+)%', '')
-    unqmed[0] = unqmed[0].str.replace('(\d+)mg/', '')
-    unqmed[0] = unqmed[0].str.replace('withfetalbovineserum', '')
-    unqmed[0] = unqmed[0].str.replace('withfetalcalfserum', '')
-    unqmed[0] = unqmed[0].str.replace('withfetalcalfserum', '')
-    unqmed[0] = unqmed[0].str.replace('insulin', '')
-    unqmed[0] = unqmed[0].str.replace('transferrin', '')
-    unqmed[0] = unqmed[0].str.replace('sodiumselenite', '')
-    unqmed[0] = unqmed[0].str.replace('hydrocortisone', '')
-    unqmed[0] = unqmed[0].str.replace('betaestradiol', '')
-    unqmed[0] = unqmed[0].str.replace('hepes', '')
-    unqmed[0] = unqmed[0].str.replace('[\.,]', '')
-    unqmed[0] = unqmed[0].str.replace('ml', '')
-    unqmed[0] = unqmed[0].str.replace('ng', '')
-    unqmed[0] = unqmed[0].str.replace('ug', '')
-    unqmed[0] = unqmed[0].str.replace('methanolamine', '')
-    unqmed[0] = unqmed[0].str.replace('phosphorylethanolamine', '')
-    unqmed[0] = unqmed[0].str.replace('triiodothyronine', '')
-    unqmed[0] = unqmed[0].str.replace('bovineserumalbumin', '')
-    unqmed[0] = unqmed[0].str.replace('sodium', '')
-    unqmed[0] = unqmed[0].str.replace('1640', '')
-    unqmed[0] = unqmed[0].str.replace('fbs', '')
-    unqmed[0] = unqmed[0].str.replace('selenite', '')
-    unqmed[0] = unqmed[0].str.replace('mm', '')
-    unqmed[0] = unqmed[0].str.replace('/', '')
-    unqmed[0] = unqmed[0].str.replace('heatictivatedfetalbovineserum', '')
-    unqmed[0] = unqmed[0].str.replace('cisplatin', '')
-    unqmed[0] = unqmed[0].str.replace('seesheet', '')
-    unqmed[0] = unqmed[0].str.replace('plethora', '')
-    unqmed[0] = unqmed[0].str.replace('bovine', '')
-    unqmed[0] = unqmed[0].str.replace('fetalbovineserum', '')
-    unqmed[0] = unqmed[0].str.replace('waymouths', 'Waymouth')
-    unqmed[0] = unqmed[0].str.replace('l15', 'L15')
-    unqmed[0] = unqmed[0].str.replace('dmem:f12(1:1)', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('imdm', 'IMDM')
-    unqmed[0] = unqmed[0].str.replace('rpmi', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('dmem:hamsf12', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('neaa', '')
-    unqmed[0] = unqmed[0].str.replace('eaglesminimalessential', 'EMEM')
-    unqmed[0] = unqmed[0].str.replace('dulbeccosmodifiedeagles', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('hamsf12', 'F12')
-    unqmed[0] = unqmed[0].str.replace('hansf12', 'F12')
-    unqmed[0] = unqmed[0].str.replace('mccoys5a', 'McCoy5A')
-    unqmed[0] = unqmed[0].str.replace('25and25hco3', '')
-    unqmed[0] = unqmed[0].str.replace('(ordm160au)', '')
-    unqmed[0] = unqmed[0].str.replace('williamsemedium', 'Williams')
-    unqmed[0] = unqmed[0].str.replace('dme', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('dmem:f12', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('mediumwiyhfetalserum', '')
-    unqmed[0] = unqmed[0].str.replace('medium', '')
-    unqmed[0] = unqmed[0].str.replace('mediumrefercancerres42:3858(1982)forothermediumwithlowserumconcentratione', '')
-    unqmed[0] = unqmed[0].str.replace('mercaptoethanol', '')
-    unqmed[0] = unqmed[0].str.replace('with', '')
-    unqmed[0] = unqmed[0].str.replace('mediumwithcalfserum(fcscanbeused)', '')
-    unqmed[0] = unqmed[0].str.replace('glutamine', 'Gln')
-    unqmed[0] = unqmed[0].str.replace('hi2mGlnmemnonessentialaminoacids', '')
-    unqmed[0] = unqmed[0].str.replace('rphihi', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('dulbeccosmemiscovesmdmhi', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('alphamemhi', 'alphaMEM')
-    unqmed[0] = unqmed[0].str.replace('RPMI2humamcsf', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('glucose', 'Glc')
-    unqmed[0] = unqmed[0].str.replace('pyruvate', 'Pyr')
-    unqmed[0] = unqmed[0].str.replace('alphamem', 'alphaMEM')
-    unqmed[0] = unqmed[0].str.replace('dulbeccosmem', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('iscovesmdmhi', 'IMDM')
-    unqmed[0] = unqmed[0].str.replace('DMEMm:f12', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('hamf10', 'F10')
-    unqmed[0] = unqmed[0].str.replace('hamf12', 'F12')
-    unqmed[0] = unqmed[0].str.replace('egf', '')
-    unqmed[0] = unqmed[0].str.replace('epidermalgrowthfactor', '')
-    unqmed[0] = unqmed[0].str.replace('bicarbote', '')
-    unqmed[0] = unqmed[0].str.replace('hi', '')
-    unqmed[0] = unqmed[0].str.replace('refercancerres42:3858(1982)forotherlowserumconcentration', '')
-    unqmed[0] = unqmed[0].str.replace('emem', 'EMEM')
-    unqmed[0] = unqmed[0].str.replace('mccoy5a', 'McCoy5A')
-    unqmed[0] = unqmed[0].str.replace('Wayouth', 'Waymouth')
-    unqmed[0] = unqmed[0].str.replace('iscovesdorRPMI1l3(10)orgcsf(10)orvolconditioneDMEMdiuofcellline5637(dsacc35)', 'RPMI')
-    #unqmed[0] = unqmed[0].str.replace('alphaMEMvolconditioneDMEMdiuofcellline5637(dsacc35)(or10gcsf', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('puruvate', 'Pyr')
-    unqmed[0] = unqmed[0].str.replace('glutatone', 'GSH')
-    unqmed[0] = unqmed[0].str.replace('leibovitzsL15', 'L15')
-    unqmed[0] = unqmed[0].str.replace('hamsf10', 'F10')
-    unqmed[0] = unqmed[0].str.replace('f12', 'F12')
-    unqmed[0] = unqmed[0].str.replace('acl4', 'ACL4')
-    unqmed[0] = unqmed[0].str.replace('mcdb1051:1media199', 'MCDB105:M199(1:1)')
-    unqmed[0] = unqmed[0].str.replace('DMEMm', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('mem', 'MEM')
-    unqmed[0] = unqmed[0].str.replace('DMEMF12(1:1)', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('DMEM:f:12', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('dEMEM', 'DMEM')
-    unqmed[0] = unqmed[0].str.replace('(DMEM:F12=1:1)', 'DMEM:F12(1:1)')
-    unqmed[0] = unqmed[0].str.replace('mcdb105(1:1)199', 'MCDB105:M199(1:1)')
-    unqmed[0] = unqmed[0].str.replace('rpm', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('gmcsf', '')
-    unqmed[0] = unqmed[0].str.replace('iscovesmdmorRPMI1l3(10)or(10)orvolconditioneDMEMdiumofcellline5637(dsmacc35)', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('rpm', 'RPMI')
-    unqmed[0] = unqmed[0].str.replace('added5selenium', '')
-    unqmed[0] = unqmed[0].str.replace('adenosinetriphosphateaminoacids', '')
-    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
-    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
-    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
-    unqmed[0] = unqmed[0].str.replace('selentitesupplement', '')
+
+    # Regex to remove
+    df["New_medium"] = df["New_medium"].str.lower()
+    df["New_medium"] = df["New_medium"].str.replace(' ', '')
+    df["New_medium"] = df["New_medium"].str.replace('\"\"', '', regex=True)
+    df["New_medium"] = df["New_medium"].str.replace('\"', '', regex=True)
+    df["New_medium"] = df["New_medium"].str.replace(',', '')
+    df["New_medium"] = df["New_medium"].str.replace('%', '')
+    df["New_medium"] = df["New_medium"].str.replace('\+', '')
+    df["New_medium"] = df["New_medium"].str.replace('\/+', '')
+    df["New_medium"] = df["New_medium"].str.replace('\.+', '')
+    df["New_medium"] = df["New_medium"].str.replace('\([^)]*\)', '')
+    df["New_medium"] = df["New_medium"].str.replace('\(', '')
+    df["New_medium"] = df["New_medium"].str.replace("'", '')
+    df["New_medium"] = df["New_medium"].str.replace("-", '')
+    df["New_medium"] = df["New_medium"].str.replace("^", '')
+    df["New_medium"] = df["New_medium"].str.replace(";", '')
+    df["New_medium"] = df["New_medium"].str.replace(":", '')
+
+    # Transform once
+    df["New_medium"] = df["New_medium"].str.replace('rpm', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('waymouths', 'WAYMOUTH')
+    df["New_medium"] = df["New_medium"].str.replace('l15', 'LFIFTEEN')
+    df["New_medium"] = df["New_medium"].str.replace('dmem:f12(1:1)', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('imdm', 'IMDM')
+    df["New_medium"] = df["New_medium"].str.replace('rpmi', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('f-12katcc', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIi-1640', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('mcdb105(1:1)medium199', 'MCDB105:M199(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('dmem:hamsf12', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('eaglesminimalessential', 'EMEM')
+    df["New_medium"] = df["New_medium"].str.replace('dulbeccosmodifiedeagles', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('hamsf12', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('hansf12', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('mccoys5a', 'MCCOY5A')
+    df["New_medium"] = df["New_medium"].str.replace('williamsemedium', 'WILLIAMS')
+    df["New_medium"] = df["New_medium"].str.replace('dme', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('dmem:f12', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('rphihi', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace("dulbeccosmemiscovesmdmhi", 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('alphamemhi', 'ALPHAMEM')
+    df["New_medium"] = df["New_medium"].str.replace('RPMI2humamcsf', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('glucose', 'GLC')
+    df["New_medium"] = df["New_medium"].str.replace('pyruvate', 'PYR')
+    df["New_medium"] = df["New_medium"].str.replace('glutathione', 'GSH')
+    df["New_medium"] = df["New_medium"].str.replace('alphamem', 'ALPHAMEM')
+    df["New_medium"] = df["New_medium"].str.replace('dulbeccosmem', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('iscovesmdmhi', 'IMDM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMm:f12', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('hamf10', 'FTEN')
+    df["New_medium"] = df["New_medium"].str.replace('hamf12', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('glutamine', 'GLN')
+    df["New_medium"] = df["New_medium"].str.replace('emem', 'EMEM')
+    df["New_medium"] = df["New_medium"].str.replace('mccoy5a', 'MCCOY5A')
+    df["New_medium"] = df["New_medium"].str.replace('Wayouth', 'WAYMOUTH')
+    df["New_medium"] = df["New_medium"].str.replace('waymouth', 'WAYMOUTH')
+    df["New_medium"] = df["New_medium"].str.replace('puruvate', 'PYR')
+    df["New_medium"] = df["New_medium"].str.replace('glutatone', 'GSH')
+    df["New_medium"] = df["New_medium"].str.replace('leibovitzsl-15medium', 'LFIFTEEN')
+    df["New_medium"] = df["New_medium"].str.replace('hamsf10', 'FTEN')
+    df["New_medium"] = df["New_medium"].str.replace('f12', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('f-12', 'FTWELVE')
+    df["New_medium"] = df["New_medium"].str.replace('acl4', 'ACL4')
+    df["New_medium"] = df["New_medium"].str.replace('rpi-1640', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('mcdb1051:1media199', 'MCDB105:M199(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMm', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('mcdb105:medium199(1:1)', 'ACL4')
+    df["New_medium"] = df["New_medium"].str.replace('acl-4', 'MCDB105:M199(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('mem', 'MEM')
+    df["New_medium"] = df["New_medium"].str.replace('alpha-MEM', 'ALPHAMEM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMF12(1:1)', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('DMEM:f:12', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('dEMEM', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('(DMEM:F12=1:1)', 'DMEM:FTWELVE(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('mcdb105(1:1)199+', 'MCDB105:M199(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('rpm+', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('iscovesmdm+', 'IMDM')
+    df["New_medium"] = df["New_medium"].str.replace('mcdb105:medium199(1:1)+15%fbs+empty', 'MCDB105:M199(1:1)')
+    df["New_medium"] = df["New_medium"].str.replace('rphi+', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace("mcdb105:medium19915fbsempty'", 'MCDB105:M199(1:1)', regex=True)
+    df["New_medium"] = df["New_medium"].str.replace("mcdb105medium19915fbsempty", "MCDB105:M199(1:1)", regex=True)
+    df["New_medium"] = df["New_medium"].str.replace('emptyempty', 'NAN')
+    df["New_medium"] = df["New_medium"].str.replace('emptynempty', 'NAN')
+    df["New_medium"] = df["New_medium"].str.replace('10fbs01mmneaa', 'FTEN')
+
+    # Get rid of everything else
+    df["New_medium"] = df["New_medium"].str.replace('\d+', '')
+    df["New_medium"] = df["New_medium"].str.replace('[a-z]', '', regex=True)
 
 
+    # Retransform to final version
+    df["New_medium"] = df["New_medium"].str.replace('WAYMOUTH', 'Waymouth')
+    df["New_medium"] = df["New_medium"].str.replace('LFIFTEEN', 'L15')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVEGLN', 'DMEM:F12 wGln')
+    df["New_medium"] = df["New_medium"].str.replace('NAN', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVE', 'DMEM:F12')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVEFTEN', 'DMEM:F12')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIMEM', 'RPMI')
+    df["New_medium"] = df["New_medium"].str.replace('FTWELVEMEM', 'F12')
+    df["New_medium"] = df["New_medium"].str.replace('ALPHAMEMMEM', 'Alpha-MEM')
+    df["New_medium"] = df["New_medium"].str.replace('EMEMMEM', 'EMEM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMMEM', 'DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVEPYRGLN', 'DMEM:F12 wGln wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMGLN', 'DMEM wGln')
+    df["New_medium"] = df["New_medium"].str.replace('FTWELVE', 'F12')
+    df["New_medium"] = df["New_medium"].str.replace('MCCOYA', 'McCoy5A')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVEGLNPYR', 'DMEM:F12 wGln wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMGLC', 'DMEM wGlc')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIGLN', 'RPMI wGln')
+    df["New_medium"] = df["New_medium"].str.replace('FTEN', 'F10')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIGLNMEM', 'RPMI wGln')
+    df["New_medium"] = df["New_medium"].str.replace("MCDB+", 'MCDB105:M199', regex=True)
+    df["New_medium"] = df["New_medium"].str.replace('WILLIAMS', 'Williams')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIMEMGLN', 'RPMI wGln')
+    df["New_medium"] = df["New_medium"].str.replace('EMEMPYR', 'EMEM wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('WAYMOUTHGLN', 'Waymouth wGln')
+    df["New_medium"] = df["New_medium"].str.replace('GLN', 'RPMI wGln')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMFTWELVEMEMGLN', 'DMEM:F12 wGln')
+    df["New_medium"] = df["New_medium"].str.replace('IMDMGLN', 'IMDM wGln')
+    df["New_medium"] = df["New_medium"].str.replace('ACL', 'ACL4')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIFTWELVE', 'RPMI:F12')
+    df["New_medium"] = df["New_medium"].str.replace('FTWELVEMEMGLN', 'F12 wGln')
+    df["New_medium"] = df["New_medium"].str.replace('EMEMFTEN', 'EMEM:F10')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIPYR', 'RPMI wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIEMEM', 'RPMI:EMEM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMGLNMEM', 'DMEM wGln')
+    df["New_medium"] = df["New_medium"].str.replace('RPMIGLNPYR', 'RPMI wGln wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMIMDM', 'DMEM:IMDM')
+    df["New_medium"] = df["New_medium"].str.replace('ALPHAMEM', 'AlphaMEM')
+    df["New_medium"] = df["New_medium"].str.replace('DMEMGLNPYR', 'DMEM wGln wPyr')
+    df["New_medium"] = df["New_medium"].str.replace('ALPHAMEMDMEM', 'AlphaMEM:DMEM')
+    df["New_medium"] = df["New_medium"].str.replace('IMDMRPMIDMEM', 'RPMI')
+    print(df.head(30))
 
+    tmp = df["New_medium"].unique()
+    tmp = pd.DataFrame(tmp)
+    #df.to_csv('tmp1.csv', index=False)
+    #tmp.to_csv('tmp2.csv', index=False)
 
+# Had to manually edit some of the entries, but for the most part the algorithm is ~80% accurate in mapping.
+#rename_medium_to_common_IDs()
 
+def split_cellLine_and_tissues():
+    df = pd.read_csv('GCP_proteomics_remapped.csv')
+    df['Cell Line'] = df['CellLineName'].str.split('_').str[0]
+    df['Tissue'] = df['CellLineName'].str.split('_', n=1).str[1]
+    df['Tissue'] = df['Tissue'].str.replace('_', ' ')
+    df['Tissue'] = df['Tissue'].str.title()
+    df = df.drop(['CellLineName'], axis=1)
+    df = df.set_index(['Cell Line', 'Tissue'])
 
+    df.to_csv("GCP_proteomics_remapped.csv")
+#split_cellLine_and_tissues()
 
-    unqmed = unqmed[0].unique()
-    unqmed = pd.DataFrame(unqmed)
-
-
-    print(unqmed.head(30))
-    unqmed.to_csv('tmp.csv', index=False)
-
-    to_remove = [
-        ' +10%FBS',
-        '+10%FBS',
-        '+5%FBS',
-        ' +5%FBS',
-        ' with 10% fetal calf serum',
-        ' with 10% fetal bovine serum',
-        ' with 20% fetal bovine serum',
-        ' (ATCC catalog # 30-2006) + 5%  FBS',
-        '  + 5%  FBS',
-        ' with 15%  fetal calf serum',
-        ' + 10% h.i. FBS',
-        ' + 10 % FBS',
-        '+20% FBS',
-        '; heat inactivated fetal bovine serum',
-        ' + 5% FBS',
-        ' + 10% FBS',
-        ' +10 % FBS',
-        ' +10 %FBS',
-        '  +5% FBS',
-        '  +10% FBS',
-        ' + 10%FBS',
-        ' (FBS),10%',
-        ' +15%FBS',
-        ' (FBs),10%',
-        '+5% FBS',
-        ' +10% FBS',
-        '+10% FBS',
-        '+ 10%FBS',
-        '+20%FBS',
-        '-20% FBS',
-        ' + 20% FBS',
-        '+ 10% FBS',
-        ' +5-10 h.i. FBS',
-        '+ 20% FBS',
-        ' + 20% h.i. FBS',
-        ' + 5 % FBS',
-        '+15%FBS',
-        ' +10 FBS',
-        ' +20% h.i. FBS',
-        ' +20 % FBS',
-        ' +10% h.i. FBS',
-        '+ 10-20% h. i. FBS',
-        '+ 5% FBS',
-        ' + 10% h.i.FBS',
-        ' +15-20% h.i. FBS',
-        ' +20% h.i FBS',
-        ' +10% h. i. FBS',
-        ' +10-20% h.i. FBS',
-        ' +15% h. i. FBS',
-        '+ 15% FBS',
-        '+10% h.i FBS',
-        ' + 10% h. i. FBS',
-        ' +10-20% h. i. FBS',
-        ' +20% h. i. FBS',
-        ' +10%  h. i. FBS',
-        ' + 10% h. i. FBS',
-        ' +10% h.i.FBS',
-        '+ 20% h. i. FBS',
-        ' +10%h.i. FBS',
-        ' +20% h.i. FBs',
-        ' +15% h.i.FBS',
-        ' +20% h.i.FBS',
-        ' +10% h,i, FBS',
-        '+ 10% h.i. FBS',
-        '+10-20% h.i.FBS',
-        ' 10% FBS',
-        ' +15% h.i. FBS',
-        ' +15% FBS',
-        ' +0.5% human serum (+0.005 lu/ml TSH +5ug/ml human insulin-cells grow also without these latter supplements)',
-        ' with fetal calf serum',
-        ' heat inactivatedfetal bovine serum (FBS), 10%',
-        ' +10%',
-        '+10%fbs',
-        ' with 15%  fetal bovine serum',
-        ' with 15% fetal calf serum',
-        ' with 20% heat inactivated fetal bovine serum',
-        ' with 10% calf serum (FCS can be used)',
-        ' with 5% fetal bovine serum',
-        ' wiyh10% fetal bovine serum',
-        ' with 10% heat inactivated fetal bovine serum',
-        '. Refer cancer Res. 42:3858 (1982) for other medium with low serum concentration.',
-        '+20 % FBS',
-        '+15% FBS',
-        ' + 20%FBS',
-        '-10% FBS',
-        "+20 % FBS"
-    ]
-
-    # Get synonyms for various medium components in dict with single key
-    waymouth = {}
-    waymouth_syn = [
-        "Waymouth's",
-        "Waymouth MB 7521 medium"
-    ]
-    waymouth = get_media(waymouth, 'Waymouth', waymouth_syn)
-
-    l15 = {}
-    l15_syn = [
-        "L15",
-        "Leibovitz's L-15 Medium"
-    ]
-    l15 = get_media(l15, "L15", l15_syn)
-
-    rpmi = {}
-    rpmi_syn = [
-        "Empty",
-        "RPMI1640",
-        "RPMI-1640",
-        "RPMI 1640 medium",
-        "RPMI 1640",
-        "RPMI 1640(or DM-160AU)",
-        "RPMI 1640 medium.",
-        "RPMI ",
-        "90-95% RPMI 1640",
-        "80% RPMI 1640",
-        "90% RPMI 1640",
-        "85% RPMI 1640",
-        "80-90% RPHI 1640",
-        "80-90% RPMI 1640",
-        "90% RPMI",
-        "80-85% RPMI 1640",
-        "80%RPMI-1640",
-        "90% rPMI 1640",
-        "90% RPMI1640",
-        "80% RPMI 1640 "<
-        "90% RPMI",
-        "90 % Iscove's MDMD or RPMI 1640",
-        "80-90% Iscove's MDM or RPMI 1640",
-        "80-90% RPMI 1640",
-        "90%RPMI 1640",
-        "80-90% RPHI 1640",
-        "RPI-1640",
-        "80-90% RPHI 1640",
-        "80% RPMI 1640 ",
-        "RPMI-1640  ",
-        "RPMI-1640",
-        "RPMI-1640 ",
-    ]
-    rpmi = get_media(rpmi, "RPMI", rpmi_syn)
-
-    rpmi_pyr = {}
-    rpmi_pyr_syn = [
-            "RPMI-1640 +1 mM Sodium pyruvate"
-    ]
-    rpmi_pyr = get_media(rpmi_pyr, "RPMIwPyr", rpmi_pyr_syn)
-
-    rpmi_gln = {}
-    rpmi_gln_syn = [
-        "RPMI 1640  with L-glutamine (300mg/L), 90%",
-        "RPMI 1640 with L-glutamine(300mg/L), 90%;",
-        "RPMI w Gln"
-    ]
-    rpmi_gln = get_media(rpmi_gln, "RPMI w Gln", rpmi_gln_syn)
-
-    ham_f12 = {}
-    ham_f12_syn = [
-        "Han's F12 medium 90%",
-        "Ham's F12 medium",
-        "HamF12",
-        "Ham's F12",
-        "HAMS F12 ",
-        "F-12K  ATCC ",
-        "F-12",
-    ]
-    ham_f12 = get_media(ham_f12, "HAM F-12", ham_f12_syn)
-
-    ham_f10 = {}
-    ham_f10_syn = [
-        "HamF10",
-        "HAMSF10",
-        "Hams F10",
-        "HAM F-10"
-    ]
-    ham_f10 = get_media(ham_f10, "HAM F-10", ham_f10_syn)
-
-    aMEM = {}
-    aMEM_syn = [
-        "alpha-MEM",
-        "80% alpha-MEM ",
-        "70% alpha-MEM ",
-        "alphaMEM"
-    ]
-    aMEM = get_media(aMEM, "alpha-MEM", aMEM_syn)
-
-    dmem = {}
-    dmem_syn = [
-        "Dulbecco's modified Eagle's medium",
-        "DMEM",
-        "85% Dulbecco's MEM",
-        "80% Dulbecco's MEM",
-        "90% Dulbecco's MEM",
-        "DEMEM",
-        "DMEM "
-    ]
-    dmem = get_media(dmem, "DMEM", dmem_syn)
-
-    dmem_w_glc = {}
-    dmem_w_glc_syn = [
-        "80% Dulbecco's MEM(4.5g/L glucose)",
-        "90% Dulbecco'sMEM(4.5g/l glucose)",
-        "90% Dulbecco's MEM (4.5g/L glucose)",
-        "90% Dulbecco's MEM(4.5 g/L glucose)",
-    ]
-    dmem_w_glc = get_media(dmem_w_glc, "DMEMwGlc", dmem_w_glc_syn)
-
-    mem = {}
-    mem_syn = ["MEM"]
-    mem = get_media(mem, "MEM", mem_syn)
-
-    emem = {}
-    emem_syn = [
-        "Eagle's minimal essential medium",
-        "Eagle's minimal essential",
-        "Eagle",
-        "EMEM",
-        "Eagle MEM",
-        "EMEM ",
-    ]
-    emem = get_media(emem, "EMEM", emem_syn)
-
-    mccoy = {}
-    mccoy_syn = [
-        "McCoy's 5A",
-        "McCoy 5A"
-    ]
-    mccoy = get_media(mccoy, "McCoy5A", mccoy_syn)
-
-    dmem_f12_11 = {}
-    dmem_f12_11_syn = [
-        "DMEM:F12 (1:1)",
-        "DMEM:HAM's F12  1:1",
-        "DMEM:F12",
-        "DMEM/F12(1:1)",
-        "DMEM:F:12 (1:1)",
-        "DMEM:F12(1:1)",
-        "(DMEM: HamF12=1:1)",
-        "(DMEM:HamF12=1:1)",
-        "DMEM:HAM's F12  1:1 ",
-        "80% mixture of Dulbecco's MEM + Ham's F 12 at 1:1",
-        "80% mixture of Ham's F12 + Dulbecco's MEM (at 1:1)",
-        "DMEM:HAM's F12  1:1  "
-    ]
-    dmem_f12_11 = get_media(dmem_f12_11, "DMEM:F12(1:1)", dmem_f12_11_syn)
-
-    dmem_rpmi_21 = {}
-    dmem_rpmi_21_syn = [
-        "2/3 DMEM:1/3 RPMI",
-        "DMEM:RPMI (2:1)"
-    ]
-    dmem_rpmi_21 = get_media(dmem_rpmi_21, "DMEM:RPMI(2:1)", dmem_rpmi_21_syn)
-
-    mcdb_m199 = {}
-    mcdb_m199_syn = [
-        "MCDB 105 (1:1)Medium 199",
-        "MCDB 105:MEDIUM 199 (1:1)",
-        "MCDB 105 1:1 Media 199",
-    ]
-    mcdb_m199 = get_media(mcdb_m199, "MCDB105:M199(1:1)", mcdb_m199_syn)
-
-    rpmi_emem_11= {}
-    rpmi_emem_11_syn = [
-        "RPMI:EMEM (1:1)",
-        "RPMI:Eagles MEM",
-        "RPM:MEM ",
-        "RPMI:Eagles MEM"
-    ]
-    rpmi_emem_11 = get_media(rpmi_emem_11, "RPMI:EMEM(1:1)", rpmi_emem_11_syn)
-
-    rpmi_mem_11= {}
-    rpmi_mem_11_syn = [
-        "RPM:MEM "
-    ]
-    rpmi_mem_11 = get_media(rpmi_mem_11, "RPMI:MEM(1:1)", rpmi_mem_11_syn)
-
-    dmem_iscove = {}
-    dmem_iscove_syn = [
-        "40% Dulbecco's MEM +40% Iscove's MDM"
-    ]
-    dmem_iscove = get_media(dmem_iscove, "DMEM:IMEM(1:1)", dmem_iscove_syn)
-
-    rpmi_iscove = {}
-    rpmi_iscove_syn = [
-    ]
-    rpmi_iscove = get_media(rpmi_iscove, "RPMI:IMEM(1:1)", rpmi_iscove_syn)
-
-    iscove = {}
-    iscove_syn = [
-        "80% Iscove's MDM",
-        "90% Iscove's MDM",
-        "80-90% Iscove's MDM",
-        "IMDM",
-        "IMDM "
-    ]
-    iscove = get_media(iscove, "IMEM", iscove_syn)
-
-    rpmi_f12 = {}
-    rpmi_f12_syn = [
-        "RPMI:F12 1:1",
-        "RPMI:Ham F12"
-    ]
-    rpmi_f12 = get_media(rpmi_f12, "RPMI:F12", rpmi_f12_syn)
-
-    list_of_medium = [
-        waymouth,
-        l15,
-        rpmi,
-        rpmi_pyr,
-        rpmi_gln,
-        ham_f12,
-        ham_f10,
-        aMEM,
-        dmem,
-        dmem_w_glc,
-        mem,
-        emem,
-        mccoy,
-        dmem_f12_11,
-        dmem_rpmi_21,
-        mcdb_m199,
-        rpmi_emem_11,
-        rpmi_mem_11,
-        dmem_iscove,
-        rpmi_iscove,
-        iscove,
-        rpmi_f12
-    ]
-
-    import re
-    unqmed = pd.Series(unqmed)
-    unqmed = unqmed.str.replace('|'.join(map(re.escape, to_remove)), '')
-    medium_map = df['Growth.Medium'].str.replace('|'.join(map(re.escape, to_remove)), '')
-
-    for medium in list_of_medium:
-        medium_map = mapper(medium, medium_map)
-
-    # Create a map of all the unique medium in the CCLE study (media.txt)
-    #unqmed = unqmed.unique()
-
-    # Print out a file for all corresponding medium to common identifiers (ccle_media.txt)
-    #for medium in medium_map:
-    #    print(medium)
-
-    df['CellLineName'] = df['CellLineName'].str.split('_').str[0]
-
-    # output everything for matlab
-
-    df['CellLineName'].to_csv(r'./../matlab/ccle_names.txt', header=False, index=False)
-
-    _ = df.pop('CellLineName')
-
-    h3marks = df.columns.tolist()
-
-    with open(r'./../matlab/ccle_h3marks2.txt', 'w') as f:
-        for i in h3marks:
-            f.write("%s\n" % i)
-
-    #df.to_csv(r'./../matlab/h3_relval.txt', header=False, index=False)
-extract()
-
-def make_medium_conditions():
+def make_medium_xl_sheet():
     """
-    make_medium_conditions is an extension of what Shen et al., did with their analysis, but will now consider all medium components. To conduct this analysis, I will assume that RPMI is the default condition for current substrate uptake rates, and will scale the remaining substrate uptake rates for other medium conditions based on RPMI.
-        For instance, if RPMI has glc = 2 and DMEM has glc = 4.5, I will scale the substrate uptake rate for glc in DMEM conditions to be 2.25x that of the RPMI condition.
     """
 
-    # Get the default substrate uptake rates from RECON1. For those with uptake rates set to 0 initially, I changed it to a small number (-0.005 = default value)
-    path = r'/mnt/c/Users/scampit/Desktop/MeGEM/data/'
+    medium_conditions = pd.read_csv('GCP_proteomics_remapped.csv', usecols=['Medium Condition', 'Tissue'])
+    unique_conditions = medium_conditions['Medium Condition'].sort_values(ascending=True).unique()
 
-    # For all medium, I will use RPMI as the base condition, and will scale the substrate uptake rates accordingly.
+    #wb = Workbook()
+    #name = 'Medium_conditions.xlsx'
+    #wb.save(filename = name)
 
-        # If the medium component is not present, the substrate uptake rate will be set to 0. Otherwise, it will be the default uptake rate * the scaling factor.
-
-        # If the specific formulation was not provided, I simply divided the amount according to stoichiometric equivalents and added the medium concentrations together. If the amount of the medium component = infinity, I kept the infinity, as the amount will still be in excess. All infinity values will be converted into -100 for the substrate uptake rates.
-
-    # Single medium conditions I already have that I need to make the mixed media that are not already measured...
-    rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI')
-    dmem = pd.read_excel(path+'medium.xlsx', sheet_name='DMEM')
-    mcdb105 = pd.read_excel(path+'medium.xlsx', sheet_name='MCDB105')
-    m199 = pd.read_excel(path+'medium.xlsx', sheet_name='M199')
-    f12 = pd.read_excel(path+'medium.xlsx', sheet_name='HAM F-12')
-    iscove = pd.read_excel(path+'medium.xlsx', sheet_name='Iscove')
-
-    # load the excel file so you don't overwrite the excel sheet (again...)
-    book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
-    writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx', engine='openpyxl')
+    number_of_medium = medium_conditions['Medium Condition'].value_counts()
+    number_of_tissues = medium_conditions['Tissue'].value_counts()
+    book = load_workbook('./Medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+    if "Summary" in book:
+        pass
+    else:
+        number_of_medium.to_excel(writer, sheet_name="Summary", index=True, startcol=0)
+        number_of_tissues.to_excel(writer, sheet_name="Summary", index=True, startcol=2)
+    writer.save()
 
-    # Media that I need to "make". Let's start with 2:1 DMEM: RPMI
-    dmem_21 = dmem.copy(deep=True)
-    dmem_21['mM'] = dmem_21['mM'].replace('Infinity', np.inf)
-    dmem_21['mM'] = dmem_21['mM']*2/3
-    rpmi_21 = rpmi.copy(deep=True)
-    rpmi_21['mM'] = rpmi_21['mM']*1/3
-    dmem_rpmi = pd.concat([dmem_21, rpmi_21]).groupby('Components')['mM'].sum().reset_index()
-    #dmem_rpmi.to_excel(writer, sheet_name='DMEM-RPMI 2-1', index=False)
+    for medium in unique_conditions:
+        if medium in book:
+            pass
+        else:
+            df = pd.DataFrame(columns=["Components", "MW", "g/L", "mM", "BiGG ID", "Alpha", "LB", "Adjusted LB"])
+        df.to_excel(writer, sheet_name=medium, index=False, header=True)
+    writer.save()
+#make_medium_xl_sheet()
 
-    # MCDB105-M199
-    mcdb105_11 = mcdb105.copy(deep=True)
-    mcdb105_11['mM'] = mcdb105_11['mM']*1/2
-    m199_11 = m199.copy(deep=True)
-    m199_11['mM'] = m199_11['mM'].replace('Infinity', np.inf)
-    m199_11['mM'] = m199_11['mM']*1/2
-    mcdb105_m199 = pd.concat([mcdb105_11, m199_11]).groupby('Components')['mM'].sum().reset_index()
-    #mcdb105_m199.to_excel(writer, sheet_name='MCDB105-M199', index=False)
-
-    # RPMI-F12
-    rpmi_11 = rpmi.copy(deep=True)
-    rpmi_11['mM'] = rpmi_11['mM']*1/2
-    f12_11 = f12.copy(deep=True)
-    f12_11['mM'] = f12_11['mM']*1/2
-    rpmi_f12 = pd.concat([rpmi_11, f12_11]).groupby('Components')['mM'].sum().reset_index()
-    #rpmi_f12.to_excel(writer, sheet_name='RPMI-F12', index=False)
-
-    # DMEM-iscove
-    dmem_11 = dmem.copy(deep=True)
-    dmem_11['mM'] = dmem_11['mM'].replace('Infinity', np.inf)
-    dmem_11['mM'] = dmem_11['mM']*1/2
-    iscove_11 = iscove.copy(deep=True)
-    iscove_11['mM'] = iscove_11['mM']*1/2
-    dmem_iscove = pd.concat([dmem_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
-    #dmem_iscove.to_excel(writer, sheet_name='DMEM-Iscove', index=False)
-
-    # RPMI-Iscove
-    rpmi_11 = rpmi.copy(deep=True)
-    rpmi_11['mM'] = rpmi_11['mM']*1/2
-    iscove_11 = iscove.copy(deep=True)
-    iscove_11['mM'] = iscove_11['mM']*1/2
-    rpmi_iscove = pd.concat([rpmi_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
-    #rpmi_iscove.to_excel(writer, sheet_name='RPMI-Iscove', index=False)
-
-    #writer.save()
-
-    # Now that I made the medium conditions, I need to calculate those scaling coefficients that I will use for each medium condition. Divide all dataframes by RPMI.
-    xlfil = pd.ExcelFile(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
-    media_conditions = xlfil.sheet_names
-
-    for medium in media_conditions:
-        # Hold this constant
-        rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI', index_col='Components')
-
-        # New medium condition
-        df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
-        df['mM'] = df['mM'].replace('Infinity', np.inf)
-
-        # Create a column that will be written back into the excel file.
-        df['Scaling factor'] = df['mM'].divide(rpmi['mM'], axis='index', fill_value=0)
-        df['Scaling factor'] = df['Scaling factor'].replace(np.inf, 10)
-        #df.to_excel(writer, sheet_name=medium, index=True)
-        #writer.save()
-
-    # I have scaling factors. Now I will add to the uptake.xlsx excel sheet to  map them back to specific substrate uptake rates in the metabolic model per medium condition.
-
-    # load the excel file so you don't overwrite the excel sheet
-    book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx')
-    writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx', engine='openpyxl')
+def make_common_nutrient_id():
+    """
+    """
+    book = load_workbook('./Medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+    medium_components = []
+    for sheet in writer.sheets:
+        if "Summary" in sheet:
+            pass
+        else:
+            df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=sheet)
+            components = df["Components"].tolist()
+            medium_components.append(components)
+    medium_components = list(chain.from_iterable(medium_components))
+    medium_components = set(medium_components)
+    medium_components = pd.DataFrame(medium_components)
+    medium_components["Components"] = medium_components[0].str.replace('[\(*\)]', '')
+    medium_components["Components"] = medium_components["Components"].str.lower()
+    medium_components["Components"] = medium_components["Components"].str.replace('-', '', regex=True)
+    medium_components["Components"] = medium_components["Components"].str.replace('\u2022', ' ', regex=True)
+    medium_components["Components"] = medium_components["Components"].str.replace('2deoxydribose', 'twodeoxydribose\r', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("adenosine 5'phosphate", 'Adenosine FivePrimePhosphate\r', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("riboflavin 5'phosphate na", 'Riboflavin FivePrimePhosphate\r', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("adenosine 5'triphosphate", 'Adenosine FivePrimeTriPhosphate\r', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("menadione vitamin k3", 'Vitamin KThree\r', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("vitamin d2 calciferol", 'Vitamin DTwo Calciferol', case=True)
+    medium_components["Components"] = medium_components["Components"].str.replace("vitamin b12 calciferol", 'Vitamin BTwelve', case=True)
 
-    for medium in media_conditions:
-        # Keep this constant
-        default_uptake = pd.read_excel(path+'uptake.xlsx', sheet_name='RPMI', index_col='Metabolite')
+    medium_components["Components"] = medium_components["Components"].str.replace("\w*\d\w*", '')
+    medium_components["Components"] = medium_components["Components"].str.replace('"', '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hcl", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("dibasic", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("anhydrous", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("monobasic", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hydrochloride", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("disodium", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("dihydrate", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("nacl", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("anhyd.", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hemicalcium", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("acid", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("phos\.", 'phosphate')
+    medium_components["Components"] = medium_components["Components"].str.replace("salt", '')
 
-        # This will change based on medium component
-        df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
+    medium_components["Components"] = medium_components["Components"].str.replace("\w*\d\w*", '')
+    medium_components["Components"] = medium_components["Components"].str.replace('"', '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hcl", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("dibasic", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("anhydrous", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("monobasic", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hydrochloride", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("disodium", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("dihydrate", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("nacl", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("anhyd.", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("hemicalcium", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("acid", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("phos\.", 'phosphate')
+    medium_components["Components"] = medium_components["Components"].str.replace("\.", '')
+    medium_components["Components"] = medium_components["Components"].str.replace(" kcl", '')
+    medium_components["Components"] = medium_components["Components"].str.replace(" na", '')
 
-        # Create a column that will be written back into the excel file
-        default_uptake['Adjusted uptake rate'] = default_uptake['Substrate Uptake Rate'].multiply(df['Scaling factor'], axis=0, fill_value=1.00)
-        default_uptake.to_excel(writer, sheet_name=medium,index=True)
-        writer.save()
+    medium_components["Components"] = medium_components["Components"].str.replace("freebase", '')
+    medium_components["Components"] = medium_components["Components"].str.replace("salt", '')
+    medium_components["Components"] = medium_components["Components"].str.replace(" ", '')
 
-#make_medium_conditions()
+    medium_components["Components"] = medium_components["Components"].str.replace("", '')
+
+    # Manual mapping:
+    medium_components["Components"] = medium_components["Components"].str.replace("putrescine", 'Putrescine')
+    medium_components["Components"] = medium_components["Components"].str.replace("sodium", 'Sodium')
+    medium_components["Components"] = medium_components["Components"].str.replace("phosphate", 'Phosphate')
+    medium_components["Components"] = medium_components["Components"].str.replace("RiboflavinFivePrimePhosphate", 'Alpha-D-Ribose 5-phosphate')
+    medium_components["Components"] = medium_components["Components"].str.replace("calcium", 'Calcium')
+    medium_components["Components"] = medium_components["Components"].str.replace("chloride", 'Chloride')
+    medium_components["Components"] = medium_components["Components"].str.replace("pyridoxal", 'Pyridoxal')
+    medium_components["Components"] = medium_components["Components"].str.replace("dglucosedextrose", 'D-Glucose')
+    medium_components["Components"] = medium_components["Components"].str.replace("ThiaminmonoPhosphate", 'Thiamin monophosphate')
+    medium_components["Components"] = medium_components["Components"].str.replace("lasparagine", 'L-Asparagine')
+    medium_components["Components"] = medium_components["Components"].str.replace("iinositol", 'Myo-Inositol')
+    medium_components["Components"] = medium_components["Components"].str.replace("manganese", 'Manganese')
+    medium_components["Components"] = medium_components["Components"].str.replace("ribose", 'D-Ribose')
+    medium_components["Components"] = medium_components["Components"].str.replace("lisoleucine", 'L-Isoleucine')
+    medium_components["Components"] = medium_components["Components"].str.replace("dCalciumpantothenate", '(R)-Pantothenate')
+    medium_components["Components"] = medium_components["Components"].str.replace("niacinamide", 'Nicotinamide')
+    medium_components["Components"] = medium_components["Components"].str.replace("linoleic", 'Linoleic acid (all cis C18:2) n-6')
+    medium_components["Components"] = medium_components["Components"].str.replace("vitaminaacetate", 'L-Asparagine')
+    medium_components["Components"] = medium_components["Components"].str.replace("acetate", 'Acetate')
+    medium_components["Components"] = medium_components["Components"].str.replace("magnesium", 'Magnesium')
+    medium_components["Components"] = medium_components["Components"].str.replace("sulfate", 'Sulfate')
+    medium_components["Components"] = medium_components["Components"].str.replace("lcysteine", 'L-Cysteine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lproline", 'L-Proline')
+    medium_components["Components"] = medium_components["Components"].str.replace("dpantothenic", '(R)-Pantothenate')
+    medium_components["Components"] = medium_components["Components"].str.replace("potassium", 'Potassium')
+    medium_components["Components"] = medium_components["Components"].str.replace("twodeoxydD-Ribose", 'Deoxyribose C5H10O4')
+    medium_components["Components"] = medium_components["Components"].str.replace("laspartic", 'L-aspartate')
+    medium_components["Components"] = medium_components["Components"].str.replace("VitaminDTwoCalciferol", 'Vitamin D2; ergocalciferol')
+    medium_components["Components"] = medium_components["Components"].str.replace("lcystine", 'L Cystine C6H12N2O4S2')
+    medium_components["Components"] = medium_components["Components"].str.replace("uracil", 'Uracil')
+    medium_components["Components"] = medium_components["Components"].str.replace("ammonium", 'Ammonium')
+    medium_components["Components"] = medium_components["Components"].str.replace("ergocalciferol", 'Vitamin D2; ergocalciferol')
+    medium_components["Components"] = medium_components["Components"].str.replace("lipoic", 'Lipoate')
+    medium_components["Components"] = medium_components["Components"].str.replace("riboflavin", 'Riboflavin C17H20N4O6')
+    medium_components["Components"] = medium_components["Components"].str.replace("thiamine", 'Thiamin')
+    medium_components["Components"] = medium_components["Components"].str.replace("alphatocopherol", 'Alpha-Tocopherol')
+    medium_components["Components"] = medium_components["Components"].str.replace("nitrate", 'Nitrate')
+    medium_components["Components"] = medium_components["Components"].str.replace("bicarbonate", 'Bicarbonate')
+    medium_components["Components"] = medium_components["Components"].str.replace("paraaminobenzoic", '4-Aminobenzoate')
+    medium_components["Components"] = medium_components["Components"].str.replace("lserine", 'L-Serine')
+    medium_components["Components"] = medium_components["Components"].str.replace("glucose", 'D-Glucose')
+    medium_components["Components"] = medium_components["Components"].str.replace("follinic", 'Folate')
+    medium_components["Components"] = medium_components["Components"].str.replace("llysine", 'L-Lysine')
+    medium_components["Components"] = medium_components["Components"].str.replace("folic", 'Folate')
+    medium_components["Components"] = medium_components["Components"].str.replace("hypoxanthine", 'Hypoxanthine')
+    medium_components["Components"] = medium_components["Components"].str.replace("zinc", 'Zinc')
+    medium_components["Components"] = medium_components["Components"].str.replace("adenine", 'Adenine')
+    medium_components["Components"] = medium_components["Components"].str.replace("AdenosineFivePrimeTriPhosphate", 'ATP C10H12N5O13P3')
+    medium_components["Components"] = medium_components["Components"].str.replace("lalanine", 'L-Alanine')
+    medium_components["Components"] = medium_components["Components"].str.replace("guanosine", 'Guanosine')
+    medium_components["Components"] = medium_components["Components"].str.replace("glutathionereduced", 'Reduced glutathione')
+    medium_components["Components"] = medium_components["Components"].str.replace("AdenosineFivePrimePhosphate", 'AMP C10H12N5O7P')
+    medium_components["Components"] = medium_components["Components"].str.replace("lthreonine", 'L-Threonine')
+    medium_components["Components"] = medium_components["Components"].str.replace("pyruvate", 'Pyruvate')
+    medium_components["Components"] = medium_components["Components"].str.replace("lleucine", 'L-Leucine')
+    medium_components["Components"] = medium_components["Components"].str.replace("thymidine", 'Thymidine')
+    medium_components["Components"] = medium_components["Components"].str.replace("cholesterol", 'Chsterol c')
+    medium_components["Components"] = medium_components["Components"].str.replace("choline", 'Choline C5H14NO')
+    medium_components["Components"] = medium_components["Components"].str.replace("lphenyL-Alanine", 'L-Phenylalanine')
+    medium_components["Components"] = medium_components["Components"].str.replace("guanine", 'Guanine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lhydroxyproline", 'Trans 4 Hydroxy L proline C5H9NO3')
+    medium_components["Components"] = medium_components["Components"].str.replace("lmethionine", 'L-Methionine')
+    medium_components["Components"] = medium_components["Components"].str.replace("thymine", 'Thymine C5H6N2O2')
+    medium_components["Components"] = medium_components["Components"].str.replace("guanine", 'Guanine')
+    medium_components["Components"] = medium_components["Components"].str.replace("ribonucleosides", 'Nicotinate D-ribonucleoside')
+    medium_components["Components"] = medium_components["Components"].str.replace("myoinositol", 'Myo-Inositol')
+    medium_components["Components"] = medium_components["Components"].str.replace("lalanyllglutamine", 'L-alanine-L-glutamate')
+    medium_components["Components"] = medium_components["Components"].str.replace("adenosine", 'Adenosine')
+    medium_components["Components"] = medium_components["Components"].str.replace("xanthinena", 'Xanthine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lhistidine", 'L-Histidine')
+    medium_components["Components"] = medium_components["Components"].str.replace("ltryptophan", 'L-Tryptophan')
+    medium_components["Components"] = medium_components["Components"].str.replace("glycine", 'Glycine')
+    medium_components["Components"] = medium_components["Components"].str.replace("uridine", 'Uridine')
+    medium_components["Components"] = medium_components["Components"].str.replace("pyridoxine", 'Pyridoxine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lglutamine", 'L-Glutamine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lvaline", 'L-Valine')
+    medium_components["Components"] = medium_components["Components"].str.replace("larginine", 'L-Arginine')
+    medium_components["Components"] = medium_components["Components"].str.replace("lglutamic", 'L-Glutamate')
+    medium_components["Components"] = medium_components["Components"].str.replace("cytidine", 'Cytidine')
+    medium_components["Components"] = medium_components["Components"].str.replace("ascorbic", 'L-Ascorbate')
+    medium_components["Components"] = medium_components["Components"].str.replace("biotin", 'Biotin')
+    medium_components["Components"] = medium_components["Components"].str.replace("nicotinicniacin", 'Nicotinate')
+    medium_components["Components"] = medium_components["Components"].str.replace("d\+galactose", 'D-Galactose')
+    medium_components["Components"] = medium_components["Components"].str.replace("molybdate", 'Molybdate')
+
+
+    medium_components = medium_components["Components"].unique()
+    medium_components = pd.DataFrame(medium_components)
+    print(medium_components)
+    medium_components[0] = medium_components[0].sort_values(ascending=True)
+    medium_components.to_csv('tmp.csv', index=False)
+    print(medium_components)
+
+make_common_nutrient_id()
+
+#     # Single medium conditions I already have that I need to make the mixed media that are not already measured...
+#     rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI')
+#     dmem = pd.read_excel(path+'medium.xlsx', sheet_name='DMEM')
+#     mcdb105 = pd.read_excel(path+'medium.xlsx', sheet_name='MCDB105')
+#     m199 = pd.read_excel(path+'medium.xlsx', sheet_name='M199')
+#     f12 = pd.read_excel(path+'medium.xlsx', sheet_name='HAM F-12')
+#     iscove = pd.read_excel(path+'medium.xlsx', sheet_name='Iscove')
+#
+#     # load the excel file so you don't overwrite the excel sheet (again...)
+#     book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
+#     writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx', engine='openpyxl')
+#     writer.book = book
+#     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+#
+#     # Media that I need to "make". Let's start with 2:1 DMEM: RPMI
+#     dmem_21 = dmem.copy(deep=True)
+#     dmem_21['mM'] = dmem_21['mM'].replace('Infinity', np.inf)
+#     dmem_21['mM'] = dmem_21['mM']*2/3
+#     rpmi_21 = rpmi.copy(deep=True)
+#     rpmi_21['mM'] = rpmi_21['mM']*1/3
+#     dmem_rpmi = pd.concat([dmem_21, rpmi_21]).groupby('Components')['mM'].sum().reset_index()
+#     #dmem_rpmi.to_excel(writer, sheet_name='DMEM-RPMI 2-1', index=False)
+#
+#     # MCDB105-M199
+#     mcdb105_11 = mcdb105.copy(deep=True)
+#     mcdb105_11['mM'] = mcdb105_11['mM']*1/2
+#     m199_11 = m199.copy(deep=True)
+#     m199_11['mM'] = m199_11['mM'].replace('Infinity', np.inf)
+#     m199_11['mM'] = m199_11['mM']*1/2
+#     mcdb105_m199 = pd.concat([mcdb105_11, m199_11]).groupby('Components')['mM'].sum().reset_index()
+#     #mcdb105_m199.to_excel(writer, sheet_name='MCDB105-M199', index=False)
+#
+#     # RPMI-F12
+#     rpmi_11 = rpmi.copy(deep=True)
+#     rpmi_11['mM'] = rpmi_11['mM']*1/2
+#     f12_11 = f12.copy(deep=True)
+#     f12_11['mM'] = f12_11['mM']*1/2
+#     rpmi_f12 = pd.concat([rpmi_11, f12_11]).groupby('Components')['mM'].sum().reset_index()
+#     #rpmi_f12.to_excel(writer, sheet_name='RPMI-F12', index=False)
+#
+#     # DMEM-iscove
+#     dmem_11 = dmem.copy(deep=True)
+#     dmem_11['mM'] = dmem_11['mM'].replace('Infinity', np.inf)
+#     dmem_11['mM'] = dmem_11['mM']*1/2
+#     iscove_11 = iscove.copy(deep=True)
+#     iscove_11['mM'] = iscove_11['mM']*1/2
+#     dmem_iscove = pd.concat([dmem_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
+#     #dmem_iscove.to_excel(writer, sheet_name='DMEM-Iscove', index=False)
+#
+#     # RPMI-Iscove
+#     rpmi_11 = rpmi.copy(deep=True)
+#     rpmi_11['mM'] = rpmi_11['mM']*1/2
+#     iscove_11 = iscove.copy(deep=True)
+#     iscove_11['mM'] = iscove_11['mM']*1/2
+#     rpmi_iscove = pd.concat([rpmi_11, iscove_11]).groupby('Components')['mM'].sum().reset_index()
+#     #rpmi_iscove.to_excel(writer, sheet_name='RPMI-Iscove', index=False)
+#
+#     #writer.save()
+#
+#     # Now that I made the medium conditions, I need to calculate those scaling coefficients that I will use for each medium condition. Divide all dataframes by RPMI.
+#     xlfil = pd.ExcelFile(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/medium.xlsx')
+#     media_conditions = xlfil.sheet_names
+#
+#     for medium in media_conditions:
+#         # Hold this constant
+#         rpmi = pd.read_excel(path+'medium.xlsx', sheet_name='RPMI', index_col='Components')
+#
+#         # New medium condition
+#         df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
+#         df['mM'] = df['mM'].replace('Infinity', np.inf)
+#
+#         # Create a column that will be written back into the excel file.
+#         df['Scaling factor'] = df['mM'].divide(rpmi['mM'], axis='index', fill_value=0)
+#         df['Scaling factor'] = df['Scaling factor'].replace(np.inf, 10)
+#         #df.to_excel(writer, sheet_name=medium, index=True)
+#         #writer.save()
+#
+#     # I have scaling factors. Now I will add to the uptake.xlsx excel sheet to  map them back to specific substrate uptake rates in the metabolic model per medium condition.
+#
+#     # load the excel file so you don't overwrite the excel sheet
+#     book = load_workbook(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx')
+#     writer = pd.ExcelWriter(r'/mnt/c/Users/scampit/Desktop/MeGEM/data/uptake.xlsx', engine='openpyxl')
+#     writer.book = book
+#     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+#
+#     for medium in media_conditions:
+#         # Keep this constant
+#         default_uptake = pd.read_excel(path+'uptake.xlsx', sheet_name='RPMI', index_col='Metabolite')
+#
+#         # This will change based on medium component
+#         df = pd.read_excel(path+'medium.xlsx', sheet_name=medium, index_col='Components')
+#
+#         # Create a column that will be written back into the excel file
+#         default_uptake['Adjusted uptake rate'] = default_uptake['Substrate Uptake Rate'].multiply(df['Scaling factor'], axis=0, fill_value=1.00)
+#         default_uptake.to_excel(writer, sheet_name=medium,index=True)
+#         writer.save()
+#
+# #make_medium_conditions()
 
 def iterred(sheetnam=''):
     """
