@@ -1,0 +1,145 @@
+Reaction ID,Reaction Name,LB,Metabolite ID,Metabolite Name,Original IDs
+EX_cysi__L_e,L Cystine exchange,0,cysi__L_e,L Cystine C6H12N2O4S2,L-Cystine 2HCl
+EX_cysi__L_e,L Cystine exchange,0,cysi__L_e,L Cystine C6H12N2O4S2,L-Cystine • 2HCl
+EX_cysi__L_e,L Cystine exchange,0,cysi__L_e,L Cystine C6H12N2O4S2,L-Cystine
+EX_ac_e,Acetate exchange,0,ac_e,Acetate,Sodium Acetate
+EX_ade_e,Adenine exchange,0,ade_e,Adenine,Adenine sulfate
+EX_ade_e,Adenine exchange,0,ade_e,Adenine,Adenine
+EX_adn_e,Adenosine exchange,0,adn_e,Adenosine,Adenosine
+EX_ala__L_e,L-Alanine exchange,-0.05,ala__L_e,L-Alanine,L-Alanine
+EX_amp_e,AMP exchange,0,amp_e,AMP C10H12N5O7P,Adenosine 5'-phosphate
+EX_aqcobal_e,Aquacob(III)alamin exchange,0,aqcobal_e,Aquacob(III)alamin,Vitamin B12
+EX_aqcobal_e,Aquacob(III)alamin exchange,0,aqcobal_e,Aquacob(III)alamin,Vitamins
+EX_arg__L_e,L-Arginine exchange,-0.05,arg__L_e,L-Arginine,L-Arginine • HCl
+EX_arg__L_e,L-Arginine exchange,-0.05,arg__L_e,L-Arginine,L-Arginine
+EX_arg__L_e,L-Arginine exchange,-0.05,arg__L_e,L-Arginine,L-Arginine hydrochloride
+EX_ascb__L_e,L-Ascorbate exchange,0,ascb__L_e,L-Ascorbate,Ascorbic Acid
+EX_asn__L_e,L-Asparagine exchange,-0.05,asn__L_e,L-Asparagine,L-Asparagine
+EX_asn__L_e,L-Asparagine exchange,-0.05,asn__L_e,L-Asparagine,L-Asparagine • H2O
+EX_asn__L_e,L-Asparagine exchange,-0.05,asn__L_e,L-Asparagine,L-Asparagine-H2O
+EX_asn__L_e,L-Asparagine exchange,-0.05,asn__L_e,L-Asparagine,Vitamin A (acetate)
+EX_asn__L_e,L-Asparagine exchange,-0.05,asn__L_e,L-Asparagine,L-Asparagine (freebase)
+EX_asp__L_e,L-Aspartate exchange,-0.05,asp__L_e,L-Aspartate,L-Aspartic acid
+EX_atp_e,EX atp LPAREN e RPAREN ,0,atp_e,ATP C10H12N5O13P3,Adenosine 5'-triphosphate
+EX_avite1_e,Alpha-Tocopherol exchange,0,avite1_e,Alpha-Tocopherol,alpha Tocopherol phos. Na salt
+EX_btn_e,Biotin exchange,-0.005,btn_e,Biotin,Biotin
+EX_ca2_e,Calcium exchange,-1000,ca2_e,Calcium,Calcium Chloride (CaCl2-2H2O)
+EX_ca2_e,Calcium exchange,-1000,ca2_e,Calcium,Calcium Chloride (CaCl2) (anhyd.)
+EX_ca2_e,Calcium exchange,-1000,ca2_e,Calcium,Calcium nitrate (Ca(NO3)2 4H2O)
+EX_ca2_e,Calcium exchange,-1000,ca2_e,Calcium,Folinic Acid Calcium salt
+EX_ca2_e,Calcium exchange,-1000,ca2_e,Calcium,Calcium Chloride
+EX_chol_e,Choline exchange,-0.005,chol_e,Choline C5H14NO,Choline chloride
+EX_chol_e,Choline exchange,-0.005,chol_e,Choline C5H14NO,Choline Chloride
+EX_chsterol_e,Cholesterol exchange,0,chsterol_e,Chsterol c,Cholesterol
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Calcium Chloride (CaCl2-2H2O)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Magnesium Chloride (anhydrous)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Calcium Chloride (CaCl2) (anhyd.)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Choline chloride
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Manganese chloride (MnCl2-4H2O)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Magnesium Chloride (MgCl2-6H2O)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Choline Chloride
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Potassium Chloride
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Sodium Chloride (NaCl)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Potassium Chloride (KCl)
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Calcium Chloride
+EX_cl_e,Chloride exchange,-1000,cl_e,Chloride,Sodium Chloride
+EX_cys__L_e,L-Cysteine exchange,-0.05,cys__L_e,L-Cysteine,L-Cysteine 2HCl. H2O
+EX_cys__L_e,L-Cysteine exchange,-0.05,cys__L_e,L-Cysteine,L-Cysteine hydrochloride-H2O
+EX_cys__L_e,L-Cysteine exchange,-0.05,cys__L_e,L-Cysteine,L-Cysteine
+EX_cytd_e,Cytidine exchange,0,cytd_e,Cytidine,Cytidine
+EX_drib_e,Deoxy D Ribose exchange,0,drib_e,Deoxyribose C5H10O4,2-deoxy-D-ribose
+EX_fe2_e,Fe2+ exchange,-1000,fe2_e,Fe2+ mitochondria,Ferric sulfate (FeSO4-7H2O)
+EX_fe2_e,Fe2+ exchange,-1000,fe2_e,Fe2+ mitochondria,Ferric nitrate (Fe(NO3)-9H2O)
+EX_fe2_e,Fe2+ exchange,-1000,fe2_e,Fe2+ mitochondria,"Ferric Nitrate (Fe(NO3)3""9H2O)"
+EX_fol_e,EX fol LPAREN e RPAREN ,-0.005,fol_e,Folate,Folic Acid
+EX_fol_e,EX fol LPAREN e RPAREN ,-0.005,fol_e,Folate,Folinic Acid Calcium salt
+EX_gal_e,D-Galactose exchange,0,gal_e,D-Galactose,D+ Galactose
+EX_glc__D_e,D-Glucose exchange,-5,glc__D_e,D-Glucose,Glucose
+EX_glc__D_e,D-Glucose exchange,-5,glc__D_e,D-Glucose,D-Glucose (Dextrose)
+EX_gln__L_e,L-Glutamine exchange,-0.5,gln__L_e,L-Glutamine,L-Glutamine
+EX_glu__L_e,L-Glutamate exchange,-0.05,glu__L_e,L-Glutamate,L-Glutamic Acid
+EX_gly_e,Glycine exchange,-0.05,gly_e,Glycine,Glycine
+EX_gsn_e,Guanosine exchange,0,gsn_e,Guanosine,Guanosine
+EX_gthrd_e,Reduced glutathione exchange,-0.05,gthrd_e,Reduced glutathione,Glutathione (reduced)
+EX_gua_e,Guanine exchange,0,gua_e,Guanine,Guanine hydrochloride
+EX_hco3_e,EX hco3 LPAREN e RPAREN ,0,hco3_e,Bicarbonate,Sodium Bicarbonate
+EX_hco3_e,EX hco3 LPAREN e RPAREN ,0,hco3_e,Bicarbonate,Sodium Bicarbonate (NaHCO3)
+EX_his__L_e,L-Histidine exchange,-0.05,his__L_e,L-Histidine,L-Histidine • HCl • H2O
+EX_his__L_e,L-Histidine exchange,-0.05,his__L_e,L-Histidine,L-Histidine hydrochloride-H2O
+EX_his__L_e,L-Histidine exchange,-0.05,his__L_e,L-Histidine,L-Histidine
+EX_hxan_e,Hypoxanthine exchange,0,hxan_e,Hypoxanthine,Hypoxanthine Na
+EX_hxan_e,Hypoxanthine exchange,0,hxan_e,Hypoxanthine,Hypoxanthine
+EX_ile__L_e,L-Isoleucine exchange,-0.05,ile__L_e,L-Isoleucine,L-Isoleucine
+EX_inost_e,Myo-Inositol exchange,-0.005,inost_e,Myo-Inositol,myo-Inositol
+EX_inost_e,Myo-Inositol exchange,-0.005,inost_e,Myo-Inositol,i-Inositol
+EX_k_e,K+ exchange,-1000,k_e,Potassium,Potassium Phosphate monobasic (KH2PO4)
+EX_k_e,K+ exchange,-1000,k_e,Potassium,Potassium Phosphate Monobasic (anhydrous)
+EX_k_e,K+ exchange,-1000,k_e,Potassium,Potassium Chloride
+EX_k_e,K+ exchange,-1000,k_e,Potassium,Potassium Nitrate (KNO3)
+EX_k_e,K+ exchange,-1000,k_e,Potassium,Potassium Chloride (KCl)
+EX_leu__L_e,L-Leucine exchange,-0.05,leu__L_e,L-Leucine,L-Leucine
+EX_lipoate_e,Lipoate exchange,0,lipoate_e,Lipoate,Lipoic Acid
+EX_lnlc_e,Linoleic acid (all cis C18:2) exchange,0,lnlc_e,Linoleic acid (all cis C18:2) n-6,Linoleic Acid
+EX_lys__L_e,L-Lysine exchange,-0.05,lys__L_e,L-Lysine,L-Lysine • HCl
+EX_lys__L_e,L-Lysine exchange,-0.05,lys__L_e,L-Lysine,L-Lysine hydrochloride
+EX_lys__L_e,L-Lysine exchange,-0.05,lys__L_e,L-Lysine,L-Lysine
+EX_met__L_e,L-Methionine exchange,-0.05,met__L_e,L-Methionine,L-Methionine
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Selenite (Na2SeO3-5H20)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Acetate
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate dibasic (Na2HPO4-7H2O)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate Monobasic (anhydrous)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Bicarbonate
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Bicarbonate (NaHCO3)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate monobasic (NaH2PO4-H2O)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Chloride (NaCl)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Pyruvate
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate Dibasic (anhydrous)
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate monobasic (NaH2PO4) anhydrous
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Phosphate dibasic (Na2HPO4) anhydrous
+EX_na1_e,Sodium exchange,-1000,na1_e,Sodium,Sodium Chloride
+EX_nac_e,Nicotinate exchange,0,nac_e,Nicotinate,Nicotinic acid (Niacin)
+EX_nac_e,Nicotinate exchange,0,nac_e,Nicotinate,Ribonucleosides
+EX_ncam_e,Nicotinamide exchange,-0.005,ncam_e,Nicotinamide,Niacinamide
+EX_nh4_e,Ammonia exchange,0,nh4_e,Ammonium,Ammonium Molybdate ((NH4)6Mo7O24-4H2O)
+EX_phe__L_e,L-Phenylalanine exchange,-0.05,phe__L_e,L-Phenylalanine,L-Phenylalanine
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Potassium Phosphate monobasic (KH2PO4)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,alpha Tocopherol phos. Na salt
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate dibasic (Na2HPO4-7H2O)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate Monobasic (anhydrous)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate monobasic (NaH2PO4-H2O)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Potassium Phosphate Monobasic (anhydrous)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate Dibasic (anhydrous)
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate monobasic (NaH2PO4) anhydrous
+EX_pi_e,Phosphate exchange,-1000,pi_e,Phosphate,Sodium Phosphate dibasic (Na2HPO4) anhydrous
+EX_pnto__R_e,(R)-Pantothenate exchange,-0.005,pnto__R_e,(R)-Pantothenate,D-Calcium pantothenate
+EX_pnto__R_e,(R)-Pantothenate exchange,-0.005,pnto__R_e,(R)-Pantothenate,D-Pantothenic Acid (hemicalcium)
+EX_pro__L_e,L-Proline exchange,0,pro__L_e,L-Proline,L-Proline
+EX_pydx_e,Pyridoxal exchange,-0.005,pydx_e,Pyridoxal,Pyridoxal • HCl
+EX_pydx_e,Pyridoxal exchange,-0.005,pydx_e,Pyridoxal,Pyridoxal hydrochloride
+EX_pydxn_e,Pyridoxine exchange,0,pydxn_e,Pyridoxine,Pyridoxine hydrochloride
+EX_pyr_e,Pyruvate exchange,0,pyr_e,Pyruvate,Sodium Pyruvate
+EX_rib__D_e,D-Ribose exchange,0,rib__D_e,D-Ribose,Ribose
+EX_ribflv_e,Riboflavin exchange,-0.005,ribflv_e,Riboflavin C17H20N4O6,Riboflavin
+EX_ser__L_e,L-Serine exchange,-0.05,ser__L_e,L-Serine,L-Serine
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Cupric sulfate (CuSO4-5H2O)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Zinc sulfate (ZnSO4-7H2O)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Magnesium Sulfate (anhydrous)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Adenine sulfate
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Ferric sulfate (FeSO4-7H2O)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Zinc Sulfate (ZnSO4-H2O)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Magnesium Sulfate (MgSO4) (anhyd.)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Manganese Sulfate (MnSO4-H20)
+EX_so4_e,Sulfate exchange,0,so4_e,Sulfate,Magnesium Sulfate (MgSO4-7H2O)
+EX_thm_e,Thiamin exchange,-0.005,thm_e,Thiamin,Thiamine hydrochloride
+EX_thm_e,Thiamin exchange,-0.005,thm_e,Thiamin,Thiamine • HCl
+EX_thmmp_e,Thiamin monophosphate exchange,0,thmmp_e,Thiamin monophosphate,Thiamine monophosphate
+EX_thr__L_e,L-Threonine exchange,-0.05,thr__L_e,L-Threonine,L-Threonine
+EX_thym_e,Thymine exchange,0,thym_e,Thymine C5H6N2O2,Thymine
+EX_trp__L_e,L-Tryptophan exchange,-0.05,trp__L_e,L-Tryptophan,L-Tryptophan
+EX_tyr__L_e,L-Tyrosine exchange,-0.05,tyr__L_e,L-Tyrosine,L-Tyrosine disodium salt
+EX_tyr__L_e,L-Tyrosine exchange,-0.05,tyr__L_e,L-Tyrosine,L-Tyrosine
+EX_tyr__L_e,L-Tyrosine exchange,-0.05,tyr__L_e,L-Tyrosine,L-Tyrosine • 2Na • 2H2O
+EX_tyr__L_e,L-Tyrosine exchange,-0.05,tyr__L_e,L-Tyrosine,L-Tyrosine disodium salt dihydrate
+EX_ura_e,Uracil exchange,0,ura_e,Uracil,Uracil
+EX_uri_e,Uridine exchange,0,uri_e,Uridine,Uridine
+EX_val__L_e,L-Valine exchange,-0.05,val__L_e,L-Valine,L-Valine
