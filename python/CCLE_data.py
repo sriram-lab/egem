@@ -540,4 +540,37 @@ SAVE AS CSV FIL
 #export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
 #export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
 
+import GEOparse
+import mygene
+
+"""
+GETTING GENE NAMES
+"""
+
+file = open("GPL15308.txt", 'r')
+
+gene_ids = []
+
+for line in file:
+    if line.startswith('!') or line.startswith('#') or line.startswith('I') or line.startswith('^') :
+        pass
+    else:
+        ids = line.split("_")[0]
+        gene_ids.append(ids)
+file.close()
+
+mg = mygene.MyGeneInfo()
+
+gene_information = mg.querymany(gene_ids, scopes='entrezgene', fields='symbol', species='human')
+
+
+genes = []
+
+for line in gene_information:
+    if 'symbol' not in line:
+        pass
+    else:
+        gene = line['symbol']
+        genes.append(gene)
+
 

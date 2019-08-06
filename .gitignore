@@ -103,3 +103,12 @@ manuscript/
 
 # mypy
 .mypy_cache/
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+# model 
+/matlab/model/Recon3D.mat
+=======
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
+=======
+>>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
