@@ -246,36 +246,32 @@ def make_medium_xl_sheet():
     """
     """
 
-    medium_conditions = pd.read_csv('GCP_proteomics_remapped.csv', usecols=[
+    medium_conditions = pd.read_csv('./GCP_proteomics_remapped.csv', usecols=[
                                     'Medium Condition', 'Tissue'])
     unique_conditions = medium_conditions['Medium Condition'].sort_values(
         ascending=True).unique()
 
     #wb = Workbook()
-    #name = 'Medium_conditions.xlsx'
+    #name = 'final_medium_conditions.xlsx'
     #wb.save(filename = name)
 
-    number_of_medium = medium_conditions['Medium Condition'].value_counts()
-    number_of_tissues = medium_conditions['Tissue'].value_counts()
-    book = load_workbook('./Medium_conditions.xlsx')
-    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
+    #number_of_medium = medium_conditions['Medium Condition'].value_counts()
+    #number_of_tissues = medium_conditions['Tissue'].value_counts()
+    book = load_workbook('./final_medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./final_medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
-    if "Summary" in book:
-        pass
-    else:
-        number_of_medium.to_excel(
-            writer, sheet_name="Summary", index=True, startcol=0)
-        number_of_tissues.to_excel(
-            writer, sheet_name="Summary", index=True, startcol=2)
-    writer.save()
+    #if "Summary" in book:
+    #    pass
+    #else:
+    #    number_of_medium.to_excel(
+    #        writer, sheet_name="Summary", index=True, startcol=0)
+    #    number_of_tissues.to_excel(
+    #        writer, sheet_name="Summary", index=True, startcol=2)
+    #writer.save()
 
     for medium in unique_conditions:
-        if medium in book:
-            pass
-        else:
-            df = pd.DataFrame(
-                columns=["Components", "MW", "g/L", "mM"])
+        df = pd.DataFrame(columns=["Components", "MW", "g/L", "mM"])
         df.to_excel(writer, sheet_name=medium, index=False, header=True)
     writer.save()
 #make_medium_xl_sheet()
@@ -708,8 +704,8 @@ def map_recon1_xchange_to_medium():
 #map_recon1_xchange_to_medium()
 
 def merge_duplicate_metabolites():
-    book = load_workbook('./Medium_conditions.xlsx')
-    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
+    book = load_workbook('./final_medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./final_medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
@@ -718,64 +714,71 @@ def merge_duplicate_metabolites():
             pass
         else:
             df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=medium)
-            df = df.groupby('Metabolite Name').mean().reset_index()
-            df.to_csv('tmpx.csv')
+            df = df.groupby(['Metabolite Name', 'Reaction ID', 'Reaction Name', 'Metabolite ID'], as_index=False).agg({'g/L':'sum', 'LB':'mean'})
+            df.to_excel(writer, sheet_name=medium, index=False, header=True)
+    writer.save()
 
-merge_duplicate_metabolites()
+#merge_duplicate_metabolites()
+
+def set_default_LB():
+    """
+    Doesnt work right now - did in excel
+    """
+    book = load_workbook('./final_medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./final_medium_conditions.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    for medium in writer.sheets:
+        df = pd.read_excel('./final_medium_conditions.xlsx', sheet_name=medium)
+        df["LB"] = df["LB"].replace(to_replace=0, value=-0.005)
+    writer.save()
+#set_default_LB()
 
 def calculate_alpha():
     """
     """
-    book = load_workbook(r'./Medium_conditions.xlsx')
-    writer = pd.ExcelWriter(r'./Medium_conditions.xlsx', engine='openpyxl')
+    book = load_workbook('./final_medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./final_medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
-    rpmi = pd.read_excel(r'./Medium_conditions.xlsx',
-                         sheet_name='RPMI', index_col='Components')
+    rpmi = pd.read_excel('./final_medium_conditions.xlsx',
+                         sheet_name='RPMI', index_col='Metabolite Name')
 
     for medium in writer.sheets:
         if medium == "Summary":
             pass
         else:
             other_medium = pd.read_excel(
-                r'./Medium_conditions.xlsx', sheet_name=medium, index_col='Components')
+                r'./final_medium_conditions.xlsx', sheet_name=medium, index_col='Metabolite Name')
             other_medium['alpha'] = other_medium['g/L'].divide(
                 rpmi['g/L'], axis='index', fill_value=0)
             other_medium['alpha'] = other_medium['alpha'].replace(np.inf, 10)
             other_medium.to_excel(writer, sheet_name=medium, index=True)
     writer.save()
 
-
-#calculate_alpha()
-
-
-
-
+calculate_alpha()
 
 def scale_LB():
     """
     """
-    book = load_workbook(r'./Medium_conditions.xlsx')
-    writer = pd.ExcelWriter(r'./Medium_conditions.xlsx', engine='openpyxl')
+    book = load_workbook('./final_medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./final_medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
-    default_uptake_rate = pd.read_excel(
-        r'./Medium_conditions.xlsx', sheet_name='RPMI', index_col='Components')
 
     for medium in writer.sheets:
         if medium == "Summary":
             pass
         else:
             uptake_rate_to_change = pd.read_excel(
-                r'./Medium_conditions.xlsx', sheet_name=medium, index_col='Components')
-
-            uptake_rate_to_change['Adjusted LB'] = default_uptake['LB'].multiply(
-                uptake_rate_to_change['alpha'], axis=0, fill_value=1.00)
+                r'./final_medium_conditions.xlsx', sheet_name=medium, index_col='Metabolite Name')
+            uptake_rate_to_change['Adjusted LB'] = uptake_rate_to_change['LB'].multiply(
+                uptake_rate_to_change['alpha'], axis=0)
             uptake_rate_to_change.to_excel(
                 writer, sheet_name=medium, index=True)
     writer.save()
 
-
-#scale_LB()
+scale_LB()

@@ -1,36 +1,44 @@
-,Components,MW,g/L,mM,Reaction ID,Reaction Name,LB,Metabolite ID,Metabolite Name,Original IDs
-0,L-Arginine hydrochloride,211.0,126.0,0.5971564,EX_arg__L_e,L-Arginine exchange,-0.05,arg__L_e,L-Arginine,L-Arginine hydrochloride
-1,L-Cystine 2HCl,313.0,31.0,0.09904154,EX_cysi__L_e,L Cystine exchange,0.0,cysi__L_e,L Cystine C6H12N2O4S2,L-Cystine 2HCl
-2,L-Glutamine,146.0,292.0,2.0,EX_gln__L_e,L-Glutamine exchange,-0.5,gln__L_e,L-Glutamine,L-Glutamine
-3,L-Histidine hydrochloride-H2O,210.0,42.0,0.2,EX_his__L_e,L-Histidine exchange,-0.05,his__L_e,L-Histidine,L-Histidine hydrochloride-H2O
-4,L-Isoleucine,131.0,52.0,0.39694658,EX_ile__L_e,L-Isoleucine exchange,-0.05,ile__L_e,L-Isoleucine,L-Isoleucine
-5,L-Leucine,131.0,52.0,0.39694658,EX_leu__L_e,L-Leucine exchange,-0.05,leu__L_e,L-Leucine,L-Leucine
-6,L-Lysine hydrochloride,183.0,73.0,0.3989071,EX_lys__L_e,L-Lysine exchange,-0.05,lys__L_e,L-Lysine,L-Lysine hydrochloride
-7,L-Methionine,149.0,15.0,0.10067114,EX_met__L_e,L-Methionine exchange,-0.05,met__L_e,L-Methionine,L-Methionine
-8,L-Phenylalanine,165.0,32.0,0.19393939,EX_phe__L_e,L-Phenylalanine exchange,-0.05,phe__L_e,L-Phenylalanine,L-Phenylalanine
-9,L-Threonine,119.0,48.0,0.40336135,EX_thr__L_e,L-Threonine exchange,-0.05,thr__L_e,L-Threonine,L-Threonine
-10,L-Tryptophan,204.0,10.0,0.04901961,EX_trp__L_e,L-Tryptophan exchange,-0.05,trp__L_e,L-Tryptophan,L-Tryptophan
-11,L-Tyrosine disodium salt dihydrate,261.0,52.0,0.19923371,EX_tyr__L_e,L-Tyrosine exchange,-0.05,tyr__L_e,L-Tyrosine,L-Tyrosine disodium salt dihydrate
-12,L-Valine,117.0,46.0,0.3931624,EX_val__L_e,L-Valine exchange,-0.05,val__L_e,L-Valine,L-Valine
-13,Vitamins,,,,EX_aqcobal_e,Aquacob(III)alamin exchange,0.0,aqcobal_e,Aquacob(III)alamin,Vitamins
-14,Choline chloride,140.0,1.0,0.007142857,EX_chol_e,Choline exchange,-0.005,chol_e,Choline C5H14NO,Choline chloride
-15,Choline chloride,140.0,1.0,0.007142857,EX_cl_e,Chloride exchange,-1000.0,cl_e,Chloride,Choline chloride
-16,D-Calcium pantothenate,477.0,1.0,0.002096436,EX_pnto__R_e,(R)-Pantothenate exchange,-0.005,pnto__R_e,(R)-Pantothenate,D-Calcium pantothenate
-17,Folic Acid,441.0,1.0,0.0022675737,EX_fol_e,EX fol LPAREN e RPAREN ,-0.005,fol_e,Folate,Folic Acid
-18,Niacinamide,122.0,1.0,0.008196721,EX_ncam_e,Nicotinamide exchange,-0.005,ncam_e,Nicotinamide,Niacinamide
-19,Pyridoxal hydrochloride,204.0,1.0,0.004901961,EX_pydx_e,Pyridoxal exchange,-0.005,pydx_e,Pyridoxal,Pyridoxal hydrochloride
-20,Riboflavin,376.0,0.1,0.00026595744,EX_ribflv_e,Riboflavin exchange,-0.005,ribflv_e,Riboflavin C17H20N4O6,Riboflavin
-21,Thiamine hydrochloride,337.0,1.0,0.002967359,EX_thm_e,Thiamin exchange,-0.005,thm_e,Thiamin,Thiamine hydrochloride
-22,i-Inositol,180.0,2.0,0.011111111,EX_inost_e,Myo-Inositol exchange,-0.005,inost_e,Myo-Inositol,i-Inositol
-23,Calcium Chloride (CaCl2) (anhyd.),111.0,200.0,1.8018018,EX_ca2_e,Calcium exchange,-1000.0,ca2_e,Calcium,Calcium Chloride (CaCl2) (anhyd.)
-24,Calcium Chloride (CaCl2) (anhyd.),111.0,200.0,1.8018018,EX_cl_e,Chloride exchange,-1000.0,cl_e,Chloride,Calcium Chloride (CaCl2) (anhyd.)
-25,Magnesium Sulfate (MgSO4) (anhyd.),120.0,97.67,0.8139166,EX_so4_e,Sulfate exchange,0.0,so4_e,Sulfate,Magnesium Sulfate (MgSO4) (anhyd.)
-26,Potassium Chloride (KCl),75.0,400.0,5.3333335,EX_cl_e,Chloride exchange,-1000.0,cl_e,Chloride,Potassium Chloride (KCl)
-27,Potassium Chloride (KCl),75.0,400.0,5.3333335,EX_k_e,K+ exchange,-1000.0,k_e,Potassium,Potassium Chloride (KCl)
-28,Sodium Bicarbonate (NaHCO3),84.0,2200.0,26.190475,EX_hco3_e,EX hco3 LPAREN e RPAREN ,0.0,hco3_e,Bicarbonate,Sodium Bicarbonate (NaHCO3)
-29,Sodium Bicarbonate (NaHCO3),84.0,2200.0,26.190475,EX_na1_e,Sodium exchange,-1000.0,na1_e,Sodium,Sodium Bicarbonate (NaHCO3)
-30,Sodium Chloride (NaCl),58.0,6800.0,117.24138,EX_cl_e,Chloride exchange,-1000.0,cl_e,Chloride,Sodium Chloride (NaCl)
-31,Sodium Chloride (NaCl),58.0,6800.0,117.24138,EX_na1_e,Sodium exchange,-1000.0,na1_e,Sodium,Sodium Chloride (NaCl)
-32,Sodium Phosphate monobasic (NaH2PO4-H2O),138.0,140.0,1.0144928,EX_na1_e,Sodium exchange,-1000.0,na1_e,Sodium,Sodium Phosphate monobasic (NaH2PO4-H2O)
-33,Sodium Phosphate monobasic (NaH2PO4-H2O),138.0,140.0,1.0144928,EX_pi_e,Phosphate exchange,-1000.0,pi_e,Phosphate,Sodium Phosphate monobasic (NaH2PO4-H2O)
-34,D-Glucose (Dextrose),180.0,1000.0,5.5555553,EX_glc__D_e,D-Glucose exchange,-5.0,glc__D_e,D-Glucose,D-Glucose (Dextrose)
+,Metabolite Name,MW,g/L,mM,LB
+0,(R)-Pantothenate,477.0,2.24,0.0046960167,-0.005
+1,Aquacob(III)alamin,1355.0,0.68,0.00050184503,0.0
+2,Bicarbonate,84.0,1200.0,14.285714,0.0
+3,Biotin,244.0,0.0035,1.4344263e-05,-0.005
+4,Calcium,111.0,116.6,1.0504504,-1000.0
+5,Chloride,95.8,1492.304,25.237094066,-1000.0
+6,Choline C5H14NO,140.0,8.98,0.06414285,-0.005
+7,D-Glucose,180.0,3151.0,17.505556,-5.0
+8,Fe2+ mitochondria,341.0,0.23349999999999999,0.00081188119,-1000.0
+9,Folate,441.0,2.65,0.0060090707,-0.005
+10,Glycine,75.0,18.75,0.25,-0.05
+11,Hypoxanthine,159.0,2.39,0.015031448,0.0
+12,L Cystine C6H12N2O4S2,313.0,31.29,0.09996805,0.0
+13,L-Alanine,89.0,4.45,0.049999997,-0.05
+14,L-Arginine,211.0,147.5,0.69905216,-0.05
+15,L-Asparagine,150.0,7.5,0.05,-0.05
+16,L-Aspartate,133.0,6.65,0.05,-0.05
+17,L-Cysteine,176.0,17.56,0.09977272,-0.05
+18,L-Glutamate,147.0,7.35,0.05,-0.05
+19,L-Histidine,210.0,31.48,0.14990476,-0.05
+20,L-Isoleucine,131.0,54.47,0.41580153,-0.05
+21,L-Leucine,131.0,59.05,0.45076334,-0.05
+22,L-Lysine,183.0,91.25,0.4986339,-0.05
+23,L-Methionine,149.0,17.24,0.11570469,-0.05
+24,L-Phenylalanine,165.0,35.48,0.2150303,-0.05
+25,L-Proline,115.0,17.25,0.15,0.0
+26,L-Serine,105.0,26.25,0.25,-0.05
+27,L-Threonine,119.0,53.45,0.44915968,-0.05
+28,L-Tryptophan,204.0,9.02,0.04421569,-0.05
+29,L-Tyrosine,261.0,55.79,0.21375479,-0.05
+30,L-Valine,117.0,25.85,0.22094017,-0.05
+31,Linoleic acid (all cis C18:2) n-6,280.0,0.042,0.00014999999,0.0
+32,Lipoate,206.0,0.105,0.0005097087,0.0
+33,Myo-Inositol,180.0,12.6,0.07,-0.005
+34,Nicotinamide,122.0,2.02,0.016557377,-0.005
+35,Phosphate,140.0,66.75999999999999,0.47651970499999996,-1000.0
+36,Potassium,75.0,311.8,4.1573334,-1000.0
+37,Pyridoxine,206.0,2.0,0.009708738,0.0
+38,Pyruvate,110.0,55.0,0.5,0.0
+39,Riboflavin C17H20N4O6,376.0,0.219,0.0005824468,-0.005
+40,Sodium,106.4,1676.804,27.270164682,-1000.0
+41,Sulfate,234.0,12.422575000000002,0.10250129999999999,0.0
+42,Thiamin,337.0,2.17,0.0064391694,-0.005

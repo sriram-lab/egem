@@ -89,26 +89,28 @@ cell_names = cell_names(proteomics_CL_match,1);
 % Change idx to map to gene expression array and iterate for all 885 cancer
 % cell lines that match between genexp and proteomics dataset
 geneExp_CL_match = find(ismember(celllinenames_ccle1, cell_names));
-for match = 1:number_of_matched_proteomics
-    disp(['Cell line: ', cell_names(match)])
+for prot = 1:number_of_matched_proteomics
+    disp(['Cell line: ', cell_names(i)])
     model2 = model;
     
-    ongenes = unique(ccleids_met(ccle_expression_metz(:, geneExp_CL_match(match)) >= 2));
-    offgenes = unique(ccleids_met(ccle_expression_metz(:, geneExp_CL_match(match)) <= -2));
+    ongenes = unique(ccleids_met(ccle_expression_metz(:,geneExp_CL_match(i)) >= 2));
+    offgenes = unique(ccleids_met(ccle_expression_metz(:,geneExp_CL_match(i)) <= -2));
     ongenes = intersect(ongenes, model2.rxns);
     offgenes = intersect(offgenes, model2.rxns);
     [ix, pos]  = ismember({'EX_met_L(e)'}, model2.rxns);
     
-    disp(medium(match))
+    disp(medium(i))
     obj_coef = eps_struct.RPMI;
     
     model2.lb(pos) = -0.5;
-    model2 = media(model2, medium(match));
+    model2 = media(model2, medium(i));
     model2.c(BIOMASS_OBJ_POS) = 1;
 
     [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
     [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
 
+    % Get the demand reaction positions of interest and calculate metabolic
+    % flux for each cell line using the iMAT algorithm
     rxnname = char(reactions_of_interest(:, 1));
     switch exp
         case 'non-competitive_cfr'
@@ -119,7 +121,7 @@ for match = 1:number_of_matched_proteomics
                 [flux, ~, ~] = constrain_flux_regulation(model3,  ...
                     onreactions, offreactions, kappa, rho, epsilon, mode, [], ...
                     minfluxflag);
-                all_flux_values(match,rxn) = flux(rxnpos);
+                all_flux_values(i,rxn) = flux(rxnpos);
                 model3.c(rxnpos) = 0;
             end
         case 'competitive_cfr'
@@ -129,7 +131,7 @@ for match = 1:number_of_matched_proteomics
             [flux, ~, ~] =  constrain_flux_regulation(model3,...
                 onreactions, offreactions, kappa, rho, epsilon, mode , [], ...
                 minfluxflag);
-            all_flux_values(match,:) = flux(rxnpos);
+            all_flux_values(i,:) = flux(rxnpos);
         case 'fva'
             model3 = model2;
             rxnpos = [find(ismember(model3.rxns, rxnname))];
@@ -137,7 +139,7 @@ for match = 1:number_of_matched_proteomics
             [~, ~, ~, ~, flux, ~] =...
                 calc_metabolic_metrics(model3, [], [], fva_grate,...
                 'max', reactions_of_interest, [], 'fva');
-            all_flux_values(match,:) = flux;
+            all_flux_values(i,:) = flux;
     end
 end
 
@@ -158,7 +160,7 @@ values = {...
     rho; pval; all_flux_values; proteomics
     };
 
-for match=1:length(fields)
-    STRUCT.(fields{match}) = values{match};
+for i=1:length(fields)
+    STRUCT.(fields{i}) = values{i};
 end
 end

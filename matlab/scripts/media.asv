@@ -1,4 +1,4 @@
-function model = media(model, queried_medium)
+function model = media(model, medium)
 % @author: Scott Campit
 %% media.m defines the medium constraints we will impose on the Genome-scale metabolic model. 
 % By default, the substrate uptake rates were set to RPMI conditions by default. 
@@ -8,7 +8,7 @@ function model = media(model, queried_medium)
 if verLessThan('matlab', '9.6.0.1072779')
     [~, sheetNames] = xlsfinfo('./../../data/final_medium_conditions.xlsx');
     for sheets = 1:length(sheetNames)
-        if ismember(sheetNames(sheets), queried_medium)
+        if ismember(sheetNames(sheets), medium)
             [adjustedLB, rxn_ids] = xlsread('./../../data/final_medium_conditions.xlsx',...
                 sheetNames(sheets));
             rxn_ids(1,1) = [];
@@ -18,7 +18,7 @@ if verLessThan('matlab', '9.6.0.1072779')
                     adjustedLB(rxn, 4);
             end
             
-        elseif ismember({'nan'}, queried_medium)
+        elseif ismember({'nan'}, medium)
             [adjustedLB, rxn_ids] = xlsread('./../../data/final_medium_conditions.xlsx', ...
                 'RPMI');
             rxn_ids(1,:) = [];
@@ -34,26 +34,22 @@ if verLessThan('matlab', '9.6.0.1072779')
 else
     [~, sheetNames] = xlsfinfo('./../../data/final_medium_conditions.xlsx');
     for sheets = 1:length(sheetNames)
-        if ismember(sheetNames(sheets), queried_medium)
+        if ismember(sheetNames(sheets), medium)
             dataArray = readcell('./../../data/final_medium_conditions.xlsx',...
                 'Sheet', sheetNames(sheets));
             dataArray(1,1) = [];
-            
             for rxn=1:length(dataArray)
                 model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
                     cell2mat(dataArray(rxn, 7));
             end
-            
-        elseif ismember({'nan'}, queried_medium)
+        elseif ismember({'nan'}, medium)
             dataArray = readcell('./../../data/final_medium_conditions.xlsx',...
                 'Sheet', 'RPMI');
             dataArray(1,1) = [];
-            
             for rxn=1:length(dataArray)
                 model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
                     cell2mat(dataArray(rxn, 7));
             end
-            
         end
     end
 end
