@@ -275,7 +275,7 @@ def make_medium_xl_sheet():
             pass
         else:
             df = pd.DataFrame(
-                columns=["Components", "MW", "g/L", "mM", "BiGG ID", "Alpha", "LB", "Adjusted LB"])
+                columns=["Components", "MW", "g/L", "mM"])
         df.to_excel(writer, sheet_name=medium, index=False, header=True)
     writer.save()
 #make_medium_xl_sheet()
@@ -588,6 +588,8 @@ def make_common_nutrient_id():
 
 
 def get_unique_ids():
+    """
+    """
     df = pd.read_csv('./medium_component_map.csv')
     df = df.drop_duplicates(keep='first')
     df.to_csv('./medium_component_map.csv', index=False)
@@ -595,6 +597,8 @@ def get_unique_ids():
 
 
 def map_to_recon1_xchange():
+    """
+    """
     pd.options.mode.chained_assignment = None
     df = pd.read_csv('./medium_component_map.csv')
     metabolites = pd.read_excel('./recon1_id.xlsx', sheet_name='Metabolites')
@@ -618,15 +622,19 @@ def map_to_recon1_xchange():
 #map_to_recon1_xchange()
 
 def drop_all_duplicates():
+    """
+    """
     df = pd.read_excel('./Medium_conditions.xlsx')
     df = df.drop_duplicates(keep='first')
     df.to_excel('./Medium_conditions.xlsx', index=False)
 
 
-drop_all_duplicates()
+#drop_all_duplicates()
 
 
 def make_medium_conditions():
+    """
+    """
 
     rpmi = pd.read_excel(r'./Medium_conditions.xlsx', sheet_name='RPMI')
     dmem = pd.read_excel(r'./Medium_conditions.xlsx', sheet_name='DMEM')
@@ -673,11 +681,51 @@ def make_medium_conditions():
 
     writer.save()
 
-
 #make_medium_conditions()
 
-def calculate_alpha():
+def map_recon1_xchange_to_medium():
+    """
+    """
+    book = load_workbook('./Medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
+    metabolite_map = pd.read_csv('./medium_component_mapped_to_recon1.csv')
+
+    for medium in writer.sheets:
+        if medium == "Summary":
+            pass
+        else:
+            df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=medium)
+            merged_df = pd.merge(
+                df, metabolite_map, how='inner', left_on=['Components'], right_on=['Original IDs'])
+            merged_df = merged_df.drop_duplicates(keep='first')
+            merged_df.to_excel(
+                writer, sheet_name=medium, index=False, header=True)
+    writer.save()
+
+#map_recon1_xchange_to_medium()
+
+def merge_duplicate_metabolites():
+    book = load_workbook('./Medium_conditions.xlsx')
+    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    for medium in writer.sheets:
+        if medium == "Summary":
+            pass
+        else:
+            df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=medium)
+            df = df.groupby('Metabolite Name').mean().reset_index()
+            df.to_csv('tmpx.csv')
+
+merge_duplicate_metabolites()
+
+def calculate_alpha():
+    """
+    """
     book = load_workbook(r'./Medium_conditions.xlsx')
     writer = pd.ExcelWriter(r'./Medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
@@ -702,32 +750,12 @@ def calculate_alpha():
 #calculate_alpha()
 
 
-def map_recon1_xchange_to_medium():
-    book = load_workbook('./Medium_conditions.xlsx')
-    writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
-    writer.book = book
-    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
-    metabolite_map = pd.read_csv('./medium_component_mapped_to_recon1.csv')
-
-    for medium in writer.sheets:
-        if medium == "Summary":
-            pass
-        else:
-            df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=medium)
-            merged_df = pd.merge(
-                df, metabolite_map, how='inner', left_on=['Components'], right_on=['Original IDs'])
-            merged_df = merged_df.drop_duplicates(keep='first')
-            merged_df.to_excel(
-                writer, sheet_name=medium, index=False, header=True, columns=["Components", "MW", "g/L", "mM", "Reaction ID_x", "LB_x", "Metabolite Name_x"])
-    writer.save()
-
-
-#map_recon1_xchange_to_medium()
 
 
 def scale_LB():
-    # load the excel file so you don't overwrite the excel sheet
+    """
+    """
     book = load_workbook(r'./Medium_conditions.xlsx')
     writer = pd.ExcelWriter(r'./Medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
