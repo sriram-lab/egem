@@ -1,27 +1,28 @@
-function model = media(model, medium)
-% @author: Scott Campit
-%% media.m defines the medium constraints we will impose on the Genome-scale metabolic model. 
-% By default, the substrate uptake rates were set to RPMI conditions by default. 
-    % Other medium conditions were scaled w.r.t RPMI amounts (using ratios
-    % from concentrations as the scaling factor).
-    
+function test_media()
+
+load ./../models/recon1
+model = metabolicmodel;
+
+queried_medium = 'RPMI';
+path = './../../data/final_medium_conditions.xlsx';
 if verLessThan('matlab', '9.6.0.1072779')
-    [~, sheetNames] = xlsfinfo('./../../data/final_medium_conditions.xlsx');
+    [~, sheetNames] = xlsfinfo(path);
     for sheets = 1:length(sheetNames)
-        if ismember(sheetNames(sheets), medium)
-            [adjustedLB, rxn_ids] = xlsread('./../../data/final_medium_conditions.xlsx',...
-                sheetNames(sheets));
-            rxn_ids(1,1) = [];
+        if ismember(sheetNames(sheets), queried_medium)
+            [adjustedLB, rxn_ids] = xlsread(path, sheetNames{sheets});
+            rxn_ids(1,:) = [];
+            rxn_ids(:,1) = [];
+            
             
             for rxn=1:length(rxn_ids)
                 model.lb(find(ismember(model.rxns, rxn_ids(rxn, 1)))) = ...
                     adjustedLB(rxn, 4);
             end
             
-        elseif ismember({'nan'}, medium)
-            [adjustedLB, rxn_ids] = xlsread('./../../data/final_medium_conditions.xlsx', ...
-                'RPMI');
+        elseif ismember({'nan'}, queried_medium)
+            [adjustedLB, rxn_ids] = xlsread(path, 'RPMI');
             rxn_ids(1,:) = [];
+            rxn_ids(:,1) = [];
             
             for rxn=1:length(rxn_ids)
                 model.lb(find(ismember(model.rxns, rxn_ids(rxn, 1)))) = ...
@@ -32,26 +33,35 @@ if verLessThan('matlab', '9.6.0.1072779')
     end
     
 else
-    [~, sheetNames] = xlsfinfo('./../../data/final_medium_conditions.xlsx');
+    [~, sheetNames] = xlsfinfo(path);
     for sheets = 1:length(sheetNames)
-        if ismember(sheetNames(sheets), medium)
-            dataArray = readcell('./../../data/final_medium_conditions.xlsx',...
+        if ismember(sheetNames(sheets), queried_medium)
+            dataArray = readcell(path,...
                 'Sheet', sheetNames(sheets));
-            dataArray(1,1) = [];
+            dataArray(1,:) = [];
+            dataArray(:,1) = [];
+            
             for rxn=1:length(dataArray)
                 model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
                     cell2mat(dataArray(rxn, 7));
             end
-        elseif ismember({'nan'}, medium)
+            
+        elseif ismember({'nan'}, queried_medium)
             dataArray = readcell('./../../data/final_medium_conditions.xlsx',...
                 'Sheet', 'RPMI');
-            dataArray(1,1) = [];
+            dataArray(1,:) = [];
+            dataArray(:,1) = [];
+            
             for rxn=1:length(dataArray)
                 model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
                     cell2mat(dataArray(rxn, 7));
             end
+            
         end
     end
 end
 
+disp("Success!")
+
 end
+
