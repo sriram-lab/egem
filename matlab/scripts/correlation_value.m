@@ -9,6 +9,8 @@ load supplementary_software_code ...
     ccleids_met ... % Corresponding gene symbols
     ccle_expression_metz % Gene expression data (z-transformed)
 
+
+
 path = './../new_var/';
 vars = {...
     [path 'h3_ccle_names.mat'],... % CCLE cell line names for H3 proteomics data
@@ -32,6 +34,8 @@ n = length(common_celllines);
 h3_ccle_names_python = cellstr(h3_ccle_names);
 h3_marks_python = cellstr(h3_marks);
 common_celllines = cellstr(common_celllines);
+
+save('Recon1_genes.mat', RECON1.genes)
 save("correlation_value.mat")
 
 %% Graphing correlation between

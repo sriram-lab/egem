@@ -1,1097 +1,143 @@
-,CCLE_ID,Growth.Medium,Supplements,New_medium
-0,DMS53_LUNG,Waymouth's +10%FBS,,
-1,SW1116_LARGE_INTESTINE,L15+10%FBS,,
-2,NCIH1694_LUNG,DMEM:F12 (1:1) + 5% FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:F12 (1:1) + 5% FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-3,P3HR1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-4,HUT78_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-5,UMUC3_URINARY_TRACT,EMEM +10%FBS,,
-6,HOS_BONE,,,
-7,HUNS1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-8,AML193_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+5%FBS,"0.005mg/ml insulin, 0.005mg/ml transferrin and 5ng/ml GM-CSF","IMDM+5%FBS + 0.005mg/ml insulin, 0.005mg/ml transferrin and 5ng/ml GM-CSF"
-9,RVH421_SKIN,RPMI1640+10%FBS,,
-10,NCIH1184_LUNG,RPMI-1640 + 10% FBS,,
-11,HCC2157_BREAST,,,
-12,TC71_BONE,,,
-13,NCIH2227_LUNG,DMEM:HAM's F12  1:1  +5% FBS,"0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine","DMEM:HAM's F12  1:1  +5% FBS + 0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine"
-14,COLO205_LARGE_INTESTINE,,,
-15,SNU449_LIVER,,,
-16,NCIH28_PLEURA,RPMI+10%FBS,,
-17,OV56_OVARY,DMEM:HAM's F12  1:1  +5% FBS,0.5 ug/ml hydrocortisone + 10ug/ml insulin,DMEM:HAM's F12  1:1  +5% FBS + 0.5 ug/ml hydrocortisone + 10ug/ml insulin
-18,JHOS4_OVARY,DMEM:F12 + 10% FBS,0.1 mM NEAA,DMEM:F12 + 10% FBS + 0.1 mM NEAA
-19,KYSE450_OESOPHAGUS,,,
-20,RMUGS_OVARY,,,
-21,KLE_ENDOMETRIUM,,,
-22,HS895T_FIBROBLAST,,,
-23,LN229_CENTRAL_NERVOUS_SYSTEM,,,
-24,P31FUJ_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 medium with 10% fetal calf serum,,
-25,RKN_SOFT_TISSUE,Han's F12 medium 90% with 10% fetal bovine serum,,
-26,PATU8988S_PANCREAS,DMEM + 10%FBS,2mM L-Glutamine,DMEM + 10%FBS + 2mM L-Glutamine
-27,NH6_AUTONOMIC_GANGLIA,alpha-MEM with 10% fetal calf serum,,
-28,SF126_CENTRAL_NERVOUS_SYSTEM,Eagle's minimal essential medium with 10% fetal bovine serum,,
-29,RERFLCAD2_LUNG,RPMI-1640+10% FBS,,
-30,OUMS23_LARGE_INTESTINE,Dulbecco's modified Eagle's medium with 10% fetal bovine serum,,
-31,SNGM_ENDOMETRIUM,Ham's F12 medium with 20% fetal bovine serum,,
-32,OUMS27_BONE,DMEM+10%FBS,,
-33,PL45_PANCREAS,,,
-34,NCIH2347_LUNG,RPMI 1640 +10% FBS,,
-35,SW1990_PANCREAS,,,
-36,HS940T_FIBROBLAST,,,
-37,HS611T_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-38,TOLEDO_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-39,RERFGC1B_STOMACH,,,
-40,HT1080_SOFT_TISSUE,EMEM+10%FBS,,
-41,NCIH2087_LUNG,DMEM:F12 (1:1) + 10% FBS,"0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES","DMEM:F12 (1:1) + 10% FBS + 0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES"
-42,COV318_OVARY,DMEM + 10% FBS,2mM Glutamine,DMEM + 10% FBS + 2mM Glutamine
-43,NCIH2085_LUNG,DMEM:F12 (1:1) + 10% FBS,"0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES","DMEM:F12 (1:1) + 10% FBS + 0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES"
-44,NCIH510_LUNG,F-12K  ATCC  + 10% FBS,,
-45,CAKI1_KIDNEY,McCoy's 5A +10%FBS,,
-46,NCIH716_LARGE_INTESTINE,,,
-47,NCIH2066_LUNG,DMEM:HAM's F12  1:1 (ATCC catalog # 30-2006) + 5%  FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:HAM's F12  1:1 (ATCC catalog # 30-2006) + 5%  FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-48,NCIH1341_LUNG,RPMI-1640   + 5% FBS,,
-49,NCIH2029_LUNG,DMEM:HAM's F12  1:1  + 5%  FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:HAM's F12  1:1  + 5%  FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-50,C3A_LIVER,,,
-51,SW480_LARGE_INTESTINE,L15+10%FBS,,
-52,HS746T_STOMACH,,,
-53,LU65_LUNG,RPMI 1640+10%FBS,,
-54,HS739T_FIBROBLAST,,,
-55,SNUC2A_LARGE_INTESTINE,,,
-56,HEC151_ENDOMETRIUM,Eagle's minimal essential medium with 15%  fetal calf serum,,
-57,MSTO211H_PLEURA,RPMI+10%FBS,,
-58,RAJI_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-59,SKMEL1_SKIN,,,
-60,SUPT1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-61,JHH7_LIVER,,,
-62,HUT102_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI+10%FBS,,
-63,5637_URINARY_TRACT,RPMI1640+10%FBS,,
-64,HCC38_BREAST,RPMI-1640 + 10% FBS,,
-65,DU4475_BREAST,RPMI-1640 + 10% FBS,,
-66,NCIH1573_LUNG,DMEM/F12(1:1) +10 % FBS,".02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 1ng/mL EGF,  50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate","DMEM/F12(1:1) +10 % FBS + .02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 1ng/mL EGF,  50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate"
-67,NCIH508_LARGE_INTESTINE,,,
-68,NCIH1651_LUNG,DMEM:F12 (1:1) + 10% FBS,"0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES","DMEM:F12 (1:1) + 10% FBS + 0.02 mg/ml insulin, 0.01 mg/ml transferrin, 25 nM sodium selenite, 50 nM Hydrocortisone, 1 ng/ml EGF(don't filter), 0.01 mM ethanolamine, 0.01 mM phosphorylethanolamine, 100 pM triiodothyronine, 0.5% bovine serum albumin, 0.5 mM sodium pyruvate,  2mM L-glutamine, 10nM HEPES"
-69,SKUT1_SOFT_TISSUE,EMEM + 10% FBS,,
-70,MDAMB175VII_BREAST,RPMI+10%FBS,,
-71,SUPB15_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-72,BECKER_CENTRAL_NERVOUS_SYSTEM,,,
-73,NCIH226_LUNG,RPMI-1640+10% FBS,,
-74,NCIH1666_LUNG,DMEM:F:12 (1:1) +10 %FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50nM hydrocortisone, 1 ng/mL epidermal growth factor, 0.01mM ethanolamine, 0.01mM phosphorylethanolamine, 100pM triiodothyronine, 0.5%(w/v) bovine serum albumin, 0.5 mM sodium pyruvate, 2mM L-glutamine","DMEM:F:12 (1:1) +10 %FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50nM hydrocortisone, 1 ng/mL epidermal growth factor, 0.01mM ethanolamine, 0.01mM phosphorylethanolamine, 100pM triiodothyronine, 0.5%(w/v) bovine serum albumin, 0.5 mM sodium pyruvate, 2mM L-glutamine"
-75,SW1783_CENTRAL_NERVOUS_SYSTEM,,,
-76,ISTMES1_PLEURA,,,
-77,NCIH1734_LUNG,RPMI-1640  +10% FBS,,
-78,NCIH2342_LUNG,DMEM:F12(1:1) + 10%FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol,  2 mM L-glutamine","DMEM:F12(1:1) + 10%FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol,  2 mM L-glutamine"
-79,EBC1_LUNG,MEM+10%FBS,,
-80,YMB1_BREAST,,,
-81,OC316_OVARY,RPMI-1640+ 5% FBS,2mM L-Glutamine,RPMI-1640+ 5% FBS + 2mM L-Glutamine
-82,HS936T_SKIN,,,
-83,T173_FIBROBLAST,DMEM + 10% FBS,"4.5 g/L glucose, 1.5 g/L sodium bicarbonate","DMEM + 10% FBS + 4.5 g/L glucose, 1.5 g/L sodium bicarbonate"
-84,NCIH322_LUNG,RPMI1640+10%FBS,2mM L-Glutamine,RPMI1640+10%FBS + 2mM L-Glutamine
-85,HS618T_FIBROBLAST,DMEM +10 %FBS,"4.5 g/L glucose, 1.5 g/L sodium bicarbonate","DMEM +10 %FBS + 4.5 g/L glucose, 1.5 g/L sodium bicarbonate"
-86,HS870T_FIBROBLAST,,,
-87,HS706T_BONE,,,
-88,PANC1_PANCREAS,,,
-89,NCIH2291_LUNG,RPMI 1640 +10% FBS,,
-90,T47D_BREAST,RPMI-1640 + 10% FBS,0.2 Units/ml bovine insulin,RPMI-1640 + 10% FBS + 0.2 Units/ml bovine insulin
-91,HS742T_FIBROBLAST,DMEM+10% FBS,,
-92,BICR56_UPPER_AERODIGESTIVE_TRACT,DMEM + 10% FBS,2mM GLUTAMINE+0.4UG/ML HYDROCORTISONE,DMEM + 10% FBS + 2mM GLUTAMINE+0.4UG/ML HYDROCORTISONE
-93,BICR16_UPPER_AERODIGESTIVE_TRACT,DMEM+10% FBS,2mM L-GLUTAMINE + 0.4UG/ML HYDROCORTISONE,DMEM+10% FBS + 2mM L-GLUTAMINE + 0.4UG/ML HYDROCORTISONE
-94,TE10_OESOPHAGUS,RPMI 1640 +10%FBS,,
-95,SKMEL28_SKIN,,,
-96,BICR6_UPPER_AERODIGESTIVE_TRACT,DMEM+10%FBS,2mM L-Glutamine ; 0.4 ug/ml Hydrocortisone,DMEM+10%FBS + 2mM L-Glutamine ; 0.4 ug/ml Hydrocortisone
-97,BHY_UPPER_AERODIGESTIVE_TRACT,DMEM + 10% FBS,,
-98,AZ521_SMALL_INTESTINE,,,
-99,SH4_SKIN,DMEM+10% FBS,,
-100,KPL1_BREAST,90% Dulbecco's MEM + 10% h.i. FBS,,
-101,CGTHW1_THYROID,RPMI1640+10%FBS,,
-102,TUHR4TKB_KIDNEY,DMEM+10% FBS,,
-103,LS123_LARGE_INTESTINE,EMEM+10%FBS,,
-104,HEL_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+10%FBS,,
-105,HPAC_PANCREAS,DMEM:F12 + 5% FBS,Insulin + EGF,DMEM:F12 + 5% FBS + Insulin + EGF
-106,RCC10RGB_KIDNEY,DMEM+10% FBS,,
-107,JHOM1_OVARY,DMEM:F12+10% FBS,0.1mM NEAA,DMEM:F12+10% FBS + 0.1mM NEAA
-108,SU8686_PANCREAS,RPMI-1640+10% FBS,,
-109,HCC33_LUNG,RPMI-1640+20% FBS,,
-110,TE6_OESOPHAGUS,RPMI 1640 +10%FBS,,
-111,JHOC5_OVARY,(DMEM: HamF12=1:1) +10%FBS,0.1mM NEAA,(DMEM: HamF12=1:1) +10%FBS + 0.1mM NEAA
-112,ACCMESO1_PLEURA,RPMI 1640 +10% FBS,,
-113,BL41_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-114,SNU1214_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-115,CORL105_LUNG,,,
-116,LMSU_STOMACH,HamF10 +10% FBS,,
-117,SNU1197_LARGE_INTESTINE,"RPMI 1640 with glutamine(300mg/L), 90%,heat inactivated fetal bovine serum (FBS)10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640 with glutamine(300mg/L), 90%,heat inactivated fetal bovine serum (FBS)10% + 25mM Hepes and 25mM NaHCo3"
-118,COLO668_LUNG,,,
-119,OSRC2_KIDNEY,RPMI 1640 +10% FBS,,
-120,HUH6_LIVER,DMEM + 10%FBS,,
-121,PANC0203_PANCREAS,RPMI + 10% FBS,,
-122,CJM_SKIN,HamF10 +10% FBS,,
-123,BICR22_UPPER_AERODIGESTIVE_TRACT,DMEM+20% FBS,"2mM L-glutamine, 0.4ug/ml hydrocortisone","DMEM+20% FBS + 2mM L-glutamine, 0.4ug/ml hydrocortisone"
-124,SHSY5Y_AUTONOMIC_GANGLIA,DMEM:F12 +10% FBS,,
-125,TM31_CENTRAL_NERVOUS_SYSTEM,MEM +10%FBS,,
-126,SNU1272_KIDNEY,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-127,KPNRTBM1_AUTONOMIC_GANGLIA,RPMI 1640 medium with 10% fetal bovine serum,,
-128,BICR18_UPPER_AERODIGESTIVE_TRACT,,,
-129,TE4_OESOPHAGUS,RPMI 1640 +10%FBS,,
-130,PCM6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,McCoy's 5A +20% FBS,,
-131,ECC10_STOMACH,RPMI 1640 +10%FBS,,
-132,TUHR14TKB_KIDNEY,RPMI-1640+10%FBS,,
-133,YD15_SALIVARY_GLAND,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-134,UBLC1_URINARY_TRACT,2/3 DMEM:1/3 RPMI+10%FBS,2mM GLUTAMINE,2/3 DMEM:1/3 RPMI+10%FBS + 2mM GLUTAMINE
-135,ECGI10_OESOPHAGUS,HamF12+10%FBS,,
-136,CW2_LARGE_INTESTINE,RPMI 1640(or DM-160AU) +10%FBS,,
-137,SNU761_LIVER,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-138,SNU61_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-139,NCIH1915_LUNG,RPMI 1640 +10% FBS,,
-140,SNU324_PANCREAS,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-141,YD10B_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-142,HCC2279_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBs),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBs),10% + 25mM Hepes and 25mM NaHCo3"
-143,HLC1_LUNG,,,
-144,TUHR10TKB_KIDNEY,RPMI 1640 +10%FBS,,
-145,HEC1B_ENDOMETRIUM,,,
-146,VMRCLCP_LUNG,EMEM+10% FBS,NEAA,EMEM+10% FBS + NEAA
-147,TGBC11TKB_STOMACH,DMEM +5%FBS,,
-148,OVK18_OVARY,MEM+10% FBS,,
-149,SNU1077_ENDOMETRIUM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-150,HCC1588_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-151,SNU213_PANCREAS,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-152,HT115_LARGE_INTESTINE,DMEM+15%FBS,2Mm L-Glutamine,DMEM+15%FBS + 2Mm L-Glutamine
-153,TE14_OESOPHAGUS,RPMI 1640 +10%FBS,,
-154,TE8_OESOPHAGUS,RPMI 1640 +10%FBS,,
-155,SNU520_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-156,JHUEM3_ENDOMETRIUM,(DMEM:HamF12=1:1) +10%FBS,0.1mMNEAA,(DMEM:HamF12=1:1) +10%FBS + 0.1mMNEAA
-157,LI7_LIVER,RPMI 1640 +10%FBS,,
-158,NCIH838_LUNG,RPMI+10%FBS,,
-159,SNU119_OVARY,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-160,SNU1033_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-161,SNUC5_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-162,GSS_STOMACH,RPMI 1640 +10%FBS,,
-163,TALL1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-164,HCC1171_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-165,SNUC4_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-166,U138MG_CENTRAL_NERVOUS_SYSTEM,,,
-167,SNU620_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-168,ECC12_STOMACH,RPMI-1640+10% FBS,,
-169,GSU_STOMACH,RPMI 1640 +10%FBS,,
-170,KMS18_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-171,JHOM2B_OVARY,(DMEM:HamF12=1:1) + 10%FBS,0.1mMNEAA,(DMEM:HamF12=1:1) + 10%FBS + 0.1mMNEAA
-172,MDAMB231_BREAST,RPMI-1640 + 10% FBS,,
-173,OV90_OVARY,MCDB 105 (1:1)Medium 199 +15%FBS,,
-174,RS411_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-175,OVTOKO_OVARY,RPMI-1640+10%FBS,,
-176,OVCAR4_OVARY,,,
-177,HLF_LIVER,DMEM+5% FBS,,
-178,HCT15_LARGE_INTESTINE,,,
-179,SW1463_LARGE_INTESTINE,RPMI-1640+10% FBS,,
-180,SF295_CENTRAL_NERVOUS_SYSTEM,,,
-181,WM115_SKIN,,,
-182,JHH4_LIVER,EMEM +10 % FBS,,
-183,OE33_OESOPHAGUS,RPMI-1640+10% FBS,2mM l-GLUTAMINE,RPMI-1640+10% FBS + 2mM l-GLUTAMINE
-184,CCK81_LARGE_INTESTINE,EMEM+10% FBS,,
-185,JHH1_LIVER,Williams E Medium + 10%FBS,,
-186,SJSA1_BONE,RPMI1640+10%FBS,,
-187,NCIH2228_LUNG,RPMI-1640+10%FBS,,
-188,RERFLCAI_LUNG,MEM+10%FBS,,
-189,SKMES1_LUNG,,,
-190,NCIH520_LUNG,RPMI-1640+10% FBS,,
-191,JHH5_LIVER,Williams E Medium + 10%FBS,,
-192,FU97_STOMACH,DMEM + 10% FBS,10mg/L INSULIN,DMEM + 10% FBS + 10mg/L INSULIN
-193,COLO800_SKIN,RPMI-1640+10% FBS,,
-194,NCIH1963_LUNG,RPMI-1640+10%FBS,,
-195,RL952_ENDOMETRIUM,,,
-196,J82_URINARY_TRACT,EMEM+10%FBS,,
-197,HCC15_LUNG,RPMI-1640 + 10%FBS,,
-198,M059K_CENTRAL_NERVOUS_SYSTEM,DMEM:F12 +10% FBS,,
-199,CALU6_LUNG,EMEM +10%FBS,,
-200,SKLU1_LUNG,MEM+10%FBS,,
-201,SW900_LUNG,L15+10%FBS,,
-202,UACC62_SKIN,,,
-203,MFE280_ENDOMETRIUM,,,
-204,MFE319_ENDOMETRIUM,,,
-205,MFE296_ENDOMETRIUM,RPM:MEM +20% FBS,"2mM L-glutamine, Insulin, Transferrin, Selenite","RPM:MEM +20% FBS + 2mM L-glutamine, Insulin, Transferrin, Selenite"
-206,GOS3_CENTRAL_NERVOUS_SYSTEM,,,
-207,GI1_CENTRAL_NERVOUS_SYSTEM,DMEM+10%FBS,,
-208,PC14_LUNG,RPMI+10%FBS,,
-209,KYSE410_OESOPHAGUS,RPMI-1640+10%FBS,,
-210,A204_SOFT_TISSUE,,,
-211,PATU8902_PANCREAS,DMEM + 10%FBS,2mM L-Glutamine,DMEM + 10%FBS + 2mM L-Glutamine
-212,NCIH810_LUNG,,,
-213,RERFLCMS_LUNG,EMEM+10%FBS,NEAA,EMEM+10%FBS + NEAA
-214,L1236_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI+10%FBS,,
-215,DANG_PANCREAS,RPMI-1640+ 10%FBS,,
-216,NCIH460_LUNG,RPMI-1640+10%FBS,,
-217,KYSE140_OESOPHAGUS,RPMI 1640+10%FBS,,
-218,KYSE180_OESOPHAGUS,RPMI-1640 +10% FBS,,
-219,HUPT3_PANCREAS,EMEM+10%FBS,1% NEAA + 1% sodium pyruvate,EMEM+10%FBS + 1% NEAA + 1% sodium pyruvate
-220,EFE184_ENDOMETRIUM,RPMI-1640+10% FBS,,
-221,GCIY_STOMACH,,,
-222,SH10TC_STOMACH,RPMI 1640 +10%FBS,,
-223,CAOV4_OVARY,,,
-224,HCC2218_BREAST,RPMI 1640 +10%FBS,,
-225,KMS21BM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 medium with 10% fetal bovine serum.,,
-226,KMS26_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+10%FBS,,
-227,KMS27_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+10%FBS,,
-228,KO52_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,MEM + 10% FBS,,
-229,KMS28BM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI +10%FBS,,
-230,KNS60_CENTRAL_NERVOUS_SYSTEM,Dulbecco's modified Eagle's medium with 5% fetal bovine serum,,
-231,KNS81_CENTRAL_NERVOUS_SYSTEM,DMEM+15%FBS,,
-232,KPNSI9S_AUTONOMIC_GANGLIA,RPMI 1640 medium wiyh10% fetal bovine serum,,
-233,LU99_LUNG,RPMI 1640 +10% FBS,,
-234,KMS34_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-235,MKN1_STOMACH,RPMI 1640 medium with 10% fetal calf serum.,,
-236,MKN74_STOMACH,RPMI 1640 medium with 10% heat inactivated fetal bovine serum,,
-237,KP3_PANCREAS,RPMI 1640 medium with 10% fetal bovine serum,,
-238,NCO2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-239,KHM1B_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-240,HSC2_UPPER_AERODIGESTIVE_TRACT,EMEM+10%FBS,,
-241,KG1C_CENTRAL_NERVOUS_SYSTEM,DMEM + 10% FBS,,
-242,HUH7_LIVER,Dulbecco's modified Eagle's medium with 10% fetal bovine serum. Refer cancer Res. 42:3858 (1982) for other medium with low serum concentration.,,
-243,KMBC2_URINARY_TRACT,Ham's F12 +10% FBS,,
-244,KMRC20_KIDNEY,DMEM+10% FBS,,
-245,HUCCT1_BILIARY_TRACT,RPMI 1640 medium with 10% fetal bovine serum.,,
-246,KIJK_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 medium with 10% fetal calf serum.,,
-247,A4FUK_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-10% FBS,,
-248,KALS1_CENTRAL_NERVOUS_SYSTEM,RPMI1640+10%FBS,,
-249,HEC108_ENDOMETRIUM,,,
-250,HEL9217_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-251,HUH28_BILIARY_TRACT,RPMI-1640+10% FBS,,
-252,CMK115_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 +10% FBS,,
-253,HEC265_ENDOMETRIUM,Eagle's minimal essential medium with 15%  fetal bovine serum,,
-254,CAL12T_LUNG,,,
-255,THP1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,0.05 mM 2-mercaptoethanol,RPMI-1640 + 10% FBS + 0.05 mM 2-mercaptoethanol
-256,A3KAW_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-257,SKNSH_AUTONOMIC_GANGLIA,EMEM+10% FBS,,
-258,HCC1954_BREAST,RPMI 1640 + 10%FBS,na,RPMI 1640 + 10%FBS + na
-259,CAMA1_BREAST,EMEM+10%FBS,,
-260,HEC6_ENDOMETRIUM,Eagle's minimal essential medium with 15% fetal calf serum,,
-261,AM38_CENTRAL_NERVOUS_SYSTEM,Eagle's minimal essential with 20% heat inactivated fetal bovine serum,,
-262,HEC50B_ENDOMETRIUM,Eagle's minimal essential medium with 15%  fetal calf serum,,
-263,HSC3_UPPER_AERODIGESTIVE_TRACT,EMEM+10%FBS,,
-264,HSC4_UPPER_AERODIGESTIVE_TRACT,Eagle's minimal essential medium with 10% calf serum (FCS can be used),,
-265,KMS11_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640+20%FBS,,
-266,KP4_PANCREAS,IMDM+10%FBS,,
-267,KE39_STOMACH,RPMI 1640 +10%FBS,,
-268,COV504_OVARY,,,
-269,KE97_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 +10%FBS,,
-270,VMRCRCW_KIDNEY,EMEM+10%FBS,,
-271,HGC27_STOMACH,,,
-272,LUDLU1_LUNG,RPMI-1640+10% FBS,,
-273,HUG1N_STOMACH,,,
-274,U266B1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+15%FBS,,
-275,NUGC4_STOMACH,,,
-276,BGC823_STOMACH,,,
-277,HMC18_BREAST,RPMI 1640 +10%FBS,,
-278,CAS1_CENTRAL_NERVOUS_SYSTEM,DMEM +10%FBS,,
-279,KMM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 medium with 10% fetal bovine serum.,,
-280,CORL23_LUNG,RPMI 1640 + 10%FBS,2mM L-glutamine,RPMI 1640 + 10%FBS + 2mM L-glutamine
-281,MORCPR_LUNG,RPMI-1640+ 10%FBS,2mM glutamine; 1ug/ml cisplatin,RPMI-1640+ 10%FBS + 2mM glutamine; 1ug/ml cisplatin
-282,HARA_LUNG,RPMI-1640+10% FBS,,
-283,SKOV3_OVARY,,,
-284,HPAFII_PANCREAS,EMEM+10% FBS,,
-285,MC116_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20%FBS,,
-286,NCIH1568_LUNG,RPMI+10%FBS,,
-287,CA46_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-288,A498_KIDNEY,EMEM+10%FBS,,
-289,BCP1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI +20% FBS,,
-290,A673_BONE,,,
-291,AU565_BREAST,RPMI 1640 + 10%FBS,,
-292,COLO201_LARGE_INTESTINE,RPMI-1640+10% FBS,,
-293,CAPAN1_PANCREAS,IMDM +20% FBS,,
-294,NCIH1563_LUNG,RPMI+10%FBS,,
-295,NCIH358_LUNG,RPMI+10%FBS,,
-296,CFPAC1_PANCREAS,IMDM+10%fbs,,
-297,NIHOVCAR3_OVARY,RPMI+20%FBS,,
-298,NCIH1650_LUNG,RPMI+10%FBS,,
-299,NCIH1793_LUNG,DMEM:F12,plethora; see sheet,DMEM:F12 + plethora; see sheet
-300,NCIH1437_LUNG,RPMI+10%FBS,,
-301,KNS62_LUNG,EMEM +20%FBS,,
-302,HS578T_BREAST,DMEM +10 %FBS,,
-303,BT20_BREAST,,,
-304,SNU182_LIVER,,,
-305,SKNMC_BONE,EMEM + 10% FBS,,
-306,HH_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-307,FADU_UPPER_AERODIGESTIVE_TRACT,,,
-308,SJRH30_SOFT_TISSUE,,,
-309,MDAMB361_BREAST,RPMI-20% FBS,,
-310,MDAMB436_BREAST,RPMI-1640 + 10% FBS,10ug/ml bovine insulin; 16ug/ml glutathione,RPMI-1640 + 10% FBS + 10ug/ml bovine insulin; 16ug/ml glutathione
-311,PANC0213_PANCREAS,,,
-312,DB_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-313,RDES_BONE,,,
-314,CAL27_UPPER_AERODIGESTIVE_TRACT,,,
-315,MESSA_SOFT_TISSUE,McCoy's 5A + 10%FBS,,
-316,SW1271_LUNG,Leibovitz's L-15 Medium + 10%FBS,,
-317,NCIH1792_LUNG,RPMI+10%FBS,,
-318,GCT_SOFT_TISSUE,,,
-319,SKBR3_BREAST,,,
-320,SNU16_STOMACH,,,
-321,NCIH82_LUNG,RPMI+10%FBS,,
-322,NCIN87_STOMACH,RPMI1640+10%FBS,,
-323,U2OS_BONE,McCoy's 5A +10%FBS,,
-324,H4_CENTRAL_NERVOUS_SYSTEM,,,
-325,GDM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-326,HCC1143_BREAST,RPMI+10%FBS,,
-327,T24_URINARY_TRACT,McCoy's 5A +10%,,
-328,G401_SOFT_TISSUE,,,
-329,HCC1937_BREAST,RPMI-1640+10% FBS,,
-330,HCC1569_BREAST,RPMI1640+10%FBS,,
-331,OCUM1_STOMACH,,,
-332,SAOS2_BONE,McCoy's 5A +15%FBS,,
-333,D283MED_CENTRAL_NERVOUS_SYSTEM,,,
-334,SCC9_UPPER_AERODIGESTIVE_TRACT,,,
-335,HCC1395_BREAST,RPMI-10% FBS,,
-336,NMCG1_CENTRAL_NERVOUS_SYSTEM,DMEM +10%FBS,,
-337,TEN_ENDOMETRIUM,MEM + 10% FBS,,
-338,HS604T_FIBROBLAST,DMEM +10 %FBS,,
-339,TE9_OESOPHAGUS,RPMI 1640 + 10%FBS,,
-340,KNS42_CENTRAL_NERVOUS_SYSTEM,EMEM + 5% FBS,,
-341,KYSE520_OESOPHAGUS,RPMI 1640 +10%FBS,,
-342,KYSE270_OESOPHAGUS,RPMI + 10 % FBS,,
-343,JHUEM1_ENDOMETRIUM,DMEM:F12(1:1) +15%FBS,,
-344,YH13_CENTRAL_NERVOUS_SYSTEM,EMEM + 20% FBS,,
-345,IALM_LUNG,HAMSF10+ 10% FBS,,
-346,NCIH2052_PLEURA,RPMI-1640  +10 % FBS,,
-347,EB2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-348,SKNFI_AUTONOMIC_GANGLIA,,,
-349,SKNAS_AUTONOMIC_GANGLIA,DMEM + 10% FBS,0.1mM NEAA,DMEM + 10% FBS + 0.1mM NEAA
-350,GA10_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-351,SNU398_LIVER,,,
-352,SNU423_LIVER,,,
-353,SCC4_UPPER_AERODIGESTIVE_TRACT,,,
-354,EB1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-355,HCC1187_BREAST,RPMI-1640+10% FBS,,
-356,SNU387_LIVER,RPMI-1640 + 10% FBS,,
-357,DAUDI_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-358,HT_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-359,MJ_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-360,JM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-361,C2BBE1_LARGE_INTESTINE,DMEM +10%FBS,,
-362,SKES1_BONE,,,
-363,EPLC272H_LUNG,RPMI-1640+20% FBS,,
-364,BXPC3_PANCREAS,,,
-365,NCIH1355_LUNG,DMEM/F12(1:1) +10 % FBS,".02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate, 1ng/mL EGF","DMEM/F12(1:1) +10 % FBS + .02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate, 1ng/mL EGF"
-366,SNU5_STOMACH,,,
-367,SNU475_LIVER,,,
-368,HEC251_ENDOMETRIUM,Eagle's minimal essential medium with 15%  fetal bovine serum,,
-369,HCC95_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-370,253J_URINARY_TRACT,Eagle,,
-371,HCC1438_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-372,253JBV_URINARY_TRACT,DMEM + 10% FBS,,
-373,RPMI7951_SKIN,EMEM+10%FBS,,
-374,SNU1066_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-375,SNU1041_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-376,HCC2108_LUNG,RPMI+10%FBS,,
-377,COLO783_SKIN,RPMI-1640+10% FBS,,
-378,HCC1359_LUNG,RPMI-1640+10% FBS,,
-379,BICR31_UPPER_AERODIGESTIVE_TRACT,DMEM+20% FBS,"2mM L-glutamine, 0.4ug/ml hydrocortisone","DMEM+20% FBS + 2mM L-glutamine, 0.4ug/ml hydrocortisone"
-380,COV362_OVARY,DMEM+10% FBS,2mM L-glutamine,DMEM+10% FBS + 2mM L-glutamine
-381,COLO792_SKIN,RPMI+10%FBS,2Mm L-Glutamine,RPMI+10%FBS + 2Mm L-Glutamine
-382,COV434_OVARY,,,
-383,WM983B_SKIN,,,
-384,HS751T_FIBROBLAST,,,
-385,LS513_LARGE_INTESTINE,,,
-386,NCIH2110_LUNG,,,
-387,CHAGOK1_LUNG,,,
-388,DMS454_LUNG,Waymouth's +10%FBS,2mM GLUTAMINE,Waymouth's +10%FBS + 2mM GLUTAMINE
-389,CORL47_LUNG,RPI-1640+10% FBS,2mM L-glutamine,RPI-1640+10% FBS + 2mM L-glutamine
-390,FTC238_THYROID,DMEM:F12 (1:1)+5%FBS,2mM L-GLUTAMINE,DMEM:F12 (1:1)+5%FBS + 2mM L-GLUTAMINE
-391,DMS273_LUNG,,,
-392,FTC133_THYROID,DMEM:F12+10% FBS,2mM L-GLUTAMINE,DMEM:F12+10% FBS + 2mM L-GLUTAMINE
-393,CORL311_LUNG,RPMI+10%FBS,2Mm L-Glutamine,RPMI+10%FBS + 2Mm L-Glutamine
-394,NCIH2286_LUNG,,,
-395,NCIH1339_LUNG,RPMI+20%FBS,,
-396,WM793_SKIN,RPMI-1640 + 10% FBS,,
-397,A704_KIDNEY,MEM+10% FBS,,
-398,MDAMB435S_SKIN,RPMI-1640+10% FBS,,
-399,WM1799_SKIN,RPMI-1640 + 10% FBS,,
-400,MEWO_SKIN,,,
-401,WM88_SKIN,,,
-402,NCIH2081_LUNG,,,
-403,HS255T_FIBROBLAST,,,
-404,NCIH1092_LUNG,RPMI-1640 + 5% FBS,"5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES","RPMI-1640 + 5% FBS + 5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES"
-405,SW837_LARGE_INTESTINE,RPMI1640+10%FBS,,
-406,JHH6_LIVER,Williams E Medium + 10%FBS,,
-407,IGR1_SKIN,DMEM + 10% FBS,,
-408,NCIH1105_LUNG,RPMI-1640 + 5% FBS,"5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES","RPMI-1640 + 5% FBS + 5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES"
-409,NCIH1436_LUNG,DMEM:F12(1:1) + 10%FBS,"0.005 mg/mL insulin, 0.01 mg/mL transferrin, 30nM sodium selenite, 2mM L-glutamine","DMEM:F12(1:1) + 10%FBS + 0.005 mg/mL insulin, 0.01 mg/mL transferrin, 30nM sodium selenite, 2mM L-glutamine"
-410,NCIH1876_LUNG,DMEM:HAM's F12  1:1  +10% FBS,"5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES","DMEM:HAM's F12  1:1  +10% FBS + 5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES"
-411,CORL24_LUNG,RPMI+10%FBS,2Mm L-Glutamine,RPMI+10%FBS + 2Mm L-Glutamine
-412,COV644_OVARY,DMEM+10%FBS,2mM L-Glutamine,DMEM+10%FBS + 2mM L-Glutamine
-413,GP2D_LARGE_INTESTINE,DMEM+10%FBS,2Mm L-Glutamine,DMEM+10%FBS + 2Mm L-Glutamine
-414,PECAPJ15_UPPER_AERODIGESTIVE_TRACT,,,
-415,CORL88_LUNG,,,
-416,CORL95_LUNG,RPMI-1640+10% FBS,2mM L-GLUTAMINE,RPMI-1640+10% FBS + 2mM L-GLUTAMINE
-417,PECAPJ49_UPPER_AERODIGESTIVE_TRACT,IMDM+10% FBS,2mM L-glutamine,IMDM+10% FBS + 2mM L-glutamine
-418,PECAPJ34CLONEC12_UPPER_AERODIGESTIVE_TRACT,,,
-419,CORL51_LUNG,,,
-420,RT11284_URINARY_TRACT,,,
-421,PECAPJ41CLONED2_UPPER_AERODIGESTIVE_TRACT,,,
-422,OV7_OVARY,DMEM:F12 (1:1)+5%FBS,"2mM L-glutamine, 0.5ug/ml hydrocortisone, 10ug/ml insulin","DMEM:F12 (1:1)+5%FBS + 2mM L-glutamine, 0.5ug/ml hydrocortisone, 10ug/ml insulin"
-423,HT55_LARGE_INTESTINE,,,
-424,OAW42_OVARY,DMEM+10%FBS,"2mM L-Glutamine, 20 IU/L Bovine Insuline","DMEM+10%FBS + 2mM L-Glutamine, 20 IU/L Bovine Insuline"
-425,MDST8_LARGE_INTESTINE,DMEM+10% FBS,2mM L-glutamine,DMEM+10% FBS + 2mM L-glutamine
-426,OAW28_OVARY,,,
-427,SUIT2_PANCREAS,EMEM+10% FBS,,
-428,LC1SQSF_LUNG,RPMI-F12 (1:1) +10% FBS,,
-429,KASUMI1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-430,SUPM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 20% FBS,,
-431,SKHEP1_LIVER,EMEM + 10% FBS,,
-432,OVCAR8_OVARY,,,
-433,NCIH2172_LUNG,RPMI+10%FBS,,
-434,ISHIKAWAHERAKLIO02ER_ENDOMETRIUM,,,
-435,NCIH596_LUNG,RPMI-1640+10% FBS,,
-436,NCIH650_LUNG,DMEM:F12,plethora; see sheet,DMEM:F12 + plethora; see sheet
-437,SW1573_LUNG,L15+10%FBS,,
-438,OVMANA_OVARY,,,
-439,SKCO1_LARGE_INTESTINE,EMEM +10% FBS,,
-440,KARPAS299_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,2mM L-glutamine,RPMI-1640+20% FBS + 2mM L-glutamine
-441,YAPC_PANCREAS,RPMI-1640 + 10% FBS,,
-442,HT1197_URINARY_TRACT,,,
-443,A253_SALIVARY_GLAND,McCoy's 5A + 10% FBS,,
-444,HCC366_LUNG,RPMI-1640+10%FBS,,
-445,DKMG_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+10% FBS,2mM l-GLUTAMINE,RPMI-1640+10% FBS + 2mM l-GLUTAMINE
-446,SNU349_KIDNEY,RPMI+10%FBS,,
-447,UMUC1_URINARY_TRACT,MEM + 10 % FBS,2mM GLUTAMINE + 1% NEAA,MEM + 10 % FBS + 2mM GLUTAMINE + 1% NEAA
-448,NAMALWA_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-449,NCIH292_LUNG,,,
-450,59M_OVARY,,,
-451,U118MG_CENTRAL_NERVOUS_SYSTEM,DMEM+10% FBS,,
-452,VMRCLCD_LUNG,EMEM+10% FBS,,
-453,HCC1833_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-454,RH30_SOFT_TISSUE,90-95% RPMI 1640 +5-10 h.i. FBS,,
-455,TCCSUP_URINARY_TRACT,,,
-456,SNU601_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-457,CAL33_UPPER_AERODIGESTIVE_TRACT,DMEM+10% FBS,2mM L-glutamine,DMEM+10% FBS + 2mM L-glutamine
-458,SNU668_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-459,CORL279_LUNG,,,
-460,GB1_CENTRAL_NERVOUS_SYSTEM,Dulbecco's modified Eagle's medium with 10% fetal calf serum,,
-461,KURAMOCHI_OVARY,,,
-462,COLO775_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-463,COLO684_ENDOMETRIUM,,,
-464,KLM1_PANCREAS,,,
-465,GRM_SKIN,,,
-466,SNU685_ENDOMETRIUM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-467,CMK86_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-468,SNU886_LIVER,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-469,HCT8_LARGE_INTESTINE,,,
-470,NCCSTCK140_STOMACH,DMEM + 10%FBS,,
-471,NCIH3255_LUNG,,,
-472,SNU719_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-473,SNU489_CENTRAL_NERVOUS_SYSTEM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-474,SNU81_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-475,A2058_SKIN,,,
-476,HTK_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-477,SNU1040_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-478,SNU1076_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-479,SNU175_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-480,SNU407_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-481,SNU201_CENTRAL_NERVOUS_SYSTEM,"RPMI 1640 with L-glutamine(300mg/L), 90%; heat inactivatedfetal bovine serum (FBS), 10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640 with L-glutamine(300mg/L), 90%; heat inactivatedfetal bovine serum (FBS), 10% + 25mM Hepes and 25mM NaHCo3"
-482,KMS20_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+10%FBS,,
-483,SNU216_STOMACH,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-484,SNU1196_BILIARY_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-485,SNU1079_BILIARY_TRACT,,,
-486,HCC1195_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-487,NCIH854_LUNG,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-488,SNU466_CENTRAL_NERVOUS_SYSTEM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBs),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBs),10% + 25mM Hepes and 25mM NaHCo3"
-489,YD38_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-490,SNU1105_CENTRAL_NERVOUS_SYSTEM,,,
-491,SNU283_LARGE_INTESTINE,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-492,SNU46_UPPER_AERODIGESTIVE_TRACT,RPMI+10%FBS,,
-493,SNU308_BILIARY_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-494,YD8_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-495,SNU245_BILIARY_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-496,SNU478_BILIARY_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-497,SNU410_PANCREAS,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-498,SNU899_UPPER_AERODIGESTIVE_TRACT,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-499,SNU503_LARGE_INTESTINE,,,
-500,SET2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 20% FBS,,
-501,SNU738_CENTRAL_NERVOUS_SYSTEM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-502,SNU626_CENTRAL_NERVOUS_SYSTEM,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10%",25mM Hepes and 25mM NaHCo3,"RPMI 1640  with L-glutamine (300mg/L), 90%; heat inactivated fetal bovine serum (FBS),10% + 25mM Hepes and 25mM NaHCo3"
-503,SNU869_BILIARY_TRACT,RPMI-10% FBS,,
-504,SNU878_LIVER,RPMI+10%FBS,,
-505,SNU840_OVARY,RPMI-1640+10% FBS,,
-506,SNU8_OVARY,RPMI-1640+10% FBS,,
-507,NCIH684_LIVER,ACL-4,,
-508,IGR39_SKIN,DMEM+15%FBS,,
-509,DAOY_CENTRAL_NERVOUS_SYSTEM,EMEM+10%FBS,,
-510,HEP3B217_LIVER,EMEM+10%FBS,,
-511,KYM1_SOFT_TISSUE,,,
-512,LC1F_LUNG,RPMI-1640+10%FBS,,
-513,HLE_LIVER,,,
-514,CMK_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 20% h.i. FBS,,
-515,JMSU1_URINARY_TRACT,RPMI 1640 + 10%FBS,,
-516,IMR32_AUTONOMIC_GANGLIA,,,
-517,SUDHL8_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 +20% h.i. FBS,,
-518,T3M4_PANCREAS,HAMSF10+ 10% FBS,,
-519,COLO818_SKIN,,,
-520,PK45H_PANCREAS,RPMI + 10 % FBS,,
-521,HEC59_ENDOMETRIUM,Eagle's minimal essential medium with 15%  fetal calf serum,,
-522,CPCN_LUNG,McCoy's 5A +10%FBS,,
-523,T3M10_LUNG,,,
-524,NUGC2_STOMACH,,,
-525,PLCPRF5_LIVER,EMEM +10%FBS,,
-526,KPNYN_AUTONOMIC_GANGLIA,RPMI-1640 + 10% FBS,,
-527,CCFSTTG1_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+10% FBS,,
-528,NCIH929_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+10%FBS,,
-529,KMRC3_KIDNEY,DMEM+ 10% FBS,,
-530,NCIH2023_LUNG,DMEM:HAM's F12  1:1 + 5 % FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:HAM's F12  1:1 + 5 % FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-531,DMS153_LUNG,Waymouth MB 7521 medium+10%FBS,,
-532,NCIH1048_LUNG,RPMI-1640 + 10% FBS,"5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES","RPMI-1640 + 10% FBS + 5ug/ml insulin, 10ug/ml transferrin, 3.0x10^-8 M Na Selenite (added 5ml Insulin-Transferrin-Selenium); 1.0x10^-8 M Hydrocortisone, 1.0x10^-8 beta estradiol, 2mM L-glutamine, 10mM HEPES"
-533,D341MED_CENTRAL_NERVOUS_SYSTEM,,,
-534,NCIH660_PROSTATE,,,
-535,NCIH1618_LUNG,DMEM:HAM's F12  1:1  +5% FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:HAM's F12  1:1  +5% FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-536,HS675T_FIBROBLAST,,,
-537,PEER_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 medium with fetal calf serum,,
-538,SKM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640+20%FBS,,
-539,HT144_SKIN,McCoy 5A+15%FBS,,
-540,SKMEL31_SKIN,EMEM+10%FBS,,
-541,HS839T_FIBROBLAST,DMEM +10 %FBS,4.5g/L glucose +1.5 g/Lsodium bicarbonate,DMEM +10 %FBS + 4.5g/L glucose +1.5 g/Lsodium bicarbonate
-542,HS939T_SKIN,DEMEM+10%FBS,,
-543,OCILY3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20%FBS,,
-544,HS819T_FIBROBLAST,,,
-545,NCIH69_LUNG,RPMI 1640 + 10% FBS,,
-546,DV90_LUNG,RPMI-1640+10% FBS,"2mM L-GLUTAMINE, 1X NEAA","RPMI-1640+10% FBS + 2mM L-GLUTAMINE, 1X NEAA"
-547,ZR751_BREAST,RPMI-1640 + 10% FBS,,
-548,KG1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+20%FBS,,
-549,SKNBE2_AUTONOMIC_GANGLIA,,,
-550,HCC70_BREAST,,,
-551,NCIH2452_PLEURA,RPMI 1640 +10% FBS,,
-552,SNU1_STOMACH,,,
-553,LOUCY_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-554,HCC56_LARGE_INTESTINE,,,
-555,NCIH1648_LUNG,DMEM/F12(1:1) +10 % FBS,".02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate, 1ng/mL EGF","DMEM/F12(1:1) +10 % FBS + .02 mg/ml insulin, .01 mg/ml transferrin, 25nM sodium selenite, 50 nM hydrocortisone, 2 mM L-glutamine, 0.5 sodium pyruvate, 1ng/mL EGF"
-556,TO175T_FIBROBLAST,,,
-557,GLC82_LUNG,DMEM+10% FBS,2mM L-glutamine,DMEM+10% FBS + 2mM L-glutamine
-558,MPP89_PLEURA,,,
-559,PANC0813_PANCREAS,,,
-560,MG63_BONE,,,
-561,PK1_PANCREAS,RPMI 1640 +10%FBS,,
-562,HS840T_FIBROBLAST,,,
-563,NCIH23_LUNG,RPMI 1640 + 10% FBS,,
-564,TE617T_SOFT_TISSUE,,,
-565,SW1088_CENTRAL_NERVOUS_SYSTEM,,,
-566,ISTMES2_PLEURA,,,
-567,NCIH1373_LUNG,RPMI 1640 +10% FBS,,
-568,NCIH1930_LUNG,RPMI 1640 +10% FBS,,
-569,NCIH1623_LUNG,RPMI 1640+10%FBS,,
-570,HS229T_FIBROBLAST,RPMI+10%FBS,,
-571,NCIH1838_LUNG,RPMI-1640+10%FBS,,
-572,NCIH1836_LUNG,DMEM:HAM's F12  1:1 + 5 % FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine","DMEM:HAM's F12  1:1 + 5 % FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 2 mM L-glutamine"
-573,HS688AT_FIBROBLAST,DMEM + 10%FBS,,
-574,PANC0504_PANCREAS,RPMI 1640 +10 FBS,L-glutamine,RPMI 1640 +10 FBS + L-glutamine
-575,HS822T_FIBROBLAST,,,
-576,BL70_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-577,CI1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-578,G292CLONEA141B1_BONE,,,
-579,RCM1_LARGE_INTESTINE,RPMI:F12 1:1+10% FBS,,
-580,HS737T_FIBROBLAST,DMEM+10%FBS,,
-581,HS616T_FIBROBLAST,DMEM + 10% FBS,,
-582,HS600T_FIBROBLAST,,,
-583,TE159T_FIBROBLAST,,,
-584,A101D_SKIN,,,
-585,NCIH1755_LUNG,RPMI 1640+10%FBS,,
-586,143B_BONE,,,
-587,RERFLCKJ_LUNG,RPMI-1640+10% FBS,,
-588,NCIH1693_LUNG,RPMI1640+5%FBS,,
-589,SW780_URINARY_TRACT,L15 + 10% FBS,,
-590,HS683_CENTRAL_NERVOUS_SYSTEM,,,
-591,RKO_LARGE_INTESTINE,EMEM+ 10% FBS,,
-592,HS729_SOFT_TISSUE,,,
-593,JHOS2_OVARY,DMEM:F12 + 10% FBS,0.1 mM NEAA,DMEM:F12 + 10% FBS + 0.1 mM NEAA
-594,MCF7_BREAST,EMEM+10% FBS,0.01 mg/ml bovine insulin,EMEM+10% FBS + 0.01 mg/ml bovine insulin
-595,U937_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-596,SKLMS1_SOFT_TISSUE,,,
-597,HUTU80_SMALL_INTESTINE,,,
-598,HCC202_BREAST,RPMI+10%FBS,,
-599,MEG01_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-600,REH_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640+10%FBS,,
-601,ONS76_CENTRAL_NERVOUS_SYSTEM,RPMI 1640 medium with 10% fetal bovine serum,,
-602,RPMI6666_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-603,SNUC1_LARGE_INTESTINE,,,
-604,SKNDZ_AUTONOMIC_GANGLIA,,,
-605,DMS114_LUNG,Waymouth MB 7521 medium+10%FBS,,
-606,TT_OESOPHAGUS,DMEM:HAM's F12  1:1  +10% FBS,,
-607,OCILY10_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-608,ST486_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-609,OC315_OVARY,RPMI+10%FBS,2mM L-Glutamine,RPMI+10%FBS + 2mM L-Glutamine
-610,OC314_OVARY,RPMI+10%FBS,2mM L-glutamine,RPMI+10%FBS + 2mM L-glutamine
-611,SW1353_BONE,RPMI1640 + 10%FBS,,
-612,MDAMB157_BREAST,RPMI+10%FBS,,
-613,LN18_CENTRAL_NERVOUS_SYSTEM,DMEM+5% FBS,,
-614,769P_KIDNEY,RPMI1640+10%FBS,,
-615,786O_KIDNEY,,,
-616,CAOV3_OVARY,,,
-617,HEPG2_LIVER,EMEM +10%FBS,,
-618,MOLT4_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-619,NCIH524_LUNG,RPMI-1640+10%FBS,,
-620,NCIH209_LUNG,RPMI-1640+10%FBS,,
-621,MIAPACA2_PANCREAS,,,
-622,MCAS_OVARY,EMEM+20%FBS,,
-623,SBC5_LUNG,EMEM+10%FBS,,
-624,COLO829_SKIN,RPMI-1640+10% FBS,,
-625,VCAP_PROSTATE,DMEM + 10% FBS,,
-626,COLO704_OVARY,RPMI-1640+10%FBS,,
-627,IPC298_SKIN,RPMI 1640+10%FBS,,
-628,CAPAN2_PANCREAS,,,
-629,EFM192A_BREAST,,,
-630,HS766T_PANCREAS,,,
-631,EFO27_OVARY,,,
-632,A2780_OVARY,RPMI1640+10%FBS,2mM L-Glutamine,RPMI1640+10%FBS + 2mM L-Glutamine
-633,NCIH196_LUNG,RPMI+10%FBS,,
-634,IGROV1_OVARY,RPMI-1640 + 10% FBS,,
-635,NCIH889_LUNG,RPMI-1640+10%FBS,,
-636,NCIH211_LUNG,RPMI-1640+10%FBS,,
-637,HS571T_OVARY,DMEM+10%FBS,,
-638,MDAPCA2B_PROSTATE,HAMS F12 +20% FBS,"5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine","HAMS F12 +20% FBS + 5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine"
-639,SKMEL24_SKIN,EMEM + 10% FBS,0.1 mM NEAA,EMEM + 10% FBS + 0.1 mM NEAA
-640,K029AX_SKIN,RPMI-1640+10% FBS,,
-641,HT1376_URINARY_TRACT,EMEM +10%FBS,,
-642,NCIH2171_LUNG,DMEM:F12+5% FBS,"5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine","DMEM:F12+5% FBS + 5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine"
-643,PANC1005_PANCREAS,,,
-644,EVSAT_BREAST,,,
-645,HS695T_SKIN,EMEM +10%FBS,0.1mM NEAA,EMEM +10%FBS + 0.1mM NEAA
-646,CHL1_SKIN,RPMI1640+15%FBS,,
-647,LOUNH91_LUNG,RPMI-1640 + 20% FBS,2mM L-GLUTAMINE,RPMI-1640 + 20% FBS + 2mM L-GLUTAMINE
-648,LK2_LUNG,RPMI-1640+10%FBS,,
-649,TOV21G_OVARY,MCDB 105 1:1 Media 199 +10%FBS,,
-650,SKMEL3_SKIN,McCoy 5A+15%FBS,,
-651,ASPC1_PANCREAS,RPMI-1640 10% FBS +1 mM Sodium pyruvate,,
-652,OVSAHO_OVARY,RPMI-1640+10%FBS,,
-653,NCIH441_LUNG,RPMI-1640+10%FBS,,
-654,RERFLCSQ1_LUNG,RPMI-1640 +10% FBS,,
-655,NCIH2030_LUNG,RPMI-1640+10%FBS,,
-656,HMCB_SKIN,EMEM +10%FBS,"NEAA, 10mM Hepes, 10mM Sodium Pyruvate","EMEM +10%FBS + NEAA, 10mM Hepes, 10mM Sodium Pyruvate"
-657,FUOV1_OVARY,,,
-658,MALME3M_SKIN,,,
-659,KMS12BM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,,
-660,T98G_CENTRAL_NERVOUS_SYSTEM,EMEM+10% FBS,,
-661,HL60_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+20 % FBS,na,IMDM+20 % FBS + na
-662,DBTRG05MG_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+10% FBS,"HEPES, ADENOSINE TRIPHOSPHATE, AMINO ACIDS","RPMI-1640+10% FBS + HEPES, ADENOSINE TRIPHOSPHATE, AMINO ACIDS"
-663,HEYA8_OVARY,,,
-664,NCIH2122_LUNG,RPMI-1640+10%FBS,,
-665,MELJUSO_SKIN,RPMI-1640+10% FBS,,
-666,SW620_LARGE_INTESTINE,DMEM+10% FBS,,
-667,HCT116_LARGE_INTESTINE,,,
-668,VMRCRCZ_KIDNEY,EMEM + 10% FBS,,
-669,DU145_PROSTATE,EMEM + 10% FBS,,
-670,MM1S_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 10% FBS,,
-671,L33_PANCREAS,RPMI+10%FBS,,
-672,SKMEL2_SKIN,,,
-673,A549_LUNG,F-12 +10%FBS,,
-674,A172_CENTRAL_NERVOUS_SYSTEM,DMEM +10%FBS,,
-675,NCIH1975_LUNG,RPMI-1640+10%FBS,,
-676,COLO679_SKIN,RPMI-1640+10% FBS,,
-677,KP2_PANCREAS,,,
-678,HUH1_LIVER,DMEM +10%FBS,,
-679,MDAMB453_BREAST,,,
-680,PANC0403_PANCREAS,RPMI1640+15%FBS,20 Units/ml human recombinant insuline,RPMI1640+15%FBS + 20 Units/ml human recombinant insuline
-681,TYKNU_OVARY,,,
-682,OVISE_OVARY,RPMI-1640 + 10% FBS,,
-683,EFM19_BREAST,RPMI-10% FBS,,
-684,MELHO_SKIN,RPMI-1640+10% FBS,,
-685,RL_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+20%FBS,,
-686,G361_SKIN,McCoy's 5A +10%FBS,,
-687,NCIH647_LUNG,RPMI-1640+10% FBS,,
-688,GMS10_CENTRAL_NERVOUS_SYSTEM,DMEM+20% FBS,2mM L-glutamine,DMEM+20% FBS + 2mM L-glutamine
-689,SEM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+10%FBS,,
-690,HLFA_FIBROBLAST,EMEM+10%FBS,,
-691,42MGBA_CENTRAL_NERVOUS_SYSTEM,RPMI:EMEM (1:1) +20 % FBS,,
-692,KCIMOH1_PANCREAS,,,
-693,HCC44_LUNG,RPMI-1640+10%FBS,,
-694,KYSE70_OESOPHAGUS,RPMI 1640+10%FBS,,
-695,1321N1_CENTRAL_NERVOUS_SYSTEM,,,
-696,GAMG_CENTRAL_NERVOUS_SYSTEM,DMEM+10% FBS,"2mM L-GLUTAMINE, 4X MEM NON-ESSENTIAL AMINO ACIDS","DMEM+10% FBS + 2mM L-GLUTAMINE, 4X MEM NON-ESSENTIAL AMINO ACIDS"
-697,NCIH522_LUNG,,,
-698,EN_ENDOMETRIUM,DMEM+20% FBS,,
-699,PK59_PANCREAS,RPMI 1640+10%FBS,,
-700,SNB19_CENTRAL_NERVOUS_SYSTEM,,,
-701,COLO741_SKIN,,,
-702,HDMYZ_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-703,NCIH661_LUNG,RPMI 1640+10%FBS,,
-704,LNCAPCLONEFGC_PROSTATE,,,
-705,LS411N_LARGE_INTESTINE,RPMI-1640+10% FBS,,
-706,HCC78_LUNG,RPMI-1640+10%FBS,,
-707,YKG1_CENTRAL_NERVOUS_SYSTEM,,,
-708,ESS1_ENDOMETRIUM,,,
-709,U251MG_CENTRAL_NERVOUS_SYSTEM,,,
-710,TE11_OESOPHAGUS,,,
-711,KS1_CENTRAL_NERVOUS_SYSTEM,,,
-712,HEC1A_ENDOMETRIUM,,,
-713,TE1_OESOPHAGUS,RPMI 1640+10%FBS,,
-714,JHUEM2_ENDOMETRIUM,,,
-715,MOGGUVW_CENTRAL_NERVOUS_SYSTEM,,,
-716,RERFLCAD1_LUNG,RPMI-1640+10% FBS,,
-717,TE5_OESOPHAGUS,RPMI+10%FBS,,
-718,KELLY_AUTONOMIC_GANGLIA,,,
-719,NCIH1155_LUNG,DMEM:F12,plethora; see sheet,DMEM:F12 + plethora; see sheet
-720,TE15_OESOPHAGUS,,,
-721,ABC1_LUNG,EMEM+10% FBS,,
-722,8MGBA_CENTRAL_NERVOUS_SYSTEM,EMEM + 20% FBS,,
-723,NCIH1703_LUNG,RPMI+10%FBS,,
-724,AGS_STOMACH,,,
-725,QGP1_PANCREAS,RPMI-1640 + 10% FBS,,
-726,DETROIT562_UPPER_AERODIGESTIVE_TRACT,,,
-727,BT474_BREAST,,,
-728,ACHN_KIDNEY,EMEM +10%FBS,,
-729,LOVO_LARGE_INTESTINE,,,
-730,NCIH1581_LUNG,DMEM:F12,plethora; see sheet,DMEM:F12 + plethora; see sheet
-731,SCABER_URINARY_TRACT,EMEM +10%FBS,2 mM L-Glutamine ; 1.5 g/L sodium bicarbonate; 0.1 mM NEAA; 1.0 mM sodium pyruvate,EMEM +10%FBS + 2 mM L-Glutamine ; 1.5 g/L sodium bicarbonate; 0.1 mM NEAA; 1.0 mM sodium pyruvate
-732,SKMEL30_SKIN,RPMI-1640 + 10% FBS,,
-733,OVKATE_OVARY,RPMI-1640+10% FBS,,
-734,22RV1_PROSTATE,RPMI-1640+10% FBS,,
-735,C32_SKIN,EMEM+10%FBS,,
-736,PANC0327_PANCREAS,RPMI-1640+15% FBS,10 UNITS/ML INSULIN,RPMI-1640+15% FBS + 10 UNITS/ML INSULIN
-737,RPMI8226_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 10% FBS,,
-738,DLD1_LARGE_INTESTINE,,,
-739,ES2_OVARY,McCOY'S5A + 10%FBS,,
-740,NCIH1395_LUNG,RPMI+10%FBS,,
-741,NCIH1781_LUNG,,,
-742,LS1034_LARGE_INTESTINE,RPMI-1640+ 10% FBS,,
-743,G402_SOFT_TISSUE,,,
-744,NCIH146_LUNG,RPMI+10%FBS,,
-745,SW48_LARGE_INTESTINE,,,
-746,CHP212_AUTONOMIC_GANGLIA,,,
-747,LS180_LARGE_INTESTINE,,,
-748,SW403_LARGE_INTESTINE,,,
-749,NCIH747_LARGE_INTESTINE,,,
-750,RT4_URINARY_TRACT,McCoy's 5A +10%,,
-751,KATOIII_STOMACH,IMDM + 20%FBS,,
-752,BDCM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-753,SW1417_LARGE_INTESTINE,,,
-754,SW948_LARGE_INTESTINE,,,
-755,HS606T_FIBROBLAST,DMEM+10% FBS,,
-756,MDAMB415_BREAST,RPMI-1640 + 15% FBS,0.01 mg/ml insulin; 0.01 mg/ml glutathione,RPMI-1640 + 15% FBS + 0.01 mg/ml insulin; 0.01 mg/ml glutathione
-757,DMS79_LUNG,RPMI-1640+10%FBS,,
-758,NCIH2106_LUNG,,,
-759,SW579_THYROID,,,
-760,MDAMB468_BREAST,DMEM+10% FBS,,
-761,NCIH526_LUNG,RPMI-1640+10%FBS,,
-762,TOV112D_OVARY,MCDB 105:MEDIUM 199 (1:1) +15% FBS,,
-763,BT549_BREAST,RPMI + 10 % FBS,,
-764,NCIH2196_LUNG,DMEM:F12+5% FBS,"5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine","DMEM:F12+5% FBS + 5ug/ml insulin, 10ug/ml transferrin, 30nM Na Selenite, 10nM Hydrocortisone, 10nM Beta-estradiol, 10mM HEPES, 2mM L-glutamine"
-765,CAL851_BREAST,DMEM+10% FBS,,
-766,EFO21_OVARY,,,
-767,A375_SKIN,DMEM +10%FBS,,
-768,HT29_LARGE_INTESTINE,,,
-769,NCIH446_LUNG,RPMI-1640+10%FBS,,
-770,HS294T_SKIN,DMEM +10%FBS,,
-771,SKMEL5_SKIN,,,
-772,HS944T_SKIN,,,
-773,TCCPAN2_PANCREAS,RPMI-1640 + 10% FBS,,
-774,DOV13_OVARY,RPMI-1640+10%FBS,,
-775,RMGI_OVARY,,,
-776,PC3_PROSTATE,F-12 +10%FBS,,
-777,K562_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10%FBS,10mM L-GLUTAMINE,RPMI-1640+10%FBS + 10mM L-GLUTAMINE
-778,RT112_URINARY_TRACT,RPMI +10%FBS,,
-779,NUGC3_STOMACH,RPMI1640+10%FBS,,
-780,U87MG_CENTRAL_NERVOUS_SYSTEM,EMEM + 10% FBS,,
-781,CAKI2_KIDNEY,,,
-782,OE19_OESOPHAGUS,RPMI-1640+10%FBS,2mM l-GLUTAMINE,RPMI-1640+10%FBS + 2mM l-GLUTAMINE
-783,KMRC2_KIDNEY,DMEM+10% FBS,,
-784,JHH2_LIVER,EMEM +10 % FBS,,
-785,IM95_STOMACH,DMEM +10%FBS,10mg/L insulin,DMEM +10%FBS + 10mg/L insulin
-786,MV411_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+10% FBS,,
-787,WM2664_SKIN,EMEM + 10% FBS,,
-788,KMRC1_KIDNEY,DMEM+10% FBS,,
-789,KM12_LARGE_INTESTINE,,,
-790,COLO849_SKIN,,,
-791,T84_LARGE_INTESTINE,,,
-792,CALU1_LUNG,,,
-793,LOXIMVI_SKIN,RPMI-1640+10% FBS,,
-794,NCIH2170_LUNG,RPMI1640+10%FBS,,
-795,SQ1_LUNG,RPMI-1640+10%FBS,,
-796,AN3CA_ENDOMETRIUM,EMEM + 10% FBS,,
-797,NCIH2444_LUNG,RPMI-1640+10% FBS,,
-798,UACC257_SKIN,RPMI-1640+10% FBS,,
-799,KYSE510_OESOPHAGUS,,,
-800,MOLM13_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20%FBS,,
-801,HUPT4_PANCREAS,MEM + 10 % FBS,,
-802,MOGGCCM_CENTRAL_NERVOUS_SYSTEM,,,
-803,KYSE30_OESOPHAGUS,,,
-804,KYSE150_OESOPHAGUS,RPMI:Ham F12 +5%FBS,,
-805,PSN1_PANCREAS,RPMI-1640 + 10% FBS,2mM Glutamine,RPMI-1640 + 10% FBS + 2mM Glutamine
-806,NCIH1299_LUNG,RPMI-1640+10%FBS,,
-807,PATU8988T_PANCREAS,,,
-808,IGR37_SKIN,,,
-809,LN443_CENTRAL_NERVOUS_SYSTEM,,,
-810,SLR23_KIDNEY,,,
-811,HMEL_BREAST,,,
-812,OELE_OVARY,,,
-813,LN235_CENTRAL_NERVOUS_SYSTEM,,,
-814,BJHTERT_SKIN,,,
-815,LN428_CENTRAL_NERVOUS_SYSTEM,,,
-816,SLR24_KIDNEY,,,
-817,EWS502_BONE,,,
-818,SALE_LUNG,,,
-819,HCC2814_LUNG,,,
-820,SKRC31_KIDNEY,,,
-821,TIG3TD_FIBROBLAST,,,
-822,TC32_BONE,,,
-823,SF172_CENTRAL_NERVOUS_SYSTEM,,,
-824,PRECLH_PROSTATE,,,
-825,U343_CENTRAL_NERVOUS_SYSTEM,,,
-826,RCC4_KIDNEY,,,
-827,LN215_CENTRAL_NERVOUS_SYSTEM,,,
-828,LN464_CENTRAL_NERVOUS_SYSTEM,,,
-829,SLR25_KIDNEY,,,
-830,U178_CENTRAL_NERVOUS_SYSTEM,,,
-831,F5_CENTRAL_NERVOUS_SYSTEM,,,
-832,HEKTE_KIDNEY,,,
-833,SLR26_KIDNEY,,,
-834,SKRC20_KIDNEY,,,
-835,SF767_CERVIX,,,
-836,A1207_CENTRAL_NERVOUS_SYSTEM,,,
-837,LN319_CENTRAL_NERVOUS_SYSTEM,,,
-838,HCC364_LUNG,,,
-839,UMRC6_KIDNEY,,,
-840,LN382_CENTRAL_NERVOUS_SYSTEM,,,
-841,IOMMLEE_CENTRAL_NERVOUS_SYSTEM,,,
-842,UMRC2_KIDNEY,,,
-843,DFCI024_LUNG,,,
-844,HCC1897_LUNG,,,
-845,SLR21_KIDNEY,,,
-846,LNZ308_CENTRAL_NERVOUS_SYSTEM,,,
-847,LN340_CENTRAL_NERVOUS_SYSTEM,,,
-848,HCC827GR5_LUNG,,,
-849,SLR20_KIDNEY,,,
-850,HK2_KIDNEY,,,
-851,EW8_BONE,,,
-852,UOK101_KIDNEY,,,
-853,JHESOAD1_OESOPHAGUS,,,
-854,CH157MN_CENTRAL_NERVOUS_SYSTEM,,,
-855,MOLP2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,,
-856,SCC25_UPPER_AERODIGESTIVE_TRACT,,,
-857,UT7_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-858,MHHNB11_AUTONOMIC_GANGLIA,90% RPMI 1640 +10% h. i. FBS,2mM L -glutamine +MEM non-essential amino acids,90% RPMI 1640 +10% h. i. FBS + 2mM L -glutamine +MEM non-essential amino acids
-859,HCC1806_BREAST,,,
-860,GRANTA519_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% Dulbecco's MEM(4.5 g/L glucose) +10% h.i.FBS,2mM L-glutamine,90% Dulbecco's MEM(4.5 g/L glucose) +10% h.i.FBS + 2mM L-glutamine
-861,MONOMAC6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,2mM L-glutamine + non-essential amino acids +1 mM sodium pyruvate + 10ug/ml human insulin,90% RPMI 1640 +10% h.i. FBS + 2mM L-glutamine + non-essential amino acids +1 mM sodium pyruvate + 10ug/ml human insulin
-862,MKN7_STOMACH,,,
-863,SW1710_URINARY_TRACT,DMEM + 15% FBS,,
-864,MOLT13_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 +20% FBS,,
-865,SR786_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,85% RPMI 1640 +15% h.i. FBS,,
-866,SCC15_UPPER_AERODIGESTIVE_TRACT,,,
-867,RS5_FIBROBLAST,90% NCTC-109 + 10% h.i. FBS,2mM L-glutamine,90% NCTC-109 + 10% h.i. FBS + 2mM L-glutamine
-868,NCIH2126_LUNG,DMEM:HAM's F12  1:1  +5% FBS,"0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine","DMEM:HAM's F12  1:1  +5% FBS + 0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine"
-869,NCIH2141_LUNG,DMEM:HAM's F12  1:1 + 5% FBS,".005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 2 mM L-glutamine","DMEM:HAM's F12  1:1 + 5% FBS + .005 mg/ml insulin, .01 mg/ml transferrin, 30nM sodium selenite, 10 nM hydrocortisone, 2 mM L-glutamine"
-870,NCIH1385_LUNG,,,
-871,HCC827_LUNG,RPMI-1640 10% FBS,,
-872,RD_SOFT_TISSUE,DMEM +10%FBS,,
-873,TT_THYROID,,,
-874,TF1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-875,HS172T_FIBROBLAST,DMEM +10 %FBS,,
-876,HS834T_FIBROBLAST,DEMEM+10%fbs,,
-877,TE125T_FIBROBLAST,EMEM+10%FBS,,
-878,8305C_THYROID,RPMI1640+20%FBS,,
-879,UACC812_BREAST,RPMI-1640 + 20% FBS,,
-880,ALLSIL_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPHI 1640+10-20% h.i.FBS,,
-881,KASUMI2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-882,DND41_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90%RPMI 1640+ 10% h.i. FBS,,
-883,ME1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+10% FBS,,
-884,DM3_FIBROBLAST,,,
-885,JEKO1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI1640+20%FBS,,
-886,JJN3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,40% Dulbecco's MEM +40% Iscove's MDM + 20% h.i. FBS,,
-887,NUDHL1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640+ 10-20% h. i. FBS,,
-888,CL14_LARGE_INTESTINE,DMEM:HAM's F12  1:1  +20% FBS,,
-889,KYO1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI+20%FBS,,
-890,JL1_PLEURA,,,
-891,CAL148_BREAST,DMEM+20%FBS,,
-892,NALM19_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,,
-893,HPBALL_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h.i. FBS,,
-894,SUPT11_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-895,CL40_LARGE_INTESTINE,80% mixture of Dulbecco's MEM + Ham's F 12 at 1:1 + 20% h.i. FBS,,
-896,MDAMB134VI_BREAST,L15+20%FBS,,
-897,HCC1500_BREAST,RPMI-1640+10% FBS,,
-898,HCC1599_BREAST,RPMI-1640+10% FBS,,
-899,SUPHD1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,McCOY'S 5A+20% FBS,,
-900,MOTN1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,,
-901,OCIAML3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% alpha-MEM + 20% h. i. FBS,,
-902,SUDHL10_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h.i. FBS,,
-903,SUDHL4_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 20% FBS,,
-904,RH41_SOFT_TISSUE,"90% RPMI 1640 +10% h,i, FBS",,
-905,OCILY19_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,alphaMEM+20%FBS,,
-906,MOLM6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 +20%FBS,,
-907,SKMM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 +20% h.i. FBS,,
-908,KASUMI6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20%FBS,2ng/ml human GM-CSF,RPMI-1640+20%FBS + 2ng/ml human GM-CSF
-909,HS698T_FIBROBLAST,DMEM +10 %FBS,,
-910,UACC893_BREAST,L15+10%FBS,,
-911,MINO_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-912,CHP126_AUTONOMIC_GANGLIA,80% RPMI 1640 +20% h.i.FBS,,
-913,COLO680N_OESOPHAGUS,90% RPMI 1640 + 10% h.i.FBS,,
-914,COLO678_LARGE_INTESTINE,90% RPMI 1640 + 10% h.i. FBS,,
-915,LAMA84_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h. i. FBS,,
-916,CMLT1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90 % Iscove's MDMD or RPMI 1640 + 10% h.i. FBS,,
-917,EHEB_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i.FBS,,
-918,CAL54_KIDNEY,85% Dulbecco's MEM +15% h.i.FBS,"4 mM L-glutamine, 1 mM sodium puruvate, 0.4 ug/ml hydrocortisone, 10 ng/ml EGF","85% Dulbecco's MEM +15% h.i.FBS + 4 mM L-glutamine, 1 mM sodium puruvate, 0.4 ug/ml hydrocortisone, 10 ng/ml EGF"
-919,BV173_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,2mM L-Glutamine,RPMI-1640+20% FBS + 2mM L-Glutamine
-920,DOHH2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI + 10% h.i.FBS,N/a,90% RPMI + 10% h.i.FBS + N/a
-921,EOL1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-922,NALM6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h. i. FBS,,
-923,VMCUB1_URINARY_TRACT,DMEM +10%FBS,,
-924,LP1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM + 20% FBS,,
-925,LXF289_LUNG,Hams F10+10% FBS,,
-926,MONOMAC1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h. i. FBS,2mM L- glutamine+1x non-essential amino acids+1mM sodium pyruvate,90% RPMI 1640 +10% h. i. FBS + 2mM L- glutamine+1x non-essential amino acids+1mM sodium pyruvate
-927,PL21_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 +20% h.i. FBs,,
-928,PF382_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-929,NALM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h. i. FBS,,
-930,OCIAML2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h. i. FBS,,
-931,MHHCALL3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 20% h. i. FBS,,
-932,JURLMK1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI1640 +10%h.i. FBS,,
-933,OCIAML5_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,70% alpha-MEM + 20% h. i. FBS,10% vol conditioned medium of cell line 5637 (DSM ACC 35) (or 10ng/ml GM-CSF,70% alpha-MEM + 20% h. i. FBS + 10% vol conditioned medium of cell line 5637 (DSM ACC 35) (or 10ng/ml GM-CSF
-934,KE37_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-935,JK1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 +20% h.i.FBS,,
-936,RI1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-937,KARPAS422_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 20% FBS,,
-938,L540_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 20% h. i. FBS,,
-939,CAL78_BONE,RPMI+20%FBS,,
-940,HDQP1_BREAST,DMEM+10% FBS,,
-941,MHHCALL4_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 20% h. i. FBS,,
-942,MUTZ5_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 +20% FBS,,
-943,ONCODG1_OVARY,,,
-944,HDLM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 10% FBS,,
-945,CAL29_URINARY_TRACT,DMEM +10 %FBS,,
-946,KOPN8_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h. i. FBS,,
-947,SCLC21H_LUNG,90% Dulbecco's MEM (4.5g/L glucose) + 10% h.i. FBS,,
-948,CALU3_LUNG,,,
-949,NCIH1435_LUNG,RPMI 1640+10%FBS,,
-950,NCIH2009_LUNG,DMEM:HAM's F12  1:1  +5% FBS,"0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine","DMEM:HAM's F12  1:1  +5% FBS + 0.005 mg/ml Insulin, 0.01 mg/ml transferrin, 30 nM sodium selenite, 10 nM hydrocortisone, 10 nM beta estradiol, 10 mM HEPES, 1 mM L-glutamine"
-951,NCIH1869_LUNG,RPMI 1640+10%FBS,,
-952,HS852T_SKIN,DMEM+10% FBS,,
-953,HCC1419_BREAST,,,
-954,BT483_BREAST,RPMI-1640 + 20% FBS,0.01 mg/ml bovine insulin,RPMI-1640 + 20% FBS + 0.01 mg/ml bovine insulin
-955,HS281T_FIBROBLAST,,,
-956,HS934T_FIBROBLAST,DMEM +10 %FBS,4.5g/L glucose +1.5 g/Lsodium bicarbonate,DMEM +10 %FBS + 4.5g/L glucose +1.5 g/Lsodium bicarbonate
-957,HCC4006_LUNG,RPMI-1640 + 10% FBS,,
-958,HCC1428_BREAST,RPMI-1640+10% FBS,,
-959,KU812_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-960,SHP77_LUNG,RPMI-1640 + 10% FBS,,
-961,TE441T_SOFT_TISSUE,DMEM+10%FBS,,
-962,NB1_AUTONOMIC_GANGLIA,,,
-963,HS274T_FIBROBLAST,DMEM + 10% FBS,,
-964,PFEIFFER_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-965,ZR7530_BREAST,,,
-966,HS863T_FIBROBLAST,DMEM +10 %FBS,4.5g/L glucose +1.5 g/Lsodium bicarbonate,DMEM +10 %FBS + 4.5g/L glucose +1.5 g/Lsodium bicarbonate
-967,NCIH841_LUNG,,,
-968,HS821T_FIBROBLAST,,,
-969,NCIH1944_LUNG,RPMI+10%FBS,,
-970,NCIH2405_LUNG,,,
-971,DEL_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i.FBS,,
-972,BEN_LUNG,90% Dulbecco'sMEM(4.5g/l glucose) +10% h.i.FBS,,
-973,COLO320_LARGE_INTESTINE,90% RPMI 1640 + 10% h.i. FBS,,
-974,RPMI8402_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 10% FBS,,
-975,SUDHL1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-976,P12ICHIKAWA_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-977,BFTC905_URINARY_TRACT,DMEM + 10%FBS,,
-978,BFTC909_KIDNEY,DMEM + 10% FBS,,
-979,MHHES1_BONE,90% RPMI 1640 +10% h. i. FBS,,
-980,JVM3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 + 10% h. i. FBS,,
-981,NOMO1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-982,NCIH727_LUNG,RPMI 1640 +10% FBS,,
-983,HS343T_FIBROBLAST,,,
-984,HCC2935_LUNG,RPMI-1640 + 10% FBS,,
-985,HS888T_FIBROBLAST,,,
-986,MKN45_STOMACH,,,
-987,8505C_THYROID,Eagle's minimal essential medium with 10% fetal calf serum,,
-988,KU1919_URINARY_TRACT,RPMI +10%FBS,,
-989,KCL22_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 + 10% h. i. FBS,,
-990,CADOES1_BONE,90% RPMI 1640 +10% h.i.FBS,,
-991,S117_THYROID,RPMI+10%FBS,,
-992,EM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-993,OPM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-994,CAL62_THYROID,DMEM + 10% FBS,,
-995,LCLC103H_LUNG,90% RPMI 1640 +10%  h. i. FBS,,
-996,JURKAT_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i.FBS,2mM L-glutamine,90% RPMI 1640 +10% h.i.FBS + 2mM L-glutamine
-997,697_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-998,MHHCALL2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 +20% h. i. FBS,,
-999,M07E_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% Iscove's MDM or RPMI 1640 +10-20% h. i. FBS,1L-3 ( 10ng/ml) or GM-CSF(10ng/ml) or 10-20% vol conditioned medium of cell line 5637(DSM-ACC 35),80-90% Iscove's MDM or RPMI 1640 +10-20% h. i. FBS + 1L-3 ( 10ng/ml) or GM-CSF(10ng/ml) or 10-20% vol conditioned medium of cell line 5637(DSM-ACC 35)
-1000,L428_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI 1640 +10%FBS,,
-1001,MOLT16_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h. i. FBS,,
-1002,NB4_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% rPMI 1640 + 10% h. i. FBS,,
-1003,LCLC97TM1_LUNG,80% RPMI 1640 + 20% h. i. FBS,,
-1004,2313287_STOMACH,90%RPMI 1640+10% h.i FBS,,
-1005,BHT101_THYROID,80% Dulbecco's MEM +20% h.i. FBS +0.5% human serum (+0.005 lu/ml TSH +5ug/ml human insulin-cells grow also without these latter supplements),0.5%human serum(+0.005,80% Dulbecco's MEM +20% h.i. FBS +0.5% human serum (+0.005 lu/ml TSH +5ug/ml human insulin-cells grow also without these latter supplements) + 0.5%human serum(+0.005
-1006,JVM2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-1007,CAL51_BREAST,80% Dulbecco's MEM(4.5g/L glucose) +20% h.i.FBS,,
-1008,L363_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 15% FBS,,
-1009,KMH2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1010,SIMA_AUTONOMIC_GANGLIA,90% RPMI 1640 +10% h.i. FBS,2mM L-glutamine,90% RPMI 1640 +10% h.i. FBS + 2mM L-glutamine
-1011,NUDUL1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,85% RPMI 1640 +15% h. i. FBS,,
-1012,BC3C_URINARY_TRACT,McCoy's 5A +10% FBS,,
-1013,SUDHL6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+ 20% FBS,,
-1014,KARPAS620_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80%RPMI-1640+20% FBS,,
-1015,REC1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% RPMI 1640 +10% h.i. FBS,,
-1016,OCIM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% Iscove's MDM +10-20% h.i. FBS,,
-1017,MEC1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,90% Iscove's MDM +10% h. i. FBS,,
-1018,SIGM5_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% Iscove's MDM + 20% h.i. FBS,,
-1019,SUDHL5_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI +10%FBS,,
-1020,BCPAP_THYROID,90% RPMI 1640 + 10% h.i.FBS,,
-1021,639V_URINARY_TRACT,DMEM + 10% FBS,,
-1022,CL11_LARGE_INTESTINE,80% mixture of Ham's F12 + Dulbecco's MEM (at 1:1) +20% h.i FBS,,
-1023,TT2609C02_THYROID,80-85% RPMI 1640 +15-20% h.i. FBS,1mM sodium pyruvate + insulin-transferrin-selentite medium supplement,80-85% RPMI 1640 +15-20% h.i. FBS + 1mM sodium pyruvate + insulin-transferrin-selentite medium supplement
-1024,MEC2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1025,CL34_LARGE_INTESTINE,DMEM:HAM's F12  1:1  +20% FBS,,
-1026,RCHACV_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80-90% RPMI 1640 +10-20% h.i. FBS,,
-1027,CAL120_BREAST,DMEM+ 10% FBS,,
-1028,647V_URINARY_TRACT,DMEM +15%FBS,2 mM L-glutamine,DMEM +15%FBS + 2 mM L-glutamine
-1029,RH18_SOFT_TISSUE,80% RPMI 1640 +20% h.i. FBS,,
-1030,MOLM16_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,10ng/ml GM-CSF,RPMI-1640+20% FBS + 10ng/ml GM-CSF
-1031,F36P_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 10% h.i.FBS,10 ng/ml GM-CSF,80% RPMI 1640 + 10% h.i.FBS + 10 ng/ml GM-CSF
-1032,EJM_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,IMDM+ 20% FBS,,
-1033,WSUDLCL2_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640 + 10% FBS,,
-1034,JIMT1_BREAST,90% Dulbecco's MEM +10% h.i. FBS,,
-1035,ML1_THYROID,DMEM+20% FBS,,
-1036,AMO1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI-1640+20% FBS,,
-1037,MOLP8_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,80% RPMI 1640 + 20% h. i. FBS,,
-1038,COLO699_LUNG,90% RPMI 1640 + 10% h.i.FBS,,
-1039,JHUEM7_ENDOMETRIUM,,,
-1040,KP1NL_PANCREAS,,,
-1041,KP1N_PANCREAS,,,
-1042,MB157_BREAST,,,
-1043,OE21_OESOPHAGUS,RPMI-1640+10% FBS,2mM L-GLUTAMINE,RPMI-1640+10% FBS + 2mM L-GLUTAMINE
-1044,SF8657_SKIN,,,
-1045,SNUC2B_LARGE_INTESTINE,,,
-1046,NCIH2073_LUNG,RPMI-1640 + 10% FBS,,
-1047,HN_UPPER_AERODIGESTIVE_TRACT,,,
-1048,HRT18_LARGE_INTESTINE,,,
-1049,HNT34_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1050,PLB985_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1051,SKNO1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1052,MOLT3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,RPMI + 10 % FBS,,
-1053,HOP62_LUNG,RPMI-1640+ 5% FBS,,
-1054,EKVX_LUNG,RPMI-1640+ 5% FBS,,
-1055,OVCAR5_OVARY,RPMI-1640+ 5% FBS,,
-1056,UO31_KIDNEY,RPMI-1640+ 5% FBS,,
-1057,SF268_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+ 5% FBS,,
-1058,SF539_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+ 5% FBS,,
-1059,SNB75_CENTRAL_NERVOUS_SYSTEM,RPMI-1640+ 5% FBS,,
-1060,HOP92_LUNG,RPMI-1640+ 5% FBS,,
-1061,ACCS_URINARY_TRACT,,,
-1062,MUTZ3_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,MEM + 20% FBS,10ng/ml SCF,MEM + 20% FBS + 10ng/ml SCF
-1063,A427_LUNG,,,
-1064,BT12_SOFT_TISSUE,,,
-1065,C8166_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1066,CACO2_LARGE_INTESTINE,,,
-1067,HCC2429_LUNG,,,
-1068,HCC2450_LUNG,,,
-1069,HCC461_LUNG,,,
-1070,HCC515_LUNG,,,
-1071,INA6_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1072,KD_SOFT_TISSUE,,,
-1073,KPMRTRY_SOFT_TISSUE,,,
-1074,MON_SOFT_TISSUE,,,
-1075,NCIH2004RT_SOFT_TISSUE,,,
-1076,NCIH2077_LUNG,,,
-1077,NCIH2882_LUNG,,,
-1078,NCIH2887_LUNG,,,
-1079,NCIH1819_LUNG,,,
-1080,NCIH3122_LUNG,,,
-1081,NHAHTDD_CENTRAL_NERVOUS_SYSTEM,,,
-1082,OCIMY5_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1083,OCIMY7_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1084,OPM1_HAEMATOPOIETIC_AND_LYMPHOID_TISSUE,,,
-1085,PC9_LUNG,,,
-1086,SKNEP1_BONE,,,
-1087,SKPNDW_BONE,,,
-1088,STM9101_SOFT_TISSUE,,,
-1089,SIHA_CERVIX,,,
-1090,TM87_SOFT_TISSUE,,,
-1091,TTC709_SOFT_TISSUE,,,
-1092,TTC1240_SOFT_TISSUE,,,
-1093,TTC549_SOFT_TISSUE,,,
-1094,TTC642_SOFT_TISSUE,,,
-1095,HELA_CERVIX,,,
+0,Components
+L-Cysteine 2HCl. H2O,L-Cysteine
+Ergocalciferol,Vitamin D2; ergocalciferol
+Cupric sulfate (CuSO4-5H2O),cupric Sulfate
+L-Histidine • HCl • H2O,L-Histidine
+Riboflavin 5'-phosphate Na,Alpha-D-Ribose 5-phosphate
+L-Asparagine,L-Asparagine
+Thiamine monophosphate,Thiaminmono Phosphate
+Calcium Chloride (CaCl2-2H2O),Calcium Chloride
+Adenosine,Adenosine
+Ascorbic Acid,L-Ascorbate
+Nickelous Chloride NiCl2 6H2O,nickelous Chloride 
+D-Calcium pantothenate,(R)-Pantothenate
+Sodium Selenite (Na2SeO3-5H20),Sodiumselenite
+Potassium Phosphate monobasic (KH2PO4),Potassium Phosphate
+Zinc sulfate (ZnSO4-7H2O),Zinc Sulfate
+Magnesium Chloride (anhydrous),Magnesium Chloride
+L-Aspartic Acid,L-aspartate
+Glucose,D-Glucose
+L-Hydroxyproline,Trans 4 Hydroxy L proline C5H9NO3
+L-Tyrosine disodium salt,L-Tyrosine
+Cytidine,Cytidine
+HEPES,hepes
+Pyridoxine hydrochloride,Pyridoxine
+L-Tyrosine,L-Tyrosine
+Uracil,Uracil
+Magnesium Sulfate (anhydrous),Magnesium Sulfate
+D-Glucose (Dextrose),D-Glucose
+Glycine,Glycine
+Glutathione (reduced),Reduced glutathione
+L-Cysteine hydrochloride-H2O,L-Cysteine
+Methyl linoleate,methyllinoleate
+L-Alanyl-L-Glutamine,L-alanine-L-glutamate
+Vitamin B12,Cob(I)alamin
+Nicotinic acid (Niacin),Nicotinate
+Sodium Acetate,Sodium Acetate
+L-Methionine,L-Methionine
+L-Arginine • HCl,L-Arginine
+L-Threonine,L-Threonine
+Thymidine,Thymidine
+Riboflavin,Riboflavin C17H20N4O6
+Hypoxanthine Na,Hypoxanthine
+L-Glutamine,L-Glutamine
+L-Arginine,L-Arginine
+Vitamin D2 (Calciferol),Vitamin D2; Vitamin D2; ergocalciferol
+Selenious Acid H2SeO3,selenious
+L-Aspartic acid,L-aspartate
+L-Lysine • HCl,L-Lysine
+L-Cystine 2HCl,L Cystine C6H12N2O4S2
+L-Isoleucine,L-Isoleucine
+myo-Inositol,Myo-Inositol
+alpha Tocopherol phos. Na salt,Alpha-Tocopherol Phosphate
+Putrescine 2HCl,Putrescine
+L-Asparagine • H2O,L-Asparagine
+Hypoxanthine,Hypoxanthine
+Niacinamide,Nicotinamide
+Calcium Chloride (CaCl2) (anhyd.),Calcium Chloride
+L-Serine,L-Serine
+D-Pantothenic Acid (hemicalcium),(R)-Pantothenate
+Cholesterol,Chsterol c
+L-Histidine hydrochloride-H2O,L-Histidine
+L-Tryptophan,L-Tryptophan
+Linoleic Acid,Linoleic acid (all cis C18:2) n-6
+Xanthine-Na,Xanthine
+Choline chloride,Choline C5H14NO Chloride
+Sodium Phosphate dibasic (Na2HPO4-7H2O),Sodium Phosphate
+L-Histidine,L-Histidine
+Ammonium Molybdate ((NH4)6Mo7O24-4H2O),Ammonium Molybdate
+Manganese chloride (MnCl2-4H2O),Manganese Chloride
+Ribonucleosides,Nicotinate D-ribonucleoside
+Adenine sulfate,Adenine Sulfate
+Ferric sulfate (FeSO4-7H2O),ferric Sulfate
+Calcium nitrate (Ca(NO3)2 4H2O),Calcium Nitrate
+Sodium Phosphate Monobasic (anhydrous),Sodium Phosphate
+L-Proline,L-Proline
+Ferric nitrate (Fe(NO3)-9H2O),ferric Nitrate
+Uridine,Uridine
+Menadione sodium bisulfate,menadione Sodiumbi Sulfate
+Guanosine,Guanosine
+Phenol Red,phenolred
+L-Tyrosine • 2Na • 2H2O,L-Tyrosine
+L-Alanine,L-Alanine
+Ribose,D-Ribose
+Folic Acid,Folate
+L-Asparagine-H2O,
+Pyridoxal • HCl,Pyridoxal
+Zinc Sulfate (ZnSO4-H2O),Zinc Sulfate
+i-Inositol,Myo-Inositol
+Thymine,Thymine C5H6N2O2
+Tween 80®,tween®
+Sodium Bicarbonate,Sodium Bicarbonate
+Folinic Acid Calcium salt,folinic Calcium
+Sodium Bicarbonate (NaHCO3),Sodium Bicarbonate
+Para-Aminobenzoic Acid,4-Aminobenzoate
+Adenosine 5'-phosphate,AMP C10H12N5O7P
+Adenosine 5'-triphosphate,ATP C10H12N5O13P3
+L-Arginine hydrochloride,L-Arginine
+Thiamine hydrochloride,Thiamin
+L-Cysteine,L-Cysteine
+2-deoxy-D-ribose,Deoxyribose C5H10O4
+L-Cystine • 2HCl,L Cystine C6H12N2O4S2
+Adenine,Adenine
+Magnesium Chloride (MgCl2-6H2O),Magnesium Chloride
+"Ferric Nitrate (Fe(NO3)3""9H2O)",ferric Nitrate
+Sodium Phosphate monobasic (NaH2PO4-H2O),Sodium Phosphate
+Pyridoxal hydrochloride,Pyridoxal
+Choline Chloride,Choline C5H14NO Chloride
+Magnesium Sulfate (MgSO4) (anhyd.),Magnesium Sulfate
+L-Lysine hydrochloride,L-Lysine
+Potassium Phosphate Monobasic (anhydrous),Potassium Phosphate
+D+ Galactose,D-Galactose
+Lipoic Acid,Lipoate
+Vitamins,Cob(I)alamins
+Menadione (Vitamin K3),Vitamin K3
+Potassium Chloride,Potassium Chloride
+Potassium Nitrate (KNO3),Potassium Nitrate
+L-Glutamic Acid,L-Glutamate
+Sodium Meta Silicate Na2SiO3 9H2O,Sodiummetasilicate
+Inorganic Salts,inorganics
+L-Cystine,L Cystine C6H12N2O4S2
+L-Phenylalanine,L-Phenylalanine
+Sodium Chloride (NaCl),Sodium Chloride
+L-Lysine,L-Lysine
+Sodium Pyruvate,Sodium Pyruvate
+L-Valine,L-Valine
+Manganese Sulfate (MnSO4-H20),Manganese Sulfate
+Bacto-Peptone,bactopeptone
+Sodium Phosphate Dibasic (anhydrous),Sodium Phosphate
+Vitamin A (acetate),L-Asparagine
+L-Tyrosine disodium salt dihydrate,L-Tyrosine
+Sodium Phosphate monobasic (NaH2PO4) anhydrous,Sodium Phosphate
+Biotin,Biotin
+Thiamine • HCl,Thiamin
+Sodium Phosphate dibasic (Na2HPO4) anhydrous,Sodium Phosphate
+Potassium Chloride (KCl),Potassium Chloride
+L-Asparagine (freebase),L-Asparagine
+Other Components,othercomponents
+Guanine hydrochloride,Guanine
+Ammonium metavanadate (NH4VO3),Ammoniummetavanadate
+Calcium Chloride,Calcium Chloride
+L-Leucine,L-Leucine
+Magnesium Sulfate (MgSO4-7H2O),Magnesium Sulfate
+Sodium Chloride,Sodium Chloride

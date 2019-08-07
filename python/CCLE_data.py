@@ -3,7 +3,7 @@
 """
 Created on Thu Jun 20 12:10:43 2019
 
-@author: marcdimeo
+@author: Marc Di Meo
 """
 
 """
@@ -11,7 +11,6 @@ This document serves as a way to find and manipulate all CCLE data into a datase
 which can be used for the histone correlation calculations
 """
 
-<<<<<<< HEAD
 import mygene
 import pandas as pd
 import numpy as np
@@ -21,16 +20,20 @@ import os
 from scipy.stats.stats import pearsonr
 import matplotlib.pyplot as plt
 import seaborn as sns
-
-
+import plotly.io as pio
+#import plotly.graph_objects as go
+import plotly.figure_factory as ff
+from scipy.spatial.distance import pdist, squareform
 
 
 
 """
 FUNCTIONS
 """
-#Used to find common celllines
-def common_celllines(a,b):
+
+def common(a,b):
+    """ This functions purpose is to find common elements of lists by converting
+    each list to a set"""
     a_set = set(a)
     b_set = set(b)
     common = a_set.intersection(b_set) 
@@ -39,8 +42,11 @@ def common_celllines(a,b):
 
 #Used to create correlation matrix
 def Matrix(gene_list, histone_list, data1, data2):
-    name = (len(gene_list), len(histone_list))
-    name = np.zeros(name)
+    """This functions purpose is to create a numpy matrix which is filled with 
+    correlation values based on two data sets and corresponding lists"""
+    Rmat = (len(gene_list), len(histone_list))
+    Rmat = np.zeros(Rmat)
+    Pmat = Rmat
     i = 0 
     for gene in gene_list:
         j = 0
@@ -48,20 +54,111 @@ def Matrix(gene_list, histone_list, data1, data2):
             data1.loc[gene] = data1.loc[gene].fillna(method='ffill')
             data2.loc[histone] = data2.loc[histone].fillna(method='ffill')
             correlation = pearsonr(data1.loc[gene], data2.loc[histone])
-            correlation = correlation[0]
-            name[i][j] = correlation
+            Rmat[i][j] = correlation[0]
+            Pmat[i][j]
             j = j+1
         i = i+1
-    return name
+    return Rmat, Pmat
 
-#Used to make heatmaps
-def Heatmap(data, size, colour, title):
+def Heatmap(data, ylabels, size, colour, title):
+    """Using dataframes based on the Matrix fucntion, this function will create 
+    a heatmap"""
     plt.figure(figsize=size)
     plt.xlabel('Histone Markers')
     plt.title(title)
-    ax = sns.heatmap(data, cmap = colour)
+    ax = sns.heatmap(data, cmap = colour, square = True, yticklabels = ylabels)
     ax.set(xlabel = 'Histone Markers')
     plt.show
+    
+def pearson_dfs(gene_list, histone_list, data1, data2):
+    """This functions purpose is to create two dataframes. The first dataframe will contain all the r-values between the two sets of data. The second will contain all the p-values for each r-value.
+    
+    This function is very specific. The dataframe created will contain histone markers as the columns and gene names as the index. 
+    
+    This function assumes you already took the intersection between the two arrays. If you do not do that, then the matrix dimensions will not agree, resulting in an error.
+    
+    The format for inputting matrix should have columns correspond to the celllines.
+    """
+    Rmat = (len(gene_list), len(histone_list))
+    Rmat = np.zeros(Rmat)
+    Pmat = Rmat[:]
+    i = 0 
+    for gene in gene_list:
+        j = 0
+        for histone in histone_list:
+            data1.loc[gene] = data1.loc[gene].fillna(method='ffill')
+            data2.loc[histone] = data2.loc[histone].fillna(method='ffill')
+            correlation = pearsonr(data1.loc[gene], data2.loc[histone])
+            Rmat[i][j] = correlation[0]
+            Pmat[i][j]
+            j = j+1
+        i = i+1
+        
+    Rdf = pd.DataFrame(Rmat)
+    Rdf.columns = histone_list
+    Rdf.insert(0, 'Genes', gene_list, True)
+    Rdf = Rdf.set_index('Genes')
+    
+    Pdf = pd.DataFrame(Pmat)
+    Pdf.columns = histone_list
+    Pdf.insert(0, 'Genes', gene_list, True)
+    Pdf = Pdf.set_index('Genes')
+    return Rdf, Pdf
+
+
+
+    
+def Remove(duplicate): 
+    """This function will remove duplicated elements from lists"""
+    final_list = [] 
+    for num in duplicate: 
+        if num not in final_list: 
+            final_list.append(num) 
+    return final_list
+
+def Clustermap(data, size, colour, method, metric):
+    plt.figure(figsize=size)
+    ax = sns.clustermap(data, cmap = colour, method = method, metric= metric)
+    plt.show
+    
+def PlotlyHeat(df, size, title, xaxis, yaxis):
+    pio.renderers.default = "chrome"
+    fig = go.Figure(
+    data=(go.Heatmap(z = df, x =xaxis, y = yaxis, colorscale = "rdbu")),
+    layout_title_text=title)
+    
+    if size == None:
+        fig.update_layout(
+                autosize=True)
+    else:
+        fig.update_layout(
+                autosize=False,
+                width = size[0],
+                height = size[1])
+
+    fig.show()
+    
+
+
+"""
+"""
+
+"""
+"""
+
+def TissueAnalysis(dictionary, common_cellline, data1, data2, name):
+    df1 = data1.copy()
+    df2 = data2.copy()
+    for celllines in common_cellline:
+        if dictionary[celllines] != name:
+            del df1[celllines]
+            del df2[celllines]
+    matrix = Matrix(search, h3_markers, df1, df2)
+    matrix = pd.DataFrame(matrix)
+    matrix.columns = h3_markers
+    matrix.insert(0, 'Genes', search , True)
+    matrix = matrix.set_index('Genes')
+    return matrix
 
 """
 GETTING EXPRESSION DATA
@@ -84,6 +181,13 @@ ginfo = mg.querymany(data['gene_id'], scopes='ensembl.gene', fields='symbol', sp
 
 #removed repeated element
 ginfo.pop(30544)
+#query = []
+#for entry in ginfo:
+#   query.append(entry['query'])
+#   
+#query = Remove(query)
+   
+
 
 """
 CHANGE GENE IDs TO SYMBOLS
@@ -96,6 +200,7 @@ for entry in ginfo:
     else:
         gene.append("delete")
 
+#gene = Remove(gene)
 data['gene_id'] = gene
 
 data.rename(columns={'gene_id' : 'Gene'}, inplace = True)
@@ -180,6 +285,8 @@ for element in search:
     else:
         print(element + ":","No")
         
+        
+        
 """
 H3 RELVAL DATA
 """
@@ -220,7 +327,7 @@ h3_normalized = h3_normalized.fillna(method='ffill')
 REORGANIZING DATA
 """
 #Finding common cell lines
-h3_ccle_cellline = common_celllines(cellline_list, h3_celllines) 
+h3_ccle_cellline = common(cellline_list, h3_celllines) 
 h3_ccle_cellline.sort()
      
 ccle_h3_df = df_normalized[['Gene']+ h3_ccle_cellline]
@@ -233,7 +340,7 @@ h3_ccle_df= h3_ccle_df.fillna(method='ffill')
 ccle_h3_df = ccle_h3_df.fillna(method='ffill')
 
 #H3 and CCLE
-h3_ccle_matrix = Matrix(search, h3_markers, ccle_h3_df, h3_ccle_df)
+h3_ccle_matrix = Matrix(search, h3_markers, ccle_h3_df, h3_ccle_df)[0]
     
 h3_ccle_matrix = pd.DataFrame(h3_ccle_matrix)
 h3_ccle_matrix.columns = h3_markers
@@ -269,7 +376,7 @@ leroy_expression.insert(0, 'Histones', leroy_markers , True)
 leroy_expression = leroy_expression.set_index('Histones')
 leroy_expression.columns = leroy_celllines
 
-leroy_ccle_cellline = common_celllines(cellline_list, leroy_celllines) 
+leroy_ccle_cellline = common(cellline_list, leroy_celllines) 
 leroy_ccle_cellline.sort()
 
 leroy_ccle_df = leroy_expression[leroy_ccle_cellline]
@@ -277,22 +384,162 @@ ccle_leroy_df = df_normalized[['Gene']+ leroy_ccle_cellline]
 ccle_leroy_df = ccle_leroy_df.set_index('Gene')
 
         
-leroy_ccle_matrix = Matrix(search, leroy_markers, ccle_leroy_df, leroy_ccle_df)   
+leroy_ccle_matrix = Matrix(search, leroy_markers, ccle_leroy_df, leroy_ccle_df)[0]   
     
 leroy_ccle_matrix = pd.DataFrame(leroy_ccle_matrix)
 leroy_ccle_matrix.columns = leroy_markers
 leroy_ccle_matrix.insert(0, 'Genes', search , True)
 leroy_ccle_matrix = leroy_ccle_matrix.set_index('Genes')
 
+"""
+RECON1
+"""
+recon1_list = []
+recon1_genes = pd.read_excel(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/RECON1_genes.xlsx')
+for genes in recon1_genes['Genes']:
+    genes = genes.split('\'')
+    recon1_list.append(genes[1])
+    
+i = 0
+for genes in recon1_list:
+    genes = genes.split('_')
+    recon1_list[i] = genes[0]
+    i = i+1
+    
+recon1info = mg.querymany(recon1_list, scopes='entrezgene', fields='symbol', species='human')
+
+recon1_list = []
+for entry in recon1info:
+    if entry.get('symbol') != None:
+        recon1_list.append(entry['symbol'])
+    else:
+        pass
+    
+recon1_list = Remove(recon1_list)
+recon1_list = common(gene, recon1_list)
 
 """
-HEATMAP
+CCLE(RECON1) and LEROY
+"""
+leroy_ccle_r1 = Matrix(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)[0]
+
+leroy_ccle_r1 = pd.DataFrame(leroy_ccle_r1)
+leroy_ccle_r1.columns = leroy_markers
+leroy_ccle_r1.insert(0, 'Genes', recon1_list , True)
+leroy_ccle_r1 = leroy_ccle_r1.set_index('Genes')
+
+"""
+TISSUE ANALYSIS: Only Run if you have to it takes a very long time approx 2 hours
 """
 
-Heatmap(h3_ccle_matrix, (10,5), 'Blues', 'H3 and CCLE Correlation Plot')
-Heatmap(leroy_ccle_matrix, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot')
+#cellline_tissue = cell_df.values
+#tissue_dict ={}
+#for data in cellline_tissue:
+#    tissue_dict[data[0]] = data[1]
+#
+#
+#h3_ccle_lung = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LUNG')
+#h3_ccle_ovary = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OVARY')
+#h3_ccle_li = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'LARGE INTESTINE')
+#h3_ccle_cns = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'CENTRAL NERVOUS SYSTEM')
+#h3_ccle_hlt = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'HAEMATOPOIETIC AND LYMPHOID TISSUE')
+#h3_ccle_pancreas = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PANCREAS')
+#h3_ccle_uat =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'UPPER AERODIGESTIVE TRACT')
+#h3_ccle_breast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BREAST')
+#h3_ccle_prostate =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'PROSTATE')
+#h3_ccle_stomach =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'STOMACH')
+#h3_ccle_endometrium =   TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'ENDOMETRIUM')
+#h3_ccle_bone =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'BONE')
+#h3_ccle_skin = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SKIN')
+#h3_ccle_liver =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'LIVER')
+#h3_ccle_fibroblast =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'FIBROBLAST')
+#h3_ccle_st =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'SOFT TISSUE')
+#h3_ccle_bt=  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,  'BILIARY TRACT')
+#h3_ccle_ag = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'AUTONOMIC GANGLIA')
+#h3_ccle_pleura = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'PLEURA')
+#h3_ccle_ut = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'URINARY TRACT')
+#h3_ccle_kidney = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'KIDNEY')
+#h3_ccle_oesophagus =  TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df,'OESOPHAGUS')
+#h3_ccle_thyroid = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'THYROID')
+#h3_ccle_sg = TissueAnalysis(tissue_dict, h3_ccle_cellline, ccle_h3_df, h3_ccle_df, 'SALIVARY GLAND')
 
-=======
+"""
+FULL HISTONE ANALYSIS
+"""
+
+#h3k4 = h3_ccle_df.loc['H3K4me0':'H3K4ac1']
+#h3k9 = h3_ccle_df.loc['H3K9me0K14ac0':'H3K9ac1K14ac1']
+#h3k18 = h3_ccle_df.loc['H3K18ac0K23ac0':'H3K18ac0K23ub1']
+#h3k27 = h3_ccle_df.loc['H3K27me0K36me0':'H3.3K27me0K36me0']
+#h3k56 = h3_ccle_df.loc['H3K56me0':'H3K56me1']
+#h3k79 = h3_ccle_df.loc['H3K79me0':]
+#
+#h3k4 = h3k4.values
+#h3k9 = h3k9.values
+#h3k18 = h3k18.values
+#h3k27 = h3k27.values
+#h3k56 = h3k56.values
+#h3k79 = h3k79.values
+#
+#h3k4 = np.mean(h3k4, axis = 0)
+#h3k9 = np.mean(h3k9, axis = 0)
+#h3k18= np.mean(h3k18, axis = 0)
+#h3k27 = np.mean(h3k27, axis = 0)
+#h3k56 = np.mean(h3k56, axis = 0)
+#h3k79 = np.mean(h3k79, axis = 0)
+#
+#h3_histone_matrix = (6, len(h3_ccle_cellline)+1)
+#h3_histone_matrix = np.zeros(h3_histone_matrix)
+#
+#h3_histone_list = ['H3K4', 'H3K9', 'H3K18', 'H3K27', 'H3K56', 'H3K79']
+#
+#h3_histone_matrix[0] = h3k4
+#h3_histone_matrix[1] = h3k9
+#h3_histone_matrix[2] = h3k18
+#h3_histone_matrix[3] = h3k27
+#h3_histone_matrix[4] = h3k56
+#h3_histone_matrix[5] = h3k79
+#
+#h3_histone_matrix = pd.DataFrame(h3_histone_matrix)
+##h3_histone_matrix.insert(0, 'Histones', h3_histone_list, True)
+##h3_histone_matrix=h3_histone_matrix.set_index('Histones')
+#h3_histone_matrix.columns = 
+#
+#A = list(h3_ccle_df.columns)
+
+"""
+GRAPHING
+"""
+
+Heatmap(h3_ccle_matrix, search, (12,12), 'RdBu', 'H3 and CCLE Correlation Plot')
+Heatmap(leroy_ccle_matrix, search, (12,12), 'RdBu', 'LeRoy and CCLE Correlation Plot')
+#Heatmap(leroy_ccle_r1, (10,5), 'Blues', 'LeRoy and CCLE Correlation Plot with Recon1 Genes') 
+#Clustermap(leroy_ccle_r1, (10,5),'Blues', method = 'single' ,metric = 'correlation')
+#Heatmap(h3_ccle_oesophagus, search, (12,12), 'Blues', 'Oesophagus Correlation Data')
+#Heatmap(h3_ccle_sg, search, (12,12), 'Blues', 'Salivary Gland Correlation Data')
+#PlotlyHeat(leroy_ccle_r1, (1000,10000), 'LeRoy and CCLE Data with all Recon1 Genes',leroy_markers, recon1_list)
+
+""" 
+Testing
+"""
+os.chdir('/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/python')
+
+import vis
+leroy_ccle_r,leroy_ccle_p = pearson_dfs(recon1_list, leroy_markers, ccle_leroy_df, leroy_ccle_df)
+
+vis.hierarchal_clustergram(leroy_ccle_r)
+
+"""
+PLOTLY
+"""
+
+
+"""
+SAVE AS CSV FIL
+"""
+#export_csv = h3_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/h3_ccle_correlation_matrix.csv', index = None, header=True)
+#export_csv = leroy_ccle_matrix.to_csv(r'/Users/marcdimeo/Desktop/University of Michigan Research/methylation-gem/data/leroy_ccle_correlation_matrix.csv', index = None, header=True)
+
 import GEOparse
 import mygene
 
@@ -325,12 +572,5 @@ for line in gene_information:
     else:
         gene = line['symbol']
         genes.append(gene)
-
-"""
-GETTING EXPRESSION DATA
-"""
-
-gse = GEOparse.get_GEO(filepath="./GSE36133_family.soft.gz")
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 
 
