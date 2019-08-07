@@ -1,10 +1,9 @@
-function model = media(model, queried_medium)
-% @author: Scott Campit
-%% media.m defines the medium constraints we will impose on the Genome-scale metabolic model. 
-% By default, the substrate uptake rates were set to RPMI conditions by default. 
-    % Other medium conditions were scaled w.r.t RPMI amounts (using ratios
-    % from concentrations as the scaling factor).
-    
+function test_media()
+
+load ./../models/recon1
+model = metabolicmodel;
+
+queried_medium = 'RPMI';
 path = './../../data/final_medium_conditions.xlsx';
 if verLessThan('matlab', '9.6.0.1072779')
     [~, sheetNames] = xlsfinfo(path);
@@ -13,6 +12,7 @@ if verLessThan('matlab', '9.6.0.1072779')
             [adjustedLB, rxn_ids] = xlsread(path, sheetNames{sheets});
             rxn_ids(1,:) = [];
             rxn_ids(:,1) = [];
+            
             
             for rxn=1:length(rxn_ids)
                 model.lb(find(ismember(model.rxns, rxn_ids(rxn, 1)))) = ...
@@ -61,4 +61,7 @@ else
     end
 end
 
+disp("Success!")
+
 end
+
