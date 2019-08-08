@@ -1,31 +1,37 @@
-%% Get metabolic model outputs
-function [soln, flux, reducedCosts, shadowPrice, maxFlux, minFlux] = ...
-    calc_metabolic_metrics(input_model, rxnPos, metabolites_of_interest, ...
-    grate, sense, fva_rxns, objCoef, exp)
+% `calc_metabolic_metrics`: Compute the solution from flux balance analysis
+% and flux variability analysis. 
+% @author: Scott Campit
+
+function [solution] = calc_metabolic_metrics(model, reaction_positions, ...
+    metabolites_of_interest, grate, sense, fva_rxns, objCoef, exp)
 
 switch exp
     case {'sra', 'no_competition', 'competition'}
-        input_model.c(rxnPos) = objCoef;
-        soln = optimizeCbModel(input_model);
-        flux = soln.v(rxnPos);
-        reducedCosts = soln.w(rxnPos);
-        shadowPrice = soln.y(find(ismember(input_model.mets, metabolites_of_interest)));
+        model.c(reaction_positions) = objCoef;
+        solution = optimizeCbModel(model);
+        solution.reactionFlux = solution.v(reaction_positions);
+        solution.reducedCosts = solution.w(reaction_positions);
+        solution.shadowPrice = solution.y(find(ismember(model.mets, ...
+            metabolites_of_interest)));
+        solution.maxFlux = [];
+        solution.minFlux = [];
         
-        if rxnPos == find(ismember(input_model.rxns, 'biomass_objective'))
-            input_model.c(rxnPos) = 1;
+        if reaction_positions == find(ismember(model.rxns, ...
+                'biomass_objective'))
+            model.c(reaction_positions) = 1;
         else
-            input_model.c(rxnPos) = 0;
+            model.c(reaction_positions) = 0;
         end
-        
-        maxFlux = 0;
-        minFlux = 0;
 
     case 'fva'
-        [minFlux, maxFlux] = fluxVariability(input_model, grate, sense, fva_rxns);
-        soln = 0;
-        flux = 0;
-        shadowPrice = 0;
-        reducedCosts = 0;
+        [minFlux, maxFlux] = fluxVariability(model, grate, sense, fva_rxns);
+        solution.name = 'FluxVariabilityAnalysis';
+        solution.minflux = minFlux;
+        solution.maxflux = maxFlux;
+        solution.reactionFlux = [];
+        solution.shadowPrice = [];
+        solution.reducedCosts = [];
+    
 end
 
 end
