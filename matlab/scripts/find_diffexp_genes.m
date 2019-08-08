@@ -1,9 +1,9 @@
 function [diffExp_genes] = find_diffexp_genes(model, listOfCellLines)
-    load ccle_cellLine_names
-    load ccle_geneExp_zscr
-    load ccle_geneSymbol
+    load ./../vars/ccle_cellLine_names
+    load ./../vars/ccle_geneExp_zscr
+    load ./../vars/ccle_geneSymbol
     
-    diffExp_genes.name = "ME1Analysis";
+    diffExp_genes.name = [];
     
     for cell = 1:length(listOfCellLines)
         cellLine = listOfCellLines(cell);
@@ -25,8 +25,8 @@ function [diffExp_genes] = find_diffexp_genes(model, listOfCellLines)
             model_OFF = model.genes(ismember(model.genes, cell_line_OFF));
         end
         
-        ON_fieldname = string(strcat(cellLine, '_ON'));
-        OFF_fieldname = string(strcat(cellLine, '_OFF'));
+        ON_fieldname = string(strcat('ON_', cellLine));
+        OFF_fieldname = string(strcat('OFF_', cellLine));
         diffExp_genes.(ON_fieldname) = model_ON;
         diffExp_genes.(OFF_fieldname) = model_OFF;
     

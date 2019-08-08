@@ -8,10 +8,10 @@ function [solution] = calc_metabolic_metrics(model, reaction_positions, ...
 switch exp
     case {'sra', 'no_competition', 'competition'}
         model.c(reaction_positions) = objCoef;
-        solution = optimizeCbModel(model);
-        solution.reactionFlux = solution.v(reaction_positions);
-        solution.reducedCosts = solution.w(reaction_positions);
-        solution.shadowPrice = solution.y(find(ismember(model.mets, ...
+        gurobi_soln = optimizeCbModel(model);
+        solution.reactionFlux = gurobi_soln.v(reaction_positions);
+        solution.reducedCosts = gurobi_soln.w(reaction_positions);
+        solution.shadowPrice = gurobi_soln.y(find(ismember(model.mets, ...
             metabolites_of_interest)));
         solution.maxFlux = [];
         solution.minFlux = [];
@@ -23,6 +23,8 @@ switch exp
             model.c(reaction_positions) = 0;
         end
 
+        
+        
     case 'fva'
         [minFlux, maxFlux] = fluxVariability(model, grate, sense, fva_rxns);
         solution.name = 'FluxVariabilityAnalysis';

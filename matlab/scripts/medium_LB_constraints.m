@@ -10,7 +10,7 @@ function model = medium_LB_constraints(model, queried_medium)
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)
             if ismember(sheetNames(sheets), queried_medium)
-                [adjustedLB, rxn_ids] = xlsread(path, sheetNames{sheets});
+                [adjustedLB, rxn_ids] = xlsread(path, string(sheetNames{sheets}));
                 rxn_ids(1,:) = [];
                 rxn_ids(:,1) = [];
 
@@ -36,8 +36,7 @@ function model = medium_LB_constraints(model, queried_medium)
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)
             if ismember(sheetNames(sheets), queried_medium)
-                dataArray = readcell(path,...
-                    'Sheet', sheetNames(sheets));
+                dataArray = readcell(path, 'Sheet', string(sheetNames(sheets)));
                 dataArray(1,:) = [];
                 dataArray(:,1) = [];
 
