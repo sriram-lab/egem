@@ -1,4 +1,4 @@
-%% Make eGEM
+% Make eGEM adds reactions for epigenome-scale metabolic modeling
 % @author: Scott Campit & Lauren Fane
 
 % Initialize parameters
@@ -6,54 +6,25 @@ initCobraToolbox;
 changeCobraSolver('gurobi');
 
 % Load AcGEM eGEM (Shen et al., 2019)
-load ./../shen-et-al/supplementary_software_code acetylation_model;
+load ./../models/acetylation_model
 eGEM = acetylation_model;
 
-% Check for duplicate reactions
-eGEM = checkDuplicateRxn(eGEM,'S',1,1);
 
 %% Reactions to remove:
 eGEM = removeRxns(eGEM, {'peplyexn'});
-<<<<<<< HEAD
 
 %% Demand reactions that will be used in the study 
 load './../vars/metabolites.mat'
-<<<<<<< HEAD
-<<<<<<< HEAD
-compartment = char(metabolites(rxn, 4));
-for m = 1:length(metabolites(:, 1))
-    tmp_met = char(metabolites(m, 2));
-    tmp = [tmp_met '[' compartment '] -> '];
-    tmpname = char(metabolites(m, 1));
-=======
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-compartment = 'n';
-for m = 1:length(metabolites(:,1))
-    tmp_met = char(metabolites(m,2));
-    tmp = [tmp_met '[' compartment '] -> '];
-    tmpname = char(metabolites(m,1));
-<<<<<<< HEAD
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-    eGEM = addReaction(eGEM, tmpname, 'reactionFormula', tmp);
+for reaction = 1:length(metabolites(:, 1))
+    DM_metabolite = char(metabolites(reaction, 2));
+    DM_formula = strjoin([DM_metabolite '[' metabolites(reaction, 4) '] -> ']);
+    DM_rxn_name = char(metabolites(reaction, 1));
+    eGEM = addReaction(eGEM, DM_rxn_name, 'reactionFormula', DM_formula);
 end
 
 %% Histone position specific metabolic reactions
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 %[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
-=======
-[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
-
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
-[~, txt] = xlsread('metabolicmap.xlsx', 'Reactions');
-
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 
 %% Add transport reactions to nucleus:
     
@@ -75,37 +46,23 @@ end
 
 eGEM = addReaction(eGEM, 'METtn',...
     'reactionFormula', 'met-L[c] <=> met-L[n]');
-<<<<<<< HEAD
-eGEM = addReaction(eGEM, 'SUCCtn',...
-=======
-<<<<<<< HEAD
-model = addReaction(model, 'SUCCtn',...
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
-    'reactionFormula', 'succ[c] <=> succ[n]');
-eGEM = addReaction(eGEM, 'AKGtn',...
-    'reactionFormula', 'akg[c] <=> akg[n]');
-eGEM = addReaction(eGEM, 'FUMtn',...
-    'reactionFormula', 'fum[c] <=> fum[n]');
-<<<<<<< HEAD
-=======
-%model = addReaction(model, 'GLYtn',...
-=======
 eGEM = addReaction(eGEM, 'SUCCtn',...
     'reactionFormula', 'succ[c] <=> succ[n]');
 eGEM = addReaction(eGEM, 'AKGtn',...
     'reactionFormula', 'akg[c] <=> akg[n]');
 eGEM = addReaction(eGEM, 'FUMtn',...
     'reactionFormula', 'fum[c] <=> fum[n]');
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
+eGEM = addReaction(eGEM, 'SUCCtn',...
+    'reactionFormula', 'succ[c] <=> succ[n]');
+eGEM = addReaction(eGEM, 'AKGtn',...
+    'reactionFormula', 'akg[c] <=> akg[n]');
+eGEM = addReaction(eGEM, 'FUMtn',...
+    'reactionFormula', 'fum[c] <=> fum[n]');
 eGEM = addReaction(eGEM, 'FOLtn',...
     'reactionFormula', 'fol[c] <=> fol[n]');
 eGEM = addReaction(eGEM, 'MALtn',...
     'reactionFormula', 'mal-L[c] <=> mal-L[n]');
 %eGEM = addReaction(eGEM, 'GLYtn',...
-<<<<<<< HEAD
-=======
->>>>>>> c80df2c4616925d98e7887f37133f98bf0ae2688
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 %    'reactionFormula', 'gly[c] <=> fum[n]');
 %eGEM = addReaction(eGEM, 'SERtn',...
 %    'reactionFormula', 'ser-L[c] <=> ser-L[n]');
@@ -148,7 +105,6 @@ eGEM = addReaction(eGEM, 'METATn',...
     % Now that I have these as nodes in my eGEM, the challenge will be adding
     % some specificity in their performance
 
-<<<<<<< HEAD
 %LSD (Mono and di demethylation only)
 eGEM = addReaction(eGEM, 'LSDDMT2n',...
    'reactionFormula', 'Ndmelys[n] + o2[n] + fad[n] -> fadh2[n] + h2o2[n] + mepepieGEMe[n]',...
@@ -163,48 +119,6 @@ eGEM = addReaction(eGEM, 'PEPHYDROX1n',...
    'reactionFormula', 'pepieGEMe[n] + h2o[n] -> peplys[n] + fald[n]',...
    'geneRule', '(LSD1) or (LSD2)');
 
-=======
-<<<<<<< HEAD
-% LSD (Mono and di demethylation only)
-model = addReaction(model, 'LSDDMT2n',...
-    'reactionFormula', 'Ndmelys[n] + o2[n] + fad[n] -> fadh2[n] + h2o2[n] + mepepimine[n]',...
-    'geneRule', '(LSD1) or (LSD2)');
-model = addReaction(model, 'PEPHYDROX2n',...
-    'reactionFormula', 'mepepimine[n] + h2o[n] -> Nmelys[n] + fald[n]',...
-    'geneRule', '(LSD1) or (LSD2)');
-model = addReaction(model, 'LSDDMT1n',...
-    'reactionFormula', 'Nmelys[n]+ o2[n] + fad[n] -> fadh2[n] + h2o2[n] + pepimine[n]',...
-    'geneRule', '(LSD1) or (LSD2)');
-model = addReaction(model, 'PEPHYDROX1n',...
-    'reactionFormula', 'pepimine[n] + h2o[n] -> peplys[n] + fald[n]',...
-    'geneRule', '(LSD1) or (LSD2)');
-
-% Dioxygenase (Mono-, di-, and tri-demethylation)
-model = addReaction(model, 'JMJDMT3n',...
-    'reactionFormula', 'Ntmelys[n] + akg[n] + o2[n] + fe2[n] -> Ndmelys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
-    'geneRule', '(JARID1A) or (JARID1B) or (JARID1C) or (JARID1D) or (JMJD3) or (JHDM3)');
-model = addReaction(model, 'JMJDMT2n',...
-    'reactionFormula', 'Ndmelys[n] + akg[n] + o2[n] + fe2[n] -> Nmelys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
-    'geneRule', 'JARID1A or JARD1B or JARID1C or JARID1D or JHDM2 or JHDM3 or PHF8 or JMJD3 or JHDM1');
-model = addReaction(model, 'JMJDMT1n',...
-    'reactionFormula', 'Nmelys[n] + akg[n] + o2[n] + fe2[n] -> peplys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
-    'geneRule', 'NO66 or JARID1B or JHDM2 or PHF8 or JHDM1');
-=======
-%LSD (Mono and di demethylation only)
-eGEM = addReaction(eGEM, 'LSDDMT2n',...
-   'reactionFormula', 'Ndmelys[n] + o2[n] + fad[n] -> fadh2[n] + h2o2[n] + mepepieGEMe[n]',...
-   'geneRule', '(LSD1) or (LSD2)');
-eGEM = addReaction(eGEM, 'PEPHYDROX2n',...
-   'reactionFormula', 'mepepieGEMe[n] + h2o[n] -> Nmelys[n] + fald[n]',...
-   'geneRule', '(LSD1) or (LSD2)');
-eGEM = addReaction(eGEM, 'LSDDMT1n',...
-   'reactionFormula', 'Nmelys[n]+ o2[n] + fad[n] -> fadh2[n] + h2o2[n] + pepieGEMe[n]',...
-   'geneRule', '(LSD1) or (LSD2)');
-eGEM = addReaction(eGEM, 'PEPHYDROX1n',...
-   'reactionFormula', 'pepieGEMe[n] + h2o[n] -> peplys[n] + fald[n]',...
-   'geneRule', '(LSD1) or (LSD2)');
-
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 %Dioxygenase (Mono-, di-, and tri-demethylation)
 eGEM = addReaction(eGEM, 'JMJDMT3n',...
    'reactionFormula', 'Ntmelys[n] + akg[n] + o2[n] + fe2[n] -> Ndmelys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
@@ -215,10 +129,6 @@ eGEM = addReaction(eGEM, 'JMJDMT2n',...
 eGEM = addReaction(eGEM, 'JMJDMT1n',...
    'reactionFormula', 'Nmelys[n] + akg[n] + o2[n] + fe2[n] -> peplys[n] + fald[n] + co2[n] + fe3[n] + succ[n]',...
    'geneRule', 'NO66 or JARID1B or JHDM2 or PHF8 or JHDM1');
-<<<<<<< HEAD
-=======
->>>>>>> c80df2c4616925d98e7887f37133f98bf0ae2688
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 
 % Aldehyde detoxification by ALDH to formate (GeneCards
 %eGEM = addReaction(eGEM, 'ALDHn',...
@@ -227,34 +137,7 @@ eGEM = addReaction(eGEM, 'JMJDMT1n',...
 
 % Iron reactions {Not sure how they are introduced so I created sink and demand reactions}
 % % https://www.cell.com/trends/biochemical-sciences/pdf/S0968-0004(15)00237-6.pdf
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-eGEM = addReaction(eGEM, 'Fe2_sink',...
-    'reactionFormula', 'fe2[n] <=> ');
-eGEM = addReaction(eGEM, 'Fe3_sink',...
-    'reactionFormula', 'fe3[n] <=> ');
-eGEM = addReaction(eGEM, 'Fe2_demand',...
-    'reactionFormula', 'fe2[n] -> ');
-eGEM = addReaction(eGEM, 'Fe3_demand',...
-    'reactionFormula', 'fe3[n] -> ');
-eGEM = addReaction(eGEM, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
-=======
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
-<<<<<<< HEAD
-model = addReaction(model, 'Fe2_sink',...
-     'reactionFormula', 'fe2[n] <=> ');
-model = addReaction(model, 'Fe3_sink',...
-     'reactionFormula', 'fe3[n] <=> ');
-model = addReaction(model, 'Fe2_demand',...
-     'reactionFormula', 'fe2[n] -> ');
-model = addReaction(model, 'Fe3_demand',...
-     'reactionFormula', 'fe3[n] -> ');
-model = addReaction(model, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
-=======
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
+
 % eGEM = addReaction(eGEM, 'Fe2_sink',...
 %     'reactionFormula', 'fe2[n] <=> ');
 % eGEM = addReaction(eGEM, 'Fe3_sink',...
@@ -264,14 +147,6 @@ model = addReaction(model, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
 % eGEM = addReaction(eGEM, 'Fe3_demand',...
 %     'reactionFormula', 'fe3[n] -> ');
 %eGEM = addReaction(eGEM, 'FE2tn', 'reactionFormula', 'fe2[c] -> fe3[n]');
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
->>>>>>> c9c95c7ea86416cfdce0cfebfda8aab4fd025967
-=======
->>>>>>> c80df2c4616925d98e7887f37133f98bf0ae2688
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 
 %% FAD Pool (https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4893201/)
 % Since it is not known how flavin is introduced in the nucleus, I
@@ -378,18 +253,6 @@ eGEM = addReaction(eGEM, 'PKM2n',...
     'reactionFormula', 'adp[n] + h[n] + pep[n] -> atp[n] + pyr[n]',...
     'geneRule', '(PKM2)');
 
-<<<<<<< HEAD
-=======
-%% Demand reactions that will be used in the study 
-load './../vars/metabolites.mat'
-compartment = 'n';
-for m = 1:length(metabolites(:,1))
-    tmp_met = char(metabolites(m,2));
-    tmp = [tmp_met '[' compartment '] -> '];
-    tmpname = char(metabolites(m,1));
-    eGEM = addReaction(eGEM, tmpname, 'reactionFormula', tmp);
-end
->>>>>>> 48693a251744125a2ccc70193ab5dc8576deb6cb
 %% Add more reactions - by LF
 % %H3K9 methlation
 % eGEM = addReaction(eGEM, 'Su(var)3-9',... 
@@ -403,5 +266,5 @@ end
 %same chemical rxn as H3K9 methylation -> should i add it? How do i
 %distinguish between locations?
 %% save
-eGEM = checkDuplicateRxn(eGEM,'S',1,1);
 save('./../models/eGEM.mat', 'eGEM');
+clear all;

@@ -15,8 +15,13 @@ switch proteomics_dataset
         tissues = proteomics_array(2:end, 2);
         marks = proteomics_array(1, 3:44);
         medium = proteomics_array(2:end, 45);
-        proteomics = proteomics_array(2:end, 3:44);
         
+        proteomics = proteomics_array(2:end, 3:44);
+        missing_values = cellfun(@ismissing, proteomics);
+        proteomics(missing_values) = {NaN};
+        proteomics = cell2mat(proteomics);
+        proteomics = knnimpute(proteomics);
+    
     case 'LeRoy'
         path = './../new_var/';
         vars = {...
@@ -32,8 +37,11 @@ switch proteomics_dataset
         cell_names = cell(:,1);
         medium = cell(:,2);
         marks = leroy_mark;
+        
         proteomics = leroy_val;
         proteomics = proteomics';
+        proteomics = knnimpute(proteomics);
+
 end
         
 load ./../vars/supplementary_software_code...
@@ -44,7 +52,6 @@ load ./../vars/supplementary_software_code...
 proteomics_CL_match = find(ismember(cell_names, celllinenames_ccle1));
 BIOMASS_OBJ_POS = find(ismember(eGEM.rxns, 'biomass_objective')); 
 
-proteomics = knnimpute(proteomics);
 proteomics = proteomics(proteomics_CL_match, :);
 cell_names = cell_names(proteomics_CL_match,1);
 geneExp_CL_match = find(ismember(celllinenames_ccle1, cell_names));
@@ -92,6 +99,14 @@ for match = 1:number_of_matched_proteomics
                 calc_metabolic_metrics(model_to_test, [], [], fva_grate,...
                 'max', reactions_of_interest, [], 'fva');
             all_flux_values(match,:) = flux;
+        case 'tissueAnalysis'
+            unique_tissues = unique(tissues);
+            for tiss = 1:length(unique_tissues)
+                tissue = unique_tissues(tiss);
+                tissue_positions = find(ismember(tissues, tissue));
+                tissue_proteomics = proteomics(tissue_psoitions, :);
+                
+        case 'mediumAnalysis'
     end
 end
 

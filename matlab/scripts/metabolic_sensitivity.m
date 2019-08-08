@@ -1,29 +1,6 @@
 %% @author: Scott Campit
 function STRUCT = metabolic_sensitivity(model, reactions_of_interest,...
     compartment, epsilon2, scaling, exp, medium, fva_grate)
-% metabolic_sensitivity.m displays the values corresponding to several demand
-% reactions and excess/depletion of a specific medium component.
-
-% INPUTS:
-    % model: genome scale metabolic model
-    % rxnpos: list of reactions that will be used in the analysis
-    % epsilon2: a weight that will be used for the secondary obcomponentective coefficient
-    % scaling: if the data should be scaled/normalized
-    % exp: this flag can take 3 possible values:
-        % 'sra': optimizes single reactions with a fixed epsilon value
-        % 'fba': optimizes multiple reactions using fba
-        % 'fva': sets the biomass to be at 100% and gets the maximum
-        % metabolic fluxes associated
-
-% OUTPUTS:
-    % excess_flux: metabolic flux corresponding to excess medium
-    % depletion_flux: ''' depletion medium
-    % excess_redcost: reduced cost corresponding to excess medium
-    % depletion_redcost: ''' depletion medium
-    % excess_shadow: shadow costs corresponding to excess medium
-    % depletion_shadow: ''' depletion medium
-
-%% metabolic_sensitivity.m
 
 % Default is RPMI medium
 %if (~exist('medium','var')) || (isempty(medium))
@@ -47,7 +24,6 @@ BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); % biomass rxn
 rxnName = metabolites(:, 1); % reaction positions of interest
 rxnName = char(rxnName);
 
-% SRA: Same epsilon value for all reactions. 
 if isequal(size(epsilon2),[1,1])
     epsilon2 = repmat(epsilon2, 20, 2);
 end
@@ -57,27 +33,8 @@ end
 % depletion
 for kappatype = 1:2
     
-    % Create a temporary metabolic model that will have substrate uptake
-    % rates fitted on
     tmp = model;
     
-    % Make the methylation exchange reaction have a fixed LB of
-    % -0.5 to be non-limiting
-    [~, pos] = ismember({'EX_met_L(e)'}, tmp.rxns);
-    tmp.lb(pos) = -0.5;    
-    
-    % Create a hypoxic/normoxic model
-    switch condition 
-        case 'hypoxic'
-            [~, pos] = ismember({'EX_o2(e)'}, tmp.rxns);
-            tmp.lb(pos) = 0;
-            tmp.ub(pos) = 0;
-            disp('Hypoxic model')
-        case 'normoxic'
-            %disp('Normoxic model')
-    end
-
-    % For each medium component, set the substrate uptake rate. 
     for component = 1:length(mediareactions1(:,1)) % 50 medium components
         %% Excess medium conditions
         if kappatype == 1 % glucose or glutamine
@@ -85,7 +42,7 @@ for kappatype = 1:2
             weight  = 10;
             
             [~, pos]  = ismember(mediareactions1(component,1), excess_model.rxns);
-            if ismember(component, [1;4])
+            if ismember(mediareactions1(component, [1;4])
                 kappa = 3;
                 excess_model.lb(pos) = -media_exchange1(component,1)*kappa;
             else
