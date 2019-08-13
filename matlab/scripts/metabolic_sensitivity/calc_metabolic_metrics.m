@@ -22,8 +22,6 @@ switch exp
         else
             model.c(reaction_positions) = 0;
         end
-
-        
         
     case 'fva'
         [minFlux, maxFlux] = fluxVariability(model, grate, sense, fva_rxns);

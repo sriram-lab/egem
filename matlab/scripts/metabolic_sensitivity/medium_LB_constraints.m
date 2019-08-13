@@ -5,17 +5,17 @@ function model = medium_LB_constraints(model, queried_medium)
 % from concentrations as the scaling factor).
 % @author: Scott Campit
     
-    path = './../../data/final_medium_conditions.xlsx';
+    path = '/home/scampit/Desktop/eGEM/data/Medium_Component_Maps/final_medium_conditions.xlsx';
     if verLessThan('matlab', '9.6.0.1072779')
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)
-            if ismember(sheetNames(sheets), queried_medium)
+            if ismember(string(sheetNames(sheets)), queried_medium)
                 [adjustedLB, rxn_ids] = xlsread(path, string(sheetNames{sheets}));
                 rxn_ids(1,:) = [];
                 rxn_ids(:,1) = [];
 
                 for rxn=1:length(rxn_ids)
-                    model.lb(find(ismember(model.rxns, rxn_ids(rxn, 1)))) = ...
+                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 1))))) = ...
                         adjustedLB(rxn, 4);
                 end
 
@@ -25,7 +25,7 @@ function model = medium_LB_constraints(model, queried_medium)
                 rxn_ids(:,1) = [];
 
                 for rxn=1:length(rxn_ids)
-                    model.lb(find(ismember(model.rxns, rxn_ids(rxn, 1)))) = ...
+                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 1))))) = ...
                         adjustedLB(rxn, 4);
                 end
 
@@ -35,24 +35,23 @@ function model = medium_LB_constraints(model, queried_medium)
     else
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)
-            if ismember(sheetNames(sheets), queried_medium)
+            if ismember(string(sheetNames(sheets)), string(queried_medium))
                 dataArray = readcell(path, 'Sheet', string(sheetNames(sheets)));
                 dataArray(1,:) = [];
                 dataArray(:,1) = [];
 
                 for rxn=1:length(dataArray)
-                    model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
+                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 1))))) = ...
                         cell2mat(dataArray(rxn, 7));
                 end
 
             elseif ismember({'nan'}, queried_medium)
-                dataArray = readcell('./../../data/final_medium_conditions.xlsx',...
-                    'Sheet', 'RPMI');
+                dataArray = readcell(path, 'Sheet', 'RPMI');
                 dataArray(1,:) = [];
                 dataArray(:,1) = [];
 
                 for rxn=1:length(dataArray)
-                    model.lb(find(ismember(model.rxns, dataArray(rxn, 1)))) = ...
+                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 1))))) = ...
                         cell2mat(dataArray(rxn, 7));
                 end
 
