@@ -1,0 +1,50 @@
+% @author: Scott Campit
+function [TableChecks] = testMetabolicModel(model)
+    changeCobraSolver('gurobi');
+    
+    testModel = model;
+    tol = 1E-6;
+    
+    EXChecks = testEXLeaks(testModel);
+    DMChecks = testDMLeaks(testModel);
+    DuplicateChecks = testDuplicateReactions(testModel)
+    
+    % TEST5: Find empty columns in the gene-reaction matrix
+    TableChecks{test,1} = 'Check empty columns in rxnGeneMat';
+    E = find(sum(model.rxnGeneMat) == 0)
+    if isempty(E)
+        TableChecks{test,2} = 'No empty columns in rxnGeneMat.';
+    else
+        TableChecks{test,2} = 'Empty columns in rxnGeneMat.';
+    end
+    test = test + 1;
+    
+    % TEST6: See if demand reactions have a LB >= 0
+    TableChecks{test,1} = 'Check that demand reactions have a lb >= 0';
+    DMlb = find(model.lb(strmatch('DM_', model.rxns)) < 0)
+    if isempty(DMlb)
+        TableChecks{test, 2} = 'No demand reaction can have flux in backward direction.';
+    else
+        TableChecks{test, 2} = 'Demand reaction can have flux in backward direction.';
+    end
+    test = test + 1;
+    
+    TableChecks
+    
+    % TEST 7: Identify Dead End Metabolites
+    outputMets = detectDeadEnds(model)
+    DeadEnds = model.mets(outputMets)
+    [rxnList, rxnFormulaList] = findRxnsFromMets(model, DeadEnds)
+    
+    model.lb(find(ismember(model.rxns,rxnList)))
+    model.ub(find(ismember(model.rxns,rxnList)))
+
+    [allGaps, rootGaps, downstreamGaps] = gapFind(model, 'true')
+    
+    % TEST 8: Idenitfy Blocked Reactions
+
+
+
+
+    
+    end
