@@ -5,10 +5,13 @@ addpath('/home/scampit/Desktop/eGEM/matlab/scripts/metabolic_sensitivity')
 load ./../../metabolic_models/eGEM.mat
 load ./../../vars/ccle_geneExpression_vars.mat
 load ./../../vars/CCLE_epsilon.mat
-load ./../../vars/CCLE_proteomics.mat
 reactions_of_interest = {'DM_KAC'; 'DM_KMe1'; 'DM_KMe2'; 'DM_KMe3'};
+proteomics_path = './../../../data/CCLE/Global_Chromatin_Profiling/';
+proteomics_array = readcell(strcat(proteomics_path, 'GCP_proteomics_remapped.csv'));
 
-<<<<<<< HEAD
+model = eGEM;
+fva_grate = 100;
+
 cell_names = proteomics_array(2:end, 1);
 tissues = proteomics_array(2:end, 2);
 marks = proteomics_array(1, 3:44);
@@ -20,12 +23,7 @@ proteomics(missing_values) = {NaN};
 proteomics = cell2mat(proteomics);
 proteomics = knnimpute(proteomics);
 
-=======
->>>>>>> 2ffc2162c882f46c157a9806b0824b4788803b25
-model = eGEM;
-fva_grate = 100;
 unique_tissues = unique(tissues);
-
 for tiss = 1:length(unique_tissues)
     BIOMASS_OBJ_POS = find(ismember(eGEM.rxns, 'biomass_objective')); 
 
@@ -68,7 +66,6 @@ for tiss = 1:length(unique_tissues)
         epsilon = 10;
         mode = 0; 
         %epsilon2 = 1E-3;
-
         minfluxflag = true;
         [cellLine_model, solution] =  constrain_flux_regulation...
             (constrained_model, diffExp_genes.(ON_fieldname), ...
@@ -79,30 +76,30 @@ for tiss = 1:length(unique_tissues)
         %    [], fva_grate, 'max', reactions_of_interest, [], 'fva');
         
         tissue_flux_values(match, :) = solution.flux(reactions_to_optimize);
-        %tissue_flux_values(match, :) = solution.maxflux(reactions_to_optimize);
+        tissue_flux_values(match, :) = solution.maxflux(reactions_to_optimize);
         disp(match)
     end
 end
 
-% [pearson_corr, pvalue] = corr(tissue_flux_values, ...
-%     tissue_matched_proteomics);
-% reaction_names = reactions_of_interest(:, 3);
-% 
-%     tissue_structure = struct('Name', 'CCLE');
-%     fields = {...
-%         'Tissue', 'HistoneMark'; 'Reaction'; ...
-%         'PearsonR'; 'Pvalue'; 'FluxOutput'; 'ProteomicsOutput'
-%     };
-% 
-%     values = {...
-%         tissue, marks; reaction_names; ...
-%         pearson_corr; pvalue; tissue_flux_values; tissue_matched_proteomics
-%     };
-% 
-%     for i = 1:length(fields)
-%         tissue_structure.(fields{i}) = values{i};
-%     end
-% end
+[pearson_corr, pvalue] = corr(tissue_flux_values, ...
+    tissue_matched_proteomics);
+reaction_names = reactions_of_interest(:, 3);
+
+    tissue_structure = struct('Name', 'CCLE');
+    fields = {...
+        'Tissue', 'HistoneMark'; 'Reaction'; ...
+        'PearsonR'; 'Pvalue'; 'FluxOutput'; 'ProteomicsOutput'
+    };
+
+    values = {...
+        tissue, marks; reaction_names; ...
+        pearson_corr; pvalue; tissue_flux_values; tissue_matched_proteomics
+    };
+
+    for i = 1:length(fields)
+        tissue_structure.(fields{i}) = values{i};
+    end
+end
 
 
 

@@ -104,7 +104,7 @@ end
 % Soft constraints can be violated if neccesary, and these reactions
 % can carry some flux. Higher magnitude (kappa), higher penalty.
 
-for off_rxn = 1:length(offreactions)
+parfor off_rxn = 1:length(offreactions)
     rxnpos = find(ismember(unconstrained_model.rxns, offreactions(off_rxn)));
     % xi + si >= -eps2
     %      si >= 0

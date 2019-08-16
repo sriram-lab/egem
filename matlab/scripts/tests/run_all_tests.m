@@ -1,18 +1,13 @@
 % @author: Scott Campit
 function [TableChecks] = testMetabolicModel(model)
     changeCobraSolver('gurobi');
-    
     testModel = model;
-    tol = 1E-6;
     
     EXChecks = testEXLeaks(testModel);
     DMChecks = testDMLeaks(testModel);
     DuplicateChecks = testDuplicateReactions(testModel);
     emptyRxnColumnPosition = testRxnGeneMat(testModel);
-    [wrongLB] = testDMRxnLB(testModel);
-    
-    
-    TableChecks
+    wrongLB = testDMRxnLB(testModel);
     
     % TEST 7: Identify Dead End Metabolites
     outputMets = detectDeadEnds(model)
@@ -26,8 +21,4 @@ function [TableChecks] = testMetabolicModel(model)
     
     % TEST 8: Idenitfy Blocked Reactions
 
-
-
-
-    
     end
