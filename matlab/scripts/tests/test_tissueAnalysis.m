@@ -5,20 +5,8 @@ addpath('/home/scampit/Desktop/eGEM/matlab/scripts/metabolic_sensitivity')
 load ./../../metabolic_models/eGEM.mat
 load ./../../vars/ccle_geneExpression_vars.mat
 load ./../../vars/CCLE_epsilon.mat
+load ./../../vars/CCLE_proteomics.mat
 reactions_of_interest = {'DM_KAC'; 'DM_KMe1'; 'DM_KMe2'; 'DM_KMe3'};
-proteomics_path = './../../../data/CCLE/Global_Chromatin_Profiling/';
-proteomics_array = readcell(strcat(proteomics_path, 'GCP_proteomics_remapped.csv'));
-
-cell_names = proteomics_array(2:end, 1);
-tissues = proteomics_array(2:end, 2);
-marks = proteomics_array(1, 3:44);
-medium = proteomics_array(2:end, 45);
-
-proteomics = proteomics_array(2:end, 3:44);
-missing_values = cellfun(@ismissing, proteomics);
-proteomics(missing_values) = {NaN};
-proteomics = cell2mat(proteomics);
-proteomics = knnimpute(proteomics);
 
 model = eGEM;
 fva_grate = 100;
