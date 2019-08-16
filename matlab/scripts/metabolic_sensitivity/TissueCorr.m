@@ -1,0 +1,23 @@
+function [tissue_structure] = TissueCorr(tissue_flux_values, ...
+    tissue_matched_proteomics)
+
+    reaction_names = {'Histone 1Me', 'Histone 2Me', ...
+        'Histone 3Me', 'Histone Ac'};
+    
+    [pearson_corr, pvalue] = corr(tissue_flux_values, ...
+        tissue_matched_proteomics);
+
+    tissue_structure = struct('Name', 'CCLE');
+    fields = {...
+        'Tissue', 'HistoneMark'; 'Reaction'; ...
+        'PearsonR'; 'Pvalue'; 'FluxOutput'; 'ProteomicsOutput'
+    };
+    values = {...
+        tissue, marks; reaction_names; ...
+        pearson_corr; pvalue; tissue_flux_values; tissue_matched_proteomics
+    };
+
+    for i = 1:length(fields)
+        tissue_structure.(fields{i}) = values{i};
+    end
+end
