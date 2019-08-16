@@ -66,7 +66,6 @@ for tiss = 1:length(unique_tissues)
         %    [], fva_grate, 'max', reactions_of_interest, [], 'fva');
         
         tissue_flux_values(match, :) = solution.flux(reactions_to_optimize);
-        tissue_grates(match,:) = solution.grate;
         %tissue_flux_values(match, :) = solution.maxflux(reactions_to_optimize);
         disp(match)
     end
