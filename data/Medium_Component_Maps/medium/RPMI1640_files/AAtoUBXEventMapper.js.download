@@ -1,0 +1,164 @@
+if(typeof(adobe_ubx)=="undefined"){adobe_ubx = {};}
+adobe_ubx.version = "2.0.0";
+adobe_ubx.host = adobe_ubx.host || "<REPLACE_UBX_API_HOST_URL>";
+adobe_ubx.authKey = adobe_ubx.authKey || "<REPLACE_UBX_EVENT_AUTH_KEY>";//enable a single flag to disable console messages, errors and warnings
+
+adobe_ubx.init = function (configObj) {
+    adobe_ubx.host = configObj.ubxHostName;
+    adobe_ubx.authKey = configObj.ubxAuthKey;
+};
+
+adobe_ubx.sendEventFromJSONPayload = function (payloadJson, identifiersMapper, ubxEventType, attributesMapper) {
+    if (!payloadJson) {
+        ubxCapture.consoleWrite.error("Payload is missing");
+        return;
+    }
+
+    if (typeof payloadJson !== 'object') {
+        ubxCapture.consoleWrite.error("Payload should be a object.");
+        return;
+    }
+    if (window.ubxCaptureIdents==false){identifiersMapper=null;}
+    var eventMapper = adobe_ubx.createEventMapper(ubxEventType, identifiersMapper, attributesMapper);
+
+    var eventObj = adobe_ubx.mapToUBXEvent(payloadJson, eventMapper);
+    ibm_ubx.sendEvent(eventObj, adobe_ubx.host, adobe_ubx.authKey,"ADOBEANALYTICS",adobe_ubx.requestType);
+};
+
+/**
+ * Maps payload JSON to UBX events and sends them out using UBX batch event format. The eventMapperList should be an array
+ * object and each element should have the following properties: ubxEventType, identifiersMapper and attributesMapper.
+ * The batch event expects common identifiers for all the events in the same batch. The identifiers of the batch event will
+ * come from the event object at the index that's specified by <code>identifiersIndex</code> (0 based)
+ *
+ * @param payloadJson the event payload JSON
+ * @param eventMapperList a list of event mapper object, each element should have the following properties:
+ *                          ubxEventType, identifiersMapper and attributesMapper.
+ * @param identifiersIndex index of the event object whose identifiers will be used for the ubx batch event identifiers
+ */
+adobe_ubx.sendBatchEventFromJSONPayload = function (payloadJson, eventMapperList, identifiersIndex) {
+    if (!payloadJson)
+    {
+        ubxCapture.consoleWrite.error("payloadJson is missing");
+        return;
+    }
+
+    if (!eventMapperList)
+    {
+        ubxCapture.consoleWrite.error("eventMapperList is missing");
+        return;
+    }
+    else if (!Array.isArray(eventMapperList))
+    {
+        ubxCapture.consoleWrite.error("eventMapperList is not an array");
+        return;
+    }
+
+    if (typeof identifiersIndex === 'undefined')
+    {
+        ubxCapture.consoleWrite.error("identifiersIndex is missing");
+        return;
+    }
+    else if (identifiersIndex<0 || identifiersIndex>=eventMapperList.length)
+    {
+        ubxCapture.consoleWrite.error("identifiersIndex is not a valid number");
+        return;
+    }
+
+    try
+    {
+        var eventList = [];
+        for (var i = 0; i < eventMapperList.length; i++)
+        {
+            var eventMapper = adobe_ubx.createEventMapper(eventMapperList[i].ubxEventType,
+                eventMapperList[i].identifiersMapper,
+                eventMapperList[i].attributesMapper);
+            var eventObj = adobe_ubx.mapToUBXEvent(payloadJson, eventMapper);
+            eventList.push(eventObj);
+        }
+
+        if (eventList.length > 0)
+        {
+            var batchEvent = {};
+            batchEvent.events = eventList;
+            batchEvent.identifiers = eventList[identifiersIndex].identifiers;
+            ibm_ubx.sendBatchEvent(batchEvent, adobe_ubx.host, adobe_ubx.authKey,"ADOBEANALYTICS",adobe_ubx.requestType);
+        }
+        else
+        {
+            ubxCapture.consoleWrite.log("No event mapped to UBX event.");
+        }
+    }
+    catch (err)
+    {
+        ubxCapture.consoleWrite.error("Exception in sendBatchEventFromJSONPayload(): " + err);
+    }
+};
+
+adobe_ubx.mapToUBXEvent = function (payloadJson, adobeUBXEventMapperObj) {
+    var eventObj = {};
+    eventObj.eventCode = adobeUBXEventMapperObj.ubxEventType;
+    eventObj.identifiers = adobe_ubx.createFieldArrayObject(payloadJson, adobeUBXEventMapperObj.identifiersMapper);
+    eventObj.attributes = adobe_ubx.createFieldArrayObject(payloadJson, adobeUBXEventMapperObj.attributesMapper);
+    return eventObj;
+};
+
+adobe_ubx.createFieldArrayObject = function (jsonObj, fieldMapper) {
+    var arr = [];
+    if (fieldMapper) {
+        for (var i = 0; i < fieldMapper.length; i++) {
+            var fieldName = fieldMapper[i].name;
+            var fieldValue = fieldMapper[i].value;
+            if (fieldName && fieldValue) {
+                arr.push(adobe_ubx.createNameValueTypeObject(fieldName, fieldValue, fieldMapper[i].type));
+            } else {
+                var adobeName = fieldMapper[i].adobeName;
+                var ubxName = fieldMapper[i].ubxName;
+                var type = fieldMapper[i].type;
+
+                var value = adobe_ubx.getValue(jsonObj, adobeName);
+                if (value)
+                    arr.push(adobe_ubx.createNameValueTypeObject(ubxName, value, type));
+            }
+        }
+    }
+
+    return arr;
+};
+
+adobe_ubx.getValue = function (obj, key) {
+    if (obj) {
+        var keys = key.split(".");
+        var newObj = obj;
+        for (var i = 0; i < keys.length; i++) {
+            if (newObj.hasOwnProperty(keys[i])) {
+                newObj = newObj[keys[i]];
+                if (i === keys.length - 1)
+                    return newObj;
+
+                continue;
+            } else
+                break;
+        }
+    }
+
+    return null;
+};
+
+adobe_ubx.createNameValueTypeObject = function (name, value, type) {
+    var obj = {};
+    obj.name = name;
+    obj.value = value;
+    if (type) {
+        obj.type = type;
+    }
+    return obj;
+};
+
+adobe_ubx.createEventMapper = function (ubxEventType, identifiersMapper, attributesMapper) {
+    var eventMapper = {};
+    eventMapper.ubxEventType = ubxEventType;
+    eventMapper.identifiersMapper = identifiersMapper;
+    eventMapper.attributesMapper = attributesMapper;
+    return eventMapper;
+};

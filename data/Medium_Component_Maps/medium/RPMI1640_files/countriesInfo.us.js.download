@@ -1,0 +1,32 @@
+var ltCountryInfo = {
+  "us": {
+    "defaultLanguage":"en",
+    "flag":"/shared-static/images/icons/flags/us.gif",
+    "name":"United States",
+    "phone":"<a href='https://www.thermofisher.com/us/en/home/technical-resources/contact-us.html'>Contact Us</a>",
+    "signInHidden":"",
+    "registerHidden":"",
+    "euCountry":"",
+    "quickLinkIndex":"7",
+    "brandsImagePath":"/content/dam/LifeTech/Images/Header/brandbar3.png",
+    "isGlobal":"false",
+    "brand1linkText":"Thermo Scientific",
+    "brand1linkURL":"//www.thermofisher.com/us/en/home/brands/thermo-scientific.html",
+    "brand1openLinkInNewWindow":"",
+    "brand2linkText":"Applied Biosystems",
+    "brand2linkURL":"//www.thermofisher.com/us/en/home/brands/applied-biosystems.html",
+    "brand2openLinkInNewWindow":"",
+    "brand3linkText":"Invitrogen",
+    "brand3linkURL":"//www.thermofisher.com/us/en/home/brands/invitrogen.html",
+    "brand3openLinkInNewWindow":"",
+    "brand4linkText":"Fisher Scientific",
+    "brand4linkURL":"//www.fishersci.com",
+    "brand4openLinkInNewWindow":"true",
+    "brand5linkText":"Unity Lab Services",
+    "brand5linkURL":"//www.unitylabservices.com",
+    "brand5openLinkInNewWindow":"true",
+    "brandGroup":"1",
+    "groupDisplay":"",
+    "regionMapping":"NA"
+  }
+};

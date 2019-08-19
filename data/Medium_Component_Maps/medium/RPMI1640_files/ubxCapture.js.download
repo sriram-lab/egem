@@ -1,0 +1,607 @@
+/*
+ * Licensed Materials - Property of IBM
+ *
+ * $$Id$$
+ * $$Revision$$
+ * $$LastChangedBy$$
+ * $$LastChangedDate$$
+ *
+ * (C) Copyright IBM Corporation ${year}. U.S. Government Users Restricted Rights: Use, duplication or disclosure restricted by GSA ADP ScheduleContract with IBM Corp.
+ */
+
+if (typeof(ubxCapture)=="undefined"){ubxCapture={};}
+ubxCapture.providers=[];
+ubxCapture.reqQueue=[];
+ubxCapture.kaTimeout=ubxCapture.kaTimeout || 600;
+ubxCapture.keepAliveCount=false;
+ubxCapture.cSessionTimeout= ubxCapture.cSessionTimeout || 1800;
+ubxCapture.cid="66666666";
+ubxCapture.tenantList=[];
+
+if (typeof(window.ubxCaptureToConsole)=="undefined"){window.ubxCaptureToConsole=false;}
+if (typeof(window.ubxCaptureToError)=="undefined"){window.ubxCaptureToError=true;}
+
+//this allows the client to set individual flags if they like
+if (typeof(window.ubxCaptureIdents)=="undefined"){window.ubxCaptureIdents=true;}
+
+//Allow override of 30 minute timeout for session id
+if (!ubxCapture.timeout || ubxCapture.timeout == null) {
+	ubxCapture.timeout = 30;
+}
+if (typeof(ibm_ubx) == "undefined") {
+	ibm_ubx = {};
+}
+ubxCapture.setGlobalIDCookie=function (){
+	var expires = (new Date(2030, 1, 1)).toUTCString();
+	function b(f) {
+		var e = Math.random();
+		if (e == 0) {
+			e = Math.random()
+		}
+		return e.toString().substr(2, f)
+	}
+	var c = b(2) + b(10) + new Date().getTime()
+			, a = c.length
+			, d = 23;
+	if (a < d) {
+		c = c + c.substr(a - (d - a))
+	}
+	if (a > d) {
+		c = c.substr(0, d)
+	}
+	ubxCapture.createCookie("WCXUID",c,expires);
+
+	if (typeof(wrtp_ubx)!="undefined" && ubxCapture.CMLoaded==1){
+		ubxCapture.sendIdentifiers(wrtp_ubx.host, wrtp_ubx.authKey, "WRTP", wrtp_ubx.requestType);
+	}
+}
+function createCORSRequest(method, url) {
+	var xhr = new XMLHttpRequest();
+	if ("withCredentials" in xhr) {
+		// XHR for Chrome/Firefox/Opera/Safari.
+		xhr.open(method, url, false);
+	} else if (typeof XDomainRequest != "undefined") {
+		// XDomainRequest for IE.
+		xhr = new XDomainRequest();
+		xhr.open(method, url,false);
+	} else {
+		// CORS not supported.
+		xhr = null;
+	}
+	return xhr;
+}
+
+// Helper method to parse the title tag from the response.
+function getTitle(text) {
+	return text.match('<title>(.*)?</title>')[1];
+}
+
+ubxCapture.createCookie=function (name,value,expires,path) {
+	if (path){
+		path=";path="+path;
+	} else {
+		path=";path=/";
+	}
+	if (!expires){
+		expires="";
+	} else {
+		expires = "; expires=" + expires;
+	}
+	document.cookie = name + "=" + value + expires + path;
+	ubxCapture.consoleWrite.log(name+" cookie created");
+};
+
+ubxCapture.readCookie=function (name) {
+	var nameEQ = name + "=",nl=name.length;
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0 && c.substring(0,nl)==name){
+			ubxCapture.consoleWrite.log(name+" cookie read");
+			return c.substring(nameEQ.length,c.length);
+		}
+	}
+	ubxCapture.consoleWrite.log(name+" cookie not found");
+	return null;
+};
+
+ubxCapture.eraseCookie=function (name) {
+	document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+	ubxCapture.consoleWrite.log(name+" cookie deleted");
+};
+
+ubxCapture.loadScript=function (url, sLocation,callback){
+
+	var oScript = document.createElement("script")
+	oScript.type = "text/javascript";
+
+	if (oScript.readyState){  //IE
+		oScript.onreadystatechange = function(){
+			if (oScript.readyState == "loaded" ||
+					oScript.readyState == "complete"){
+				oScript.onreadystatechange = null;
+				if (typeof(callback)!="undefined"){
+					callback();
+				}
+			}
+		};
+	} else {  //Others
+		oScript.onload = function(){
+			if (typeof(callback)!="undefined"){
+				callback();
+			}
+		};
+	}
+	url=url.replace(/^https?\:\/\//i, "");
+	url=url.replace(/\/\//g,"");
+	url="//"+url;
+	oScript.src = url;
+	document.getElementsByTagName(sLocation)[0].appendChild(oScript);
+}
+ubxCapture.calcSessionID=function (digits) {
+	if (!digits){digits=20};
+	var
+			cSessionTime = new Date().getTime(),
+			cSessionExpTime = ""+(cSessionTime +ubxCapture.cSessionTimeout*1000),
+			cTimeoutStr = ""+cSessionTime,
+			sPad=(Math.random()*100000000000000000).toString().slice(0,digits-cTimeoutStr.length);
+	cTimeoutStr=sPad+cTimeoutStr;
+	return cTimeoutStr = cTimeoutStr.substring(0, digits);
+}
+ubxCapture.reSetSession=function(clientID,value){
+	var path="/",pl,url,cmTimeoutStr,sCid;
+	if (!value) {
+		value = "0000" + ubxCapture.calcSessionID() +ubxCapture.cid;
+	} else {
+		value = "0000" + value + ubxCapture.cid;
+	}
+
+	ubxCapture.createCookie("WCXSID",value,null,"/");
+	ubxCapture.eraseCookie("TLTSID");
+	if (typeof(TLT)!="undefined"){
+		if (typeof(TLT.init)!="undefined"){
+			TLT.utils.setCookie("TLTSID", value);
+			TLT.init;
+		}
+	}
+	ubxCapture.createCookie("WCXSID_expiry",Date.now(),null,"/");
+}
+ubxCapture.updateExpiry=function(){
+	var pl,url,expValue,kaValue;
+	if (ubxCapture.readCookie("WCXSID_expiry")){
+		if (Date.now()-ubxCapture.readCookie("WCXSID_expiry")>ubxCapture.cSessionTimeout*1000){
+			ubxCapture.reSetSession();
+			return;
+		}
+	}
+	ubxCapture.createCookie("WCXSID_expiry",Date.now(),null,"/");
+}
+ubxCapture.fireKeepAlive=function(provider) {
+	if ((typeof(ubxCapture.providers) != "undefined") && ubxCapture.readCookie("WCXSID") && ubxCapture.readCookie("WCXSID_expiry")) {
+		//ubxCapture.keepAliveCount = true;
+		expValue=Date.now()+ubxCapture.kaTimeout;
+		if (ubxCapture.readCookie("WCXSID_expiry")>expValue){
+			for (pl = 0; pl < ubxCapture.providers.length; pl++) {
+				if (provider && provider!=ubxCapture.providers[pl].provide){continue;}
+				kaImage = new Image;
+				url = ibm_ubx.daHost.replace(/^https?\:\/\//i, "");
+				url = url.replace(/\/\//g, "");
+				url = "//" + url;
+				kaImage.src = url + "/cm?tid=99&ci=" + ubxCapture.cid + "&namespace=DART&version=1&channel=Web&provider=" + ubxCapture.providers[pl].provider + "&authkey=" + ubxCapture.providers[pl].authKey + "&code0=$SESSIONOPEN$&attribute0=interactionId-_-" + ubxCapture.readCookie("WCXSID") + "-_-string&cjsid=" + ubxCapture.readCookie("WCXSID").substr(4, 20) + "&cjen=1&rn=" + Math.floor(Math.random() * 9000000000000);
+			}
+		}
+	}
+}
+ubxCapture.setTenantID=function(tenant,value,parm){
+	if (!tenant || !value){
+		ubxCapture.consoleWrite.error("setTenantID parameter list incomplete.");
+		return;
+	}
+	if (ubxCapture.tenantList[tenant]){
+		ubxCapture.tenantList[tenant].value=value;
+		if (parm){
+			ubxCapture.tenantList[tenant].parm=parm;
+		}
+		ubxCapture.consoleWrite.log("Tenant already exists. Values Updated");
+		return;
+	} else {
+		ubxCapture.tenantList[tenant]={"value":value,"parm":parm};
+		ubxCapture.consoleWrite.log("Tenant created.");
+	}
+}
+ubxCapture.sendIdentifiers=function(host,authKey,provider,requestType){
+	var intCount= 0,daSessionCookie;
+	eventObj = {};
+	eventObj.eventCode = "matchedIdentity";
+	eventObj.attributes = [];
+	eventObj.identifiers = [];
+	var identChecker='',enablements=[];
+	if (typeof(window.localStorage)=="object"){
+		enablements=ubxCapture.returnEnablements();
+		identChecker=enablements.join("|");
+		if (window.localStorage.getItem("ubxIdentsSent")==identChecker){
+			return;
+		}
+	}
+	daSessionCookie=window.cm_ClientID+"_clogin";
+	if (ubxCapture.readCookie("CoreID6") && ubxCapture.readCookie(daSessionCookie)&& typeof(ibm_ubx.sendEvent) == "function"){
+		ibm_ubx.da.id=ubxCapture.readCookie("CoreID6").substr(0,ubxCapture.readCookie("CoreID6").indexOf("&"));
+		ibm_ubx.sendEvent(eventObj,host,authKey,provider,requestType);
+		if (typeof(window.localStorage) == "object") {
+			window.localStorage.setItem("ubxIdentsSent", identChecker);
+		}
+	} else {
+		var waiter = setInterval(function () {
+			++intCount;
+			daSessionCookie=window.cm_ClientID+"_clogin";
+			if (ubxCapture.readCookie("CoreID6") && ubxCapture.readCookie(daSessionCookie)&&(typeof(ibm_ubx.sendEvent) == "function")){
+				ibm_ubx.da.id=ubxCapture.readCookie("CoreID6").substr(0,ubxCapture.readCookie("CoreID6").indexOf("&"));
+				ibm_ubx.sendEvent(eventObj,host,authKey,provider,requestType);
+				if (typeof(window.localStorage) == "object") {
+					window.localStorage.setItem("ubxIdentsSent", identChecker);
+				}
+				clearInterval(waiter);
+			} else if (intCount > 6) {
+				ubxCapture.consoleWrite.log("UBX.js not loaded or Digital Analytics has not set the cookie id.");
+				clearInterval(waiter);
+				return;
+			}
+		}, 2000);
+	}
+}
+ubxCapture.returnEnablements=function(){
+	var enablements=[];
+	Object.keys(ubxCapture.enabledOfferings).forEach(
+			function(key,index) {
+				enablements.push(key);
+			}
+	)
+	return enablements;
+}
+
+ubxCapture.consoleWrite= {
+	log: function (message) {
+		if (!window.ubxCaptureToConsole) {return;}
+		if (typeof console !== "undefined") {
+			console.log(message);
+		}
+	},
+	error: function (message) {
+		if (!window.ubxCaptureToError) {return;}
+		if (typeof console !== "undefined") {
+			console.error(message);
+		}
+	},
+	warn: function (message){
+		if (!window.ubxCaptureToConsole) {return;}
+		if (typeof console !== "undefined") {
+			console.warn(message);
+		}
+	}
+}
+
+ubxCapture.runSDK=function(){  //loads SDK code per ubxCapture JSON object on client CDN folder
+	if (!ubxCapture.readCookie("WCXUID")){
+		ubxCapture.setGlobalIDCookie();
+	}
+	//get config
+	if (typeof(ubxCapture.enabledOfferings)=="object"){
+		var cmKey=null;
+		ubxCapture.CMLoaded= 0;
+		if (typeof(ubxCapture.enabledOfferings.DA)=="object"){
+			Object.keys(ubxCapture.enabledOfferings.DA).forEach(
+					function(key,index) {  //loop through DA instances
+						if (ubxCapture.enabledOfferings.DA[key].activated){
+							if (cmKey && cmKey==ubxCapture.enabledOfferings.DA[key].config.cid){
+								ubxCapture.consoleWrite.log("Duplicate Client ID, "+ubxCapture.enabledOfferings.DA[key].config.cid+" used in multiple ubxCapture Digital Analytics applications.  First instance found is used.");
+							}
+							if (typeof(ubxCapture.offerings)!="undefined"){
+								if (ubxCapture.offerings.indexOf("DA")==-1){
+									ubxCapture.offerings+="DA|";
+								}
+							} else {
+								ubxCapture.offerings="DA|";
+							}
+							if (cmKey==null && typeof(ubxCapture.tenantList["DA"])!="object"){
+								//take first enabled instance and use that one if multiple DA object and tenantList does not exist for DA
+								cmKey=key;
+							} else if (ubxCapture.tenantList["DA"]){
+								if (ubxCapture.tenantList["DA"].value==ubxCapture.enabledOfferings.DA[key].config.cid){
+									cmKey=key;
+								}
+							}
+
+						}
+					}
+			);
+
+			if (cmKey!=null && ubxCapture.CMLoaded==0){
+
+				ubxCapture.cid=ubxCapture.enabledOfferings.DA[cmKey].config.cid;
+				window.cm_HOST = ubxCapture.enabledOfferings.DA[cmKey].config.dcd;
+				window.cm_JSFEnabled=ubxCapture.enabledOfferings.DA[cmKey].config.dcm;
+
+				if (ubxCapture.enabledOfferings.DA[cmKey].config.sdkURL.indexOf("htt")<0 && ubxCapture.enabledOfferings.DA[cmKey].config.sdkURL.indexOf("//")<0){
+					document.write("<script type='text/javascript' src='//"+ubxCapture.enabledOfferings.DA[cmKey].config.sdkURL+"'><\/script>");
+				} else {
+					document.write("<script type='text/javascript' src='"+ubxCapture.enabledOfferings.DA[cmKey].config.sdkURL+"'><\/script>");
+				}
+
+				document.write("<script>cmSetClientID('"+ubxCapture.enabledOfferings.DA[cmKey].config.cid+"',"+ubxCapture.enabledOfferings.DA[cmKey].config.dcm+",'"+ubxCapture.enabledOfferings.DA[cmKey].config.dcd+"',location.host);</scri"+"pt>");
+				window.cm_ClientID=ubxCapture.enabledOfferings.DA[cmKey].config.cid;
+				ubxCapture.CMLoaded=1;
+			}
+			if (ubxCapture.CMLoaded==0){
+				//DA was enabled in ubxCapture but tenant list specified a value that was not found in the JSON.
+				ubxCapture.consoleWrite.error("DA Event Defined in Tenant List but not matched in ubxCapture applications.");
+			}
+			//remove when eluminate v4.23.141 is in production
+			if (!ubxCapture.readCookie("WCXSID")){
+				ubxCapture.reSetSession();
+			}
+		} else {
+			if (!ubxCapture.readCookie("WCXSID")){
+				ubxCapture.reSetSession();
+			}
+		}
+
+		if (typeof(ubxCapture.enabledOfferings.Tealeaf)=="object") {
+			var TLKey = null, TLLoaded = 0;
+			if (ubxCapture.readCookie("TLTSID")) {
+				if (ubxCapture.readCookie("WCXSID") != ubxCapture.readCookie("TLTSID")) {
+					ubxCapture.eraseCookie("TLTSID");
+				}
+			}
+			Object.keys(ubxCapture.enabledOfferings.Tealeaf).forEach(
+					function (key, index) {
+						if (ubxCapture.enabledOfferings.Tealeaf[key].activated) {
+							if (TLKey == null && typeof(ubxCapture.tenantList["TL"]) != "object") {
+								//take first enabled instance and use that one if multiple TL object and tenantList does not exist for DA
+								TLKey = key;
+							} else if (ubxCapture.tenantList["TL"]) {
+								if (ubxCapture.tenantList["TL"].value == ubxCapture.enabledOfferings.Tealeaf[key].config.ubxAuthKey) {
+									TLKey = key;
+								}
+							}
+						}
+						if (TLKey && TLKey==ubxCapture.enabledOfferings.Tealeaf[key].config.ubxAuthKey){
+							ubxCapture.consoleWrite.log("Duplicate UBX Auth Key, "+ubxCapture.enabledOfferings.Tealeaf[key].config.ubxAuthKey+" used in multiple ubxCapture Tealeaf applications.  First instance found is used.");
+						}
+						if (TLKey && TLLoaded == 0) {
+							ubxCapture.loadScript(ubxCapture.enabledOfferings.Tealeaf[key].config.sdkURL, "head");
+							if (typeof(ubxCapture.offerings) != "undefined") {
+								if (ubxCapture.offerings.indexOf("TL") == -1) {
+									ubxCapture.offerings += "TL|";
+								}
+							} else {
+								ubxCapture.offerings = "TL|";
+							}
+							TLLoaded = 1;
+						}
+					}
+			);
+		}
+
+		if (typeof(ubxCapture.enabledOfferings.UBXIdSync)=="object"){
+			var IDSKey = null, IDSLoaded = 0;
+			Object.keys(ubxCapture.enabledOfferings.UBXIdSync).forEach(
+					function(key,index) {
+						if (ubxCapture.enabledOfferings.UBXIdSync[key].activated){
+							ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXIdSync[key].config.sdkURL,"head",function(){ibm_ubx.idSync.enableUBXIdSync(ubxCapture.enabledOfferings.UBXIdSync[key].config)});
+							if (typeof(ubxCapture.offerings)!="undefined"){
+								if (ubxCapture.offerings.indexOf("ID")==-1){
+									ubxCapture.offerings+="ID|";
+								}
+							} else {
+								ubxCapture.offerings="ID|";
+							}
+						} else {
+							ubxCapture.ubxIntCheck=0;
+							var ubxChecker=setInterval(function(){
+								ubxCapture.ubxIntCheck++;
+								if (ubxCapture.ubxIntCheck>20){clearInterval(ubxChecker);}
+								ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXIdSync[key].config.sdkURL,"head",function(){ibm_ubx.idSync.enableUBXIdSync(ubxCapture.enabledOfferings.UBXIdSync[key].config)});
+								if (typeof(ubxCapture.offerings)!="undefined"){
+									if (ubxCapture.offerings.indexOf("ID")==-1){
+										ubxCapture.offerings+="ID|";
+									}
+								} else {
+									ubxCapture.offerings="ID|";
+								}
+								if (typeof(ibm_ubx.idSync.enableUBXIdSync)=="function"){
+									clearInterval(ubxChecker);
+								}
+
+							},300);
+						}
+					}
+			);
+		}
+
+		if (typeof(ubxCapture.enabledOfferings.UBXEvent)=="object"){
+			var GAKey,AAKey,GALoaded= 0,AALoaded= 0,GAFlag= 0,AAFlag=0;
+			Object.keys(ubxCapture.enabledOfferings.UBXEvent).forEach(
+					function(key,index) {
+						if (ubxCapture.enabledOfferings.UBXEvent[key].activated) {
+							//Step 1  To revert to force payloads to be sent by POST directly to UBX uncomment the line below
+							//ibm_ubx.requestType="POST";
+							//Step 2  To revert to force payloads to be sent by POST directly to UBX comment out the line below
+							ibm_ubx.daHost = ubxCapture.enabledOfferings.UBXEvent[key].config.ubxHostName;
+							if (ubxCapture.enabledOfferings.UBXEvent[key].config.source == "Google Analytics") {
+								GAFlag=1;
+								if (GAKey == null && typeof(ubxCapture.tenantList["GA"]) != "object") {
+									//take first enabled instance and use that one if multiple DA object and tenantList does not exist for DA
+									GAKey = key;
+								} else if (ubxCapture.tenantList["GA"]) {
+									if (ubxCapture.tenantList["GA"].value == ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey) {
+										GAKey = key;
+									}
+								}
+							}
+							if (GAKey && GAKey==ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey){
+								ubxCapture.consoleWrite.log("Duplicate UBX Auth Key, "+ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey+" used in multiple ubxCapture Google Analytics applications.  First instance found is used.");
+							}
+							if (GAKey && GALoaded==0) {
+								if (typeof(ibm_ubx) == "undefined") {
+									ibm_ubx = {};
+								}
+								google_ubx = {};
+								google_ubx.host = ubxCapture.enabledOfferings.UBXEvent[key].config.ubxHostName;
+								google_ubx.requestType = ubxCapture.enabledOfferings.UBXEvent[key].config.requestType;
+								google_ubx.authKey = ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey;
+								ubxCapture.providers.push({provider: "GOOGLEANALYTICS", authKey: google_ubx.authKey});
+								ubxCapture.fireKeepAlive("GOOGLEANALYTICS");
+								if (typeof(ubxCapture.offerings) != "undefined") {
+									if (ubxCapture.offerings.indexOf("GA") == -1) {
+										ubxCapture.offerings += "GA|";
+									}
+								} else {
+									ubxCapture.offerings = "GA|";
+								}
+								//first check to see if UBX.js is already loaded by another event
+								if (typeof(ibm_ubx.sendEvent)!="function"){
+									//ubx.js has not been loaded so load it now
+									ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXEvent[key].config.sdkURL,"head");
+								}
+								ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXEvent[key].config.mapperFileURL,"head");
+								GALoaded=1;
+							}
+
+							if (ubxCapture.enabledOfferings.UBXEvent[key].config.source == "Adobe Analytics"){
+								AAFlag=1;
+								if (AAKey == null && typeof(ubxCapture.tenantList["AA"]) != "object") {
+									//take first enabled instance and use that one if multiple DA object and tenantList does not exist for DA
+									AAKey = key;
+								} else if (ubxCapture.tenantList["AA"]) {
+									if (ubxCapture.tenantList["AA"].value == ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey) {
+										AAKey = key;
+									}
+								}
+								if (AAKey && AAKey==ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey){
+									ubxCapture.consoleWrite.log("Duplicate UBX Auth Key, "+ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey+" used in multiple ubxCapture Adobe Analytics applications.  First instance found is used.");
+								}
+								if (AAKey && AALoaded==0) {
+									if (typeof(ibm_ubx) == "undefined") {
+										ibm_ubx = {};
+									}
+									adobe_ubx = {};
+									adobe_ubx.host = ubxCapture.enabledOfferings.UBXEvent[key].config.ubxHostName;
+									adobe_ubx.requestType = ubxCapture.enabledOfferings.UBXEvent[key].config.requestType;
+									adobe_ubx.authKey = ubxCapture.enabledOfferings.UBXEvent[key].config.ubxAuthKey;
+									ubxCapture.providers.push({provider: "ADOBEANALYTICS", authKey: adobe_ubx.authKey});
+									ubxCapture.fireKeepAlive("ADOBEANALYTICS");
+									if (typeof(ubxCapture.offerings) != "undefined") {
+										if (ubxCapture.offerings.indexOf("AA") == -1) {
+											ubxCapture.offerings += "AA|";
+										}
+									} else {
+										ubxCapture.offerings = "AA|";
+									}
+									//first check to see if UBX.js is already loaded by another event
+									if (typeof(ibm_ubx.sendEvent)!="function"){
+										//ubx.js has not been loaded so load it now
+										ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXEvent[key].config.sdkURL,"head");
+									}
+									ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXEvent[key].config.mapperFileURL,"head");
+									AALoaded=1;
+								}
+							}
+
+						}
+					});
+			if (GAFlag==1 && GALoaded==0){
+				//GA was enabled in ubxCapture but tenant list specified a value that was not found in the JSON.
+				ubxCapture.consoleWrite.error("GA Event Defined in Tenant List but not matched in ubxCapture.");
+			}
+			if (AAFlag==1 && AALoaded==0){
+				//AA was enabled in ubxCapture but tenant list specified a value that was not found in the JSON.
+				ubxCapture.consoleWrite.error("AA Event Defined in Tenant List but not matched in ubxCapture.");
+			}
+		}
+		if (typeof(ubxCapture.enabledOfferings.UBXWRTP)=="object"){
+			var WRTPKey=null,WRTPLoaded= 0,WRTPFlag=0;
+			Object.keys(ubxCapture.enabledOfferings.UBXWRTP).forEach(
+					function(key,index) {
+						if (ubxCapture.enabledOfferings.UBXWRTP[key].activated){
+							//ubxCapture.tenantList["DA"]
+							if (WRTPKey==null && typeof(ubxCapture.tenantList["WRTP"])!="object"){
+								//take first enabled instance and use that one if multiple DA object and tenantList does not exist for DA
+								WRTPKey=key;
+							} else if (ubxCapture.tenantList["WRTP"]){
+								if (ubxCapture.tenantList["WRTP"].value==ubxCapture.enabledOfferings.UBXWRTP[key].config.channelTenantID){
+									WRTPKey=key;
+								}
+							}
+							if (WRTPKey && WRTPKey==ubxCapture.enabledOfferings.UBXWRTP[key].config.channelTenantID){
+								ubxCapture.consoleWrite.log("Duplicate WRTP Channel ID, "+ubxCapture.enabledOfferings.UBXWRTP[key].config.channelTenantID+" used in multiple ubxCapture RTP applications.  First instance found is used.");
+							}
+						}
+					}
+			);
+			if (WRTPKey && WRTPLoaded==0){
+				wrtp_ubx = {};
+				wrtp_ubx.providers=wrtp_ubx.providers || [];
+				wrtp_ubx.host = ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.ubxHostName;
+				ibm_ubx.daHost = ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.ubxHostName;
+				wrtp_ubx.requestType=ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.requestType;
+				wrtp_ubx.authKey =ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.ubxAuthKey;
+				wrtp_ubx.providers.push({provider:"WRTPKey",authKey:wrtp_ubx.authKey});
+
+				if (ubxCapture.offerings.indexOf("WRTP")==-1){
+					ubxCapture.offerings+="WRTP|";
+				} else {
+					ubxCapture.offerings="WRTP|";
+				}
+				if (typeof(ibm_ubx.sendEvent)!="function"){
+					//ubx.js has not been loaded so load it now
+					ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.ubxEventSDKURL,"head");
+				}
+				if (typeof(ubxCapture.wrtpLoaded)=="undefined"){
+					ubxCapture.loadScript(ubxCapture.enabledOfferings.UBXWRTP[WRTPKey].config.sdkURL, "head");
+					ubxCapture.wrtpLoaded=true;
+				}
+				WRTPLoaded=1;
+				if (ubxCapture.CMLoaded==1){
+					ubxCapture.sendIdentifiers(wrtp_ubx.host, wrtp_ubx.authKey, "WRTP", wrtp_ubx.requestType);
+				}
+			}
+		}
+		if (WRTPFlag==1 && WRTPLoaded==0){
+			//WRTP was enabled in ubxCapture but tenant list specified a value that was not found in the JSON.
+			ubxCapture.consoleWrite.error("WRTP Instance Defined in Tenant List but not matched in ubxCapture.");
+		}
+	}
+};
+ubxCapture.setID=function(cid) {
+
+	var url = '//commercelibs.ibm.com/config/'+cid+'/'+cid+'.json';
+
+	var xhr = createCORSRequest('GET', url);
+	if (!xhr) {
+		ubxCapture.consoleWrite.error('CORS not supported');
+		return;
+	}
+	// Response handlers.
+	xhr.onload = function() {
+		var text = xhr.responseText;
+		try {
+			ubxCapture.enabledOfferings=JSON.parse(text);
+		}
+		catch(e){
+			ubxCapture.consoleWrite.error("Check Client ID, JSON not found.");
+			return false;
+		}
+
+		var title = "later"; //getTitle(text);
+		ubxCapture.consoleWrite.log('JSON read successfully');
+		ubxCapture.runSDK();
+	};
+
+	xhr.onerror = function() {
+		ubxCapture.consoleWrite.error('Error making the XHTTP request.');
+	};
+
+	xhr.send();
+};
+

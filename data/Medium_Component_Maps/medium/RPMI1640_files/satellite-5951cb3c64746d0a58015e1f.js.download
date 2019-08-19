@@ -1,0 +1,67 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  var shouldFacebookRun = true;
+
+
+shouldFacebookRun = _lt.user.displayIso != "cn";
+
+<!-- Facebook Pixel Code -->
+
+if (shouldFacebookRun) {
+
+  //Check add to cart click and send product id to func
+  $("a[class*='to-cart'], a[class*='pdp-add'], button[class*='to-cart'], button[class*='pdp-add']").click(function() {
+    var revenue = productCategory = currencyCode = productTitle = productID = contents = "";   
+    productID = s.products.split(';')[1];
+    if(s.productName === undefined || s.productName == 'undefined') {
+      $m.Pricing.getPriceValueFbPixel = function(myFBParam) { 
+        $m.Pricing.fbPriceDetails = myFBParam;
+      };
+      productID = window.productId.replace(/-/g,"");			
+			productCategory = s.products.split(';')[0];
+      $m.Pricing._doAjaxRequest(productCategory,"", productID, $m.Pricing.getPriceValueFbPixel);
+      productTitle = s.w.item.title;
+      setTimeout(function() {
+        revenue = $m.Pricing.fbPriceDetails.myPriceData[productID].pricingList.pricingDetails[0].price;
+      }, 500);
+    } else {
+      productTitle = s.productName;
+			productCategory = "";
+			revenue = "";
+    }
+    currencyCode = _lt.user.currencyCode;
+    setTimeout(function() {
+      var contentData =  _satellite.getVar('add-to-cart').split(";");
+			if(revenue == "") {
+				revenue = contentData[3];
+			}
+			if(productCategory == "") {
+				productCategory = contentData[0];
+			}
+      contents = [{
+        //eVar25: s.eVar25,
+        //category: productCategory, 
+       // productName: productTitle,
+        id: productID, 
+        quantity: contentData[2],
+        item_price: revenue,
+        //currency: currencyCode
+      }];
+      fbAddToCart(productID, revenue, currencyCode, productTitle, contents);
+    }, 700);	
+  });
+
+  //Send product data to Facebook
+  function fbAddToCart(productID, revenue, currencyCode, productTitle, contents) {
+    fbq('track', 'AddToCart', {
+      content_ids: productID,
+      content_type: 'product',
+      value: revenue,
+      currency: currencyCode,
+      content_name: productTitle,
+      contents: contents
+    });
+  }
+
+}
+
+});

@@ -1,0 +1,7 @@
+.loading-wheel,.loading-wheel-sm{display:inline-block;background-image:url(interact/img/loading-wheel-sm.gif);background-repeat:no-repeat;background-position:0 0;vertical-align:middle;height:16px;width:16px}
+.loading-wheel-md{background-image:url(interact/img/loading-wheel-md.gif);height:24px;width:24px}
+.loading-wheel-lg{background-image:url(interact/img/loading-wheel-lg.gif);height:48px;width:48px}
+.loading-wheel-block{text-align:center}
+.loading-wheel-text{color:#8a8a8a;margin-left:3px;vertical-align:middle}
+.loading-wheel-text-md{font-size:18px}
+.loading-wheel-text-lg{font-size:42px}

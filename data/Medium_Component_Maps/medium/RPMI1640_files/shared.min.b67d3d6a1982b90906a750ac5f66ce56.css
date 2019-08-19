@@ -1,0 +1,7 @@
+#brightcoveadmin{background-image:url("shared/css/ico_brightcove.png")}
+div .brightcoveadmin{background-image:url(images/brightcove-welcome.png)}
+video::-webkit-media-controls-start-playback-button{display:none}
+.video-js.vjs-controls-enabled .vjs-big-play-button{display:none}
+.video-js.vjs-controls-enabled.vjs-paused .vjs-big-play-button{display:block}
+.brightcoveplayer-ie{min-height:30px}
+.brightcoveplayer-ie .link-overlay-play:before,.brightcoveplayer-ie .video-js{display:none}

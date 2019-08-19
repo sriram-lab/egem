@@ -1,0 +1,42 @@
+Stoichiometry BiGG_ID Name
+20.650823	adp_c	ADP C10H12N5O10P2
+-0.505626	ala__L_c	L-Alanine
+-0.35926	arg__L_c	L-Arginine
+-0.279425	asn__L_c	L-Asparagine
+-0.352607	asp__L_c	L-Aspartate
+-20.704451	atp_c	ATP C10H12N5O13P3
+-0.039036	ctp_c	CTP C9H12N3O14P3
+-0.046571	cys__L_c	L-Cysteine
+-0.275194	g6p_c	D-Glucose 6-phosphate
+-0.325996	gln__L_c	L-Glutamine
+-0.385872	glu__L_c	L-Glutamate
+-0.538891	gly_c	Glycine
+-0.036117	gtp_c	GTP C10H12N5O14P3
+20.650823	h_c	H+
+-20.650823	h2o_c	H2O H2O
+-0.126406	his__L_c	L-Histidine
+-0.286078	ile__L_c	L-Isoleucine
+-0.545544	leu__L_c	L-Leucine
+-0.592114	lys__L_c	L-Lysine
+-0.153018	met__L_c	L-Methionine
+-0.259466	phe__L_c	L-Phenylalanine
+20.650823	pi_c	Phosphate
+-0.412484	pro__L_c	L-Proline
+-0.392525	ser__L_c	L-Serine
+-0.31269	thr__L_c	L-Threonine
+-0.013306	trp__L_c	L-Tryptophan
+-0.159671	tyr__L_c	L-Tyrosine
+-0.053446	utp_c	UTP C9H11N2O15P3
+-0.352607	val__L_c	L-Valine
+-0.020401	chsterol_c	Chsterol c
+-0.011658	clpn_hs_c	Cardiolipin (homo sapiens)
+-0.023315	pail_hs_c	Phosphatidylinositol (homo sapiens)
+-0.154463	pchol_hs_c	Phosphatidylcholine (homo sapiens)
+-0.055374	pe_hs_c	Phosphatidylethanolamine (homo sapiens)
+-0.002914	pglyc_hs_c	Phosphatidylglycerol (homo sapiens)
+-0.005829	ps_hs_c	Phosphatidylserine (homo sapiens)
+-0.017486	sphmyln_hs_c	Sphingomyelin (homo sapiens)
+-0.013183	datp_n	DATP C10H12N5O12P3
+-0.009442	dctp_n	DCTP C9H12N3O13P3
+-0.009898	dgtp_n	DGTP C10H12N5O13P3
+-0.013091	dttp_n	DTTP C10H13N2O14P3
