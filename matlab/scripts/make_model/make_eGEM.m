@@ -1,9 +1,6 @@
 % Make eGEM adds reactions for epigenome-scale metabolic modeling
 % @author: Scott Campit & Lauren Fane
-function [temporary_model] = make_egem_model(metabolicmodel)
-
-    initCobraToolbox;
-    changeCobraSolver('gurobi');
+function [eGEM] = make_egem_model(metabolicmodel)
 
     if (~exist('metabolicModel','var')) || (isempty(metabolicmodel))
         % The AcGEM from Shen et al., 2019 is the default base metabolic model. 
@@ -18,7 +15,8 @@ function [temporary_model] = make_egem_model(metabolicmodel)
         temporary_model = metabolicmodel;
     end
 
-    reaction_path = '/home/scampit/Desktop/eGEM/data/metabolicModel_maps/metabolic_map.xlsx';
+    %reaction_path = '/home/scampit/Desktop/eGEM/data/metabolicModel_maps/metabolic_map.xlsx';
+    reaction_path = './../../../data/metabolicModel_maps/metabolic_map.xlsx';
     [RxnVals, RxnTxt] = xlsread(reaction_path, 'Reactions');
     reactionIDs = RxnTxt(2:end, 2);
     reactionFormulas = RxnTxt(2:end, 4);

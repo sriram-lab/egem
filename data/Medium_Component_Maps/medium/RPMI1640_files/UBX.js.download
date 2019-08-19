@@ -1,0 +1,853 @@
+if (typeof(ibm_ubx)=="undefined"){ibm_ubx={};}
+ibm_ubx.version = "2.0.0";
+ibm_ubx.eventApi = "/v1/event";
+ibm_ubx.rules=[];
+if (typeof(ubxCapture)=="undefined") {ubxCapture={};}
+
+if (typeof(window.ubxCaptureToConsole)=="undefined"){window.ubxCaptureToConsole=false;}
+if (typeof(window.ubxCaptureToError)=="undefined"){window.ubxCaptureToError=true;}
+
+ubxCapture.consoleWrite = {
+    log: function (message) {
+        if (!window.ubxCaptureToConsole) {
+            return;
+        }
+        if (typeof console !== "undefined") {
+            console.log(message);
+        }
+    },
+    error: function (message) {
+        if (!window.ubxCaptureToError) {
+            return;
+        }
+        if (typeof console !== "undefined") {
+            console.error(message);
+        }
+    },
+    warn: function (message) {
+        if (!window.ubxCaptureToConsole) {
+            return;
+        }
+        if (typeof console !== "undefined") {
+            console.warn(message);
+        }
+    }
+}
+
+/**
+ * Constructs and sends UBX events to UBX. It can be a single or multiple UBX events.
+ *
+ * We accept the following event object format:
+ *   {
+ *       eventCode: "ibmproductView",
+ *       identifiers: {cookieId: "455739626", Email: "abc@gmail.com"},
+ *       attributes: {productID: "1234", productName: "Computer Monitor"}
+ *   }
+ * or
+ *   {
+ *       eventCode: "ibmproductView",
+ *       identifiers: [
+ *           {name: "cookieId", value: "455739626"},
+ *           {name: "Email", value: "abc@gmail.com"}
+ *       ],
+ *       attributes: [
+ *           {name: "productID", value: "6789", type: "Number"},
+ *           {name: "productName", value: "Leather High-Back Office Chair"}
+ *       ]
+ *   }
+ *
+ */
+
+/**
+ * Build and send a single UBX event
+ *
+ * @param event a single event object
+ */
+ibm_ubx.sendEvent = function (event, ubxHost, endpointAuthKey,provider,requestType) {
+    ibm_ubx.sendEvents([event], ubxHost, endpointAuthKey,provider,requestType);
+};
+
+/**
+ * Build and send a list of UBX events
+ *
+ * @param eventList a list of event objects
+ */
+ibm_ubx.sendEvents = function (eventList, ubxHost, endpointAuthKey,provider,requestType) {
+    if (!ubxHost) {
+        ubxCapture.consoleWrite.error('UBX host not defined');
+        return;
+    }
+    if (!endpointAuthKey) {
+        ubxCapture.consoleWrite.error('Endpoint auth key not defined');
+        return;
+    }
+    //temporary fix for WRTP until they can add requestType to their calls
+    if (!requestType&&typeof(wrtp_ubx)!="undefined"){
+        requestType=wrtp_ubx.requestType;
+    } else if (!requestType){
+        requestType='POST';
+    }
+    try {
+        ibm_ubx.da.getDAId();
+        var eventListObject = ibm_ubx.buildEvent(eventList);
+        if (eventListObject)
+        {
+            var eventPayload = JSON.stringify(eventListObject);
+            if (eventPayload)
+            {
+                ubxCapture.consoleWrite.log('Sending event to UBX with payload: ' + eventPayload);
+                if (requestType == "GET")
+                {
+                    //support for DA RT data collection.  Used if requestType is not POST.  ubxHost removed as it is not necessary for DA RT since ubxCapture will set
+                    ibm_ubx.directToDA(eventPayload, endpointAuthKey,provider);
+                    //if enabled for DA RT but no host is specified, host is set to QA
+                    if (ubxHost==null){
+                        ubxCapture.consoleWrite.error("ibm_ubx.daHost not defined!");
+                        return;
+                    }
+                }
+                else if (requestType == "POST") {
+                    ibm_ubx.postEvent(eventPayload, ubxHost, endpointAuthKey);
+                } else {
+                    ubxCapture.consoleWrite.log("requestType not defined!  Defaulting to POST");
+                    ibm_ubx.postEvent(eventPayload, ubxHost, endpointAuthKey);
+                }
+            }
+        }
+    } catch (err) {
+        ubxCapture.consoleWrite.error(err);
+    }
+};
+
+/**
+ * Constructs and sends UBX events to UBX using the batch event format. It can be a single or multiple UBX events.
+ * The identifiers should be common among all events.
+ *
+ * We accept the following event object format:
+ *{
+ * "events":
+ * [
+ *   {
+ *       eventCode: "ibmproductView",
+ *       attributes: {productID: "1234", productName: "Computer Monitor"}
+ *   }
+ * or
+ *   {
+ *       eventCode: "ibmproductView",
+ *       attributes: [
+ *           {name: "productID", value: "6789", type: "Number"},
+ *           {name: "productName", value: "Leather High-Back Office Chair"}
+ *       ]
+ *   }
+ * ],
+ * "identifiers":
+ * [
+ *   {
+ *       identifiers: {cookieId: "455739626", Email: "abc@gmail.com"}
+ *   }
+ *   or
+ *   {
+ *      identifiers: [
+ *           {name: "cookieId", value: "455739626"},
+ *           {name: "Email", value: "abc@gmail.com"}
+ *       ]
+ *   }
+ * ]
+ */
+ibm_ubx.sendBatchEvent = function (batchEvent, ubxHost, endpointAuthKey,provider,requestType) {
+    ibm_ubx.sendBatchEvents([batchEvent], ubxHost, endpointAuthKey,provider,requestType);
+};
+
+/**
+ * Build and send a list of UBX events as batch event
+ *
+ * @param batchEventList a list of batch event objects
+ */
+ibm_ubx.sendBatchEvents = function (batchEventList, ubxHost, endpointAuthKey,provider,requestType) {
+    if (!ubxHost) {
+        ubxCapture.consoleWrite.error('UBX host not defined');
+        return;
+    }
+    if (!endpointAuthKey) {
+        ubxCapture.consoleWrite.error('Endpoint auth key not defined');
+        return;
+    }
+    try {
+        ibm_ubx.da.getDAId();
+        var batchEventListObject = ibm_ubx.buildBatchEvent(batchEventList);
+        if (batchEventListObject) {
+            var eventPayload = JSON.stringify(batchEventListObject);
+            if (eventPayload)
+            {
+                ubxCapture.consoleWrite.log('Sending batch event to UBX with payload: ' + eventPayload);
+                if (ibm_ubx.requestType == "POST")
+                {
+                    ibm_ubx.postEvent(eventPayload, ubxHost, endpointAuthKey);
+                }
+                else
+                {
+                    //support for DA RT data collection.  Used if requestType is not POST.  ubxHost removed as it is not necessary for DA RT since ubxCapture will set
+                    ibm_ubx.directToDA(eventPayload, endpointAuthKey,provider);
+                }
+            }
+        }
+    } catch (err) {
+        ubxCapture.consoleWrite.error(err);
+    }
+};
+
+/**
+ * Builds UBX event json
+ *
+ * @param batchEventList a list of event objects
+ *
+ * @returns UBX batch event object
+ *
+ */
+ibm_ubx.buildBatchEvent = function (batchEventList) {
+    if (batchEventList && Array.isArray(batchEventList)) {
+        var batchEventPayload = {};
+        var batchEventObjects = [];
+        batchEventList.forEach(function(batchEvent) {
+            var batchEventObject = ibm_ubx.buildEvent(batchEvent.events, batchEvent.identifiers);
+            if (batchEventObject)
+                batchEventObjects.push(batchEventObject);
+        });
+        batchEventPayload.eventbatch = batchEventObjects;
+        return batchEventPayload;
+    } else {
+        return null;
+    }
+};
+
+
+/**
+ * Posts UBX event json to UBX
+ *
+ * @param eventPayload UBX event json
+ */
+ibm_ubx.postEvent = function (eventPayload, ubxHost, endpointAuthKey) {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (xhttp.readyState == 4) {
+            ubxCapture.consoleWrite.log('Event sent to UBX. Response: ' + xhttp.responseText + '. Status: ' + xhttp.status);
+        }
+    };
+
+    xhttp.open("POST", ubxHost + ibm_ubx.eventApi, true);
+    xhttp.setRequestHeader("Content-type", "application/json");
+    xhttp.setRequestHeader("Authorization", "Bearer " + endpointAuthKey);
+    xhttp.send(eventPayload);
+    for (var k in ibm_ubx.rules) {
+        if (typeof(ibm_ubx.rules[k]) != "object") {
+            continue;
+        }
+        //check to see if vendor is already in list
+        ibm_ubx.rules[k].callBack(eventPayload);
+    }
+};
+//send data via DA RT
+ibm_ubx.directToDA = function (eventPayload, endpointAuthKey,provider) {
+    if (typeof(ibm_ubx.daHost)!="undefined"){
+
+        //For DA RT data colleciton, if DA is enabled, use the global client id in the image request otherwise, use the default 66666666
+        if (typeof(cm_ClientID)==="undefined"){
+            ibm_ubx.daClientId="clientId-_-66666666-_-string";
+            ibm_ubx.daSiteId=null;
+            ibm_ubx.cid="66666666";
+        }else {
+            if (cm_ClientID.indexOf("|")>-1){
+                ibm_ubx.daClientId="clientId-_-"+cm_ClientID.substr(0,cm_ClientID.indexOf("|"))+"-_-string";
+                ibm_ubx.ddaSiteId="siteId-_-"+cm_ClientID.substring(cm_ClientID.indexOf("|")+1)+"-_-string";
+            } else {
+                ibm_ubx.daClientId=cm_ClientID;
+            }
+            ibm_ubx.cid=cm_ClientID;
+        }
+        //sends data direct to DA for forwarding to UBX
+        var ubxReqSrc="",ubxReqHeader,payload,isBatch;
+
+        provider ? ubxProvider="&provider="+provider : ubxProvider="";
+        ubxHeaderHost=ibm_ubx.daHost+"/cm";
+        ubxReqHeader="?tid=99&ci=" + ibm_ubx.cid+ "&namespace=com.ibm.commerce.ubx&version=1&channel=Web"+ubxProvider+"&authkey=" + endpointAuthKey+"&";
+        payload=JSON.parse(eventPayload);
+        if (typeof(payload.eventbatch)!="undefined"){
+            for (var iii=0;iii<payload.eventbatch.length;iii++){
+                if (payload.eventbatch[iii].identifiers){
+                    for (var att=0;att<payload.eventbatch[iii].identifiers.length;att++){
+                        ubxReqSrc+="identifier="+payload.eventbatch[iii].identifiers[att].name+"-_-"+encodeURIComponent(payload.eventbatch[iii].identifiers[att].value)+"&";
+                    }
+                    //bxReqSrc=ubxReqSrc.substring(0,ubxReqSrc.length-3)+"&";
+                }
+                isBatch=true;
+                ubxReqSrc=processEvents(payload.eventbatch[iii],isBatch);
+            }
+        } else {
+            isBatch=false;
+            ubxReqSrc=processEvents(payload,isBatch);
+        }
+
+        ubxReqSrc+="cjsid=" +ibm_ubx.cjsid+ "&cjen=1&rn=" + Math.floor(Math.random() * 9000000000000);
+        ubxCapture.consoleWrite.log(ubxReqSrc);
+        ubxHeaderHost=encodeURI(ubxHeaderHost);
+        ubxReq=new Image();
+        ubxReq.src = ubxHeaderHost+ubxReqHeader + ubxReqSrc;
+        for (var k in ibm_ubx.rules) {
+            if (typeof(ibm_ubx.rules[k]) != "object") {
+                continue;
+            }
+            //check to see if vendor is already in list
+            ibm_ubx.rules[k].callBack(payload);
+        }
+        ubxReqSrc="";
+
+        function processEvents(payload,isBatch){
+            for (i=0;i<payload.events.length;i++){
+                ubxReqSrc+="code"+i+"="+payload.events[i].code+"&";
+
+                //iterate through attributes
+                for (var att in payload.events[i].attributes){
+                    if (!payload.events[i].attributes.hasOwnProperty(att)) continue;
+                    if (typeof(payload.events[i].attributes[att].type)!="undefined"){
+                        theType=payload.events[i].attributes[att].type;
+                    } else {
+                        if (!isNaN(parseFloat(theType)) && isFinite(theType)){
+                            theType="number";
+                        } else if (theType=="true" || theType=="false"){
+                            theType="boolean";
+                        }
+                        else {
+                            theType="string";
+                        }
+                    }
+
+                    //if (payload.events[i].attributes[att].name!="eventName"){
+                    ubxReqSrc+="attribute"+i+"="+payload.events[i].attributes[att].name+"-_-"+encodeURIComponent(payload.events[i].attributes[att].value)+"-_-"+theType+"&";
+                    if (payload.events[i].attributes[att].name=="interactionId"){
+                        plInteractionID=payload.events[i].attributes[att].value;
+                        ibm_ubx.interactionid=payload.events[i].attributes[att].value;
+                    }
+                    //}
+                }
+                if (isBatch==false){
+                    //get identifiers
+                    if (payload.events[i].identifiers){
+                        for (var att in payload.events[i].identifiers){
+                            if (!payload.events[i].identifiers.hasOwnProperty(att)) continue;
+
+                            ubxReqSrc+="identifier"+i+"="+payload.events[i].identifiers[att].name+"-_-"+encodeURIComponent(payload.events[i].identifiers[att].value)+"&";
+                        }
+                    }
+                }
+            }
+            return ubxReqSrc;
+        }
+    }
+}
+
+ibm_ubx.registerCallback=function(vendorID,callbackFunction){
+    if (!vendorID) return;
+    if (typeof(callbackFunction)!='function') return;
+    // store the callback function in the rules object
+    for (var k in ibm_ubx.rules) {
+        if (typeof(ibm_ubx.rules[k]) != "object") continue;
+        //check to see if vendor is already in list
+        if (ibm_ubx.rules[k].vendor==vendorID){
+            //yes, update callbackFunction
+            ibm_ubx.rules[k].callBack=callbackFunction;
+            return;
+        }
+    }
+    //no add to list
+    ibm_ubx.rules.push({vendor:vendorID,callBack:callbackFunction});
+}
+ibm_ubx.findInArray=function(myArray,objectName,objectValue,searchValue){
+    if (!Array.isArray(myArray)){return;}
+    for (i=0;i<myArray.length;i++){
+        if (myArray[i][objectName]===searchValue){return myArray[i][objectValue];}
+    }
+    return;
+}
+/**
+ * Builds UBX event json
+ *
+ * @param eventList a list of event objects
+ *
+ * @returns UBX event json
+ */
+ibm_ubx.buildEvent = function (eventList, commonIdentifiers) {
+    if (eventList && Array.isArray(eventList)) {
+        var eventPayload = {};
+        var events = [];
+        eventList.forEach(function(event){
+            var eventJson = {};
+            eventJson.code = event.eventCode;
+            var eventChannel = event.eventChannel;
+            if (!eventChannel) {
+                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    eventChannel = "Mobile";
+                } else {
+                    eventChannel = "Web";
+                }
+            }
+            eventJson.channel = eventChannel;
+            eventJson.timestamp = new Date().toJSON();
+
+            // setting attributes
+            var attributes = event.attributes;
+            if (attributes) {
+                if (Array.isArray(attributes)) {
+                    eventJson.attributes = ibm_ubx.createListFromNameValueTypeObjArray(attributes);
+                } else {
+                    eventJson.attributes = ibm_ubx.createListFromKeyValuePair(attributes);
+                }
+            }
+
+            // setting identifiers
+            if (!commonIdentifiers)
+            {
+                var identifiers = event.identifiers;
+                if (identifiers)
+                {
+                    if (Array.isArray(identifiers))
+                    {
+                        eventJson.identifiers = ibm_ubx.createListFromNameValueTypeObjArray(identifiers);
+                    }
+                    else
+                    {
+                        eventJson.identifiers = ibm_ubx.createListFromKeyValuePair(identifiers);
+                    }
+                }
+            }
+
+            // adding additional identifiers and attributes
+            ubxCapture.consoleWrite.log('Adding additional identifiers');
+            ibm_ubx.addIdentifiers(eventJson);
+
+            ubxCapture.consoleWrite.log('Adding additional attributes');
+            ibm_ubx.addAttributes(eventJson);
+
+            events.push(eventJson);
+        });
+
+        if (commonIdentifiers)
+        {
+            if (Array.isArray(commonIdentifiers))
+            {
+                eventPayload.identifiers = ibm_ubx.createListFromNameValueTypeObjArray(commonIdentifiers);
+            }
+            else
+            {
+                eventPayload.identifiers = ibm_ubx.createListFromKeyValuePair(commonIdentifiers);
+            }
+        }
+        eventPayload.events = events;
+        ibm_ubx.addIdentifiers(eventPayload);
+        return eventPayload;
+    } else {
+        return null;
+    }
+};
+
+ibm_ubx.createListFromNameValueTypeObjArray = function (arr) {
+    var list = [];
+    arr.forEach(function (obj){
+        var value = obj.value;
+        if (value) {
+            var item = {};
+            item.name = obj.name;
+            item.value = value;
+            if (obj.type) {
+                item.type = obj.type;
+            }
+            list.push(item);
+        }
+    });
+    return list;
+}
+
+ibm_ubx.createListFromKeyValuePair = function (obj) {
+    var list = [];
+    Object.keys(obj).forEach(function(key){
+        var value = obj[key];
+        if (value) {
+            var item = {};
+            item.name = key;
+            item.value = value;
+            list.push(item);
+        }
+    });
+    return list;
+}
+
+// adding identifiers to the event payload
+ibm_ubx.addIdentifiers = function (eventPayload) {
+    if (eventPayload) {
+        var identifiersList = eventPayload.identifiers;
+        if (identifiersList) {
+            if (window.ubxCaptureIdents) {
+                try {
+                    //checking for adobe cookie identifier
+                    ibm_ubx.checkAndSetIdentifierFromCookie(identifiersList, 'adobecookie', 's_fid');
+                    var adobeVisitorId = ibm_ubx.findInArray(identifiersList, "name", "value", 'adobecookie');
+                    if (!adobeVisitorId) {
+                        adobeVisitorId = ibm_ubx.getCookieAMCV();
+                        if (!adobeVisitorId) {
+                            adobeVisitorId = ibm_ubx.getCookie('s_vi');
+                            if (adobeVisitorId) {
+                                adobeVisitorId = adobeVisitorId.match('\\|(?<id>.*?)\\[')[1];
+                            }
+                        }
+                        if (adobeVisitorId) {
+                            var adobeCookieIdentifier = {
+                                'name': 'adobecookie',
+                                'value': adobeVisitorId
+                            };
+                            identifiersList.push(adobeCookieIdentifier);
+
+                        }
+                    }
+                } catch(err){
+                    ubxCapture.consoleWrite.error(err);
+                }
+            }
+            var globalId = ibm_ubx.findInArray(identifiersList,"name","value",'x1VisitorId');
+            if (!globalId) {
+                globalId = ibm_ubx.getCookie('WCXUID');
+                if (globalId) {
+                    var globalCookieIdentifier = {
+                        'name': 'x1VisitorId',
+                        'value': globalId
+                    };
+                    identifiersList.push(globalCookieIdentifier);
+                }
+            }
+            if (window.ubxCaptureIdents) {
+                //checking for google cookie identifier
+                ibm_ubx.checkAndSetIdentifierFromCookie(identifiersList, 'googleanalyticscookie', '_ga');
+
+                //checking for google ads cookie identifier
+                ibm_ubx.checkAndSetIdentifierFromCookie(identifiersList, 'googleadscookie', '_gads');
+
+                //checking for engage id identifier
+                var engageId = ibm_ubx.findInArray(identifiersList, "name", "value", 'ECID');
+                if (!engageId) {
+                    engageId = ibm_ubx.engage.getEngageId();
+                    if (engageId) {
+                        var engageIdIdentifier = {
+                            'name': 'ECID',
+                            'value': engageId
+                        };
+                        identifiersList.push(engageIdIdentifier);
+                    }
+                }
+
+                //checking for DA id identifier
+                var daId = ibm_ubx.findInArray(identifiersList, "name", "value", 'DAcookieId');
+                if (!daId) {
+                    daId = ibm_ubx.da.id;
+                    if (daId) {
+                        var daIdIdentifier = {
+                            'name': 'DAcookieId',
+                            'value': daId
+                        };
+                        identifiersList.push(daIdIdentifier);
+                    }
+                }
+            }
+        }
+    }
+
+    return eventPayload;
+};
+
+ibm_ubx.checkAndSetIdentifierFromCookie = function (identifiersList, identifierName, cookieName) {
+    var id = ibm_ubx.findInArray(identifiersList,"name","value",identifierName);
+    if (!id) {
+        id = ibm_ubx.getCookie(cookieName);
+
+        if (id) {
+            var newIdentifier = {
+                'name': identifierName,
+                'value': id
+            };
+            identifiersList.push(newIdentifier);
+        }
+    }
+};
+
+// adding attributes to the event payload
+ibm_ubx.addAttributes = function (eventPayload) {
+    if (eventPayload) {
+        ubxCapture.updateExpiry();
+        var attributesList = eventPayload.attributes;
+        if (attributesList) {
+            //setting interactionId attribute. Using WCXSID or TLTSID if present
+            var interactionId = ibm_ubx.getCookie('WCXSID');
+            if (!interactionId){
+                if (typeof(ibm_ubx.cjsid)=="undefined"){
+                    cSessionTime = new Date().getTime(),
+                        cSessionExpTime = ""+(cSessionTime +window.cSessionTimeout*1000),
+                        cTimeoutStr = ""+cSessionTime,
+                        sPad=(Math.random()*100000000000000000).toString().slice(0,28-cTimeoutStr.length);
+                    cTimeoutStr=sPad+cTimeoutStr;
+                    ibm_ubx.cjsid=cTimeoutStr.substring(0, 20);
+                }
+            } else {
+                //required for DA RT data collection
+                ibm_ubx.cjsid=interactionId.substr(4, 20);
+            }
+            if (!interactionId) {
+                interactionId = ibm_ubx.getCookie('TLTSID');
+            } else if (interactionId.length === 28) {
+                interactionId = '0000' + interactionId;
+            }
+            if (interactionId) {
+                var interactionIdAttribute = ibm_ubx.findInArray(attributesList,"name","value",interactionId);
+                if (interactionIdAttribute) {
+                    interactionIdAttribute.value = interactionId;
+                } else {
+                    //check for another interaction id and any exist remove them in favor of interactionId
+                    for (ii=0;ii<attributesList.length;ii++){
+                        if (attributesList[ii].name=="interactionId"){
+                            attributesList.splice(ii,1);
+                        }
+                    }
+                    var interactionIdAttribute = {
+                        'name': 'interactionId',
+                        'value': interactionId,
+                        'type': 'string'
+                    };
+                    attributesList.push(interactionIdAttribute);
+                }
+            }
+
+            //checking for event name attribute
+            var eventName = ibm_ubx.findInArray(attributesList,"name","value",eventName);
+            if (!eventName) {
+                var eventNameAttribute = {
+                    'name': 'eventName',
+                    'value': eventPayload.code,
+                    'type': 'string'
+                };
+                attributesList.push(eventNameAttribute);
+            }
+            if (typeof(ubxCapture.offerings)!="undefined"){
+                var offerings = ibm_ubx.findInArray(attributesList,"name","value",offerings);
+                if (!offerings) {
+                    var cxOfferingsAttribute = {
+                        'name': 'CXOfferings',
+                        'value': ubxCapture.offerings,
+                        'type': 'string'
+                    };
+                    attributesList.push(cxOfferingsAttribute);
+                }
+            }
+        }
+    }
+    return eventPayload;
+};
+
+ibm_ubx.getCookieAMCV = function() {
+    var cname = "AMCV_";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for (var i = 0; i < ca.length; i++)
+    {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(cname) == 0)
+            return c.split('=')[1].slice(c.split('=')[1].indexOf("MCMID|") + 6, c.split('=')[1].indexOf("|", c.split('=')[1].indexOf("MCMID|") + 6));
+    }
+    return undefined;
+};
+
+ibm_ubx.getCookie = function(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+};
+
+ibm_ubx.engage = {};
+ibm_ubx.engage.getUrlVars = function () {
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+        function (m, key, value) {
+            vars[key] = value;
+        });
+    return vars;
+};
+
+ibm_ubx.engage.decodeECID = function ($ecid) {
+    if (!$ecid) {
+        return;
+    }
+    var bit = $ecid.substring($ecid.length - 2, $ecid.length);
+    if (bit == 'S0') {
+        $ecid = $ecid.substring(0, $ecid.length - 2);
+    } else if (bit == 'S1') {
+        $ecid = $ecid.substring(0, $ecid.length - 2) + '=';
+    } else if (bit == 'S2') {
+        $ecid = $ecid.substring(0, $ecid.length - 2) + '==';
+    } else {
+        return '';
+    }
+    var Base64 = {
+        _keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+        encode: function (e) {
+            var t = "";
+            var n, r, i, s, o, u, a;
+            var f = 0;
+            e = Base64._utf8_encode(e);
+            while (f < e.length) {
+                n = e.charCodeAt(f++);
+                r = e.charCodeAt(f++);
+                i = e.charCodeAt(f++);
+                s = n >> 2;
+                o = (n & 3) << 4 | r >> 4;
+                u = (r & 15) << 2 | i >> 6;
+                a = i & 63;
+                if (isNaN(r)) {
+                    u = a = 64
+                } else if (isNaN(i)) {
+                    a = 64
+                }
+                t = t + this._keyStr.charAt(s) + this._keyStr.charAt(o) + this._keyStr.charAt(u) + this._keyStr.charAt(a)
+            }
+            return t
+        },
+        decode: function (e) {
+            var t = "";
+            var n, r, i;
+            var s, o, u, a;
+            var f = 0;
+            e = e.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+            while (f < e.length) {
+                s = this._keyStr.indexOf(e.charAt(f++));
+                o = this._keyStr.indexOf(e.charAt(f++));
+                u = this._keyStr.indexOf(e.charAt(f++));
+                a = this._keyStr.indexOf(e.charAt(f++));
+                n = s << 2 | o >> 4;
+                r = (o & 15) << 4 | u >> 2;
+                i = (u & 3) << 6 | a;
+                t = t + String.fromCharCode(n);
+                if (u != 64) {
+                    t = t + String.fromCharCode(r)
+                }
+                if (a != 64) {
+                    t = t + String.fromCharCode(i)
+                }
+            }
+            t = Base64._utf8_decode(t);
+            return t
+        },
+        _utf8_encode: function (e) {
+            e = e.replace(/\r\n/g, "\n");
+            var t = "";
+            for (var n = 0; n < e.length; n++) {
+                var r = e.charCodeAt(n);
+                if (r < 128) {
+                    t += String.fromCharCode(r)
+                } else if (r > 127 && r < 2048) {
+                    t += String.fromCharCode(r >> 6 | 192);
+                    t += String.fromCharCode(r & 63 | 128)
+                } else {
+                    t += String.fromCharCode(r >> 12 | 224);
+                    t += String.fromCharCode(r >> 6 & 63 | 128);
+                    t += String.fromCharCode(r & 63 | 128)
+                }
+            }
+            return t
+        },
+        _utf8_decode: function (e) {
+            var t = "";
+            var n = 0;
+            var r = c1 = c2 = 0;
+            while (n < e.length) {
+                r = e.charCodeAt(n);
+                if (r < 128) {
+                    t += String.fromCharCode(r);
+                    n++
+                } else if (r > 191 && r < 224) {
+                    c2 = e.charCodeAt(n + 1);
+                    t += String.fromCharCode((r & 31) << 6 | c2 & 63);
+                    n += 2
+                } else {
+                    c2 = e.charCodeAt(n + 1);
+                    c3 = e.charCodeAt(n + 2);
+                    t += String.fromCharCode((r & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+                    n += 3
+                }
+            }
+            return t
+        }
+    }
+    var decodedString = Base64.decode($ecid);
+    return decodedString;
+};
+
+ibm_ubx.engage.getSPIdentity = function () {
+    var SP_IDENTITY_COOKIE = ibm_ubx.getCookie("SP_IDENTITY");
+    if (SP_IDENTITY_COOKIE) {
+        var SP_IDENTITY = ibm_ubx.engage.decodeECID(SP_IDENTITY_COOKIE);
+        if (SP_IDENTITY) {
+            var start = SP_IDENTITY.indexOf(":");
+            if (start >= 0) {
+                var end = SP_IDENTITY.indexOf(";", start);
+                if (end > start)
+                    return SP_IDENTITY.substring(start + 1, end);
+            }
+        }
+    }
+};
+
+ibm_ubx.engage.getEngageId = function () {
+    try {
+        var SP_ECID = ibm_ubx.engage.getUrlVars()["spUserID"];
+        if (!SP_ECID) {
+            SP_ECID = ibm_ubx.getCookie("com.silverpop.iMA.uid");
+        }
+
+        if (SP_ECID) {
+            return ibm_ubx.engage.decodeECID(SP_ECID);
+        } else {
+            return ibm_ubx.engage.getSPIdentity();
+        }
+    } catch (e) {
+        return undefined;
+    }
+};
+
+ibm_ubx.da = {};
+ibm_ubx.da.getDAId = function () {
+    try {
+        var retriedTimes = 0;
+        var intervalHandler = setInterval(function () {
+            retriedTimes++;
+            if (typeof (cmRetrieveUserID) == "function") {
+                cmRetrieveUserID(function (USER_ID) {
+                    ibm_ubx.da.id = USER_ID;
+                });
+                clearInterval(intervalHandler);
+            } else if (retriedTimes > 5) {
+                clearInterval(intervalHandler);
+                ubxCapture.consoleWrite.log("Function cmRetrieveUserID not defined.");
+            }
+        }, 600);
+    } catch (e) {
+
+    }
+};
+ibm_ubx.da.getDAId();

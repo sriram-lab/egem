@@ -1,0 +1,339 @@
+var requestURLS = {
+        oidcRefreshToken:{
+                localhost: 'https://localhost:8443/api-gateway/identity-authorization/identity/auth/refresh-token',
+                dev: 'https://www.dev.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                dev2: 'https://www.dev2.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                dev3: 'https://www.dev3.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                qa: 'https://www.qa.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                qa2: 'https://www.qa2.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                qa3: 'https://www.qa3.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                qa4: 'https://www.qa4.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                qa5: 'https://www.qa5.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                stage: 'https://www.stage.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token',
+                thermofisher: 'https://www.thermofisher.com/api-gateway/identity-authorization/identity/auth/refresh-token'
+        },
+        envParams : {
+                qa : 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_TWlw-o8sB38qyZpV4t0z35B8C7nnx1kpadSoOctwht8RbO9PdSYreiWiKiaslKEm/authorize?response_type=code&client_id=-3KY8vAhFchFPgVj7n1Q4kqd&redirect_uri=https://www.qa.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":"https://www.qa.thermofisher.com/account-center/direct-login.html","t":"legacy"}',
+                qa4 : 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_MytFv5DvNsx3ez2oP2Zuss7HWUIP994H5kg926nJAtThr2hUWNiPXAdcJ5fy9HRq/authorize?response_type=code&client_id=ApKGDoVCLbOQbJhn638fOUT-&redirect_uri=https://www.qa4.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":"https://www.qa4.thermofisher.com/account-center/direct-login.html","t":"legacy"}',
+                qa3 : 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_15YZwg7GPvDqh1Hg9KXHNFFcTjmOUV-_FTK9jzeunIOpKDiwoA16vrmoUR5nMRUy/authorize?response_type=code&client_id=lhbLJIwopigCYxcopSDV4t_l&redirect_uri=https://www.qa3.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":"https://www.qa3.thermofisher.com/account-center/direct-login.html","t":"legacy"}',
+                qa5 : 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_VGc1xthirLsBQk3Zq2URR9dGS56Smyk4rKwo1Woyet5LWvMvpvBwxxeuVcEoxvwg/authorize?response_type=code&client_id=mZrsyGzrgC9h8snxhcUWh007&redirect_uri=https://www.qa5.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":"https://www.qa5.thermofisher.com/account-center/direct-login.html","t":"legacy"}',
+                stage : 'https://auth.thermofisher.com/oidc/op/v1.0/3_TZOzKVqx0aJ2cvYE-nr_rGrkpQAnFwiHzo5JEcQshWWW5HXIMmVOIrLyQGM2CNRk/authorize?response_type=code&client_id=KQOXiy_bmk7SJ5acZ1v38IZc&redirect_uri=https://www.stage.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":"https://www.stage.thermofisher.com/account-center/direct-login.html","t":"legacy"}',
+                dev : 'https://auth.thermofisher.com/oidc/op/v1.0/3_FI2u2wTiuGMvuPXHhqHP-9tEBteITYmokyQZqQqJz7Ej_eqQAKsh72zNXRISOIq8/authorize?response_type=code&client_id=kZzySxjtumxSe6ICfnIaGYfS&redirect_uri=https://www.dev.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u": "https://www.dev.thermofisher.com/account-center/direct-login.html" , "t":"legacy" }',
+                dev3 : 'https://auth.thermofisher.com/oidc/op/v1.0/3_I87iVDWzhXuPPYHgAjLaHsMtX3rzwJX0KiI9cYNKtvmaRhrqstMfYjhCIobH-FQp/authorize?response_type=code&client_id=eZc3CGSFO2-phATVvTvL_4tf&redirect_uri=https://www.dev3.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u": "https://www.dev3.thermofisher.com/account-center/direct-login.html" , "t":"legacy" }',
+                thermofisher: 'https://prod-auth.thermofisher.com/oidc/op/v1.0/3_MdUAygy5UVqlKdsaLRZym6539xfyKYmfYHpWpN5Z_R_HSWbAv8i2ByqEnntrrcFH/authorize?response_type=code&client_id=8e72dC_EtXlaxDf9EFBe7qu5&redirect_uri=https://www.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u": "https://www.thermofisher.com/account-center/direct-login.html" , "t":"legacy" }'
+        },
+        partnerLogin: {
+                dev: 'https://www.dev.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                dev3: 'https://www.dev3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                qa: 'https://www.qa.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                qa3: 'https://www.qa3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                qa4: 'https://www.qa4.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                qa5: 'https://www.qa5.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                stage: 'https://www.stage.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin',
+                thermofisher: 'https://www.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin'
+        },
+        partnerLogout: {
+                dev: 'https://www.dev.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                dev3: 'https://www.dev3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                qa: 'https://www.qa.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                qa3: 'https://www.qa3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                qa4: 'https://www.qa4.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                qa5: 'https://www.qa5.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                stage: 'https://www.stage.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay',
+                thermofisher: 'https://www.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=LogoutDisplay'
+        },
+        sessionLoginRedirect: {
+            localhost: '"https://www.localhost.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            dev:'"https://www.dev.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            dev2: '"https://www.dev2.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            dev3: '"https://www.dev3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            qa: '"https://www.qa.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            qa2: '"https://www.qa2.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            qa3: '"https://www.qa3.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            qa4: '"https://www.qa4.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            qa5: '"https://www.qa5.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            stage: '"https://www.stage.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"',
+            thermofisher: '"https://www.thermofisher.com/order/catalog/en/US/adirect/lt?cmd=partnerMktLogin&LoginData-ReturnURL='+encodeURIComponent(window.location.href)+'"'
+        }
+};
+var idleSessionUrls = {
+    idleSessionReturnUrl: {
+        qa: 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_TWlw-o8sB38qyZpV4t0z35B8C7nnx1kpadSoOctwht8RbO9PdSYreiWiKiaslKEm/authorize?response_type=code&client_id=-3KY8vAhFchFPgVj7n1Q4kqd&redirect_uri=https://www.qa.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.qa + ',"t":"regular"}',
+        qa3: 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_15YZwg7GPvDqh1Hg9KXHNFFcTjmOUV-_FTK9jzeunIOpKDiwoA16vrmoUR5nMRUy/authorize?response_type=code&client_id=lhbLJIwopigCYxcopSDV4t_l&redirect_uri=https://www.qa3.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.qa3 + ',"t":"regular"}',
+        qa4: 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_MytFv5DvNsx3ez2oP2Zuss7HWUIP994H5kg926nJAtThr2hUWNiPXAdcJ5fy9HRq/authorize?response_type=code&client_id=ApKGDoVCLbOQbJhn638fOUT-&redirect_uri=https://www.qa4.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.qa4 + ',"t":"regular"}',
+        qa5: 'https://qa-auth.thermofisher.com/oidc/op/v1.0/3_VGc1xthirLsBQk3Zq2URR9dGS56Smyk4rKwo1Woyet5LWvMvpvBwxxeuVcEoxvwg/authorize?response_type=code&client_id=mZrsyGzrgC9h8snxhcUWh007&redirect_uri=https://www.qa5.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.qa5 + ',"t":"regular"}',
+        stage: 'https://auth.thermofisher.com/oidc/op/v1.0/3_TZOzKVqx0aJ2cvYE-nr_rGrkpQAnFwiHzo5JEcQshWWW5HXIMmVOIrLyQGM2CNRk/authorize?response_type=code&client_id=KQOXiy_bmk7SJ5acZ1v38IZc&redirect_uri=https://www.stage.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.stage + ',"t":"regular"}',
+        dev: 'https://auth.thermofisher.com/oidc/op/v1.0/3_FI2u2wTiuGMvuPXHhqHP-9tEBteITYmokyQZqQqJz7Ej_eqQAKsh72zNXRISOIq8/authorize?response_type=code&client_id=kZzySxjtumxSe6ICfnIaGYfS&redirect_uri=https://www.dev.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.dev + ',"t":"regular"}',
+        dev3: 'https://auth.thermofisher.com/oidc/op/v1.0/3_I87iVDWzhXuPPYHgAjLaHsMtX3rzwJX0KiI9cYNKtvmaRhrqstMfYjhCIobH-FQp/authorize?response_type=code&client_id=eZc3CGSFO2-phATVvTvL_4tf&redirect_uri=https://www.dev3.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.dev3 + ',"t":"regular"}',
+        thermofisher: 'https://prod-auth.thermofisher.com/oidc/op/v1.0/3_MdUAygy5UVqlKdsaLRZym6539xfyKYmfYHpWpN5Z_R_HSWbAv8i2ByqEnntrrcFH/authorize?response_type=code&client_id=8e72dC_EtXlaxDf9EFBe7qu5&redirect_uri=https://www.thermofisher.com/api-gateway/identity-authorization/identity/auth/token&scope=openid profile email&state={"u":' + requestURLS.sessionLoginRedirect.thermofisher + ',"t":"regular"}'
+    }
+};
+
+/* Session Management - Functionality to refresh the token for the user to keep the working session active start. */
+
+//check for the user login status and also the gigya enabling, then checks the expiry time of the token vs current time to trigger the function to fetch the new refresh token
+setRefreshTokenTimer();
+function setRefreshTokenTimer() {
+    if (_lt.user.isLoggedIn && (getCookie('isGigyaEnabled') == 'true')) {
+        var currentTime = Math.floor(new Date() / 1000) * 1000;
+        var tokenExpiryTime = parseInt(getCookie('tokenExpiration'));
+        var tokenRefreshTime = tokenExpiryTime - currentTime;
+        if (tokenRefreshTime > 0) {
+            window.setTimeout(refreshTokenTimer, tokenRefreshTime);
+        }
+        if (tokenExpiryTime <= currentTime) {
+            refreshTokenTimer();
+        }
+    }
+}
+//prepares the object to pass and trigger the refresh token API
+function refreshTokenTimer() {
+    var o = {
+        refreshToken: getCookie('rToken'),
+        scope: "openid profile email"
+    };
+    var env = window.location.hostname.split('.')[1],
+        url = requestURLS.oidcRefreshToken[env];
+    refreshUserToken(o, url);
+}
+
+//function that calls the refresh token API to fetch a new one before it expires
+function refreshUserToken(obj, urlp) {
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    xhr.open("POST", urlp, true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                setRefreshTokenTimer();
+            } else {
+                deleteCookie('tokenExpiration');
+            }
+        }
+    };
+    var data = JSON.stringify(obj);
+    xhr.send(data);
+}
+
+/* Session Management - Functionality to refresh the token for the user to keep the working session active end. */
+
+//Function to invoke the login page
+function invokeOidcLogin(returnUrl){
+    var env=window.location.hostname.split('.')[1];
+    var endPoint = requestURLS.partnerLogin[env];
+    if(returnUrl) {
+        endPoint += '&LoginData-referer=true&LoginData-ReturnURL='+encodeURIComponent(returnUrl);
+    }
+    window.location.href = endPoint;
+}
+
+//Function to trigger a logout flow when the user attains idle session
+function invokeIdleSessionLogout(returnUrl) {
+    var env=window.location.hostname.split('.')[1];
+    var endPoint = requestURLS.partnerLogout[env];
+    endPoint += '&OIDCRUrl='+ encodeURIComponent(formRedirectUrl(idleSessionUrls.idleSessionReturnUrl[env]));
+    window.location.href = endPoint;
+}
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+function formRedirectUrl(url) {
+    var redirectUri=encodeURIComponent(getParameterByName('redirect_uri',url));
+    var scope=encodeURIComponent(getParameterByName('scope',url));
+    var state=encodeURIComponent(url.split("state=",2)[1]);
+        var authUrl = url.split("redirect_uri", 2);
+        url = authUrl[0] + "redirect_uri=" + redirectUri + "&scope=" + scope + "&state=" + state;
+        return url;
+}
+
+/* B2B login and logout functionality starts */
+
+//onload function that triggers the Iframe to invoke OIDC flow and also the spinner while OIDC is in progress
+// modern browsers
+if (document.addEventListener) {
+    document.addEventListener('DOMContentLoaded', createB2BLoginIFrame);
+    //for IE < 8
+} else document.attachEvent('onreadystatechange', function() {
+    if (document.readyState == 'complete') {
+        createB2BLoginIFrame();
+    }
+});
+
+//function to create and trigger the Iframe to invoke OIDC for B2B
+function createB2BLoginIFrame() {
+    var oidcWindow;
+    var location = window.location.href;
+    var gacCookie = getCookie('gac_3_MdUAygy5UVqlKdsaLRZym6539xfyKYmfYHpWpN5Z_R_HSWbAv8i2ByqEnntrrcFH');
+    if(location.indexOf('lt?cmd=IVGNLiteUserUpdateData') == -1){
+        if ((gacCookie !== '' && gacCookie !== null) || (_lt.user.isLoggedIn && getCookie('ck_gtoken_check') == 'true')) {
+            //loads spinner on the document until the JWT is available.
+            if(window.location.href.indexOf('/customersite/schome.cfm') == -1 && getCookie('CK_B2B_MODE') !== 'inspect') {
+                showSpinnerUntilJWT();
+                setTimeout(removeSpinner, 20000);
+            }
+            var env=window.location.hostname.split('.')[1];
+            var body = document.getElementsByTagName('body')[0];
+            var endPoint = requestURLS.envParams[env];
+            if(!isIEVersionLT9()) {
+                iframe = document.createElement('iframe');
+                iframe.id = "loginGigya";
+                iframe.src = endPoint;
+                iframe.style.display = 'none';
+
+                // Add this to the body
+                body.appendChild(iframe);
+            } else {
+                localStorage.setItem('loginPopup', 'open');
+                b2bLoginPopup = window.open(endPoint,"loginPopup","width=500, height=500,close=no,dialog=true");
+                setInterval(function() {
+                    var b2bLoginPopupStatus = localStorage.getItem('b2bLoginStatus');
+                    //removes the spinner after the JWT is available on the document.
+                    if(b2bLoginPopupStatus == 'done') {
+                        removeSpinner();
+                    }
+                    localStorage.removeItem('b2bLoginStatus');
+                }, 1000);
+            }
+            localStorage.setItem('Processcheck', 'started');
+        } else {
+            deleteCookie('ck_gtoken_check');
+        }
+    }
+}
+
+//function for B2B to remove the Iframe that is triggered to authenticate user, spinner that shows up while authenticating and the cookie which was set when JWT was not available
+function closeIframe() {
+    var iframe = document.getElementById('loginGigya');
+    var body = document.getElementsByTagName('body')[0];
+    iframe.parentNode.removeChild(iframe);
+    //removes the spinner after the JWT is available on the document.
+    removeSpinner();
+    // Deleting the cookie after the autologin when JWT is not available on the site
+    deleteCookie('ck_gtoken_check');
+    // Setting the refresh token time for B2B users since tokenExpiration is not set until the iframe is closed.
+    setRefreshTokenTimer();
+}
+
+//function to delete the cookie
+function deleteCookie(name) {
+    var env=window.location.hostname.split('.')[1];
+    var domain;
+    if(env === 'thermofisher') {
+        domain = 'thermofisher.com;';
+    } else {
+        domain =  env + '.thermofisher.com;';
+    }
+    document.cookie = name + '=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT; domain=.' + domain;
+}
+
+//function to trigger the spinner on the page
+function showSpinnerUntilJWT() {
+    var body = document.getElementsByTagName('body')[0];
+    var spinnerDiv = document.createElement('div');
+    spinnerDiv.setAttribute('style', 'position: absolute;top: -41px;opacity: 0.7;margin-bottom: 0;width: 100% !important;text-align: center;margin: 40px auto;z-index: 1205;background-color: #fff;border: 1px solid rgba(0,0,0,0.1);box-shadow: 0 1px 2px rgba(0,0,0,0.3);background-clip: padding-box;outline: 0;-moz-background-clip: padding-box;');
+    spinnerDiv.style.height = document.body.offsetHeight+'px';
+    if (window.innerWidth < 767) {
+        spinnerDiv.style.marginLeft = '-11px';
+    }
+    spinnerDiv.id = 'spinnerDiv';
+    var spinnerSpan = document.createElement('span');
+    spinnerSpan.setAttribute('style', "margin: auto;display:block; margin-top:300px;background-image: url(https://www.thermofisher.com/etc/clientlibs/interact/img/loading-wheel-lg.gif);height: 48px;width: 48px;");
+    spinnerDiv.appendChild(spinnerSpan);
+    body.appendChild(spinnerDiv);
+}
+
+//function to remove the spinner on the page
+function removeSpinner() {
+    var body = document.getElementsByTagName('body')[0];
+    //removes the spinner after the JWT is available on the document.
+    var spinnerDiv = document.getElementById('spinnerDiv');
+    if(spinnerDiv) {
+        body.removeChild(spinnerDiv);
+    }
+}
+
+function isIEVersionLT9() {
+    var isNotMordernBrowser = false;
+//check for IE8 and below
+    if (navigator.appVersion.indexOf("MSIE") != -1) {
+        if (parseInt(navigator.appVersion.charAt(0)) < 9) {
+            isNotMordernBrowser = true;
+        }
+    }
+    return isNotMordernBrowser;
+}
+
+//function that is called to have a call back after trigger the logout
+function logout(oncomplete){
+    var gigyaenabled=getCookie("isGigyaEnabled");
+    //checking for IE version less than or equal to 8.
+    if(gigyaenabled == 'true' && !isIEVersionLT9()) {
+        createIframe();
+        logoutListner(oncomplete);
+    } else{
+        var host = window.location.host.replace('commerce','www');
+        var url="https://"+host+"/account-center/closeSession.html";
+        localStorage.setItem('logoutPopup', 'open');
+        window.open(url,"_blank","width=500, height=500,dialog=yes,close=no");
+        oncomplete();
+    }
+}
+
+//function to create an Iframe and initiates the logout process
+function createIframe() {
+    var host = window.location.host.replace('commerce','www');
+    var url="https://"+host+"/account-center/closeSession.html";
+    var ifrm = document.createElement("IFRAME");
+    ifrm.setAttribute('id', 'ifrm');
+    ifrm.setAttribute('style','display:none;');
+    ifrm.setAttribute("src", url);
+    document.body.appendChild(ifrm);
+}
+
+//listener function that calls the call back function upon successful logout
+function logoutListner(oncomplete){
+    //handling event allocation for mordern browsers vs < IE8
+    var eventMethod = window.addEventListener ? "addEventListener" : "attachEvent";
+    var eventer = window[eventMethod];
+    var messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
+    eventer(messageEvent, function (e) {
+        //checking for the error code from GIGYA logout response
+        //0 is success
+        if (e.data === 0 || e.message === 0)
+        {
+            oncomplete();
+        }
+        console.log(e);
+    });
+}
+
+//function that redirects the location to the supplied param
+function redirectOncomplete(oncomplete){
+    location.href =oncomplete;
+}
+
+//function to logout the B2B user sees the session expired message upon session time out.
+$(document).ready(function() {
+    if (document.getElementById('sessionExpiredWarning')) {
+        var gigyaenabled=getCookie("isGigyaEnabled");
+        if(gigyaenabled == 'true' && !isIEVersionLT9()) {
+            createIframe();
+        } else {
+            var host = window.location.host.replace('commerce','www');
+            var url="https://"+host+"/account-center/closeSession.html";
+            localStorage.setItem('logoutPopup', 'open');
+            window.open(url,"_blank","width=500, height=500,dialog=yes,close=no");
+        }
+    }
+});
+
+/* B2B login and logout functionality ends */

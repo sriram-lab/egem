@@ -1,0 +1,390 @@
+if (typeof(ibm_ubx)=="undefined"){ibm_ubx={};}
+ibm_ubx.idSync = {};
+ibm_ubx.idSync.da = {};
+ibm_ubx.idSync.engage = {};
+
+ibm_ubx.idSync.da.getUserIdWithCallback = function(partnerIdName, callbackFunc)
+{
+    var retriedTimes = 0;
+    var intervalHandler = setInterval(function()
+        {
+            retriedTimes++;
+            if (typeof(cmRetrieveUserID)=="function")
+            {
+                cmRetrieveUserID(function(USER_ID)
+                     {
+                         var userIdNamesAndValues = {};
+                         if (USER_ID)
+                         {
+                             if (partnerIdName)
+                                 userIdNamesAndValues[partnerIdName] = USER_ID;
+                             else
+                                 userIdNamesAndValues["DAcookieId"] = USER_ID;
+
+                             callbackFunc(userIdNamesAndValues);
+                         }
+                         else
+                             console.warn("No da id found.");
+
+                     });
+                clearInterval(intervalHandler);
+            }
+            else if (retriedTimes > 5)
+            {
+                clearInterval(intervalHandler);
+                console.warn("Function cmRetrieveUserID not defined.");
+            }
+        }, 100);
+};
+
+ibm_ubx.idSync.engage.getUrlVars = function()
+{
+    var vars = {};
+    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi,
+                                             function(m,key,value) {
+                                                 vars[key] = value;
+                                             });
+    return vars;
+};
+
+ibm_ubx.idSync.engage.decodeECID = function($ecid)
+{
+    if (!$ecid) {
+        return;
+    }
+    var bit = $ecid.substring($ecid.length-2,$ecid.length);
+    if (bit == 'S0') {
+        $ecid = $ecid.substring(0,$ecid.length-2);
+    }
+    else if (bit == 'S1') {
+        $ecid = $ecid.substring(0,$ecid.length-2) + '=';
+    }
+    else if (bit == 'S2') {
+        $ecid = $ecid.substring(0,$ecid.length-2) + '==';
+    }
+    else {
+        return '';
+    }
+    var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9\+\/\=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/\r\n/g,"\n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
+    var decodedString = Base64.decode($ecid);
+    return decodedString;
+};
+
+ibm_ubx.idSync.engage.getSPIdentity = function()
+{
+    var SP_IDENTITY_COOKIE = ibm_ubx.idSync.getCookie("SP_IDENTITY");
+    if (SP_IDENTITY_COOKIE)
+    {
+        var SP_IDENTITY = ibm_ubx.idSync.engage.decodeECID(SP_IDENTITY_COOKIE);
+        if (SP_IDENTITY)
+        {
+            var start = SP_IDENTITY.indexOf(":");
+            if (start>=0)
+            {
+                var end = SP_IDENTITY.indexOf(";", start);
+                if (end > start)
+                    return SP_IDENTITY.substring(start + 1, end);
+            }
+        }
+    }
+};
+
+ibm_ubx.idSync.engage.getUserId = function()
+{
+    var SP_ECID = ibm_ubx.idSync.engage.getUrlVars()["spUserID"];
+    if (!SP_ECID)
+    {
+        SP_ECID = ibm_ubx.idSync.getCookie("com.silverpop.iMA.uid");
+    }
+
+    if (SP_ECID)
+    {
+        return ibm_ubx.idSync.engage.decodeECID(SP_ECID);
+    }
+    else
+    {
+        return ibm_ubx.idSync.engage.getSPIdentity();
+    }
+};
+
+ibm_ubx.idSync.engage.getIMAWebCookie = function()
+{
+    return ibm_ubx.idSync.getCookie("com.silverpop.iMAWebCookie");
+};
+
+
+ibm_ubx.idSync.engage.getOtherIdNamesAndValues = function()
+{
+    var userIdNamesAndValues = {};
+
+    var imaWebCookie = ibm_ubx.idSync.engage.getIMAWebCookie();
+    if (imaWebCookie)
+        userIdNamesAndValues["iMAWebCookie"] = imaWebCookie;
+    else
+        console.log('Warning: com.silverpop.iMAWebCookie not available.');
+
+    return userIdNamesAndValues;
+};
+
+ibm_ubx.idSync.getCookie = function(cname)
+{
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+};
+
+ibm_ubx.idSync.setCookieOnRootDomain = function(cookieName)
+{
+    var i=0;
+    var domain=document.domain;
+    var p=domain.split('.');
+    var s=cookieName;
+    while (i<(p.length-1) && document.cookie.indexOf(s+'='+s)==-1)
+    {
+        domain = p.slice(-1-(++i)).join('.');
+        document.cookie = s+'='+s+';domain='+domain+';path=/;';
+    }
+    return domain;
+};
+
+
+ibm_ubx.idSync.sendIdSyncEventInternal = function(userIdNamesAndValues, idSyncPixel)
+{
+    var sendPixel = false;
+    var UBX_PARTNER_IDS = "";
+    var UBX_EPT_ID = idSyncPixel.dspIdName;
+
+    // add the global id
+    var wcxuid = ibm_ubx.idSync.getCookie('WCXUID');
+    if (wcxuid)
+    {
+        userIdNamesAndValues['x1VisitorId'] = wcxuid;
+    }
+
+    if (userIdNamesAndValues)
+    {
+        for (var p in userIdNamesAndValues)
+        {
+            if (userIdNamesAndValues.hasOwnProperty(p))
+            {
+                UBX_PARTNER_IDS += '&' + p + '=' + userIdNamesAndValues[p];
+                UBX_EPT_ID += ',' + p;
+                sendPixel = true;
+            }
+        }
+    }
+
+    if (sendPixel)
+    {
+        var idSyncCookieName = 'com.ibm.commerce.ubx.idsync.' + encodeURIComponent(UBX_EPT_ID);
+        var UBX_ID_SYNC_COOKIE = ibm_ubx.idSync.getCookie(idSyncCookieName);
+        if (!UBX_ID_SYNC_COOKIE)
+        {
+            var DSP_FINAL_URL;
+            var DSP_PIXEL_URL = idSyncPixel.dspPixel["dspPixelURL"];
+            if (idSyncPixel.dspPixel["includeUBXCallbackURL"])
+            {
+                var UBX_CALLBACK_URL = idSyncPixel.ubxCallbackUrl + "?ubx_ept_k=" + idSyncPixel.ubxAuthKey
+                                       + "&" + idSyncPixel.dspIdName + "=" + idSyncPixel.dspPixel["dspIdPlaceholder"]
+                                       + UBX_PARTNER_IDS
+                                       + '&ubx_ept_id=' + UBX_EPT_ID;
+                DSP_FINAL_URL = DSP_PIXEL_URL + encodeURIComponent(UBX_CALLBACK_URL);
+            }
+            else
+            {
+                DSP_FINAL_URL = DSP_PIXEL_URL;
+                if (idSyncPixel.dspPixel["includeParamUBXAuthKey"])
+                    DSP_FINAL_URL += "&ubx_ept_k=" + idSyncPixel.ubxAuthKey;
+
+                if (idSyncPixel.dspPixel["includeParamUBXPartnerId"])
+                    DSP_FINAL_URL += UBX_PARTNER_IDS;
+
+                if (idSyncPixel.dspPixel["includeParamUBXDspId"])
+                    DSP_FINAL_URL += "&" + idSyncPixel.dspIdName + "=" + idSyncPixel.dspIdPlaceHolder;
+
+                if (idSyncPixel.dspPixel["includeParamUBXIdNames"])
+                    DSP_FINAL_URL += "&ubx_ept_id=" + UBX_EPT_ID;
+            }
+
+            if (idSyncPixel.dspPixel["dspPixelUseJavascript"])
+            {
+                var scriptTag = document.createElement('script');
+                scriptTag.type = 'text/javascript';
+                scriptTag.src = DSP_FINAL_URL;
+                var firstScriptTag = document.getElementsByTagName('script')[0];
+                firstScriptTag.parentNode.insertBefore(scriptTag, firstScriptTag);
+            }
+            else
+                new Image().src = DSP_FINAL_URL;
+
+            ibm_ubx.idSync.setCookieOnRootDomain(idSyncCookieName);
+        }
+    }
+};
+
+/**
+ * Returns an object of id name values. Use object properties for id names and values for id values,
+ * for example {"otherUserId1":"value1", "otherUserId2": "value2"}; returns null or an empty object
+ * if there's no other id. The id name(s) must match the identifiers that are defined in the DSP/DMP endpoint
+ *
+ * @returns {Object}
+ */
+ibm_ubx.idSync.getUserIds = function(idSyncPixel)
+{
+    if ((idSyncPixel.partnerName=="Engage") || (idSyncPixel.partnerName=="IBM Engage"))
+    {
+        var userId = ibm_ubx.idSync.engage.getUserId();
+        var userIdValues = ibm_ubx.idSync.engage.getOtherIdNamesAndValues();
+        if (userId)
+        {
+            if (idSyncPixel.partnerIdName)
+                userIdValues[idSyncPixel.partnerIdName] = userId;
+            else
+                userIdValues["ECID"] = userId;
+        }
+
+        return userIdValues;
+    }
+    else
+    {
+        console.error("Solution " + idSyncPixel.partnerName + " not supported.");
+        return null;
+    }
+};
+
+ibm_ubx.idSync.getUserIdsWithCallback = function(idSyncPixel, callbackFunc)
+{
+    if ((idSyncPixel.partnerName=="DA") || (idSyncPixel.partnerName=="IBM Digital Analytics"))
+    {
+        ibm_ubx.idSync.da.getUserIdWithCallback(idSyncPixel.partnerIdName, callbackFunc);
+    }
+    else
+    {
+        console.error("Solution " + idSyncPixel.partnerName + " not supported.");
+    }
+};
+
+ibm_ubx.idSync.sendIdSyncEvent = function(idSyncPixel)
+{
+    try
+    {
+        if (idSyncPixel.getPartnerUserIdsFunction)
+        {
+            ibm_ubx.idSync.executeFunctionByName(idSyncPixel.getPartnerUserIdsFunction, window, idSyncPixel);
+        }
+        else
+        {
+            if ((idSyncPixel.partnerName=="DA") || (idSyncPixel.partnerName=="IBM Digital Analytics"))
+            {
+                ibm_ubx.idSync.getUserIdsWithCallback(idSyncPixel, function (userIdValues)
+                {
+                    ibm_ubx.idSync.sendIdSyncEventInternal(userIdValues, idSyncPixel);
+                });
+            }
+            else
+            {
+                var userIdValues = ibm_ubx.idSync.getUserIds(idSyncPixel);
+                if (userIdValues)
+                    ibm_ubx.idSync.sendIdSyncEventInternal(userIdValues, idSyncPixel);
+            }
+        }
+    }
+    catch (err)
+    {
+        console.log('Error:' + err.message);
+    }
+};
+
+ibm_ubx.idSync.executeFunctionByName = function(functionName, context, idSyncPixel /*, args */)
+{
+    var args = [].slice.call(arguments).splice(3);
+    var namespaces = functionName.split(".");
+    var func = namespaces.pop();
+    for(var i = 0; i < namespaces.length; i++) {
+        context = context[namespaces[i]];
+    }
+    var retriedTimes = 0;
+    var intervalHandler = setInterval(function()
+                              {
+                                  retriedTimes++;
+                                  if (typeof context[func] == 'function')
+                                  {
+                                      clearInterval(intervalHandler);
+                                      if (idSyncPixel.getPartnerUserIdsFunction["isCallbackFunction"] == true)
+                                      {
+                                          context[func].apply(context, function(userIdValues)
+                                                          {
+                                                              ibm_ubx.idSync.sendIdSyncEventInternal(userIdValues, idSyncPixel);
+                                                          }, args);
+                                      }
+                                      else
+                                      {
+                                          var userIdValues = context[func].apply(context, args);
+                                          if (userIdValues)
+                                              ibm_ubx.idSync.sendIdSyncEventInternal(userIdValues, idSyncPixel);
+                                      }
+                                  }
+                                  else if (retriedTimes > 5)
+                                  {
+                                      clearInterval(intervalHandler);
+                                      console.error("Function " + functionName + " is not defined.");
+                                      return null;
+                                  }
+                              }, 100);
+};
+
+ibm_ubx.idSync.sendUBXIdSync=function(ubxHost, authKey, partnerName, dspName, partnerIdName, dspIdName,
+                                        dspPixel, getPartnerUserIdsFunction, additionalArgs)
+{
+    var idSyncPixel = {};
+
+    idSyncPixel.ubxCallbackUrl = ubxHost + "/v1/customevent/matchedIdentity";
+    idSyncPixel.ubxAuthKey = authKey;
+    idSyncPixel.partnerName = partnerName;
+    idSyncPixel.dspName = dspName;
+    idSyncPixel.partnerIdName = partnerIdName;
+    idSyncPixel.dspIdName = dspIdName;
+    idSyncPixel.dspPixel = dspPixel;
+    idSyncPixel.getPartnerUserIdsFunction = getPartnerUserIdsFunction;
+    idSyncPixel.additionalArgs = additionalArgs;
+
+    ibm_ubx.idSync.sendIdSyncEvent(idSyncPixel);
+};
+
+ibm_ubx.idSync.enableUBXIdSync=function(config)
+{
+    try
+    {
+        var dspPixel = [];
+        dspPixel["dspPixelURL"] = (config["dspPixelURL"]==null) ? "" : config["dspPixelURL"];
+        dspPixel["dspIdPlaceholder"] = (config["dspIdPlaceholder"]==null) ? "" : config["dspIdPlaceholder"];
+        dspPixel["dspPixelUseJavascript"] = config["dspPixelUseJavascript"];
+        dspPixel["includeUBXCallbackURL"] = config["includeUBXCallbackURL"];
+        dspPixel["includeParamUBXAuthKey"] = config["includeParamUBXAuthKey"];
+        dspPixel["includeParamUBXPartnerId"] = config["includeParamUBXPartnerId"];
+        dspPixel["includeParamUBXDspId"] = config["includeParamUBXDspId"];
+        dspPixel["includeParamUBXIdNames"] = config["includeParamUBXIdNames"];
+
+        var additionalArgs = null;
+
+        var ubxHostName = (config["ubxHostName"]==null) ? "" : config["ubxHostName"];
+        var ubxAuthKey = (config["ubxAuthKey"]==null) ? "" : config["ubxAuthKey"];
+        var partner = (config["partner"]==null) ? "" : config["partner"];
+        var dsp = (config["dsp"]==null) ? "" : config["dsp"];
+        var partnerIdentifier = (config["partnerIdentifier"]==null) ? "" : config["partnerIdentifier"];
+        var dspIdentifier = (config["dspIdentifier"]==null) ? "" : config["dspIdentifier"];
+        var partnerGetUserIDFunction = (config["partnerGetUserIDFunction"]==null) ? "" : config["partnerGetUserIDFunction"];
+
+        ibm_ubx.idSync.sendUBXIdSync(ubxHostName, ubxAuthKey, partner, dsp, partnerIdentifier, dspIdentifier,
+                                     dspPixel, partnerGetUserIDFunction, additionalArgs);
+    }
+    catch (err)
+    {
+        console.log('Error:' + err.message);
+    }
+};

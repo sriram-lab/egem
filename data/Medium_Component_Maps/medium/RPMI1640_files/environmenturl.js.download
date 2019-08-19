@@ -1,0 +1,48 @@
+var environmentURL = {
+	"ENV":"prod",
+	"BIOINFOSERVER":"www.thermofisher.com/order",
+	"ASSAYCONFIGURATOR":"products2.thermofisher.com",
+	"WCMSERVER":"www.thermofisher.com",
+	"LTSERVER":"www.thermofisher.com",
+	"PAGEDATAINFO":"https://www.thermofisher.com/datahub",
+	"GESSECURE":"https://commerce.thermofisher.com/order",
+	"GESUNSECURE":"http://commerce.thermofisher.com/order",
+	"COMERGENTSERVER":"www.thermofisher.com/order/catalog",
+	"COMERGENTSERVERSECURE":"https://www.thermofisher.com/order/catalog",
+	"GCMSSECURE":"https://tools.thermofisher.com",
+	"GCMSUNSECURE":"http://tools.thermofisher.com",
+	"EDAMSECURE":"https://sec-assets.thermofisher.com",
+	"EDAMUNSECURE":"http://sec-assets.thermofisher.com",
+	"OMINITUREENV":"invitrogenprod",
+	"OMINITUREENVCLOUDAPPS":"LifetechCloudSuite",
+	"CLOUDAPPSLIST":"apps.thermofisher.com,china.apps.thermofisher.com",
+	"OPTIMIZELY_PROJECTID":"21336999",
+	"SCODE_OMINITUREENV":"invitrogenprod",
+	"GESDOMAIN":"commerce.thermofisher.com",
+	"GESISOCODES":"pg,za,ps",
+	"NOECOMMERCECODES":"",
+	"NOCARTERROR":"Unable to retrieve cart details. Please try again later.",
+	"CANTFINDCARTERROR":"Could not create/restore cart.",
+	"ADDERROR":"Could not add item(s) to cart.",
+	"REMOVEERROR":"Could not remove item from cart.",
+	"UBXENV":"https://api-01.ubx.ibmmarketingcloud.com",
+	"UBXTOKEN":"0VkDAAAAAAAokjmCXAlHO4ze-POfwg0u6IBXXB1VdwUJ8wuFZhZ9Mw:US",
+	"UBXTENANTID":"0VkDAAAAAAAokjmCXAlHO4ze-POfwg0u6IBXXB1VdwUJ8wuFZhZ9Mw:US",
+	"UBXCAPTUREID":"462790f5-ae73-4b0f-a6d5-97257b1b674a",
+	"SECURERESTSERVICE":"https://www.thermofisher.com/api-gateway/tfdocs/signedurl"
+};
+
+/*
+	CloudSuite has requested a seperate reporting suite - grab the domains and loop through them for this environment.
+	If the current document domain is equal to any of the provided domains, then set the OMNI ENV
+*/
+(function(){
+	var cloudAppURLs = environmentURL.CLOUDAPPSLIST.split(',');
+	var cloudAppURLsLength = cloudAppURLs.length;
+	for ( var i = 0; i < cloudAppURLsLength; i++ ) {
+		if ( document.domain == cloudAppURLs[i] ) {
+			environmentURL.OMINITUREENV += ',' + environmentURL.OMINITUREENVCLOUDAPPS;
+			environmentURL.SCODE_OMINITUREENV = environmentURL.OMINITUREENV;
+		}
+	}
+}());
