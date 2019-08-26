@@ -4,6 +4,7 @@
 %    [num, txt] = xlsread(filePath);
 %end
 
+<<<<<<< HEAD
 eGEM.mets = strrep(eGEM.mets, '[', '_');
 eGEM.mets = strrep(eGEM.mets, ']', '');
 
@@ -15,3 +16,5 @@ new_model = addReaction(recon1, 'biomassReaction', ...
 
 % This reaction has the biomass reaction I want and all the reactions.
 model = readCbModel('Recon3D.xml');
+=======
+>>>>>>> 931f91b80f9523ac8900fe7f7422d0229f08fa82

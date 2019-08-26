@@ -2,19 +2,6 @@
 % @author: Scott Campit & Lauren Fane
 function [eGEM] = make_eGEM(metabolicmodel)
 
-    %if (~exist('metabolicModel','var')) || (isempty(metabolicmodel))
-        % The AcGEM from Shen et al., 2019 is the default base metabolic model. 
-        % It was edited by @scampit with the following changes:
-        % An extra exchange reaction that is not in the BiGG RECON1 metabolic 
-            % was removed. The biomass objective function and the {'DM_Tyrggn_c'}
-            % reaction were kept.
-        % The direct exchange reaction for peplys_e -> peplys_n was removed
-        % Additional database identifiers and metabolite charges were added to 
-            % the metabolic model.
-    %    load './../../metabolic_models/recon1.mat'
-    temporary_model = metabolicmodel;
-    %end
-
     %reaction_path = '/home/scampit/Desktop/eGEM/data/metabolicModel_maps/metabolic_map.xlsx';
     reaction_path = './../../../data/metabolicModel_maps/metabolic_map.xlsx';
     [RxnVals, RxnTxt] = xlsread(reaction_path, 'Reactions');
