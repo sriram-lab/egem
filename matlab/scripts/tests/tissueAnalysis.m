@@ -46,6 +46,7 @@ for tiss = 1:length(unique_tissues)
         ON_fieldname = string(strcat('ON_', geneExpMatch(match)));
         OFF_fieldname = string(strcat('OFF_', geneExpMatch(match)));
 
+
         constrained_model = medium_LB_constraints(model, tissueMedium(match));
 
         reaction_name = char(reactions_of_interest(:, 1));
