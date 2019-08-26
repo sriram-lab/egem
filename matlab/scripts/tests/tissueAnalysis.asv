@@ -18,6 +18,8 @@ unique_tissues = unique(tissues);
 BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); 
 model.c(BIOMASS_OBJ_POS) = 1;
 
+unique_tissues = unique_tissues(5:end, 1);
+
 for tiss = 1:length(unique_tissues)
     oneTissue = unique_tissues(tiss);
     disp(oneTissue)
@@ -28,15 +30,9 @@ for tiss = 1:length(unique_tissues)
     tissueToGeneMatch = find(ismember(string(celllinenames_ccle1), ...
         string(tissueCellNames)));
     geneExpMatch = celllinenames_ccle1(tissueToGeneMatch);
-    
-    matched = intersect(tissueCellNames, geneExpMatch);
-    matchedTissue = find(ismember(string(cell_names), string(matched)));
-    matchedGenes = find(ismember(string(celllinenames_ccle1), string(matched)));
-    tissueCellNames = cell_names(matchedTissue, :);
-    geneExpMatch = celllinenames_ccle1(matchedGenes);
-    
-    tissueProteomicsValues = proteomics(matchedTissue, :);
-    tissueMedium = medium(matchedTissue, :);
+
+    tissueProteomicsValues = proteomics(tissuePositions, :);
+    tissueMedium = medium(tissuePositions, :);
     
     [diffExp_genes] = find_diffexp_genes(model, geneExpMatch);
 
@@ -45,7 +41,6 @@ for tiss = 1:length(unique_tissues)
 
         ON_fieldname = string(strcat('ON_', geneExpMatch(match)));
         OFF_fieldname = string(strcat('OFF_', geneExpMatch(match)));
-
 
         constrained_model = medium_LB_constraints(model, tissueMedium(match));
 
