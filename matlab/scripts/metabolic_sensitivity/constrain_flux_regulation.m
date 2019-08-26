@@ -43,6 +43,7 @@ if minfluxflag
     epsilon2 = [epsilon2; zeros(size(setdiff(unconstrained_model.rxns, offreactions)))];
     offreactions = [offreactions(:); setdiff(unconstrained_model.rxns, offreactions)];
 end
+BIOMASS_OBJ_POS = find(ismember(unconstrained_model.rxns, 'BIOMASS_reaction')); 
 
 model = unconstrained_model;
 model.A = unconstrained_model.S;
@@ -140,7 +141,7 @@ params.outputflag = 0;
 constrained_model = model;
 solution = gurobi(constrained_model, params);
 solution.flux = solution.x(1:number_of_rxns);
-solution.grate = solution.x(objpos);
+solution.grate = solution.x(BIOMASS_OBJ_POS);
 solution.solverObj = solution.objval;
 
 end

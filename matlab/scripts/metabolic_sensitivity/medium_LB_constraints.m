@@ -5,7 +5,7 @@ function model = medium_LB_constraints(model, queried_medium)
 % from concentrations as the scaling factor).
 % @author: Scott Campit
     
-    path = '/home/scampit/Desktop/eGEM/data/Medium_Component_Maps/final_medium_conditions.xlsx';
+    path = '/home/scampit/Desktop/eGEM/data/Medium_Component_Maps/final_medium2.xlsx';
     if verLessThan('matlab', '9.6.0.1072779')
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)
@@ -15,8 +15,8 @@ function model = medium_LB_constraints(model, queried_medium)
                 rxn_ids(:,1) = [];
 
                 for rxn=1:length(rxn_ids)
-                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 1))))) = ...
-                        adjustedLB(rxn, 4);
+                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 5))))) = ...
+                        adjustedLB(rxn, 2);
                 end
 
             elseif ismember({'nan'}, queried_medium)
@@ -25,8 +25,8 @@ function model = medium_LB_constraints(model, queried_medium)
                 rxn_ids(:,1) = [];
 
                 for rxn=1:length(rxn_ids)
-                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 1))))) = ...
-                        adjustedLB(rxn, 4);
+                    model.lb(find(ismember(string(model.rxns), string(rxn_ids(rxn, 5))))) = ...
+                        adjustedLB(rxn, 2);
                 end
 
             end
@@ -41,8 +41,8 @@ function model = medium_LB_constraints(model, queried_medium)
                 dataArray(:,1) = [];
 
                 for rxn=1:length(dataArray)
-                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 1))))) = ...
-                        cell2mat(dataArray(rxn, 7));
+                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 4))))) = ...
+                        cell2mat(dataArray(rxn, 2));
                 end
 
             elseif ismember({'nan'}, queried_medium)
@@ -51,8 +51,8 @@ function model = medium_LB_constraints(model, queried_medium)
                 dataArray(:,1) = [];
 
                 for rxn=1:length(dataArray)
-                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 1))))) = ...
-                        cell2mat(dataArray(rxn, 7));
+                    model.lb(find(ismember(string(model.rxns), string(dataArray(rxn, 4))))) = ...
+                        cell2mat(dataArray(rxn, 2));
                 end
 
             end
