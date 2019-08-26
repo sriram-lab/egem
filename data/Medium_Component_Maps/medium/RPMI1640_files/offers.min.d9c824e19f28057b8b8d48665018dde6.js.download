@@ -1,0 +1,592 @@
+function Offers(){this.sessionData={sessionId:null,ips:[],referrerDomain:"",searchTerm:"NULL",isNewVisitor:false,cid:"NULL",iCount:0,marketingPageId:"",marketingRegion:"",pagePath:"",userType:"",channel:""};
+this.debugOffers=false;
+this.ips_details=[];
+this.payload=false;
+this.waitForPayload=false;
+this.executed=false;
+this.channel="";
+this.searchTerm="NULL";
+this.loadOfferURL="/event/offer/load";
+this.initComplete=false;
+this.initStart=new Date().getTime();
+this.initEnd=0;
+this.initDuration=0;
+this.getCookie=function(j){var g=j+"=";
+var d=document.cookie.split(";");
+for(var e=0;
+e<d.length;
+e++){var h=d[e];
+while(h.charAt(0)==" "){h=h.substring(1,h.length)
+}if(h.indexOf(g)==0){var f=h.substring(g.length,h.length);
+f=unescape(f);
+return f
+}}return null
+};
+this.monitorCookie=function(){var d=this.getCookie("s_vi");
+if(this.debugOffers){console.log("cookieValue = "+d)
+}if(d&&this.sessionData.sessionId!==d){window.clearInterval(this.monitorCookieInterval);
+this.sessionData.sessionId=d
+}this.monitorCookieIntervalCount++;
+if(this.monitorCookieIntervalCount===25){window.clearInterval(this.monitorCookieInterval);
+this.sessionData.sessionId="cookies-disabled"
+}};
+this.sessionData.sessionId=this.getCookie("s_vi");
+this.monitorCookieInterval=null;
+this.monitorCookieIntervalCount=0;
+if(this.sessionData.sessionId==null){this.monitorCookieInterval=window.setInterval("Offers.monitorCookie()",100)
+}if(typeof document.referrer!=="undefined"&&document.referrer.length>0){var a=document.referrer;
+var c=a.match(/:\/\/([^/]+)\//)[1];
+if(c.indexOf("thermofisher.com")==-1){this.sessionData.referrerDomain=c
+}}this.monitorjQuery=function(d){if(typeof $!=="undefined"){d()
+}else{window.setTimeout(function(){Offers.monitorjQuery(d)
+},100)
+}};
+this.getUrlParameter=function b(e){var h=decodeURIComponent(window.location.search.substring(1)),g=h.split("&"),j,f,d=false;
+for(f=0;
+f<g.length;
+f++){j=g[f].split("=");
+if(j[0]===e){d=j[1]===undefined?true:j[1];
+break
+}}return d
+};
+this.getPostParameters=function(j,e){postPayload=$.extend({},this.sessionData);
+postPayload.isNewVisitor=this.getIsNewVisitor("s_days_since");
+var d=this.getQueryParam("CID");
+if(d.length!==0){postPayload.cid=d
+}postPayload.channel=this.channel;
+postPayload.userType=this.getUserType();
+postPayload.marketingRegion=this.getMarketingRegion();
+postPayload.marketingPageId=this.getMarketingPageId();
+var f=false;
+var h=[];
+for(var g=0;
+g<e.length;
+g++){if(e[g].name.indexOf("-pdp-")>-1){f=true
+}h.push(e[g].name)
+}if(f){for(var g=0;
+g<h.length;
+g++){if(h[g].indexOf("-overlay-")>-1){h.splice(g,1);
+break
+}}}postPayload.ips=h;
+postPayload.iCount=postPayload.ips.length;
+postPayload.pagePath=this.processPagePath(window.location.pathname,window.location.search);
+if(j){if(j.hasOwnProperty("skus")){j.pdpSkus=j.skus;
+delete j.skus
+}if(j.hasOwnProperty("cartTotal")){j.cartTotal=j.cartTotal.replace(/[$,]+/g,"")
+}if(j.hasOwnProperty("cartSkus")){j.cartSkus=this.createCartSkusObj(j.cartSkus)
+}if(j.hasOwnProperty("searchTerm")){this.searchTerm=j.searchTerm
+}$.extend(postPayload,j)
+}if(this.debugOffers){console.log("offers.js - Offers Request Payload: "+JSON.stringify(postPayload))
+}return postPayload
+};
+this.getIps=function(e){var d=".dynamic-offer[id]";
+var g=".dynamic-offer:not([id])";
+if(!!e){d=".dynamic-offer[id="+e+"]";
+g=".dynamic-offer."+e
+}var f=[];
+$(d).each(function(){var h=$(this).attr("id");
+f.push({name:h,type:"id"})
+});
+$(g).each(function(){var k=$(this).attr("class").split(" ");
+for(var j=0;
+j<k.length;
+j++){var h=k[j];
+if(h.indexOf(Offers.channel+"-")>-1&&Offers.indexOfIPS(f,h)==-1){f.push({name:h,type:"class"})
+}}});
+return f
+};
+this.init=function(){if(this.initComplete){return
+}window.performance&&window.performance.mark&&window.performance.mark("offers.js:initBegin");
+if(typeof $=="undefined"){this.monitorjQuery(function(){Offers.init()
+});
+return
+}this.validVersion=this.minimalVersion();
+debugOffers=this.getUrlParameter("debug_offers");
+if(typeof debugOffers!=="undefined"){this.debugOffers=debugOffers
+}console.log("offers.js - debugOffers flag = "+this.debugOffers);
+if(!navigator.cookieEnabled){this.sessionData.sessionId="cookies-disabled"
+}this.channel=this.getChannel();
+this.checkHost();
+this.initComplete=true;
+window.performance&&window.performance.mark&&window.performance.mark("offers.js:initEnd")
+};
+this.checkHost=function(){if(window.location.host.indexOf("commerce")!=-1){var d=window.location.origin.replace("commerce","www");
+this.loadOfferURL=d+this.loadOfferURL;
+console.log("Found commerce page. Load offer url update to "+this.loadOfferURL)
+}};
+this.loadOffers=function(g,f){this.ips_details=this.getIps(f);
+var e=this.payloadRequired(this.ips_details);
+if(!e&&g){return"does not need payload"
+}if(e&&!g){return"need payload"
+}var d=this.getPostParameters(g,this.ips_details);
+this.invokeOfferSnippetAjax(d);
+return"Offers Complete"
+};
+this.validatePayload=function(g,d){var f=false;
+if(d==="search"){var e=g;
+if(e===null||typeof e==="undefined"){console.log("Empty payload to request dynamic offer for search result page.")
+}else{if(!e.hasOwnProperty("searchTerm")){console.log("Missing parameter searchTerm in the payload.")
+}else{if(!e.hasOwnProperty("focusArea")){console.log("Missing parameter focusArea in the payload.")
+}else{f=true;
+if(e.searchTerm===null||e.searchTerm.trim().length===0){console.warn("WARN: empty search term.");
+f=true
+}if(e.focusArea===null||e.focusArea.trim().length===0){console.warn("WARN: Empty focus area.");
+f=true
+}}}}}return f
+};
+this.loadSearchOffers=function(d){this.validatePayload(d,"search");
+console.log("Loading search offer with payload: "+JSON.stringify(d));
+if(this.initComplete&&this.validVersion){$(function(){Offers.start(d)
+})
+}};
+this.loadPdpOffers=function(d){if(this.initComplete&&this.validVersion){$(function(){Offers.start(d)
+})
+}};
+this.loadCartOffers=function(d){if(this.initComplete&&this.validVersion){$(function(){Offers.start(d)
+})
+}};
+this.loadCartOverlay=function(d){if(this.initComplete&&this.validVersion){$(function(){Offers.start(d,"tf-cart-overlay-1")
+})
+}};
+this.start=function(e,d){if(!this.sessionData.sessionId){window.setTimeout(function(){Offers.start(e,d)
+},100);
+return false
+}this.loadOffers(e,d);
+return true
+};
+this.createCartSkusObj=function(e){var i={};
+if(e){for(var f=0;
+f<e.length;
+f++){var h=e[f].sku;
+var g=e[f].quantity;
+if(i.hasOwnProperty(h)){var d=i[h];
+i[h]=d+g
+}else{i[h]=g
+}}}return i
+};
+this.invokeOfferSnippetAjax=function(d){window.performance&&window.performance.mark&&window.performance.mark("offers.js:loadBegin");
+$.ajax({url:this.loadOfferURL,type:"POST",data:JSON.stringify(d),contentType:"application/json; charset=utf-8",dataType:"json",timeout:8000,success:function(g,h,f){if(f&&f.hasOwnProperty("responseText")){var e=JSON.parse(f.responseText);
+Offers.setInteractValues(e);
+if(Offers.debugOffers){console.log("offers.js - Starting loading offers for session:::: "+e.hasOwnProperty("statusCode")?"status code : "+e.statusCode:"no status code")
+}if(e.hasOwnProperty("statusCode")&&e.statusCode==200){Offers.loadOfferSnippetHTML(e.offerPlacementMap)
+}else{console.log("offers.js - Status Code: Not defined or not 200. Showing default contents.");
+Offers.showDefaultContent()
+}}else{console.log("offers.js - No jqXHR.hasOwnProperty - responseText");
+Offers.showDefaultContent()
+}window.performance&&window.performance.mark&&window.performance.mark("offers.js:loadEnd")
+},error:function(f,e){console.log("offers.js - Load call did not complete correctly");
+Offers.showDefaultContent();
+window.performance&&window.performance.mark&&window.performance.mark("offers.js:loadEnd")
+}})
+};
+this.setInteractValues=function(f){if(typeof Interact!=="undefined"){var h=(f.hasOwnProperty("sessionId")?f.sessionId:"");
+var g=(f.hasOwnProperty("s_vi_low")?f.s_vi_low:"");
+var d=(f.hasOwnProperty("s_vi_high")?f.s_vi_high:"");
+var e=(f.hasOwnProperty("timeStamp")?f.timeStamp:new Date());
+Interact.sessionId=h;
+Interact.s_vi_low=g;
+Interact.s_vi_high=d;
+Interact.timeStamp=e;
+Interact.localTimeStamp=new Date();
+this.cid=this.getCookie("s_cmp_tc");
+Interact.startSessionComplete.resolve();
+if(this.debugOffers){console.log("offers.js - Interact sessionId = "+Interact.sessionId);
+console.log("offers.js - Interact s_vi_low = "+Interact.s_vi_low);
+console.log("offers.js - Interact s_vi_high = "+Interact.s_vi_high);
+console.log("offers.js - Interact timeStamp = "+Interact.timeStamp);
+console.log("offers.js - Interact startSessionComplete  as resolved")
+}}else{if(this.debugOffers){console.log("offers.js - Interact object not defined!!!")
+}}};
+this.showDefaultContent=function(h){var g;
+var f;
+if(h){var e=$("#"+h).length>0?"#":".";
+g=$(e+h).children(".loading-wheel-block");
+f=g.children(".loading-wheel");
+console.log("offers.js - Showing default content for: "+e+h)
+}else{console.log("offers.js - Showing default content");
+g=$(".loading-wheel-block");
+f=$(".loading-wheel")
+}var d=g.children(".defaultOffer");
+g.css("padding-top","0px");
+d.css("visibility","visible");
+f.remove();
+if(this.channel==="fs"){d.find(".parsys.content-par-main").removeAttr("style")
+}};
+this.loadOfferSnippetHTML=function(j){var p=this.ips_details;
+var m=0;
+if(!p){return
+}if(!j){this.showDefaultContent();
+return
+}for(var q=0;
+q<p.length;
+q++){var n=p[q].name;
+var f=p[q].type;
+if(!j.hasOwnProperty(n)||!j[n].snippetPath){this.showDefaultContent(n)
+}else{var k=j[n];
+var h=k.hasOwnProperty("snippetPath")?k.snippetPath:"";
+this.loadIndividualOffer(n,k,h,q,f);
+m++;
+if(this.debugOffers){console.log("offers.js - Offer for div "+f+": "+n+" -> "+JSON.stringify(k));
+var l=k.hasOwnProperty("offerUrl")?k.offerUrl:"";
+var g=k.hasOwnProperty("offerUrl")?k.offerUrl:"";
+var e=k.hasOwnProperty("treatmentCode")?k.treatmentCode:"";
+var o=k.hasOwnProperty("interactPoint")?k.interactPoint:"";
+var i=k.hasOwnProperty("offerIcid")?k.offerIcid:"";
+var d=this.buildDebugDetails(this.sessionData.sessionId,o,g,e,l,i,h);
+var r=$((f==="id"?"#":".")+n);
+r.after(d)
+}}}if(this.debugOffers){console.log("offers.js - loadOfferSnippetHTML: Total Offer to execute = "+m)
+}};
+this.jcrContentFormat=function(e){if(this.channel==="fs"&&!!e){var d="/jcr:content/content-par-main.html";
+e=e.split(".html")[0]+d
+}return e
+};
+this.loadIndividualOffer=function(k,h,f,m,e){var i=h;
+var j=f;
+var l=k;
+var n=$((e==="id"?"#":".")+l);
+var g=i.offerUrl;
+var d={};
+d.isOverlayOffer=(k.indexOf("-overlay-")>-1);
+d.isCartOffer=(k.indexOf("-cart-")>-1);
+d.isCQOffer=(k.indexOf("-cq-")>-1);
+d.isPdpOffer=(k.indexOf("-pdp-")>-1);
+d.isSearchOffer=(k.indexOf("-search-")>-1);
+j=this.jcrContentFormat(j);
+if(this.debugOffers){console.log("offers.js - snippetPath for divId : "+l+"= "+j)
+}$.ajax({url:j,success:function(q){Offers.postEvent(i.sessionId,i.treatmentCode,"contact");
+var p=g;
+var o="";
+if(i.hasOwnProperty("offerIcid")){o=i.offerIcid
+}if(typeof g!=="undefined"&&!!o){o=o.replace(/\s+/g,"");
+p=Offers.addParameter(g,"icid",o)
+}if(Offers.isValidHtmlOfferStructure(q)){n.html(q);
+Offers.checkForCartoverlayOffer(q,n);
+n.removeClass("hide");
+Offers.ctaAction(d,n,i,p,m)
+}else{Offers.showDefaultContent(k)
+}},error:function(){Offers.showDefaultContent(k)
+}})
+};
+this.ctaAction=function(d,h,g,f,e){if(d.isOverlayOffer){this.initCartOverlayCtaActions(h,f,g)
+}else{if(d.isCartOffer){this.initCartCtaActions(h,f,e,g)
+}else{if(d.isPdpOffer){this.initPdpCtaActions(h,f,g)
+}else{if(d.isCQOffer){this.initCqCtaActions(h,g)
+}else{if(d.isSearchOffer){this.initSearchCtaActions(h,f,g)
+}else{this.HeaderFooterCtaAction[this.channel](h,f,g)
+}}}}}};
+this.isValidHtmlOfferStructure=function(f){var h=false;
+if(typeof f!=="undefined"&&f.length>0){if(f.indexOf("<head")==-1){h=true
+}else{var g=new DOMParser().parseFromString(f,"text/html");
+var d=$(g).find("head");
+if(typeof d!=="undefined"&&d.length>0){var e=d.html();
+if(typeof e!=="undefined"&&e.trim().length==0){h=true
+}}}}return h
+};
+this.sendAnalytics=function(g,f,e,d){switch(this.channel){case"tf":this.tfAnalytics(g,f,e,d);
+break
+}};
+this.tfAnalytics=function(j,i,g,f){if(typeof s!=="undefined"){var e="";
+var h="";
+s.linkTrackVars="prop66,eVar66,prop67,eVar67";
+switch(j){case"pdp":var k=location.pathname.replace(/^(\/[a-z]+)(\/[a-z]+)(\/[a-z]+)(\/)/g,"");
+var d=s.pageURL;
+h="PDP Offers";
+e="View PDP ("+k+"): UpSell Promotion- 0";
+this.pdpAnalytics(g.offerIcid);
+break;
+case"search":h="Search Offers";
+e="View Search Page: Promotion- 0";
+this.searchAnalytics(g.offerIcid);
+break;
+case"cart":e="View Cart: UpSell Promotion- "+f;
+h="Cart Offers";
+break;
+case"overlay":e="View cart overlay: UpSell Promotion - 0";
+h="Cart Offers";
+this.pdpAnalytics(g.offerIcid);
+break
+}s.prop66=e;
+s.eVar66=e;
+s.prop67=e;
+s.eVar67=e;
+s.tl(i,"o",h,null,null);
+if(j==="pdp"){s.pageURL=d
+}}};
+this.pdpAnalytics=function(e){if(typeof e!=="undefined"&&e.length>0){s.linkTrackVars+=",eVar21";
+s.eVar21=e;
+s.pageURL=this.addParameter(s.pageURL,"icid",e);
+var d=new Date();
+d.setTime(d.getTime());
+this.setCookie("s_ev21_tc","",d)
+}};
+this.searchAnalytics=function(d){var g="AEM|Search Results";
+var h="";
+if(this.isValidValue(search.main.params.autoCorrectedKeyword)){h=search.main.params.autoCorrectedKeyword
+}else{h=this.searchTerm.toLowerCase()
+}s.linkTrackVars+=",prop14,eVar14";
+s.prop14=g;
+s.eVar14=g;
+if(this.isValidValue(h)){s.linkTrackVars+=",prop44,eVar44";
+var f="AEM|"+h;
+s.prop44=f;
+s.eVar44=f;
+if(this.isValidValue(d)){s.linkTrackVars+=",prop34,eVar34";
+var e="AEM|PROMO-CODE|"+d+"|"+h;
+s.prop34=e;
+s.eVar34=e
+}}};
+this.initPdpCtaActions=function(f,k,e){var h=f.find("button").attr("class");
+var j=f.find("button."+h).first();
+var i=j.data("target");
+var d=i.substring(1);
+var g=d.replace(/[^A-Za-z0-9\-\_]+/g,"");
+document.getElementById(d).id=g;
+i="#"+g;
+j.attr("data-target",i);
+j.attr("data-url",k);
+j.unbind("click");
+j.attr("data-toggle","hide");
+j.click(function(){Offers.postEvent(e.sessionId,e.treatmentCode,"accept");
+var l=$(i).find("div.modal-body");
+l.load(k+" .MainParsys",function(n,m,o){if(m==="success"){j.attr("data-toggle","modal");
+$(i).modal("show");
+console.log("Load offer url success: "+k)
+}if(m==="error"){console.log("Error "+o.status+": "+o.statusText)
+}});
+Offers.sendAnalytics("pdp",this,e)
+})
+};
+this.initCqCtaActions=function(i,h){var j=i.find("a");
+if(typeof j==="undefined"){console.log("offers.js - The CQ offer is not having an HTML a tag so the Accept event can't be added.");
+return
+}var e=j.attr("href");
+var d=h.offerUrl;
+var f=h.offerIcid;
+var k=this.isValidInteractOfferUrl(d,e);
+k=Offers.addParameter(k,"icid",f);
+j.attr("href",k);
+var g=Offers.getUrlParameter("emid");
+if(typeof g!=="undefined"&&g.length>0){k=Offers.addParameter(k,"emid",g)
+}i.find("img").each(function(){$(this).wrap($("<a/>").attr("href",k))
+});
+j.click(function(){Offers.postEvent(h.sessionId,h.treatmentCode,"accept");
+if(Offers.sessionData.channel==="fs"){Offers.sendAnalytics("cq",this,h)
+}})
+};
+this.initSearchCtaActions=function(e,g,d){var f=e.find("a");
+f.attr("href",g);
+f.click(function(){Offers.postEvent(d.sessionId,d.treatmentCode,"accept");
+Offers.sendAnalytics("search",this,d)
+})
+};
+this.HeaderFooterCtaAction={tf:function(g,f,j){var i=g.attr("id");
+var d=(i.indexOf("hb")>-1)?".promo-bar-snippet":".landscape-banner-snippet";
+var h=g.find(d);
+h.attr("href",f);
+h.click(function(){Offers.postEvent(j.sessionId,j.treatmentCode,"accept")
+});
+if(d===".landscape-banner-snippet"){var e=$("#tf-headerfooter-lb");
+e.find("button.landscape-banner-button").each(function(){$(this).click(function(){Offers.postEvent(j.sessionId,j.treatmentCode,"reject")
+})
+})
+}},fs:function(f,d,i){var h=f.find("a");
+var g=h.attr("href");
+var e=this.isValidInteractOfferUrl(d,g);
+h.attr("href",e);
+h.click(function(){Offers.postEvent(i.sessionId,i.treatmentCode,"accept")
+})
+}};
+this.initCartOverlayCtaActions=function(g,i,e){var d=$(".overlay-modal-body");
+var h=$(".chevroncont");
+var f=$(".chevroncont").find("button");
+d.load(i+" .MainParsys");
+h.click(function(){$(".chevronoverlay").toggleClass("down");
+if(f.text()==="Learn more"){f.text("Show less");
+d.show();
+Offers.sendAnalytics("overlay",this,e);
+Offers.postEvent(e.sessionId,e.treatmentCode,"accept")
+}else{f.text("Learn more");
+d.hide();
+Offers.postEvent(e.sessionId,e.treatmentCode,"ignore")
+}})
+};
+this.initCartCtaActions=function(f,j,e,d){var g=f.find("button").attr("class");
+var i=f.find("button."+g);
+i.attr("data-url",j);
+i.unbind("click");
+i.attr("data-toggle","hide");
+var h=i.data("target");
+i.click(function(){var k=$(h).find("div.modal-body");
+k.load(j+" .MainParsys",function(){i.attr("data-toggle","modal");
+$(h).modal("show")
+});
+Offers.postEvent(d.sessionId,d.treatmentCode,"accept");
+Offers.sendAnalytics("cart",this,d,e)
+})
+};
+this.isValidInteractOfferUrl=function(d,e){return(!!d&&d!=="."&&d!=="_")?d:e
+};
+this.isValidValue=function(d){return(typeof d!=="undefined"&&d.length>0)
+};
+this.buildDebugDetails=function(k,h,f,e,i,g,d){var j="";
+j="<div id='offerSnippetDebug'><div class='alert text-left' style='font-size: 10px; overflow-wrap: break-word;'>";
+j+="SessionId: "+k+"<br>";
+j+="Interaction Point: "+h+"<br>";
+j+="OfferUrl: "+f+"<br>";
+j+="TreatmentCode: "+e+"<br>";
+j+="Landing Url: "+i+"<br>";
+j+="ICID: "+g+"<br>";
+j+="Snippet Path: "+d+"<br>";
+j+="</div></div>";
+console.log("debug="+j);
+return j
+};
+this.postEvent=function(g,e,f){if(this.debugOffers){console.log("postEvent sessionId = "+g);
+console.log("postEvent treatmentCode = "+e);
+console.log("postEvent eventType = "+f)
+}if(typeof e=="undefined"||e==""){return true
+}var d={};
+d.sessionId=g;
+d.treatmentCode=e;
+d.eventType=f;
+d.channel=this.channel;
+d.action="pageview";
+if(this.internal){d.internal=true
+}$.ajax({url:"/event/offer/postevent",type:"POST",data:JSON.stringify(d),contentType:"application/json; charset=utf-8",dataType:"json"})
+};
+this.getIsNewVisitor=function(d){return Offers.getDaysSinceLastVisit(d+"_new")==="First Visit"?true:false
+};
+this.getDaysSinceLastVisit=function(q){var o=new Date();
+var t=new Date();
+var l;
+var h;
+var u;
+var n=o.getTime();
+var r=24*60*60*1000;
+var m="Cookies Not Supported";
+var k="First Visit";
+var j="More than 30 days";
+var i="More than 7 days";
+var g="Less than 7 days";
+var f="Less than 1 day";
+o.setTime(n+3*365*r);
+t.setTime(n+30*60*1000);
+l=Offers.getCookie(q);
+if(l===null||l.length===0){Offers.setCookie(q,n,o);
+Offers.setCookie(q+"_s",k,t)
+}else{var p=n-l;
+if(p>30*60*1000){if(p>30*r){Offers.setCookie(q,n,o);
+Offers.setCookie(q+"_s",j,t)
+}else{if(p<30*r+1&&p>7*r){Offers.setCookie(q,n,o);
+Offers.setCookie(q+"_s",i,t)
+}else{if(p<7*r+1&&p>r){Offers.setCookie(q,n,o);
+Offers.setCookie(q+"_s",g,t)
+}else{if(p<r+1){Offers.setCookie(q,n,o);
+Offers.setCookie(q+"_s",f,t)
+}}}}}else{Offers.setCookie(q,n,o);
+u=Offers.getCookie(q+"_s");
+Offers.setCookie(q+"_s",u,t)
+}}h=Offers.getCookie(q+"_s");
+if(!h||h.length===0){return m
+}else{if(h!=k&&h!=j&&h!=i&&h!=g&&h!=f){return""
+}else{return h
+}}};
+this.setCookie=function(d,e,f){document.cookie=d+"="+e+";path=/;expires="+f.toGMTString()+"; domain="+location.hostname.substring(location.hostname.lastIndexOf(".",location.hostname.lastIndexOf(".")-1))
+};
+this.getMarketingRegion=function(){var d="NA";
+if(typeof ltCountryInfo!=="undefined"){var e=(this.getCookie("CK_ISO_CODE")!==null)?this.getCookie("CK_ISO_CODE"):"us";
+d=window.ltCountryInfo[e].regionMapping
+}return d
+};
+this.getMarketingPageId=function(){var d="HP";
+if(typeof interactClientContext!=="undefined"&&typeof interactClientContext.marketingPageId!=="undefined"&&interactClientContext.marketingPageId!==""){d=interactClientContext.marketingPageId
+}return d
+};
+this.getUserType=function(){var f="anonymous";
+if(this.channel==="fs"){var d=this.getCookie("estore");
+var e=this.getCookie("punchout");
+if(e&&d){d=d+"|"+e
+}f=d
+}else{if(this.channel==="tf"){f=this.getCookie("CK_DISPLAY_TYPE")
+}}if(!f){f="anonymous"
+}return f
+};
+this.getQueryParam=function(i){var e,f,g,h;
+var d=window.location.href.slice(window.location.href.indexOf("?")+1).split("&");
+for(e=0;
+e<d.length;
+e++){h=d[e].split("=");
+f=h[0];
+g=h[1];
+if(f.toUpperCase()===i.toUpperCase()){return g
+}}return""
+};
+this.addParameter=function(d,f,e){d=this.removeParameter(d,f);
+if(!!d){if(d.indexOf("?")==-1){d=d+"?"
+}if(d.indexOf("?")!=d.length-1){d=d+"&"
+}d=d+f+"="+e
+}return d
+};
+this.removeParameter=function(e,l){var k=!!e?e.split("?"):"";
+if(k.length>=2){var d=k.shift();
+var j=k.join("?");
+var h=encodeURIComponent(l)+"=";
+var g=j.split(/[&;]/g);
+for(var f=g.length;
+f-->0;
+){if(g[f].lastIndexOf(h,0)!==-1){g.splice(f,1)
+}}e=d+"?"+g.join("&")
+}return e
+};
+this.payloadRequired=function(f){var e=false;
+for(var d=0;
+d<f.length;
+d++){if(f[d].name.indexOf(this.channel+"-cq")>-1){break
+}if(f[d].name.indexOf(this.channel+"-headerfooter")==-1){e=true;
+break
+}}return e
+};
+this.checkForCartoverlayOffer=function(h,e){if(e.selector.includes("tf-cart-overlay")){var d=$("<div/>").html(h).find("p:first").text();
+var g='<div class="dynamic-offer promotion promo-module" id="tf-cart-overlay-1"> <p id="cart-text"> '+d+'</p> <span class="chevroncont"> <div class="overlayicon chevronoverlay"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 20 5" id="chevron-up" class="overlay-cta"> <path fill="#1e8ae7" fill-rule="evenodd" d="M7.879 10.778L.1 3 2.22.879 10 8.657 17.778.879 19.9 3 10 12.9l-2.121-2.122z" /></svg> </div> <button id="overlaybutton" type="button" data-toggle="hide" data-target="#Test-Title-for-Modal-Modal" class="btn-link" id="overlay-button">Learn more</button></span></div>';
+$("#tf-cart-overlay-1").replaceWith(g);
+var f='<div class="overlay-modal-wrapper"><div class="overlay-modal-body" style="display: none;"></div></div>';
+if($(".overlay-modal-wrapper").length>0){$(".overlay-modal-wrapper").replaceWith(f)
+}else{$("#tf-cart-overlay-1").after(f)
+}}};
+this.minimalVersion=function(){if(!$||!$.fn||!$.fn.jquery){return false
+}var h=1;
+var e=5;
+var d=$.fn.jquery.split(".");
+var g=parseInt(d[0]);
+var f=parseInt(d[1]);
+return((g>=h)&&(f>=e))
+};
+this.indexOfIPS=function(h,f,g){for(var e=(g||0),d=h.length;
+e<d;
+e++){if(h[e].name===f){return e
+}}return -1
+};
+this.getChannel=function(){var d="thermofisher.com";
+var i="fishersci.com";
+var h="tf";
+var k="fs";
+var f=window.location.hostname;
+var j=(f.indexOf(d)>0);
+var e=(f.indexOf(i)>0);
+var g="";
+if(j){g=h
+}if(e){g=k
+}return g
+};
+this.processPagePath=function(e,d){d=d.replace(/&?debug_offers=true&?/g,"");
+d=d.replace(/\?$/g,"");
+return e+d
+}
+}var Offers=new Offers();
+(function(){Offers.init()
+})();
+$(function(){if(Offers.initComplete&&Offers.validVersion){Offers.start()
+}window.setTimeout(function(){Offers.showDefaultContent()
+},5000)
+});

@@ -1,0 +1,847 @@
+
+
+function Interact() {
+	// Main data values
+    this.sessionId = "";
+    this.marketingRegion = "";
+    this.businessSegment = "";
+    this.marketingPageId = "";
+    this.channel = "";
+    this.internal = false;
+    this.emailId = '';
+    this.isNewVisitor = false;
+    this.s_vi_low = '';
+    this.s_vi_high = '';
+    this.pageName = '';
+    this.referrerDomain ='';
+    this.searchTerm ='';
+    this.referrer = '';
+    this.icid = '';
+    this.cid = '';
+    this.cidParam = '';
+    this.s_days_since='';
+    this.isValidVisitor = true;
+    this.debugOffers = false;
+    this.pagePath = "";
+    this.timeStamp = '';
+
+	// Offer management
+    this.offerPlacements = new Array();
+
+    this.registerOfferPlacement = function (id, baseURL, showDebug) {
+    	var placement = {
+    		'id' : id,
+    		'baseURL' : baseURL,
+    		'showDebug' : showDebug
+    	};
+    	
+        this.offerPlacements.push(placement);
+    };
+
+    this.loadOffers = function () {
+        for (iCount = 0; iCount < this.offerPlacements.length; iCount++) { 
+            var placement = this.offerPlacements[iCount];
+    		
+            var s_vi_value = this.sessionId;
+            
+            var mainUrl = placement.baseURL + '&s_vi=' + s_vi_value + '&divId=' + placement.id + '&businessSegment=' + this.businessSegment;
+            mainUrl = mainUrl + '&marketingRegion=' + this.marketingRegion + '&marketingPageId=' + this.marketingPageId;
+    			
+    		if (placement.showDebug) {
+    			mainUrl = mainUrl + '&debug_offers=true';
+    		}
+
+    		var placementElement =  $('#interactoffer-' + placement.id);
+    		
+    		placement.startOfLoad = new Date().getTime();
+    		
+    		placementElement.load(mainUrl);
+       }   
+    }
+    
+    // Nav Event Management
+    this.postNavEventComplete = false;
+    this.postNavEventStart = 0;
+    this.postNavEventEnd = 0;
+    this.postNavEventDuration = 0;
+
+    // DY: Modified this.startSessionComplete initialization so in case if Deferred is not available
+    // then polyfill will be used
+    if (!!$ && !!$.Deferred){
+        this.startSessionComplete = $.Deferred();
+    }
+    else{
+        this.startSessionComplete = new deferredPolyfill();
+    }    
+    
+    this.postNavEvent = function () {
+        //filter the comergent cart page to not trigger start session calls - will be triggered by loading of offers
+        var cmdQueryParam =  this.getUrlParameter('cmd');
+        //console.log("***cmdQueryParam = " + cmdQueryParam);
+        //do not trigger startSession on ViewCart page
+        if (cmdQueryParam === 'ViewCart') {
+            //console.log("***cmdQueryParam = " + cmdQueryParam + " do not trigger start session!");
+            return;
+        } 
+        
+    	if (Interact.postNavEventComplete) {
+    		return;
+    	}
+    	
+    	// record the time now that the full init sequence is complete
+    	this.initEnd = new Date().getTime();
+    	this.initDuration = this.initEnd - this.initStart;
+    	if (debugOffers) { console.log("Duration to init interact  is " + this.initDuration); }
+
+    	this.postNavEventStart = new Date().getTime();
+    	
+        var iCount = this.offerPlacements.length;
+        
+        this.isNewVisitor = Interact.getIsNewVisitor("s_days_since");
+       
+        //set default values for sending to Interact
+        this.referrerDomain = 'NULL';
+        this.searchTerm = 'NULL';
+        this.pageName = 'NULL';
+        this.cidParam = 'NULL';
+        //addition of pageName,cid and referrerDomain
+        var l_pageName = s.pageName;
+        if (typeof l_pageName != 'undefined') {
+        	this.pageName = l_pageName;
+        }
+        
+        if (typeof document.referrer != 'undefined' && document.referrer.length > 0) {
+   		 	var refReg = document.referrer;
+            var domain = refReg.match(/:\/\/([^/]+)\//)[1];
+            if(domain.indexOf("thermofisher.com") == -1) {	
+   	            this.referrerDomain = domain;
+   		 	}
+        }
+        
+        if (typeof s != 'undefined') {
+        	var qryParamCid = Interact.getCID();
+    	  	if (typeof s.getQueryParam != 'undefined' && qryParamCid.length > 0) {
+       	  		this.cidParam = qryParamCid;
+       	  	}
+        }
+             	
+        
+        //var postData =  "sessionId=" + this.sessionId + "&iCount=" + iCount + "&isNewVisitor=" + this.isNewVisitor + '&businessSegment=' + this.businessSegment + '&referrerDomain=' + this.referrerDomain + '&pageName=' + this.pageName + '&searchTerm=' + this.searchTerm + '&cid=' + this.cidParam + '&pagePath=' + this.pagePath;
+        var postData = {};
+        postData.sessionId=this.sessionId; 
+        postData.iCount= iCount;
+        postData.isNewVisitor=this.isNewVisitor;
+        postData.businessSegment=this.businessSegment; 
+        postData.referrerDomain=this.referrerDomain; 
+        postData.pageName=this.pageName; 
+        postData.searchTerm=this.searchTerm; 
+        postData.cid=this.cidParam; 
+        postData.pagePath=this.pagePath;
+       
+        if(this.internal){
+       		postData.internal=true;	
+       	}
+        
+        $.ajax({
+            url : "/event/offer/startsession",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            timeout: 8000,
+            success: function(data, textStatus, jqXHR) {
+                var offerLoadedToCust = false;
+            	Interact.postNavEventEnd = new Date().getTime();
+            	Interact.postNavEventDuration = Interact.postNavEventEnd - Interact.postNavEventStart
+
+            	if (debugOffers) { console.log("Duration to start session  is " + Interact.postNavEventDuration); }
+            //	console.log("jqXHR :::: " + JSON.stringify(jqXHR));
+
+
+            	if(jqXHR && jqXHR.hasOwnProperty("responseText") ){
+
+					var startResponse = JSON.parse(jqXHR.responseText);
+                    //console.log("startResponse :: " + JSON.stringify(startResponse));
+					//console.log("Starting loading offers for session:::: " + startResponse.hasOwnProperty("statusCode") ? "status code : " + startResponse.statusCode : "no status code" );
+
+                    if(startResponse.statusCode == 1000){
+                        offerLoadedToCust = true;
+
+                        //console.log("Starting loading offers for session:::: " + startResponse.sessionId);
+
+                        Interact.sessionId = startResponse.sessionId;
+                        Interact.s_vi_low = startResponse.s_vi_low;
+                        Interact.s_vi_high = startResponse.s_vi_high;
+                        Interact.timeStamp =  startResponse.timeStamp;
+                        Interact.collectData();
+                        Interact.loadOffers(Interact.sessionId);
+                        Interact.localTimeStamp = new Date();
+                        // Flag startSessionComplete as resolved promise
+                        Interact.startSessionComplete.resolve();
+                    }
+            	}
+
+                if(!offerLoadedToCust){
+            		Interact.showDefaultContent();
+            	}
+            	
+            	
+
+            },
+            error: function () {
+            	console.error("Error on Interact call. Showing default content.");
+        		Interact.showDefaultContent();
+            }
+        });
+    }
+           
+    this.getCID=function(){
+    	return s.getQueryParam('CID');
+    }
+    
+    // Data Management
+    this.collectData = function() {
+    	if (typeof s == 'undefined') {
+    		return;
+    	}
+    	
+    	if (typeof document.referrer != 'undefined' && document.referrer.length > 0) {
+    		 var refReg = document.referrer;
+             this.referrer = refReg.match(/:\/\/([^/]+)\//)[1]
+    	}
+    	
+    	this.icid = s.c_r('s_ev21_tc').substring(0,254); // read icid from session cookie
+    	this.cid = s.c_r('s_cmp_tc').substring(0,254); // read cid from session cookie
+    	
+    	if (this.sessionId === "cookies-disabled" || this.sessionId === "bot-detected") {
+    		this.isValidVisitor = false;
+    	}
+    }
+    
+    this.addHiddenFormFieldsComplete = false;
+    
+    this.addHiddenFormFields = function(elementId) {
+    	
+    	if (Interact.addHiddenFormFieldsComplete) {
+    		return true;
+    	}
+    	
+    	Interact.addHiddenFormFieldsComplete = true;
+    	
+    	if (typeof elementId == 'undefined') {
+    		return true;
+    	}
+       
+        if (!this.isValidVisitor)  {
+        	return;
+        }
+        
+    	var hiddenDiv = document.getElementById('hiddenFields');
+    	
+    	if (typeof hiddenDiv === 'undefined' || hiddenDiv === null) {
+    		return;
+    	}
+    	
+    	hiddenDiv.innerHTML = "";
+    
+    	var icidHiddenField = '<input type="hidden" class="tracking_icid" name="icid" value="' + Interact.icid + '"' + '/>';
+    	hiddenDiv.innerHTML += icidHiddenField;
+    	
+    	var cidHiddenField = '<input type="hidden" class="tracking_cid" name="cid" value="' + Interact.cid + '"' + '/>';
+    	hiddenDiv.innerHTML += cidHiddenField;
+    	
+    	var sessionIdHiddenField = '<input type="hidden" class="tracking_s_vi" name="s_vi" value="' + Interact.sessionId + '"' + '/>';
+    	hiddenDiv.innerHTML += sessionIdHiddenField;
+    	
+    	var s_vi_lowHiddenField = '<input type="hidden" class="tracking_post_visid_low" name="post_visid_low" value="' + Interact.s_vi_low + '"' + '/>';
+    	hiddenDiv.innerHTML += s_vi_lowHiddenField;
+    	
+    	var s_vi_highHiddenField = '<input type="hidden" class="tracking_post_visid_high" name="post_visid_high" value="' + Interact.s_vi_high + '"' + '/>';
+    	hiddenDiv.innerHTML += s_vi_highHiddenField;
+    	
+    	var referrerHiddenField = '<input type="hidden" class="tracking_refer_domain_nm" name="refer_domain_nm" value="' + Interact.referrer + '"' + '/>';
+    	hiddenDiv.innerHTML += referrerHiddenField;
+    	
+    }
+    
+    this.addOmnitureFieldsComplete = false;
+    
+    this.addOmnitureFields = function() {
+    	if (typeof s == 'undefined') {
+    		return;
+    	}
+    	
+    	if (!this.isValidVisitor)  {
+         	return;
+        }
+    	
+    	this.addOmnitureFieldsComplete = true;
+    	
+    	if (s.linkTrackVars.length > 0) {
+    	   s.linkTrackVars = s.linkTrackVars + ",";
+        }
+    	
+    	s.linkTrackVars = s.linkTrackVars + "prop24,prop21,prop22,prop27,prop30,prop38";
+    	
+    	s.prop24 = Interact.sessionId; // s_vi
+        s.prop21 = Interact.s_vi_low; // s_vi_low
+        s.prop22 = Interact.s_vi_high; // s_vi_high
+        s.prop27 = Interact.cid;  // query string param
+        s.prop30 = Interact.icid; // query string param
+        s.prop38 = Interact.referrer; // document.referer
+    }
+
+	// Offer Acceptance Management
+    this.postEventToInteractServlet = function (sessionId, treatmentCode, eventType) {
+        
+    	if (typeof treatmentCode == 'undefined' || treatmentCode == '') {
+    			return true;
+    	}
+    	
+        //var postData =  "sessionId=" + sessionId + "&treatmentCode=" + treatmentCode + "&eventType=" + eventType +"&channel=tf&action=pageview";
+    	 	var postData =  {};
+       	postData.sessionId = sessionId;
+       	postData.treatmentCode=treatmentCode;
+       	postData.eventType=eventType;
+       	postData.channel='tf';
+       	postData.action='pageview';
+       	
+       	if(this.internal){
+       		postData.internal=true;	
+       	}
+       	
+       	
+        $.ajax({
+            url : "/event/offer/postevent",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+        });
+        
+    }
+ 
+    this.offersLoaded = 0;
+    
+    this.recordPlacementLoadTime = function (placementId) {
+        for (iCount = 0; iCount < this.offerPlacements.length; iCount++) { 
+            var placement = this.offerPlacements[iCount];
+            if (placement.id == placementId) {
+            	placement.endOfLoad = new Date().getTime();
+            	placement.loadDuration = placement.endOfLoad - placement.startOfLoad;
+            	if (debugOffers) { console.log("Duration to get offer " + placement.id + " is " + placement.loadDuration); }
+            	this.offersLoaded = this.offersLoaded + 1;
+            	iCount = 999;
+            }
+        }
+        
+        if (this.offersLoaded == this.offerPlacements.length) {
+        	this.postNavEventComplete = true;
+        }
+    }
+    
+    this.recordOfferDetails = function (placementId, icid, treatmentCode, landingUrl) {
+        for (iCount = 0; iCount < this.offerPlacements.length; iCount++) { 
+            var placement = this.offerPlacements[iCount];
+            if (placement.id == placementId) {
+            	placement.icid = icid;
+            	placement.treatmentCode = treatmentCode;
+            	placement.landingUrl = landingUrl;
+            	iCount = 999;
+            }
+        }
+    }
+    
+    this.initOfferAcceptanceActions = function (placementId, sessionId, icid, treatmentCode, landingUrl) {
+        
+        var renderOffers =  $('#interactoffer-' + placementId);
+		
+        var hrefFound = false;
+
+        // find all the links in the div
+        renderOffers.find('a').each(function () {
+            hrefFound = true;
+
+            // Get the current href value
+            var href = this.href;
+            
+            // Use the landing URL for href if given
+            if (landingUrl != null && landingUrl.length > 0) {
+            	href = landingUrl;
+            }
+            
+            // Add icid param if given
+            if (icid != null && icid.length > 0) {
+            	href = Interact.addParameter(href, 'icid', icid)
+            }
+            
+            // Add emid param if known
+            if (Interact.emailId != null && Interact.emailId.length > 0) {
+            	href = Interact.addParameter(href, 'emid', Interact.emailId)
+            }
+
+            this.href = href;
+            
+            // Set the onclick function for the link 
+            $(this).click(function() { Interact.postEventToInteractServlet(sessionId, treatmentCode, 'accept'); return true;} );
+        });
+        
+        if (hrefFound == true) {
+        	return;
+        }
+
+        if (landingUrl == null && landingUrl.length == 0) {
+        	return;
+    	}
+
+        // Add icid param if given
+    	if (icid != null && icid.length>0) {
+    		landingUrl = Interact.addParameter(landingUrl, 'icid', icid)
+    	}
+        
+        // Add emid param if known
+        if (Interact.emailId != null && Interact.emailId.length > 0) {
+        	href = Interact.addParameter(href, 'emid', Interact.emailId)
+        }
+        
+        renderOffers.find('img').each(function () {
+        	$(this).wrap($("<a/>").attr("href", landingUrl)); 
+        });
+    }
+    
+    this.addParameter = function(url, parameter, value) {
+    	// remove the parameter if it exists
+    	url = Interact.removeParameter(url, parameter);
+        
+    	// add a question mark to url if not already present
+    	if (url.indexOf('?') == -1) {
+    		url = url + '?';
+    	} 
+    	
+    	if (url.indexOf('?') != url.length-1) {
+    		url = url + '&';
+    	}
+           
+    	// add the parameter value 
+    	url = url + parameter + '=' + value;
+    	
+    	return url;
+    }
+   
+    this.removeParameter = function(url, parameter) {
+    	var urlparts= url.split('?');
+    
+    	if (urlparts.length>=2) {
+    		var urlBase=urlparts.shift(); //get first part, and remove from array
+    		var queryString=urlparts.join("?"); //join it back up
+    
+    		var prefix = encodeURIComponent(parameter)+'=';
+    		var pars = queryString.split(/[&;]/g);
+    		for (var i= pars.length; i-->0;)               //reverse iteration as may be destructive
+    			if (pars[i].lastIndexOf(prefix, 0)!==-1)   //idiom for string.startsWith
+                  pars.splice(i, 1);
+    		url = urlBase+'?'+pars.join('&');
+    	}
+    	
+    	return url;
+    }
+    
+    // Cookie Management
+    
+    this.getCookie = function(cookieName) {
+        var nameEQ = cookieName + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0;i < ca.length;i++) {
+            var c = ca[i];
+            while (c.charAt(0)==' ') c = c.substring(1,c.length);
+            if (c.indexOf(nameEQ) == 0) {
+            	var value = c.substring(nameEQ.length,c.length);
+            	value = unescape(value);
+            	return value;
+            }
+        }
+        
+        return null;
+    }
+	
+    // Get this ASAP during page load so that we can react to the state and any modification
+    this.sessionId = this.getCookie('s_vi');
+    
+    this.monitorCookieInterval = null;
+    
+    this.monitorCookieIntervalCount = 0;
+    
+    this.monitorCookie = function () {
+        var cookieValue = this.getCookie('s_vi');
+        
+        if (cookieValue == null) {
+        	cookieValue = this.sessionId;
+        }
+        
+        if (this.sessionId != cookieValue) {
+     	   window.clearInterval(this.monitorCookieInterval);
+     	   
+     	   this.sessionId = cookieValue;
+        }
+
+        this.monitorCookieIntervalCount++;
+        
+        if (this.monitorCookieIntervalCount == 20) {
+     	   window.clearInterval(this.monitorCookieInterval);
+     	   
+     	   this.sessionId = 'cookies-disabled';
+        }
+    }
+
+    // Dependency Management
+    
+    this.monitorjQuery = function(callback) {
+        if (typeof $ != 'undefined') {
+            callback();
+        }
+        else {
+            window.setTimeout(function() { Interact.monitorjQuery(callback); }, 100);
+        }
+    };
+    
+    this.monitorSCIntervalCount = 0;
+
+    this.monitorSC = function (callback) {
+        this.monitorSCIntervalCount++;
+        if (this.monitorSCIntervalCount == 20) {
+            this.showDefaultContent();
+            return;
+        }
+        if (typeof s != 'undefined') {
+            callback();
+        }
+        else {
+            window.setTimeout(function() { Interact.monitorSC(callback); }, 100);
+        }
+    };
+    this.monitorSCPage = function(callback) {
+    	if (typeof s.pageName != 'undefined') {
+            callback();
+        }
+        else {
+            window.setTimeout(function() { Interact.monitorSCPage(callback); }, 100);
+        }
+    };
+
+    // Request Parameter Management
+    this.getUrlParameter = function getUrlParameter(sParam) {
+        var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+            sURLVariables = sPageURL.split('&'),
+            sParameterName,
+            i,
+            result = false;
+
+        for (i = 0; i < sURLVariables.length; i++) {
+            sParameterName = sURLVariables[i].split('=');
+
+            if (sParameterName[0] === sParam) {
+                result = sParameterName[1] === undefined ? true : sParameterName[1];
+                break;
+            }
+        }
+        
+        return result;
+    }
+    
+    //Add to Cart Post Event, pagePath is just the sku portion
+    this.postCartEventToInteractServlet = function (sessionId,  pagePath) {
+    	
+        //var postData =  "sessionId=" + sessionId + "&pagePath=" + pagePath+ "&channel=tf&action=postcart";
+    		var postData =  {};
+      	postData.sessionId = sessionId;
+      	postData.pagePath=pagePath; 
+      	postData.channel='tf';
+      	postData.action='postcart';
+        
+      	if(this.internal){
+       		postData.internal=true;	
+       	}
+      	
+        $.ajax({
+            url : "/event/offer/postevent",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+        });
+        
+    }
+    
+    //Purchase Post Event
+    this.postPurchaseEventToInteractServlet = function (sessionId,  eventType) {
+    	
+        //var postData =  "sessionId=" + sessionId + "&eventType=" + eventType + "&channel=tf&action=postpurchase";
+      	var postData =  {};
+      	postData.sessionId = sessionId;
+      	postData.eventType=eventType; 
+      	postData.channel='tf';
+      	postData.action='postpurchase';
+        
+      	if(this.internal){
+       		postData.internal=true;	
+       	}
+      	
+        $.ajax({
+            url : "/event/offer/postevent",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+        });
+        
+    }
+    
+    
+    //Form Submit Event
+    this.postFormSubmitEventToInteractServlet = function (sessionId,  pagePath) {
+    	
+        //var postData =  "sessionId=" + sessionId + "&pagePath=" + pagePath + "&channel=tf&action=formsubmit";
+    		var postData =  {};
+      	postData.sessionId = sessionId;
+      	postData.pagePath=pagePath; 
+      	postData.channel='tf';
+      	postData.action='formsubmit';
+        
+      	if(this.internal){
+       		postData.internal=true;	
+       	}
+      	
+        $.ajax({
+            url : "/event/offer/postevent",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+        });
+        
+    }
+    //Download Event
+    this.postDownloadEventToInteractServlet = function (sessionId,  pagePath) {
+    	
+        //var postData =  "sessionId=" + sessionId + "&pagePath=" + pagePath + "&channel=tf&action=postdownload";
+        
+    		var postData =  {};
+      	postData.sessionId = sessionId;
+      	postData.pagePath=pagePath; 
+      	postData.channel='tf';
+      	postData.action='postdownload';
+      	
+      	if(this.internal){
+       		postData.internal=true;	
+       	}
+    	
+        $.ajax({
+            url : "/event/offer/postevent",
+            type: "POST",
+            data : JSON.stringify(postData),
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json'
+        });
+        
+    }
+    //set clientContext - marketingRegion, businessSegment and marketingPageId
+    this.setClientContext = function(interactClientContext) {
+	    	if (typeof interactClientContext == 'undefined') {
+	    		return;
+	    	}
+    		this.marketingRegion = interactClientContext.marketingRegion;
+		this.businessSegment = interactClientContext.businessSegment;
+		this.marketingPageId = interactClientContext.marketingPageId;
+		this.internal = interactClientContext.internal;
+		
+		
+    };
+   
+    // Initialization Management
+    this.initComplete = false;
+    this.initStart = new Date().getTime();
+    this.initEnd = 0;
+    this.initDuration = 0;
+    
+    this.init = function() {
+    	// Finish fast if state indicates completion
+    	if (this.initComplete) {
+    		return;
+    	}
+
+    	// Wait until site catalyst is loaded on the page
+    	if (typeof s == 'undefined') {
+    		this.monitorSC(function() {
+    			Interact.init();
+    		});
+    		
+    		return;
+    	}
+    	if (s.pageName== 'undefined') {
+    		this.monitorSCPage(function() {
+    			Interact.init();
+    		});
+    		
+    		return;
+    	}
+
+    	// Wait until jQuery is loaded on the page
+    	if (typeof $ == 'undefined') {
+    		this.monitorjQuery(function() {
+    			Interact.init();
+    		});
+    		
+    		return;
+    	}
+    	
+    	// Interact Client Context is defined on the page by the DefineInteractClientContextTag JSP Tag class
+    	if (typeof interactClientContext != 'undefined') {
+    		this.businessSegment = interactClientContext.businessSegment;
+    		this.marketingPageId = interactClientContext.marketingPageId;
+    	} 
+    	
+    	/* Setting the marketingRegion from the ltCountryInfo object
+    	 * If something is not defined it defaults to the US information (NA region)
+    	 */
+    	if (typeof ltCountryInfo !== "undefined") {
+    		var isoCookie = (this.getCookie('CK_ISO_CODE') != null) ? this.getCookie('CK_ISO_CODE') : "us";
+    		this.marketingRegion = window.ltCountryInfo[isoCookie].regionMapping;
+    	} else {
+    		this.marketingRegion = "NA";
+    	}
+    	
+    	//get the pagePath
+    	this.pagePath = window.location.pathname + window.location.search;
+    	
+    	// request parameters
+    	debugOffers = this.getUrlParameter('debug_offers');
+    	
+    	if (typeof debugOffers != 'undefined') {
+    		this.debugOffers = debugOffers;
+    	}
+    	
+    	emailId = this.getUrlParameter('emid');
+    	
+    	if (typeof emailId != 'undefined') {
+    		this.emailId = emailId;
+    	}
+    	
+    	this.cookielessUserDetected = false;
+    	
+    	// do not monitor cookies if cookies are disabled
+    	if (s.cookiesEnabled == 'N' ) {
+    		this.cookielessUserDetected = true;
+    		this.sessionId='cookies-disabled';
+    	}
+    	
+    	// update state to indicate the init method is complete
+    	this.initComplete = true;
+    	
+    	if ((typeof this.sessionId == 'undefined' || this.sessionId == null)  && !this.cookielessUserDetected) {
+       	    this.monitorCookieInterval = window.setInterval("Interact.monitorCookie()", 250);
+    	}
+    };
+    
+    this.showDefaultContent = function () {
+    	var $loadingWheel = $(".loading-wheel");
+    	$loadingWheel.siblings("#defaultOffer").css("visibility", "visible");
+    	$loadingWheel.remove();
+    };
+
+    // Deferred polyfill - mocks main Deferred functionality. for compatibility with jquery 1.4
+    function deferredPolyfill(){
+        var callback = null;
+        var isResolved = false;
+
+        this.resolve = function(){
+            isResolved = true;
+
+            if (!!callback){
+                callback();
+            }
+        };
+
+        this.then = function(cb){
+            callback = cb;
+
+            if (!!isResolved && !!callback){
+                callback();
+            }
+        };
+    }
+    
+    this.getIsNewVisitor = function(cookieName) {
+    	return Interact.getDaysSinceLastVisit(cookieName + '_new') === 'First Visit' ? true : false;
+    }
+    
+    this.getDaysSinceLastVisit = function(cookieName){
+    	
+    	var e = new Date();
+        var es = new Date();
+        var cval;
+        var cval_s; 
+        var cval_ss;
+        var ct = e.getTime();
+        var day = 24 * 60 * 60 * 1000;
+        var f0 = 'Cookies Not Supported';
+        var f1 = 'First Visit';
+        var f2 = 'More than 30 days';
+        var f3 = 'More than 7 days'; 
+        var f4 = 'Less than 7 days'; 
+        var f5 = 'Less than 1 day';
+        
+	    e.setTime(ct + 3 * 365 * day);
+	    es.setTime(ct + 30 * 60 * 1000);
+	    cval = Interact.getCookie(cookieName);
+	    
+	    if (cval === null || cval.length === 0) {
+	    	Interact.setCookie(cookieName, ct, e);
+	    	Interact.setCookie(cookieName + '_s', f1, es);
+	    } else {
+	        var d = ct - cval;
+	        if (d > 30 * 60 * 1000) {
+	            if (d > 30 * day) {
+	            	Interact.setCookie(cookieName, ct, e);
+	            	Interact.setCookie(cookieName + '_s', f2, es);
+	            } else if (d < 30 * day + 1 && d > 7 * day) {
+	            	Interact.setCookie(cookieName, ct, e);
+	            	Interact.setCookie(cookieName + '_s', f3, es);
+	            } else if (d < 7 * day + 1 && d > day) {
+	            	Interact.setCookie(cookieName, ct, e);
+	            	Interact.setCookie(cookieName + '_s', f4, es);
+	            } else if (d < day + 1) {
+	            	Interact.setCookie(cookieName, ct, e);
+	            	Interact.setCookie(cookieName + '_s', f5, es);
+	            }
+	        } else {
+	        	Interact.setCookie(cookieName, ct, e);
+	            cval_ss = Interact.getCookie(cookieName + '_s');
+	            Interact.setCookie(cookieName + '_s', cval_ss, es);
+	        }
+	    }
+	    
+	    cval_s = Interact.getCookie(cookieName + '_s');
+	    if (cval_s.length == 0) 
+	    	return f0;
+	    else if (cval_s != f1 && cval_s != f2 && cval_s != f3 && cval_s != f4 && cval_s != f5) 
+	    	return '';
+	    else 
+	    	return cval_s;
+    }
+            
+    this.setCookie = function (name, value, time) {
+        document.cookie = name + "=" + value + ";path=/;expires=" + time.toGMTString()+ "; domain="+location.hostname.substring(location.hostname.lastIndexOf(".", location.hostname.lastIndexOf(".") - 1));
+    }
+}
+var Interact = new Interact();
+
+
+(function() {
+   Interact.init();
+   /* TFCE-1038: Remove the condition for loading interact on search results pages
+   if (window.location.pathname.indexOf("search/results") == -1){	   
+	   Interact.init();
+   }	*/
+})();
+
+

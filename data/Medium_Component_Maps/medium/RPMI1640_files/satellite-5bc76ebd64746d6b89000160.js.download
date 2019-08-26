@@ -1,0 +1,49 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  // fbq('track', 'ViewContent');
+// Track key page views (ex: product page, landing page or article)
+//based on eVar62 (PDP View (eVar 62))
+setTimeout(function(){
+  if(s.eVar62 == "Product Detail") {
+  console.log('fb PDP Page');
+  try {
+    var content_ids = s.products.split(';')[1]
+    var content_name = $.trim($("#pdp-header-container > h1").text());
+    var content_category = s.products.split(';')[0]
+    var price = s.products.split(';')[3]
+    var currency_type = _lt.user.currencyCode;
+
+
+    fbq('track', 'ViewContent', {
+       content_type: 'product', 
+        content_name: content_name,
+        content_ids: content_ids,
+        content_category: content_category,
+        value: price,
+        currency: currency_type
+     });
+  }
+		catch(e) {}
+}
+  
+  if(s.eVar62 == "Antibody Product Detail") {
+  console.log('fb Antibody PDP Page');
+  try {
+    var content_ids = s.products.split(';')[1]
+    var content_name = $.trim($(".hero-content > div > h1").text());
+    var content_category = s.products.split(';')[0]
+    var price = s.products.split(';')[3]
+    var currency_type = _lt.user.currencyCode;  
+    
+    fbq('track', 'ViewContent', {
+       content_type: 'product', 
+        content_name: content_name,
+        content_ids: content_ids,
+        content_category: content_category,
+        value: price,
+        currency: currency_type
+     });
+  }
+		catch(e) {}
+  }
+},1000);
+});

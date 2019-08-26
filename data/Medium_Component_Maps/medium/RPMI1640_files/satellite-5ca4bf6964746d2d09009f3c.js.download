@@ -1,0 +1,5 @@
+_satellite.pushAsyncScript(function(event, target, $variables){
+  console.log("ResearchGate Implemented");
+
+$('body').prepend('<script async src="https://tags.crwdcntrl.net/c/13357/cc_af.js"></script>')
+});
