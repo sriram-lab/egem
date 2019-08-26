@@ -9,5 +9,5 @@ print(matchedCells)
 matchedMedia = pd.merge(media, matchedCells, how='inner',
                         left_on='Cell Line', right_on='CellLine')
 
-matchedMedia = matchedMedia.Medium
-matchedMedia.to_csv('matchedMedia.txt', index=False)
+matchedMedia = matchedMedia.Culture
+matchedMedia.to_csv('matchedCulture.txt', index=False)
