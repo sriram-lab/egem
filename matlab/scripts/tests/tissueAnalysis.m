@@ -1,11 +1,11 @@
 
 function tissueAnalysis()
-%addpath('/home/scampit/Desktop/eGEM/matlab/scripts/metabolic_sensitivity/')
-addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\metabolic_sensitivity')
+addpath('/home/scampit/Desktop/egem/matlab/scripts/metabolic_sensitivity')
+%addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\metabolic_sensitivity')
 
-%addpath('/home/scampit/Desktop/eGEM/matlab/scripts/visualizations')
-addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\visualizations')
-addpath('C:\Users\scampit\Desktop\eGEM\matlab\scripts\metabolic_sensitivity')
+addpath('/home/scampit/Desktop/egem/matlab/scripts/visualizations')
+%addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\visualizations')
+%addpath('C:\Users\scampit\Desktop\eGEM\matlab\scripts\metabolic_sensitivity')
 load ./../../metabolic_models/eGEM_mm_newMet.mat
 load ./../../vars/ccle_geneExpression_vars.mat
 load ./../../vars/CCLE_Proteomics
