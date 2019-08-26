@@ -5,49 +5,12 @@ function [solution] = compute_histoneFlux_corr(eGEM, reactions_of_interest, ...
     eps_struct, mode, epsilon, rho, kappa, minfluxflag, exp, ...
     proteomics_dataset, fva_grate)
 
-switch proteomics_dataset
-    case 'CCLE'
-        % Load the relative H3 proteomics dataset from the CCLE
-        path = './../data/';
-        proteomics_array = readcell(strcat(path, 'GCP_proteomics_remapped.csv'));
-       
-        cell_names = proteomics_array(2:end, 1);
-        tissues = proteomics_array(2:end, 2);
-        marks = proteomics_array(1, 3:44);
-        medium = proteomics_array(2:end, 45);
+    [cell_names, medium, marks, proteomics] = load_proteomics('CCLE');
         
-        proteomics = proteomics_array(2:end, 3:44);
-        missing_values = cellfun(@ismissing, proteomics);
-        proteomics(missing_values) = {NaN};
-        proteomics = cell2mat(proteomics);
-        proteomics = knnimpute(proteomics);
-    
-    case 'LeRoy'
-        path = './../new_var/';
-        vars = {...
-            [path1 'leroy_cellline.mat'],... % CCLE cellline names for H3 proteomics, 
-            [path1 'leroy_mark.mat'],... % Marker IDs
-            [path1 'leroy_val.mat'],...% Average values
-            }; 
-        
-        for kk = 1:numel(vars) 
-            load(vars{kk})
-        end
-        
-        cell_names = cell(:,1);
-        medium = cell(:,2);
-        marks = leroy_mark;
-        
-        proteomics = leroy_val;
-        proteomics = proteomics';
-        proteomics = knnimpute(proteomics);
-
-end
-        
-load ./../vars/supplementary_software_code...
-    celllinenames_ccle1... % CCLE cellline names
-    ccleids_met... % Gene symbols
-    ccle_expression_metz % Z-transformed gene expression
+    load ./../vars/supplementary_software_code...
+        celllinenames_ccle1... % CCLE cellline names
+        ccleids_met... % Gene symbols
+        ccle_expression_metz % Z-transformed gene expression
 
 proteomics_CL_match = find(ismember(cell_names, celllinenames_ccle1));
 BIOMASS_OBJ_POS = find(ismember(eGEM.rxns, 'biomass_objective')); 
@@ -62,12 +25,8 @@ number_of_matched_proteomics = length(proteomics_CL_match);
 for match = 1:number_of_matched_proteomics
     
     constrained_model = eGEM;
-    [~, methionine_pos]  = ismember({'EX_met_L(e)'}, constrained_model.rxns);
-    constrained_model.lb(methionine_pos) = -0.5;
-    
-    obj_coef = eps_struct.RPMI; % This is temporary. I will have to recalculate these values based on the new formulation.
-    
     constrained_model = media(constrained_model, medium(match));
+    obj_coef = 1E-3; % This is temporary. I will have to recalculate these values based on the new formulation.
     constrained_model.c(BIOMASS_OBJ_POS) = 1;
 
     reaction_name = char(reactions_of_interest(:, 1));

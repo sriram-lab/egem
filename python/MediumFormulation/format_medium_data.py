@@ -41,6 +41,7 @@ def mapper(dict, series):
     return series
 
 
+<<<<<<< HEAD
 def rename_medium_to_common_IDs():
     """
     Extract will get the medium conditions that were used for the CCLE histone proteomics paper to grow the cells and classify them to simpler medium conditions. The result will be outputted as a table.
@@ -227,6 +228,8 @@ def rename_medium_to_common_IDs():
 #rename_medium_to_common_IDs()
 
 
+=======
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 def split_cellLine_and_tissues():
     df = pd.read_csv('GCP_proteomics_remapped.csv')
     df['Cell Line'] = df['CellLineName'].str.split('_').str[0]
@@ -255,8 +258,15 @@ def make_medium_xl_sheet():
 
     number_of_medium = medium_conditions['Medium Condition'].value_counts()
     number_of_tissues = medium_conditions['Tissue'].value_counts()
+<<<<<<< HEAD
     book = load_workbook('./Medium_conditions.xlsx')
     writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
+=======
+    book = load_workbook(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx')
+    writer = pd.ExcelWriter(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx', engine='openpyxl')
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
     if "Summary" in book:
@@ -279,6 +289,7 @@ def make_medium_xl_sheet():
 #make_medium_xl_sheet()
 
 
+<<<<<<< HEAD
 def make_common_nutrient_id():
     """
     """
@@ -585,6 +596,8 @@ def make_common_nutrient_id():
 #make_common_nutrient_id()
 
 
+=======
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 def get_unique_ids():
     df = pd.read_csv('./medium_component_map.csv')
     df = df.drop_duplicates(keep='first')
@@ -615,6 +628,7 @@ def map_to_recon1_xchange():
 
 #map_to_recon1_xchange()
 
+<<<<<<< HEAD
 def drop_all_duplicates():
     df = pd.read_excel('./Medium_conditions.xlsx')
     df = df.drop_duplicates(keep='first')
@@ -647,15 +661,109 @@ def make_medium_conditions():
         medium2 = medium2.copy(deep=True)
         medium2['g/L'] = medium2['g/L'].replace('Infinity', np.inf)
         medium2['g/L'] = medium2['g/L']*0.5
+=======
+def recon_xchange():
+    pd.options.mode.chained_assignment = None
+
+    metabolites = pd.read_excel(
+        './../../data/metabolicModel_maps/RECON3_Reaction_Metabolite_ID_Maps.xlsx', sheet_name='Metabolites')
+    reactions = pd.read_excel(
+        './../../data/metabolicModel_maps/RECON3_Reaction_Metabolite_ID_Maps.xlsx', sheet_name='Reactions')
+
+    exchange_reactions = reactions[reactions['Bigg Reaction ID'].str.startswith(
+        'EX_')]
+    exchange_reactions['Metabolite'] = exchange_reactions['Bigg Reaction ID'].str.replace(
+        'EX_', '')
+
+    recon1_map = pd.merge(exchange_reactions, metabolites,
+                          how='inner', left_on='Metabolite', right_on='BiGG Metabolite ID')
+    recon1_map = recon1_map.copy(deep=True)
+    recon1_map.to_csv(
+        './../../data/metabolicModel_maps/RECON3_ExchangeReaction_Map.csv', index=False)
+
+
+recon_xchange()
+
+
+def drop_all_duplicates():
+    df = pd.read_excel(r'./../../data/Medium_Component_Maps/final_medium.xlsx')
+    df = df.drop_duplicates(keep='first')
+    df.to_excel(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx', index=False)
+
+
+def average_all_duplicates(df):
+    df = df.groupby(df.index).mean().reset_index()
+    df = df.set_index("Components")
+    return df
+
+
+#drop_all_duplicates()
+
+
+def make_medium_conditions():
+
+    rpmi = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='RPMI')
+    dmem = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='DMEM')
+    imdm = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='IMDM')
+    emem = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='EMEM')
+    mcdb105 = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='MCDB105')
+    m199 = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='M199')
+    f12 = pd.read_excel(
+        r'./../../data/Medium_Component_Maps/original_medium.xlsx', sheet_name='F12')
+
+    book = load_workbook(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx')
+    writer = pd.ExcelWriter(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    def make_medium(medium1, medium2, weight=0.5):
+        """
+        args:
+            weight: the proportionality constant (default = 1:1)
+        """
+
+        weight1 = weight
+        weight2 = 1 - weight
+
+        medium1 = medium1.copy(deep=True)
+        medium1['g/L'] = medium1['g/L'].replace('Infinity', np.inf)
+        medium1['g/L'] = medium1['g/L']*weight1
+
+        medium2 = medium2.copy(deep=True)
+        medium2['g/L'] = medium2['g/L'].replace('Infinity', np.inf)
+        medium2['g/L'] = medium2['g/L']*weight2
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 
         combined_medium = pd.concat([medium1, medium2]).groupby(
             'Components')['g/L'].sum().reset_index()
 
+<<<<<<< HEAD
+=======
+        rest_of_columns = ["MW", "mM", "BiGG ID",
+                           "Alpha", "LB", "Adjusted LB"]
+        combined_medium = pd.concat(
+            [combined_medium, pd.DataFrame(columns=rest_of_columns)], sort=False)
+
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
         return combined_medium
 
     # DMEM-IMDM
     dmem_imdm = make_medium(dmem, imdm)
+<<<<<<< HEAD
     dmem_imdm.to_excel(writer, sheet_name='DMEM-IMDM', index=False)
+=======
+    dmem_imdm.to_excel(writer, sheet_name='DMEM-IMDM', columns=[
+                       "Components", "MW", "g/L", "mM", "BiGG ID", "Alpha", "LB", "Adjusted LB"], index=False)
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 
     # MCDB105-M199
     mcdb105_m199 = make_medium(mcdb105, m199)
@@ -669,11 +777,18 @@ def make_medium_conditions():
     rpmi_f12 = make_medium(rpmi, f12)
     rpmi_f12.to_excel(writer, sheet_name='RPMI-F12', index=False)
 
+<<<<<<< HEAD
+=======
+    dmem_rpmi = make_medium(dmem, rpmi, weight=2/3)
+    rpmi_f12.to_excel(writer, sheet_name='DMEM-RPMI', index=False)
+
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
     writer.save()
 
 
 #make_medium_conditions()
 
+<<<<<<< HEAD
 def calculate_alpha():
 
     book = load_workbook(r'./Medium_conditions.xlsx')
@@ -683,15 +798,39 @@ def calculate_alpha():
 
     rpmi = pd.read_excel(r'./Medium_conditions.xlsx',
                          sheet_name='RPMI', index_col='Components')
+=======
+
+def calculate_alpha():
+
+    book = load_workbook(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx')
+    writer = pd.ExcelWriter(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    rpmi = pd.read_excel(r'./../../data/Medium_Component_Maps/final_medium.xlsx',
+                         sheet_name='RPMI', index_col='Components')
+    rpmi = average_all_duplicates(rpmi)
+    rpmi["LB"] = -1
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 
     for medium in writer.sheets:
         if medium == "Summary":
             pass
         else:
             other_medium = pd.read_excel(
+<<<<<<< HEAD
                 r'./Medium_conditions.xlsx', sheet_name=medium, index_col='Components')
             other_medium['alpha'] = other_medium['g/L'].divide(
                 rpmi['g/L'], axis='index', fill_value=0)
+=======
+                r'./../../data/Medium_Component_Maps/final_medium.xlsx', sheet_name=medium, index_col='Components')
+            other_medium = average_all_duplicates(other_medium)
+            other_medium["LB"] = -1
+            other_medium['alpha'] = other_medium['g/L'].divide(
+                rpmi['g/L'], axis=0, fill_value=0)
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
             other_medium['alpha'] = other_medium['alpha'].replace(np.inf, 10)
             other_medium.to_excel(writer, sheet_name=medium, index=True)
     writer.save()
@@ -701,23 +840,45 @@ def calculate_alpha():
 
 
 def map_recon1_xchange_to_medium():
+<<<<<<< HEAD
     book = load_workbook('./Medium_conditions.xlsx')
     writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
     metabolite_map = pd.read_csv('./medium_component_mapped_to_recon1.csv')
+=======
+    book = load_workbook(
+        r'./../../data/Medium_Component_Maps/final_medium.xlsx')
+    writer = pd.ExcelWriter(
+        r'./../../data/Medium_Component_Maps/final_medium2.xlsx', engine='openpyxl')
+    writer.book = book
+    writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
+
+    metabolite_map = pd.read_csv(
+        './../../data/metabolicModel_maps/RECON3_ExchangeReaction_Map.csv')
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 
     for medium in writer.sheets:
         if medium == "Summary":
             pass
         else:
+<<<<<<< HEAD
             df = pd.read_excel('./Medium_conditions.xlsx', sheet_name=medium)
             merged_df = pd.merge(
                 df, metabolite_map, how='inner', left_on=['Components'], right_on=['Original IDs'])
             merged_df = merged_df.drop_duplicates(keep='first')
             merged_df.to_excel(
                 writer, sheet_name=medium, index=False, header=True, columns=["Components", "MW", "g/L", "mM", "Reaction ID_x", "LB_x", "Metabolite Name_x"])
+=======
+            df = pd.read_excel(
+                r'./../../data/Medium_Component_Maps/final_medium.xlsx', sheet_name=medium)
+            merged_df = pd.merge(
+                df, metabolite_map, how='inner', left_on=['Components'], right_on=['Metabolite Name'])
+            merged_df = merged_df.drop_duplicates(keep='first')
+            merged_df.to_excel(
+                writer, sheet_name=medium, index=False, header=True)
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
     writer.save()
 
 
@@ -726,22 +887,39 @@ def map_recon1_xchange_to_medium():
 
 def scale_LB():
     # load the excel file so you don't overwrite the excel sheet
+<<<<<<< HEAD
     book = load_workbook(r'./Medium_conditions.xlsx')
     writer = pd.ExcelWriter(r'./Medium_conditions.xlsx', engine='openpyxl')
+=======
+    book = load_workbook(
+        r'./../../data/Medium_Component_Maps/final_medium2.xlsx')
+    writer = pd.ExcelWriter(
+        r'./../../data/Medium_Component_Maps/final_medium3.xlsx', engine='openpyxl')
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
 
     default_uptake_rate = pd.read_excel(
+<<<<<<< HEAD
         r'./Medium_conditions.xlsx', sheet_name='RPMI', index_col='Components')
+=======
+        r'./../../data/Medium_Component_Maps/final_medium2.xlsx', sheet_name='RPMI', index_col='Components')
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
 
     for medium in writer.sheets:
         if medium == "Summary":
             pass
         else:
             uptake_rate_to_change = pd.read_excel(
+<<<<<<< HEAD
                 r'./Medium_conditions.xlsx', sheet_name=medium, index_col='Components')
 
             uptake_rate_to_change['Adjusted LB'] = default_uptake['LB'].multiply(
+=======
+                r'./../../data/Medium_Component_Maps/final_medium2.xlsx', sheet_name=medium, index_col='Components')
+
+            uptake_rate_to_change['Adjusted LB'] = default_uptake_rate['LB'].multiply(
+>>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
                 uptake_rate_to_change['alpha'], axis=0, fill_value=1.00)
             uptake_rate_to_change.to_excel(
                 writer, sheet_name=medium, index=True)

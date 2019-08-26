@@ -24,7 +24,7 @@ switch exp
         end
         
     case 'fva'
-        [minFlux, maxFlux] = fluxVariability(model, grate, sense, fva_rxns);
+        [minFlux, maxFlux] = modifiedFluxVariability(model, grate, sense, fva_rxns);
         solution.name = 'FluxVariabilityAnalysis';
         solution.minflux = minFlux;
         solution.maxflux = maxFlux;
