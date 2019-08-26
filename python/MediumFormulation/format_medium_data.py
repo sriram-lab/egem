@@ -40,6 +40,7 @@ def mapper(dict, series):
         series[idx] = tmp
     return series
 
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 def rename_medium_to_common_IDs():
@@ -230,6 +231,8 @@ def rename_medium_to_common_IDs():
 
 =======
 >>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
+=======
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 def split_cellLine_and_tissues():
     df = pd.read_csv('GCP_proteomics_remapped.csv')
     df['Cell Line'] = df['CellLineName'].str.split('_').str[0]
@@ -259,14 +262,22 @@ def make_medium_xl_sheet():
     number_of_medium = medium_conditions['Medium Condition'].value_counts()
     number_of_tissues = medium_conditions['Tissue'].value_counts()
 <<<<<<< HEAD
+<<<<<<< HEAD
     book = load_workbook('./Medium_conditions.xlsx')
     writer = pd.ExcelWriter('./Medium_conditions.xlsx', engine='openpyxl')
 =======
+=======
+
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
     book = load_workbook(
         r'./../../data/Medium_Component_Maps/final_medium.xlsx')
     writer = pd.ExcelWriter(
         r'./../../data/Medium_Component_Maps/final_medium.xlsx', engine='openpyxl')
+<<<<<<< HEAD
 >>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
+=======
+
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
     writer.book = book
     writer.sheets = dict((ws.title, ws) for ws in book.worksheets)
     if "Summary" in book:
@@ -629,6 +640,9 @@ def map_to_recon1_xchange():
 #map_to_recon1_xchange()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 def drop_all_duplicates():
     df = pd.read_excel('./Medium_conditions.xlsx')
     df = df.drop_duplicates(keep='first')
@@ -661,7 +675,11 @@ def make_medium_conditions():
         medium2 = medium2.copy(deep=True)
         medium2['g/L'] = medium2['g/L'].replace('Infinity', np.inf)
         medium2['g/L'] = medium2['g/L']*0.5
+<<<<<<< HEAD
 =======
+=======
+
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 def recon_xchange():
     pd.options.mode.chained_assignment = None
 
@@ -763,7 +781,14 @@ def make_medium_conditions():
 =======
     dmem_imdm.to_excel(writer, sheet_name='DMEM-IMDM', columns=[
                        "Components", "MW", "g/L", "mM", "BiGG ID", "Alpha", "LB", "Adjusted LB"], index=False)
+<<<<<<< HEAD
 >>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
+=======
+    dmem_imdm.to_excel(writer, sheet_name='DMEM-IMDM', index=False)
+
+    dmem_imdm.to_excel(writer, sheet_name='DMEM-IMDM', columns=[
+                       "Components", "MW", "g/L", "mM", "BiGG ID", "Alpha", "LB", "Adjusted LB"], index=False)
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 
     # MCDB105-M199
     mcdb105_m199 = make_medium(mcdb105, m199)
@@ -782,13 +807,22 @@ def make_medium_conditions():
     dmem_rpmi = make_medium(dmem, rpmi, weight=2/3)
     rpmi_f12.to_excel(writer, sheet_name='DMEM-RPMI', index=False)
 
+<<<<<<< HEAD
 >>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
+=======
+    dmem_rpmi = make_medium(dmem, rpmi, weight=2/3)
+    rpmi_f12.to_excel(writer, sheet_name='DMEM-RPMI', index=False)
+
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
     writer.save()
 
 
 #make_medium_conditions()
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 def calculate_alpha():
 
     book = load_workbook(r'./Medium_conditions.xlsx')
@@ -798,7 +832,10 @@ def calculate_alpha():
 
     rpmi = pd.read_excel(r'./Medium_conditions.xlsx',
                          sheet_name='RPMI', index_col='Components')
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
 
 def calculate_alpha():
 
@@ -916,6 +953,8 @@ def scale_LB():
 
             uptake_rate_to_change['Adjusted LB'] = default_uptake['LB'].multiply(
 =======
+                r'./../../data/Medium_Component_Maps/final_medium2.xlsx', sheet_name=medium, index_col='Components')
+            uptake_rate_to_change['Adjusted LB'] = default_uptake_rate['LB'].multiply(
                 r'./../../data/Medium_Component_Maps/final_medium2.xlsx', sheet_name=medium, index_col='Components')
 
             uptake_rate_to_change['Adjusted LB'] = default_uptake_rate['LB'].multiply(

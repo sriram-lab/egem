@@ -1,0 +1,23 @@
+function [mediumStructure] = MediumCorr(medium_flux_values, ...
+    medium_matched_proteomics, medium, marks)
+
+    reaction_names = {'Histone Ac', 'Histone 1Me', 'Histone 2Me', ...
+        'Histone 3Me'};
+    
+    [pearson_corr, pvalue] = corr(medium_flux_values, ...
+        medium_matched_proteomics);
+    
+    tissue_structure = struct('Name', 'CCLE');
+    fields = {...
+        'Medium'; 'HistoneMark'; 'Reaction'; ...
+        'PearsonR'; 'Pvalue'; 'FluxOutput'; 'ProteomicsOutput'
+        };
+    values = {...
+        medium; marks; reaction_names; ...
+        pearson_corr; pvalue; medium_flux_values; medium_matched_proteomics
+    }; 
+
+    for i = 1:length(fields)
+        mediumStructure.(fields{i}) = values{i};
+    end
+end

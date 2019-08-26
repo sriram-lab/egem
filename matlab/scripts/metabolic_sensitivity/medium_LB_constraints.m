@@ -7,6 +7,7 @@ function model = medium_LB_constraints(model, queried_medium)
     
     %path = '/home/scampit/Desktop/eGEM/data/Medium_Component_Maps/final_medium2.xlsx';
     path = 'C:\Users\scampit\Desktop\eGEM\data\Medium_Component_Maps\final_medium2.xlsx';
+
     if verLessThan('matlab', '9.6.0.1072779')
         [~, sheetNames] = xlsfinfo(path);
         for sheets = 1:length(sheetNames)

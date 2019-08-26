@@ -1,0 +1,23 @@
+function [culture_structure] = CultureCorr(culture_flux_values, ...
+    culture_matched_proteomics, culture, marks)
+
+    reaction_names = {'Histone Ac', 'Histone 1Me', 'Histone 2Me', ...
+        'Histone 3Me'};
+    
+    [pearson_corr, pvalue] = corr(culture_flux_values, ...
+        culture_matched_proteomics);
+
+    culture_structure = struct('Name', 'CCLE');
+    fields = {...
+        'Tissue'; 'HistoneMark'; 'Reaction'; ...
+        'PearsonR'; 'Pvalue'; 'FluxOutput'; 'ProteomicsOutput'
+    };
+    values = {...
+        culture; marks; reaction_names; ...
+        pearson_corr; pvalue; culture_flux_values; culture_matched_proteomics
+    };
+
+    for i = 1:length(fields)
+        culture_structure.(fields{i}) = values{i};
+    end
+end

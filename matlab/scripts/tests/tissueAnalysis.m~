@@ -1,3 +1,4 @@
+
 function tissueAnalysis()
 %addpath('/home/scampit/Desktop/eGEM/matlab/scripts/metabolic_sensitivity/')
 addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\metabolic_sensitivity')
@@ -5,9 +6,7 @@ addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\metabolic_sensitivity')
 %addpath('/home/scampit/Desktop/eGEM/matlab/scripts/visualizations')
 addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\visualizations')
 addpath('C:\Users\scampit\Desktop\eGEM\matlab\scripts\metabolic_sensitivity')
-
 load ./../../metabolic_models/eGEM_mm.mat
-
 load ./../../vars/ccle_geneExpression_vars.mat
 load ./../../vars/CCLE_Proteomics
 
@@ -28,23 +27,17 @@ for tiss = 1:length(unique_tissues)
     tissueToGeneMatch = find(ismember(string(celllinenames_ccle1), ...
         string(tissueCellNames)));
     geneExpMatch = celllinenames_ccle1(tissueToGeneMatch);
-    
-    matched = intersect(tissueCellNames, geneExpMatch);
-    matchedTissue = find(ismember(string(cell_names), string(matched)));
-    matchedGenes = find(ismember(string(celllinenames_ccle1), string(matched)));
-    tissueCellNames = cell_names(matchedTissue, :);
-    geneExpMatch = celllinenames_ccle1(matchedGenes);
-    
-    tissueProteomicsValues = proteomics(matchedTissue, :);
-    tissueMedium = medium(matchedTissue, :);
+
+    tissueProteomicsValues = proteomics(tissuePositions, :);
+    tissueMedium = medium(tissuePositions, :);
     
     [diffExp_genes] = find_diffexp_genes(model, geneExpMatch);
 
     for match = 1:length(tissueCellNames)
         obj_coef = [1E-3, 1E-3, 1E-3, 1E-3];
 
-        ON_fieldname = string(strcat('ON_', geneExpMatch(match)));
-        OFF_fieldname = string(strcat('OFF_', geneExpMatch(match)));
+        ON_fieldname = string(strcat('ON_', tissueCellNames(match)));
+        OFF_fieldname = string(strcat('OFF_', tissueCellNames(match)));
 
         constrained_model = medium_LB_constraints(model, tissueMedium(match));
 

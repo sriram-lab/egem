@@ -2,11 +2,14 @@
 % @author: Scott Campit & Lauren Fane
 function [eGEM] = make_eGEM(metabolicmodel)
 
+<<<<<<< HEAD
     %if (~exist('metabolicModel','var')) || (isempty(metabolicmodel))
     %    load './../../metabolic_models/recon1.mat'
     %end
     
     temporary_model = metabolicmodel;
+=======
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
     %reaction_path = '/home/scampit/Desktop/eGEM/data/metabolicModel_maps/metabolic_map.xlsx';
     reaction_path = './../../../data/metabolicModel_maps/metabolic_map.xlsx';
     [RxnVals, RxnTxt] = xlsread(reaction_path, 'Reactions');
