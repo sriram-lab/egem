@@ -1,6 +1,6 @@
-initCobraToolbox
-changeCobraSolver('gurobi');
-
+%initCobraToolbox
+%changeCobraSolver('gurobi');
+function tissueAnalysis()
 %addpath('/home/scampit/Desktop/eGEM/matlab/scripts/metabolic_sensitivity/')
 addpath('C:\Users\scampit\Desktop\egem\matlab\scripts\metabolic_sensitivity')
 
@@ -20,7 +20,7 @@ model.c(BIOMASS_OBJ_POS) = 1;
 
 for tiss = 1:length(unique_tissues)
     oneTissue = unique_tissues(tiss);
-    disp(tissue)
+    disp(oneTissue)
     
     tissuePositions = find(ismember(string(tissues), string(oneTissue)));
     tissueCellNames = cell_names(tissuePositions, :);

@@ -1,11 +1,5 @@
 function new_model = addBiomassRxn(model)
-<<<<<<< HEAD
-    [vals, rxns] = read_txt('./../../../biomass_rxn.xlsx');
-    stoichiometry = vals;
-    bigg_id = rxns(2:end, 2);
-    rxn_names = rxns(2:end, 3);
-    
-=======
+
     biomass = ['ala__L_c + arg__L_c +  asn__L_c + asp__L_c + atp_c + ctp_c '...
         ,'+ cys__L_c + g6p_c + gln__L_c + glu__L_c + gly_c + gtp_c + h2o_c ' ...
         , '+ his__L_c + ile__L_c + leu__L_c + lys__L_c + met__L_c ' ...
@@ -25,6 +19,5 @@ function new_model = addBiomassRxn(model)
         'reactionFormula', biomass, ...
         'StoichCoeffList', stoich);
 end
->>>>>>> 4ad2bfc7bcf688e7fc426cfe727c05970b7421f5
     
     
