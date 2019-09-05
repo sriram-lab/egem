@@ -394,43 +394,43 @@ title('Distribution of methylation flux among CCLE cell lines','fontweight','nor
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %predicting sensitivity to hdac inhibitors based on basal metabolic state - comparison with drug sensitivity data from seashore-ludlow study
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-hdaclist = {'LBH-589','vorinostat','entinostat','belinostat'}
+hdaclist = {'LBH-589','vorinostat','entinostat','belinostat'};
 
 for j = 1:4
-fx = find(ismember(ctd2compoundidname_name, hdaclist(j)))
-ix = ismember(drug_auc_expt(:,3), ctd2compoundidname_id(fx)); sum(ix) % 847
-hdac_auc_dat = drug_auc_expt(ix,:);
+    fx = find(ismember(ctd2compoundidname_name, hdaclist(j)));
+    ix = ismember(drug_auc_expt(:,3), ctd2compoundidname_id(fx)); sum(ix) % 847
+    hdac_auc_dat = drug_auc_expt(ix,:);
 
-[ix pos] = ismember(hdac_auc_dat(:,1), exptidcelllinemediamatch(:,1)); sum(ix) %
-v1 = hdac_auc_dat(:,2);
-v2 = grate_ccle_exp_soft(pos,:);
+    [ix pos] = ismember(hdac_auc_dat(:,1), exptidcelllinemediamatch(:,1)); sum(ix) %
+    v1 = hdac_auc_dat(:,2);
+    v2 = grate_ccle_exp_soft(pos,:);
 
-ix0 = (v2(:,2) < 0.05);sum(ix0) % 0.05 is  the default threshold value 
-ix01 = (v2(:,2) > 0.05);sum(ix01)
-[hh pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
+    ix0 = (v2(:,2) < 0.05);sum(ix0) % 0.05 is  the default threshold value 
+    ix01 = (v2(:,2) > 0.05);sum(ix;01);
+    [hh pp_basal(j,3)] = ttest2(v1(ix0), v1(ix01)); %
 
-  groups = NaN(size(ix0));
- groups(ix0) = 1; groups(ix01) = 2;
- vv = NaN(length(v1), 2);
- vv(1:sum(groups == 1),1) = v1(groups == 1);
- vv(1:sum(groups == 2),2) = v1(groups == 2);
+    groups = NaN(size(ix0));
+    groups(ix0) = 1; groups(ix01) = 2;
+    vv = NaN(length(v1), 2);
+    vv(1:sum(groups == 1),1) = v1(groups == 1);
+    vv(1:sum(groups == 2),2) = v1(groups == 2);
 
- figure;
- %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
- %hold on; 
- bh = boxplot(v1, groups,'symbol','')
- set(gca,'xticklabel',{'Low flux','High flux'})
-ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
-xlabel(hdaclist(j));
-ylim([0 20])
+    figure;
+    %clf; UnivarScatter(vv,'Width', 0.3, 'PointSize', 11,'MarkerEdgeColor','w','LineWidth',0.1);%, 'markerfacealpha',0.5);
+    %hold on; 
+    bh = boxplot(v1, groups,'symbol','')
+    set(gca,'xticklabel',{'Low flux','High flux'})
+    ylabel({'Sensitivity (AUC)'},'fontname','helvetica');%,'fontweight','bold');
+    xlabel(hdaclist(j));
+    ylim([0 20])
 
-ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0)
-ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01)
-[hh pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01)) ;% 
+    ix0 = (v2(:,2) <= prctile(v2(:,2), 25)); sum(ix0)
+    ix01 = (v2(:,2) > prctile(v2(:,2), 25)); sum(ix01)
+    [hh pp_basal(j,1)] = ttest2(v1(ix0), v1(ix01)) ;% 
 
-ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0)
-ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01)
-[hh pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01)) ;% 
+    ix0 = (v2(:,2) <= prctile(v2(:,2), 50)); sum(ix0)
+    ix01 = (v2(:,2) > prctile(v2(:,2), 50)); sum(ix01)
+    [hh pp_basal(j,2)] = ttest2(v1(ix0), v1(ix01)) ;% 
 
 end
 disp(pp_basal) %t-test p-values for each drug
