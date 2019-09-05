@@ -5,6 +5,8 @@
 %end
 
 <<<<<<< HEAD
+=======
+<<<<<<< HEAD
 eGEM.mets = strrep(eGEM.mets, '[', '_');
 eGEM.mets = strrep(eGEM.mets, ']', '');
 
@@ -18,3 +20,4 @@ new_model = addReaction(recon1, 'biomassReaction', ...
 model = readCbModel('Recon3D.xml');
 =======
 >>>>>>> 931f91b80f9523ac8900fe7f7422d0229f08fa82
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d

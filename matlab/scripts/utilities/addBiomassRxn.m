@@ -1,8 +1,12 @@
 function new_model = addBiomassRxn(model)
 <<<<<<< HEAD
+
+=======
+<<<<<<< HEAD
 =======
 
 >>>>>>> 931f91b80f9523ac8900fe7f7422d0229f08fa82
+>>>>>>> 74da9288525a82aac8136d448728b2176d33ce0d
     biomass = ['ala__L_c + arg__L_c +  asn__L_c + asp__L_c + atp_c + ctp_c '...
         ,'+ cys__L_c + g6p_c + gln__L_c + glu__L_c + gly_c + gtp_c + h2o_c ' ...
         , '+ his__L_c + ile__L_c + leu__L_c + lys__L_c + met__L_c ' ...
