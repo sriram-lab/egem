@@ -16,7 +16,6 @@ function [solution] = tissueAnalysis(exp)
     unique_tissues = unique(tissues);
     BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); 
     model.c(BIOMASS_OBJ_POS) = 1;
-    unique_tissues = unique_tissues(8:end, 1);
 
     for tiss = 1:length(unique_tissues)
         oneTissue = unique_tissues(tiss);
@@ -66,10 +65,6 @@ function [solution] = tissueAnalysis(exp)
             
             switch exp
                 case {'SRA', 'NoComp'}
-
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
-
                     for rxn = 1:length(reactions_to_optimize)
                         optimized_rxn = reactions_to_optimize(rxn);
                         constrained_model.c(reactions_to_optimize) = ObjCoef(rxn);
@@ -79,19 +74,14 @@ function [solution] = tissueAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
                         
-                        fluxVarName = string(strcat(tissue, '_flux_values(match, rxn) = solution.flux(optimized_rxn);'));
-                        grateVarName = string(strcat(tissue, '_grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
+                        fluxVarName = string(strcat(tissue, exp, 'flux(match, rxn) = solution.flux(optimized_rxn);'));
+                        grateVarName = string(strcat(tissue, exp, 'grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
                         eval(fluxVarName);
                         eval(grateVarName);
-                        constrained_model.c(reactions_to_optimize) = 0;
-                        
+                        constrained_model.c(reactions_to_optimize) = 0;         
                     end
                     
                 case 'Comp'
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    model.c(BIOMASS_OBJ_POS) = 1;
-
-                    %reaction_positions = find(ismember(model.rxns, reactions_to_optimize));
                     constrained_model.c(reactions_to_optimize) = ObjCoef;
 
                     [~, solution] =  constrain_flux_regulation...
@@ -99,35 +89,58 @@ function [solution] = tissueAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
 
-                    fluxVarName = string(strcat(tissue, '_flux_values(match, :) = solution.flux(reactions_to_optimize);'));
-                    grateVarName = string(strcat(tissue, '_grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
+                    fluxVarName = string(strcat(tissue, exp, 'flux(match, :) = solution.flux(reactions_to_optimize);'));
+                    grateVarName = string(strcat(tissue, exp, 'grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
                     eval(fluxVarName);
                     eval(grateVarName);
                     
                 case 'FVA'
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
-                    %reaction_positions = find(ismember(model.rxns, reactions_to_optimize));
                     model.c(reactions_to_optimize) = ObjCoef;
                     [~, maxFlux] = fluxVariability(constrained_model, 100, ...
                             'max', reactions_of_interest);
-                    fluxVarName = string(strcat(tissue, '_flux_values(match, :) = maxFlux;'));
-                    eval(fluxVarName);                    
-                    
+                    fluxVarName = string(strcat(tissue, exp, 'flux(match, :) = maxFlux;'));
+                    eval(fluxVarName);                       
             end
         end
-
-        corrVarName = string(strcat(tissue, '_corr = ', 'TissueCorr(', ...
-           tissue, '_flux_values, tissueProteomicsValues, tissue, marks)'));
+        
+        % Make plots and save data
+        corrVarName = string(strcat(tissue, exp, 'corr = ', 'TissueCorr(', ...
+           tissue, exp, 'flux, tissueProteomicsValues, tissue, marks)'));
         eval(corrVarName)
 
-        plotVarName = string(strcat('plotHistoneCorrelation(', tissue, ...
-           '_corr, "correlation", exp, "tissue_corr")'));
+        plotVarName = string(strcat('plotHistoneCorrelation(', tissue, exp, ...
+           'corr, "correlation", exp, "tissue_corr")'));
         eval(plotVarName)
         
-        histVarName = string(strcat("makeHist(", tissue, ...
-            "_flux_values, string(oneTissue), 'tissue_hist', exp)"));
+        BPVarName = string(strcat("makeBoxPlot(", tissue, exp, ...
+            "flux, tissueProteomicsValues, string(oneTissue), 'tissue_bp', exp)"));
+        eval(BPVarName)
+        
+        histVarName = string(strcat("makeHist(", tissue, exp, ...
+            "flux, string(oneTissue), 'tissue_hist', exp)"));
         eval(histVarName)
+        
+        fluxFileName = './../../vars/histoneFluxValues.mat';
+        if exist(fluxFileName, 'file')
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                tissue, exp, "flux', '-append')");
+            eval(string(saveStr1)); 
+        else
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                tissue, exp, "flux')");
+            eval(string(saveStr1));
+        end
+        
+        corrFileName = './../../vars/histoneCorrValues.mat';
+        if exist(corrFileName, 'file')
+            saveStr2 = strcat("save(corrFileName, '", ...
+                tissue, exp, "corr', '-append')");
+            eval(string(saveStr2));
+        else
+            saveStr2 = strcat("save(corrFileName, '", ...
+                tissue, exp, "corr')");
+            eval(string(saveStr2));
+        end      
     end
 end
 

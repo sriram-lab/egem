@@ -66,11 +66,6 @@ function [solution] = mediaAnalysis(exp)
 
             switch exp
                 case {'SRA', 'NoComp'}
-                    
-
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
-
                     for rxn = 1:length(reactions_to_optimize)
                         optimized_rxn = reactions_to_optimize(rxn);
                         constrained_model.c(reactions_to_optimize) = ObjCoef(rxn);
@@ -80,8 +75,8 @@ function [solution] = mediaAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
                         
-                        fluxVarName = string(strcat(final_medium, '_flux_values(match, rxn) = solution.flux(optimized_rxn);'));
-                        grateVarName = string(strcat(final_medium, '_grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
+                        fluxVarName = string(strcat(final_medium, exp, 'flux(match, rxn) = solution.flux(optimized_rxn);'));
+                        grateVarName = string(strcat(final_medium, exp, 'grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
                         eval(fluxVarName);
                         eval(grateVarName);
                         constrained_model.c(reactions_to_optimize) = 0;
@@ -89,9 +84,6 @@ function [solution] = mediaAnalysis(exp)
                     end
                     
                 case 'Comp'
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
-
                     reaction_positions = find(ismember(model.rxns, reactions_of_interest));
                     constrained_model.c(reactions_to_optimize) = ObjCoef;
 
@@ -100,35 +92,59 @@ function [solution] = mediaAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
 
-                    fluxVarName = string(strcat(final_medium, '_flux_values(match, :) = solution.flux(reaction_positions);'));
-                    grateVarName = string(strcat(final_medium, '_grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
+                    fluxVarName = string(strcat(final_medium, exp, 'flux(match, :) = solution.flux(reaction_positions);'));
+                    grateVarName = string(strcat(final_medium, exp, 'grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
                     eval(fluxVarName);
                     eval(grateVarName);
                     
                 case 'FVA'
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
                     reaction_positions = find(ismember(model.rxns, reactions_of_interest));
                     constrained_model.c(reaction_positions) = ObjCoef;
                     [~, maxFlux] = fluxVariability(constrained_model, 100, ...
                             'max', reactions_of_interest);
-                    fluxVarName = string(strcat(final_medium, '_flux_values(match, :) = maxFlux;'));
+                    fluxVarName = string(strcat(final_medium, exp, 'flux(match, :) = maxFlux;'));
                     eval(fluxVarName);                    
-                    
+    
             end
         end
 
-        corrVarName = string(strcat(final_medium, '_corr = ', 'MediumCorr(', ...
-            final_medium, '_flux_values, mediaProteomicsValues, mediaList(med), marks)'));
+        corrVarName = string(strcat(final_medium, exp, 'corr = ', 'MediumCorr(', ...
+            final_medium, exp, 'flux, mediaProteomicsValues, mediaList(med), marks)'));
         eval(corrVarName)
 
         plotVarName = string(strcat('plotHistoneCorrelation(', final_medium, ...
-            '_corr, "correlation", exp, "medium_corr")'));
+            exp, 'corr, "correlation", exp, "medium_corr")'));
         eval(plotVarName)
         
-        histVarName = string(strcat("makeHist(", final_medium, ...
-            "_flux_values, string(mediaList(med)), 'medium_hist', exp)"));
+        BPVarName = string(strcat("makeBoxPlot(", final_medium, exp, ...
+            "flux, mediaProteomicsValues, final_medium, 'medium_bp', exp)"));
+        eval(BPVarName)
+        
+        histVarName = string(strcat("makeHist(", final_medium, exp, ...
+            "flux, string(mediaList(med)), 'medium_hist', exp)"));
         eval(histVarName)
+        
+        fluxFileName = './../../vars/histoneFluxValues.mat';
+        if exist(fluxFileName, 'file')
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                final_medium, exp, "flux', '-append')");
+            eval(string(saveStr1)); 
+        else
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                final_medium, exp, "flux')");
+            eval(string(saveStr1));
+        end
+        
+        corrFileName = './../../vars/histoneCorrValues.mat';
+        if exist(corrFileName, 'file')
+            saveStr2 = strcat("save(corrFileName, '", ...
+                final_medium, exp, "corr', '-append')");
+            eval(string(saveStr2));
+        else
+            saveStr2 = strcat("save(corrFileName, '", ...
+                final_medium, exp, "corr')");
+            eval(string(saveStr2));
+        end
     end
 end
 

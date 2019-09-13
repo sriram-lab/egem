@@ -1,5 +1,6 @@
 initCobraToolbox
 changeCobraSolver('gurobi');
+addpath('/home/scampit/Desktop/egem/matlab/scripts/histone_correlations')
 
 %% Tissue Analysis
 tissueNoCompSoln = tissueAnalysis('NoComp');

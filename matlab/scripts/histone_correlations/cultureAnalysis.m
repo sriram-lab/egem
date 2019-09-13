@@ -15,6 +15,13 @@ function [solution] = cultureAnalysis(exp)
     BIOMASS_OBJ_POS = find(ismember(model.rxns, 'biomass_objective')); 
     model.c(BIOMASS_OBJ_POS) = 1;
     unique_cultures = unique(cultures);
+    
+    kappa = 1;
+    rho = 1;
+    epsilon = 1E-3;
+    mode = 0; 
+    epsilon2 = 1E-3;
+    minfluxflag = true;
 
     for cult = 1:length(unique_cultures)
         disp(unique_cultures(cult))
@@ -52,15 +59,6 @@ function [solution] = cultureAnalysis(exp)
             
             switch exp
                 case {'SRA', 'NoComp'}
-                    kappa = 1;
-                    rho = 1;
-                    epsilon = 1E-3;
-                    mode = 0; 
-                    epsilon2 = 1E-3;
-                    minfluxflag = true;
-
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
 
                     for rxn = 1:length(reactions_to_optimize)
                         optimized_rxn = reactions_to_optimize(rxn);
@@ -71,8 +69,10 @@ function [solution] = cultureAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
                         
-                        fluxVarName = string(strcat(final_culture, '_flux_values(match, rxn) = solution.flux(optimized_rxn);'));
-                        grateVarName = string(strcat(final_culture, '_grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
+                        fluxVarName = string(strcat(final_culture, exp, ...
+                            'flux(match, rxn) = solution.flux(optimized_rxn);'));
+                        grateVarName = string(strcat(final_culture, exp, ...
+                            'grates(match, rxn) = solution.x(BIOMASS_OBJ_POS);'));
                         eval(fluxVarName);
                         eval(grateVarName);
                         constrained_model.c(reactions_to_optimize) = 0;
@@ -80,16 +80,6 @@ function [solution] = cultureAnalysis(exp)
                     end
                     
                 case 'Comp'
-                    kappa = 1;
-                    rho = 1;
-                    epsilon = 1E-3;
-                    mode = 0; 
-                    epsilon2 = 1E-3;
-                    minfluxflag = true;
-
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
-
                     reaction_positions = find(ismember(constrained_model.rxns, reactions_of_interest));
                     constrained_model.c(reaction_positions) = ObjCoef;
 
@@ -98,35 +88,62 @@ function [solution] = cultureAnalysis(exp)
                             diffExp_genes.(OFF_fieldname), ...
                             kappa, rho, epsilon, mode, [], minfluxflag);
 
-                    fluxVarName = string(strcat(final_culture, '_flux_values(match, :) = solution.flux(reaction_positions);'));
-                    grateVarName = string(strcat(final_culture, '_grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
+                    fluxVarName = string(strcat(final_culture, exp, ...
+                        'flux(match, :) = solution.flux(reaction_positions);'));
+                    grateVarName = string(strcat(final_culture, exp, ...
+                        'grates(match, 1) = solution.x(BIOMASS_OBJ_POS);'));
                     eval(fluxVarName);
                     eval(grateVarName);
                     
                 case 'FVA'
-                    BIOMASS_OBJ_POS = find(ismember(constrained_model.rxns, 'biomass_objective')); 
-                    constrained_model.c(BIOMASS_OBJ_POS) = 1;
                     reaction_positions = find(ismember(constrained_model.rxns, reactions_of_interest));
                     constrained_model.c(reaction_positions) = ObjCoef;
                     [~, maxFlux] = fluxVariability(constrained_model, 100, ...
                             'max', reactions_of_interest);
-                    fluxVarName = string(strcat(final_culture, '_flux_values(match, :) = maxFlux;'));
+                    fluxVarName = string(strcat(final_culture, exp, ...
+                        'flux(match, :) = maxFlux;'));
                     eval(fluxVarName);                    
                     
             end
         end
         
-        corrVarName = string(strcat(final_culture, '_corr = CultureCorr(', ...
-            final_culture, '_flux_values, cultureProteomicsValues, final_culture, marks)'));
+        corrVarName = string(strcat(final_culture, exp, 'corr = CultureCorr(', ...
+            final_culture, exp, 'flux, cultureProteomicsValues, final_culture, marks)'));
         eval(corrVarName)
 
-        plotVarName = string(strcat('plotHistoneCorrelation(', final_culture, ...
-            '_corr, "correlation", exp, "culture_corr")'));
+        plotVarName = string(strcat('plotHistoneCorrelation(', final_culture, exp, ...
+            'corr, "correlation", exp, "culture_corr")'));
         eval(plotVarName)
+        
+        BPVarName = string(strcat("makeBoxPlot(", final_culture, exp, ...
+            "flux, cultureProteomicsValues, final_culture, 'tissue_bp', exp)"));
+        eval(BPVarName)
 
-        histVarName = strcat("makeHist(", final_culture, ...
-            "_flux_values, string(unique_cultures(cult)), 'culture_hist', exp);");
+        histVarName = strcat("makeHist(", final_culture, exp, ...
+            "flux, string(unique_cultures(cult)), 'culture_hist', exp);");
         eval(histVarName)
+        
+        fluxFileName = './../../vars/histoneFluxValues.mat';
+        if exist(fluxFileName, 'file')
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                final_culture, exp, "flux', '-append')");
+            eval(string(saveStr1)); 
+        else
+            saveStr1 = strcat("save(fluxFileName, '", ...
+                final_culture, exp, "flux')");
+            eval(string(saveStr1));
+        end
+        
+        corrFileName = './../../vars/histoneCorrValues.mat';
+        if exist(corrFileName, 'file')
+            saveStr2 = strcat("save(corrFileName, '", ...
+                final_culture, exp, "corr', '-append')");
+            eval(string(saveStr2));
+        else
+            saveStr2 = strcat("save(corrFileName, '", ...
+                final_culture, exp, "corr')");
+            eval(string(saveStr2));
+        end      
     end
 end
 
