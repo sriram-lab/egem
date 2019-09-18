@@ -9,6 +9,7 @@ function [cell_names, medium, marks, proteomics] = load_proteomics(proteomics_da
                 ['leroy_cellline.mat'],... % CCLE cellline names for H3 proteomics, 
                 ['leroy_mark.mat'],... % Marker IDs
                 ['leroy_val.mat'],...% Average values
+                ['leroy_medium.mat']
                 }; 
 
             for kk = 1:numel(vars) 
@@ -16,7 +17,6 @@ function [cell_names, medium, marks, proteomics] = load_proteomics(proteomics_da
             end
 
             cell_names = cell(:,1);
-            medium = cell(:,2);
             marks = leroy_mark;
 
             proteomics = leroy_val;
