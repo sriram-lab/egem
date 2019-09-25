@@ -109,15 +109,15 @@ for i = 1:height(exptidcelllinemediamatch)
         disp(i)
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % get basal metabolic state based on transcriptome
-       % for rxncount = 1:3744
         if basalflag
-            [fluxes, grate_ccle_exp_soft, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-            fluxes_allreactions(i,:) = fluxes; % correlate each row of fluxes_allreactions with auc
-            model2.c(rxncount) = epsilon_methylation ;
-            [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-            grate_ccle_exp_soft(i,2) = fluxstate_gurobi(rxnpos); %acetylation flux
+            [~,grate_ccle_exp_soft(i,1), solverobj_ccle(i,1)] =...
+                constrain_flux_regulation(model2,onreactions,offreactions,...
+                kappa,rho,epsilon,MODE,[], minfluxflag); %impact on growth
+            model2.c(rxnpos) = epsilon_methylation ;
+            [fluxstate_gurobi] =  constrain_flux_regulation(model2,onreactions,...
+                offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+            grate_ccle_exp_soft(i,2) = fluxstate_gurobi(rxnpos); %methylation flux
         end
-       % end
       %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % hme inhibitor impact on transcriptome
 %         if hmetransint
