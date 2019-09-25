@@ -6,7 +6,10 @@
 % 2) cd ./../MeCorr. Run section 1 and 3 of this script. Only run Section 2 if you want to 
 % run the long for-loop
 % 3) Parameters of interest to vary: epsilon_methylation, model2
-clearvars -except min_model % If don't want to run make_eGEM
+cd ./../scripts
+make_eGEM
+cd ./../MeCorr
+%clearvars -except min_model % If don't want to run make_eGEM
 model2 = min_model;
 epsilon_methylation = 1E-1;
 %rxnpos  = find(ismember(min_model.rxns,'LYSMTF1n'));
@@ -66,92 +69,105 @@ cpd_infoMe= table2cell(cpd_infoMe);
 % If I don't want to run next for-loop:
 %load('VariablesSaved\fluxstate_gurobi');
 %load('VariablesSaved\grate_ccle_exp_soft');
-%% long for-loop (1:1035)
-grate_ccle_exp_soft = NaN(height(exptidcelllinemediamatch),3); %contains acetylation flux based on basal metabolic state
-fluxes_allrxns= NaN(height(exptidcelllinemediamatch),length(model2.rxns));
-g_rate= NaN(height(exptidcelllinemediamatch), length(model2.rxns));
-for i = 1:height(exptidcelllinemediamatch)
-    % match cell line data in CCLE with CTD2
-    ii = find(ismember(ctd2celllineidname_id, exptidcelllinemediamatch(i,2)));
-    iii = find(ismember(celllinenames_ccle1, ctd2celllineidname(ii,1)));
-    if ~isempty(iii)
-        iii  = iii(1);
-%        model2 = min_model; 
-%        model2 = metabolicmodel;
-      
-         %find up and down-regulated genes in each cell line
-        ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
-        offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
-        
-  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %  set the glucose uptake based on media
-        % default glucose is -5 for rpmi
-        if r1(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5;% no change rpmi
-        elseif r2(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% dmem with low glucose
-        elseif r3(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% Emem..
-        elseif r4(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*3/2;% mccoy
-        elseif r5(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% mem
-        elseif r6(i)
-            model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*3.15/2;% dmem:f12
+%% long for-loops
+weights= [1E-1, 1E-2, 1E-3, 1E-4, 1E-5, 1E-6];
+name= [1, 2, 3, 4, 5, 6];
+for i_weight = 2:length(weights)
+    epsilon_methylation= weights(i_weight);
+    grate_ccle_exp_soft = NaN(height(exptidcelllinemediamatch),3); %contains acetylation flux based on basal metabolic state
+    fluxes_allrxns= NaN(height(exptidcelllinemediamatch),length(model2.rxns));
+    g_rate= NaN(height(exptidcelllinemediamatch), length(model2.rxns));
+    
+    for i = 1:height(exptidcelllinemediamatch)
+        % match cell line data in CCLE with CTD2
+        ii = find(ismember(ctd2celllineidname_id, exptidcelllinemediamatch(i,2)));
+        iii = find(ismember(celllinenames_ccle1, ctd2celllineidname(ii,1)));
+        if ~isempty(iii)
+            iii  = iii(1);
+            %        model2 = min_model;
+            %        model2 = metabolicmodel;
+            
+            %find up and down-regulated genes in each cell line
+            ongenes = unique(ccleids_met(ccle_expression_metz(:,iii) > 2));
+            offgenes = unique(ccleids_met(ccle_expression_metz(:,iii) < -2));
+            
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %  set the glucose uptake based on media
+            % default glucose is -5 for rpmi
+            if r1(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5;% no change rpmi
+            elseif r2(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% dmem with low glucose
+            elseif r3(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% Emem..
+            elseif r4(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*3/2;% mccoy
+            elseif r5(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*1/2;% mem
+            elseif r6(i)
+                model2.lb(find(ismember(model2.rxns, {'EX_glc(e)'})))  = -5*3.15/2;% dmem:f12
+            end
+            
+            %find reactions from differentially expressed genes
+            onreactions= findRxnsFromGenes(model2, ongenes);
+            onreactions= struct2cell(onreactions);
+            for jj=1:length(onreactions)
+                onreactions(jj)= onreactions{jj}(1);
+            end
+            offreactions= findRxnsFromGenes(model2, offgenes);
+            offreactions= struct2cell(offreactions);
+            for jj=1:length(offreactions)
+                offreactions(jj)= offreactions{jj}(1);
+            end
+            % Below 2 lines work for acetyl model, not min methyl model.
+            %         [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
+            %         [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);
+            
+            disp(i)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % get basal metabolic state based on transcriptome
+            %         if basalflag
+            %             [fluxes, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
+            %             grate_ccle_exp_soft(i,1:2)= grate; % first 2 columns are basal met flux.
+            %             ...3rd column will be met flux with a rxn maximized
+            %             fluxes_allrxns(i,:) = fluxes; % correlate each row of fluxes_allreactions with auc
+            %             model2.c(rxnpos) = epsilon_methylation ;
+            %             [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+            %             grate_ccle_exp_soft(i,3) = fluxstate_gurobi(rxnpos); %methylation flux
+            %         end
+            
+            for rxncount = 1:length(model2.rxns)
+                if basalflag
+                    %minfluxflag = 1;
+                    %[~, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
+                    model2.c(rxncount) = epsilon_methylation ;
+                    [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
+                    g_rate(i,rxncount) = fluxstate_gurobi(rxncount); %methylation flux
+                end
+            end
+        else
+            grate_ccle_exp_soft(i,:) = NaN;
         end
-        
-        %find reactions from differentially expressed genes
-        onreactions= findRxnsFromGenes(model2, ongenes);
-        onreactions= struct2cell(onreactions);
-        for jj=1:length(onreactions)
-            onreactions(jj)= onreactions{jj}(1);
-        end
-        offreactions= findRxnsFromGenes(model2, offgenes);
-        offreactions= struct2cell(offreactions);
-        for jj=1:length(offreactions)
-            offreactions(jj)= offreactions{jj}(1);
-        end
-        % Below 2 lines work for acetyl model, not min methyl model.
-%         [~,~,onreactions,~] =  deleteModelGenes(model2, ongenes);
-%         [~,~,offreactions,~] =  deleteModelGenes(model2, offgenes);        
-        
-        disp(i)
-      %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % get basal metabolic state based on transcriptome
-        if basalflag
-            [fluxes, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-            grate_ccle_exp_soft(i,1:2)= grate; % first 2 columns are basal met flux. 
-            ...3rd column will be met flux with a rxn maximized
-            fluxes_allrxns(i,:) = fluxes; % correlate each row of fluxes_allreactions with auc
-            model2.c(rxnpos) = epsilon_methylation ;
-            [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-            grate_ccle_exp_soft(i,3) = fluxstate_gurobi(rxnpos); %methylation flux
-        end
-        
-%         for rxncount = 1:length(model2.rxns)
-%             if basalflag
-%                 %minfluxflag = 1;
-%                 %[~, grate, solverobj_ccle] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[], minfluxflag); % impact on growth
-%                 model2.c(rxncount) = epsilon_methylation ;
-%                 [fluxstate_gurobi] = constrain_flux_regulation(model2,onreactions,offreactions,kappa,rho,epsilon,MODE,[],minfluxflag);
-%                 g_rate(i,rxncount) = fluxstate_gurobi(rxncount); %methylation flux
-%             end
-%         end
-    else
-        grate_ccle_exp_soft(i,:) = NaN;
     end
+    % Save in local github repo and another local folder. wd is MeCorr
+    s_var= num2str(name(i_weight));
+    s_name= strcat('grate_', s_var, 'FBA_allrxns');
+    s_path1= strcat('VariablesSaved/MaxAllRxns_Results/', s_name);
+    save(s_path1, 'g_rate');
+    s_path2= strcat('./../../../MaxAllRxns_local/', s_name);
+    save(s_path2, 'g_rate');
+    
+    % figure; h = histogram(grate_ccle_exp_soft(:,3),70);
+    %  xlabel('Predicted methylation flux')
+    %  ylabel('Total cell lines')
+    % title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
+    
+    %fluxesAll_1pFBA= fluxes_allrxns;
+    % save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
+    % save('VariablesSaved\fluxesAll_1FBA', 'fluxes_allrxns');
+    % save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
+    % save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 end
-
-% figure; h = histogram(grate_ccle_exp_soft(:,3),70);
-%  xlabel('Predicted methylation flux')
-%  ylabel('Total cell lines')
-% title('Distribution of methylation flux among CCLE cell lines','fontweight','normal')
-
-%fluxesAll_1pFBA= fluxes_allrxns;
-% save('VariablesSaved\grate_3FBA_allRxns', 'g_rate');
-%save('fluxesAll_1pFBA', 'fluxesAll_1pFBA');
-% save('VariablesSaved\grate_1E-6', 'grate_ccle_exp_soft');
-% save('VariablesSaved\fluxstate_1E-6', 'fluxstate_gurobi');
 %% Correlation between flux and auc for a reaction
 % flux_allrexns: 1031 cell lines by 3777 reactions
 % drug_auc_expt: extract auc values for the 8 methyl drugs
