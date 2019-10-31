@@ -1,0 +1,1 @@
+[sortedVector, index] = sort(var(CCLEATPComp.Flux), 'descend');

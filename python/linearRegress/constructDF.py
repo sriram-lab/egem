@@ -1,30 +1,37 @@
 """
+constructDF
 
-
+Make the dataframes that will be used for your linear regression analyses
 @author: Scott Campit
 """
 import pandas as pd
 
-df = pd.read_csv('expressionDFNoMelt.csv', index_col=0)
-CCLEComp = pd.read_excel(
-    './../../data/eGEM/FluxData.xlsx', sheet_name='CCLE_Comp', index_col='Cell Lines')
-CCLEFVA = pd.read_excel(
-    './../../data/eGEM/FluxData.xlsx', sheet_name='CCLE_FVA', index_col='Cell Lines')
-#LeRoyComp = pd.read_excel(
-#    './../../data/eGEM/FluxData.xlsx', sheet_name='LeRoy_Comp', index_col='Cell Lines')
-#LeRoyFVA = pd.read_excel(
-#    './../../data/eGEM/FluxData.xlsx', sheet_name='LeRoy_FVA', index_col='Cell Lines')
+def makeDF(ExpressionFile):
+    """
+    """
+    if ExpressionFile == "~/Data/Regression/eGEMM/CCLE.csv":
+        df = pd.read_csv(ExpressionFile, index_col = 0)
 
-CCLECompModel = pd.merge(df, CCLEComp, how='inner',
-                         left_index=True, right_index=True)
-CCLEFVAModel = pd.merge(df, CCLEFVA, how='inner',
-                        left_index=True, right_index=True)
-#LeRoyCompModel = pd.merge(df, LeRoyComp, how='inner',
-#                          left_index=True, right_index=True)
-#LeRoyFVAModel = pd.merge(df, LeRoyFVA, how='inner',
-#                         left_index=True, right_index=True)
+        Comp = pd.read_csv(
+            '~/Data/FBA/eGEMM/CCLE_Comp_ATP.csv',
+            index_col=0)
 
-CCLECompModel.to_csv('CCLECompModel.csv')
-CCLEFVAModel.to_csv('CCLEFVAModel.csv')
-#LeRoyCompModel.to_csv('LeRoyCompModel.csv')
-#LeRoyFVAModel.to_csv('LeRoyFVAModel.csv')
+        CompModel = pd.merge(df, Comp, how='inner',
+                                 left_index=True, right_index=True)
+
+    elif ExpressionFile == "~/Data/Regression/eGEMM/LeRoy.csv":
+        df = pd.read_csv(ExpressionFile, index_col=0)
+
+        Comp = pd.read_csv(
+            '~/Data/FBA/eGEMM/LeRoy_Comp_ATP.csv', index_col=0)
+
+        CompModel = pd.merge(df, Comp, how='inner',
+                                  left_index=True, right_index=True)
+
+    return CompModel
+
+CCLECompModel = makeDF("~/Data/Regression/eGEMM/CCLE.csv")
+CCLECompModel.to_csv('~/Data/Regression/eGEMM/CCLECompModel.csv')
+
+LeRoyCompModel = makeDF("~/Data/Regression/eGEMM/LeRoy.csv")
+LeRoyCompModel.to_csv('~/Data/Regression/eGEMM/LeRoyCompModel.csv')

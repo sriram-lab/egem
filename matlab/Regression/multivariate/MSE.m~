@@ -1,0 +1,3 @@
+function J = MSE(X, Y)
+
+end

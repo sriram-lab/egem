@@ -14,42 +14,61 @@ from scipy.stats.stats import pearsonr
 
 import pearson_matrix
 
-#geneExp = pd.read_excel('./../../data/CCLE/Microarray/CCLE_Microarray.xlsx')
 geneExp = pd.read_csv(
     './../../data/CCLE/RNASeq/CCLE_934_TPM_EBI.tsv', delimiter='\t')
 gcpExp = pd.read_csv('./../../data/CCLE/GCP/GCP_proteomics_remapped.csv')
+leroy = pd.read_excel('./../../data/LeRoyProteomics/LeRoy_et_al.xlsx', sheet_name='average')
 
-# remove extra stuff before comma
-tmp = []
-geneCellLineList = list(geneExp.columns)
-for CCL in geneCellLineList:
-    cleanedCCL = CCL.split(',')[-1]
-    cleanedCCL = cleanedCCL.replace('-', '')
-    cleanedCCL = cleanedCCL.replace(' ', '')
-    cleanedCCL = cleanedCCL.replace('.', '')
-    cleanedCCL = cleanedCCL.upper()
-    tmp.append(cleanedCCL)
+def standardizeCellLines(CellLineList):
+    """
+    """
+    tmp = []
+    for CCL in CellLineList:
+        CCL = str(CCL)
+        cleanedCCL = CCL.split(',')[-1]
+        cleanedCCL = cleanedCCL.replace('-', '')
+        cleanedCCL = cleanedCCL.replace(' ', '')
+        cleanedCCL = cleanedCCL.replace('.', '')
+        cleanedCCL = cleanedCCL.upper()
+        tmp.append(cleanedCCL)
+    return tmp
 
-geneCellLineList = tmp
+geneExpCLL = list(geneExp.columns)
+geneCellLineList = standardizeCellLines(geneExpCLL)
+
+LeRoyCLL = list(leroy['Cell Line'])
+LeRoyCellLineList = standardizeCellLines(LeRoyCLL)
+
 geneExp.columns = geneCellLineList
+leroy['Cell Line'] = LeRoyCellLineList
 
-gcpCellLineList = list(gcpExp['Cell Line'])
-commonCCL = set(geneCellLineList).intersection(set(gcpCellLineList))
-commonCCL.add("GENES")
+def getCommonCellLineSet(geneCCLList, proteomicsCCLList):
+    """
+    """
+    commonCCL = set(geneCCLList).intersection(set(proteomicsCCLList))
+    commonCCL.add("GENES")
+    return commonCCL
 
-GeneExpImputer = SimpleImputer(missing_values=np.nan, strategy='median')
-gcpExpImputer = SimpleImputer(missing_values=np.nan, strategy='median')
-
-# Get common cancer cell lines
-geneExp = geneExp.loc[:, list(commonCCL)]
-#geneExp = geneExp.groupby('Genes', as_index=False).median()
+commonCCL = getCommonCellLineSet(geneExpCLL, LeRoyCLL)
 
 # From this set, get histone modifying genes only.
-ptmModifiers = pd.read_csv('./../../data/EpiFactors/knownEpiFactors.csv')
+ptmModifiers = pd.read_csv('./../../data/HistoneGeneMaps/EpiFactors/knownEpiFactors.csv')
 ptmModifierGenes = list(ptmModifiers['HGNC'])
 ptmModifierGenes = [x.strip(' ') for x in ptmModifierGenes]
 
+def medianImpute(df):
+    """
+    """
+    df[df == np.inf] = np.nan
+    MedianImputer = SimpleImputer(missing_values = np.nan, strategy = 'median')
+    MedianImputer.fit(df)
+    transformedDF = MedianImputer.transform(df)
+    matrix = pd.DataFrame(
+        transformedDF, index = df.index, columns = df.columns)
+    return matrix
+
 # Gene expression dataframe
+geneExp = geneExp.loc[:, list(commonCCL)]
 geneExpGenes = list(geneExp['GENES'])
 commonGenes = set(geneExpGenes).intersection(set(ptmModifierGenes))
 geneExp = geneExp.reset_index()
@@ -60,37 +79,37 @@ geneExp = geneExp.rename(columns={'GENES': 'Cell line'})
 geneExp = geneExp.set_index('Cell line')
 geneExp = geneExp.transpose()
 
-geneExp[geneExp == np.inf] = np.nan
-GeneExpImputer.fit(geneExp)
-geneExpTransformed = GeneExpImputer.transform(geneExp)
-geneMatrix = pd.DataFrame(
-    geneExpTransformed, columns=geneExp.columns, index=geneExp.index)
+geneMatrix = medianImpute(geneExp)
 geneMatrix = geneMatrix.reset_index()
-#meltedGeneMatrix = pd.melt(
-#    geneMatrix, id_vars=['Genes'], var_name='Cell line', value_name='TPM')
-#meltedGeneMatrix = meltedGeneMatrix.set_index('Cell line')
 geneMatrix = geneMatrix.set_index('index')
 
 # GCP Proteomics Dataframe
-gcpExp = gcpExp[gcpExp['Cell Line'].isin(list(commonCCL))]
-gcpExp = gcpExp.transpose()
-gcpExp.columns = gcpExp.iloc[0]
-gcpExp.drop(gcpExp.index[0], inplace=True)
-gcpExp[gcpExp == np.inf] = np.nan
-gcpExpImputer.fit(gcpExp)
-gcpExpTransformed = gcpExpImputer.transform(gcpExp)
-gcpMatrix = pd.DataFrame(
-    gcpExpTransformed, index=gcpExp.index, columns=gcpExp.columns)
-gcpMatrix = gcpMatrix.transpose()
+def makeProteomicsDF(df, commonCCL):
+    """
+    """
+    df = df[df['Cell Line'].isin(list(commonCCL))]
+    df = df.transpose()
+    df.columns = df.iloc[0]
+    df.drop(df.index[0], inplace=True)
+    proteomicsMatrix = medianImpute(df)
+    proteomicsMatrix = proteomicsMatrix.transpose()
 
-#meltedGCPMatrix = pd.melt(
-#    gcpMatrix, id_vars=['index'], var_name='Cell line', value_name='[Marker]')
-#meltedGCPMatrix = gcpMatrix.set_index('Cell line')
-#meltedGCPMatrix = meltedGCPMatrix.rename(columns={'index': 'Histone  Marker'})
-# Merged dataframe
-merged = pd.merge(geneMatrix, gcpMatrix,
-                  how='inner', left_index=True, right_index=True)
-merged.to_csv('expressionDFNoMelt.csv', index=True)
+    return proteomicsMatrix
+
+gcpMatrix = makeProteomicsDF(gcpExp)
+LeRoyMatrix = makeProteomicsDF(leroy)
+
+def makeFinalMerge(geneDF, proteomicsDF):
+    """
+    """
+    merged = pd.merge(geneDF, proteomicsDF,
+                      how='inner', left_index=True, right_index=True)
+    return merged
+
+CCLEMerged = makeFinalMerge(geneMatrix, gcpMatrix)
+LeRoyMerged = makeFinalMerge(geneMatrix, LeRoyMatrix)
+
+#LeRoyMerged.to_csv('LeRoyMerged.csv', index=True)
 
 """
 #H3K4me1 --> MLL3 and SETD7
