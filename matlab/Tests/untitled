@@ -1,2 +1,0 @@
-GeneSymbols = readcell('GeneSymbol_to_Entrez.csv');
-ccle_ncbi = string(GeneSymbols(2:end, 4));
