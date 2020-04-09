@@ -1,4 +1,4 @@
-# epiGenome-Scale Metabolic Modeling
+# EpiGenome-Scale Metabolic Modeling
 Cancer cells have epigenetic and metabolic alterations that support uncontrolled cellular proliferation and growth. Because histone posttranslational modifications (PTMs) are sensitive to altered metabolite concentrations, and specific histone PTMs regulate the expression of metabolic genes, disrupting these altered processes can lead to new cancer therapeutics. 
 
 Experimentally determining important targets in the epigenomic-metabolic network is challenging, time-consuming, and expensive. Thus, new computational algorithms that can uncover and predict the best potential drug targets first are needed to develop new cancer drugs in a time- and cost-efficient manner. 
