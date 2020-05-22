@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Contributing
 
 ### Getting started
@@ -21,3 +22,6 @@ If you have found any bugs or dereplicated code, please submit an Issue, and we'
 ### Questions?
 If there are any questions about the eGEM platform, please contact scampit <at> umich <dot> edu.
 
+=======
+Feel free to contribute by forking this repo. We'll get to pull requests as soon as possible!
+>>>>>>> ba4bd1288de2ea80af8a10e9916499807aa3e7a1
