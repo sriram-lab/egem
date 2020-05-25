@@ -1,5 +1,5 @@
 # Epigenome-Scale Metabolic Modeling
-The epigenome-scale metabolic network model (EGEM) predicts the impact of metabolic alterations on histone acetylation, a central epigenome modification that impacts gene expression. 
+The epigenome-scale metabolic network model (EGEM) predicts the impact of metabolic alterations on histone acetylation, a central epigenome modification that impacts gene expression.
 
 ### Commentary on integrating genome-scale metabolic modeling with the epigenome
 [Chandrasekaran, Sriram. "Tying Metabolic Branches With Histone Tails Using Systems Biology." Epigenetics insights 12 (2019): 2516865719869683.](https://journals.sagepub.com/doi/full/10.1177/2516865719869683)
