@@ -3,7 +3,7 @@
 """
 Created on Wed Jun 26 09:37:33 2019
 
-@author: marcdimeo
+@author: Marc Di Meo
 """
 
 import pandas as pd

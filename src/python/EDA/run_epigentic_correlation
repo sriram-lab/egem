@@ -3,7 +3,7 @@
 """
 Created on Thu Jul 25 18:54:15 2019
 
-@author: marcdimeo
+@author: Marc Di Meo
 """
 import scipy.io as spio 
 import histone_utility

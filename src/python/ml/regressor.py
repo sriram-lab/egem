@@ -23,8 +23,8 @@ TODO:
 
 # Essential data object manipulations
 import pandas as pd
+import xlsxwriter
 import numpy as np
-from numba import jit
 
 # Regression Models
 from sklearn.model_selection import RandomizedSearchCV
@@ -48,6 +48,7 @@ import preprocess
 import evaluateMLmodel
 
 # Load CCLE data
+print("LOAD DATA")
 db = '/home/scampit/Data/Expression/Combined/mapped_ccle_data.xlsx'
 metabolomics = pd.read_excel(db,
                              sheet_name='CCLE_Metabolomics',
@@ -62,116 +63,86 @@ Xtrain, Xtest, Ytrain, Ytest = train_test_split(gcp, metabolomics, test_size=0.3
 # Set up variables to store results from 10-fold Cross Validation
 kcv = KFold(n_splits=10, shuffle=True)
 
-ols_mdls = [];     ols_performance = []
-ridge_mdls = [];   ridge_performance = []
-lasso_mdls = [];   lasso_performance = []
-elastic_mdls = []; elastic_performance = []
-dt_mdls = [];      dt_performance = []
-rf_mdls = [];      rf_performance = []
-snn_mdls = [];     snn_performance = []
+regressors = [linear_model.LinearRegression(),
+              linear_model.Ridge(),
+              linear_model.Lasso(),
+              linear_model.ElasticNet(),
+              DecisionTreeRegressor(),
+              RandomForestRegressor(oob_score=True),
+              MLPRegressor(early_stopping=True, max_iter=1000)
+              ]
+final_names = ["LR", "Ridge", "LASSO", "ElasticNet",
+               "DT", "RF", "MLP"]
+# Hyperparameters to sample
+reg_param = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 1E-1, 1, 10]
+learning_rate = [1E-6, 1E-5, 1E-4, 1E-3, 1E-2, 1E-1]
+l1rat = [0.1, 0.25, 0.50, 0.75, 0.90, 1]
+lr_schedule = ['constant', 'optimal', 'invscaling', 'adaptive']
+max_feats = ['auto', 'sqrt', 'log2']
+cp = [1E-3, 0.005, 1E-2, 0.05, 1E-1, 0.5, 1]
+lossFnc = ['mse', 'mae']
+actFnc = ['identity', 'logistic', 'tanh', 'relu']
+solve = ['lbfgs', 'sgd', 'adam']
+hidden_layer_size = list(range(5, 1000))
+param_list = [dict(),
+              dict(alpha=reg_param),
+              dict(alpha=reg_param),
+              dict(alpha=reg_param, l1_ratio=l1rat),
+              dict(criterion=lossFnc, max_features=max_feats, ccp_alpha=cp),
+              dict(criterion=lossFnc, max_features=max_feats, ccp_alpha=cp),
+              dict(hidden_layer_sizes=(hidden_layer_size), activation=actFnc,
+                   alpha=reg_param, learning_rate=lr_schedule,
+                   learning_rate_init=learning_rate,
+                   solver=solve)]
 
 # Perform 10-fold cross validation on all regressors to get R, R2, MSE, and MAE
-for train_idx, test_idx in kcv.split(Xtrain):
-    X, Y = shuffle(Xtrain, Ytrain)
+allMdls = []
+print("Random Grid Search")
+p = 0
+for mdl in regressors:
+    bestMdl = RandomizedSearchCV(estimator=mdl,
+                                 param_distributions=param_list[p],
+                                 n_iter=50)
+    p += 1
+    allMdls.append(bestMdl)
 
-    # Create cross validation indices and data
-    Xtrain2, Xtest2 = X.iloc[train_idx, :], X.iloc[test_idx, :]
-    Ytrain2, Ytest2 = Y.iloc[train_idx, :], Y.iloc[test_idx, :]
+print("CROSS VALIDATION")
+bestMdls = []
+mdlPerformance = []
+for mdl in allMdls:
+    tmpMdl = []
+    tmpPerformance = []
+    for train_idx, test_idx in kcv.split(Xtrain):
+        X, Y = shuffle(Xtrain, Ytrain)
 
-    # Scale the data using min-max scaling
-    Xtrain2, xmax, xmin = preprocess.scale(Xtrain2)
-    Xtest2 = (Xtest2 - xmin) / (xmax - xmin)
-    Ytrain2, ymax, ymin = preprocess.scale(Ytrain2)
-    Ytest2 = (Ytest2 - ymin) / (ymax - ymin)
+        # Create cross validation indices and data
+        Xtrain2, Xtest2 = X.iloc[train_idx, :], X.iloc[test_idx, :]
+        Ytrain2, Ytest2 = Y.iloc[train_idx, :], Y.iloc[test_idx, :]
 
-    # 1. Ordinary least squares
-    ols = linear_model.LinearRegression()
-    ols.fit(Xtrain2, Ytrain2)
-    ols_pred = pd.DataFrame(ols.predict(Xtest2),
-                            index=Ytest2.index,
-                            columns=Ytest2.columns)
-    ols_scores = evaluateMLmodel.regression_eval_metrics(ols_pred, Ytest2)
-    ols_mdls.append(ols); ols_performance.append(ols_scores.mean(axis=0))
+        # Scale the data using min-max scaling
+        Xtrain2, xmax, xmin = preprocess.scale(Xtrain2)
+        Xtest2 = (Xtest2 - xmin) / (xmax - xmin)
+        Ytrain2, ymax, ymin = preprocess.scale(Ytrain2)
+        Ytest2 = (Ytest2 - ymin) / (ymax - ymin)
 
-    # 2. Ridge Regression
-    ridger = linear_model.Ridge(alpha=0.01)
-    ridger.fit(Xtrain2, Ytrain2)
-    ridger_pred = pd.DataFrame(ridger.predict(Xtest2),
-                               index=Ytest2.index,
-                               columns=Ytest2.columns)
-    ridger_scores = evaluateMLmodel.regression_eval_metrics(ridger_pred, Ytest2)
-    ridge_mdls.append(ridger); ridge_performance.append(ridger_scores.mean(axis=0))
-
-    # 3. LASSO
-    lassor = linear_model.Lasso(alpha=0.01)
-    lassor.fit(Xtrain2, Ytrain2)
-    lassor_pred = pd.DataFrame(lassor.predict(Xtest2),
-                               index=Ytest2.index,
-                               columns=Ytest2.columns)
-    lassor_scores = evaluateMLmodel.regression_eval_metrics(lassor_pred, Ytest2)
-    lasso_mdls.append(lassor); lasso_performance.append(lassor_scores.mean(axis=0))
-
-    # 4. Elastic Net
-    elasticr = linear_model.ElasticNet(alpha=0.50)
-    elasticr.fit(Xtrain2, Ytrain2)
-    elasticr_pred = pd.DataFrame(elasticr.predict(Xtest2),
-                                 index=Ytest2.index,
-                                 columns=Ytest2.columns)
-    elasticr_scores = evaluateMLmodel.regression_eval_metrics(elasticr_pred, Ytest2)
-    elastic_mdls.append(elasticr); elastic_performance.append(elasticr_scores.mean(axis=0))
-
-    # 5. Decision Tree
-    dtr = DecisionTreeRegressor(criterion='mse')
-    dtr.fit(Xtrain2, Ytrain2)
-    dtr_pred = pd.DataFrame(dtr.predict(Xtest2),
-                            index=Ytest2.index,
-                            columns=Ytest2.columns)
-    dtr_scores = evaluateMLmodel.regression_eval_metrics(dtr_pred, Ytest2)
-    dt_mdls.append(dtr); dt_performance.append(dtr_scores.mean(axis=0))
-
-    # 6. Random Forest
-    rfr = RandomForestRegressor(criterion='mse',
-                                max_features='sqrt',
-                                oob_score=True)
-    rfr.fit(Xtrain2, Ytrain2)
-    rfr_pred = pd.DataFrame(rfr.predict(Xtest2),
-                            index=Ytest2.index,
-                            columns=Ytest2.columns)
-    rfr_scores = evaluateMLmodel.regression_eval_metrics(rfr_pred, Ytest2)
-    rf_mdls.append(rfr); rf_performance.append(rfr_scores.mean(axis=0))
-
-    # 7. AdaBoosting
-    #adar = AdaBoostRegressor(loss='exponential')
-    #adar.fit(Xtrain, Ytrain)
-    #adar_pred = adar.predict(Xtest)
-    #print(adar_pred)
-
-    # 8. Shallow neural networks
-    snnr = MLPRegressor(hidden_layer_sizes=(100),
-                         activation='relu',
-                         solver='adam',
-                         alpha=0.001,
-                         learning_rate='adaptive')
-    snnr.fit(Xtrain2, Ytrain2)
-    snnr_pred = pd.DataFrame(snnr.predict(Xtest2),
-                             index=Ytest2.index,
-                             columns=Ytest2.columns)
-    snnr_scores = evaluateMLmodel.regression_eval_metrics(snnr_pred, Ytest2)
-    snn_mdls.append(snnr); snn_performance.append(snnr_scores.mean(axis=0))
-
-# Get best model and get final metrics from the validation set
-all_mdls = [ols_mdls, ridge_mdls, lasso_mdls, elastic_mdls, dt_mdls, rf_mdls, snn_mdls]
-all_perf = [ols_performance, ridge_performance, lasso_performance, elastic_performance,
-            dt_performance, rf_performance, snn_performance]
-final_names = ['OLS', 'Ridge', 'LASSO', 'ElasticNet', 'DecisionTree', 'RandomForest', 'SNN']
+        trainedMdl, mdlScore = evaluateMLmodel.fitMLModel(bestMdl,
+                                                          Xtrain2, Ytrain2,
+                                                          Xtest2, Ytest2)
+        tmpMdl.append(trainedMdl)
+        tmpPerformance.append(mdlScore)
+    mdl, mdlPerf = evaluateMLmodel.get_best_model_metrics(tmpMdl, tmpPerformance, Xtest2, Ytest2)
+    bestMdls.append(mdl)
+    mdlPerformance.append(mdlPerf)
+print("FINISHED CROSS VALIDATION")
 
 # Scale the test data
 Xtest, _, _ = preprocess.scale(Xtest)
 Ytest, _, _ = preprocess.scale(Ytest)
 
 best_mdl_metrics = []
-writer = pd.ExcelWriter('predictMetabolismFromGCP.xlsx', engine='xlsxwriter')
-for i in range(0, len(all_mdls)):
-    best_mdl_metrics.append(evaluateMLmodel.get_best_model_metrics(all_mdls[i], all_perf[i], Xtest, Ytest))
+writer = pd.ExcelWriter('predictMetabolismFromGCP_paramOpt.xlsx', engine='xlsxwriter')
+for i in range(0, len(bestMdls)):
+    _, mdlPerf = evaluateMLmodel.get_best_model_metrics(tmpMdl[i], tmpPerformance[i], Xtest, Ytest)
+    best_mdl_metrics.append(mdlPerf)
     best_mdl_metrics[i].to_excel(writer, sheet_name=final_names[i])
 writer.save()

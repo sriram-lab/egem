@@ -25,7 +25,7 @@ import numpy as np
 import plots
 
 # Load CCLE datasets to map
-gcp = '~/Data/Expression/Proteomics/GCP/MappedGCP.csv'
+gcp = '~/Data/Expression/Proteomics/GCP/GCP_single.csv'
 #rnaseq = '~/Data/Expression/RNASeq/CCLE/CCLE_934_TPM_EBI.tsv'
 #microarray = '~/Data/Expression/Microarray/CCLE/'
 
@@ -59,13 +59,13 @@ app = dash.Dash(__name__,
 # Update dash layout
 app.layout = html.Div([
     # Heatmap
-    #html.Div(dcc.Graph(
-    #    figure=plots.gcp_heatmap(gcpdf, categoricals, df),
-    #    config=dict(responsive=True),
-    #    style={
-    #        'height': '100%',
-    #    },
-    #)),
+    html.Div(dcc.Graph(
+        figure=plots.gcp_heatmap(gcpdf, categoricals, df),
+        config=dict(responsive=True),
+        style={
+            'height': '100%',
+        },
+    )),
     html.Div(dcc.Graph(
         figure=plots.gcp_boxplot(gcpdf)
     ))
