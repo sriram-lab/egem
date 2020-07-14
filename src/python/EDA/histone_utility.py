@@ -21,14 +21,12 @@ def gene_symbols(ginfo_list):
     It is important to note that you pop() any duplicate IDs from ginfo so that
     the size can stay consistent and this can be placed back into the dataframe.
 
-    INPUT
-        ginfo_list: list of dictionaries containing gene ids,
-                    symbols, scores, and query
+    params:
+        ginfo_list: list of dictionaries containing gene ids, symbols, scores, and query
 
-    OUTPUT
-        gene: list of just the gene symbols from the list of dictionaries
-              inputted (any gene that could not be converted
-              will be given the symbol 'delete')
+    return:
+        gene: list of just the gene symbols from the list of dictionaries inputted (any gene that could not be
+              converted will be given the symbol 'delete')
 
     """
     gene = []
