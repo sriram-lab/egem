@@ -1,5 +1,6 @@
 """
-Write a function to load your data. I'll be using a random dataset with approximately the same size as the CCLE H3 relative values proteomics dataset. The histone marks and genes are the rows, while the columns are the cell line values. You can perform numpy calculations on pandas dataframes, but you will have to figure out how to do that on your own.
+Write a function to load your data. I'll be using a random dataset with approximately the same size as the CCLE H3 relative values proteomics dataset.
+The histone marks and genes are the rows, while the columns are the cell line values. You can perform numpy calculations on pandas dataframes, but you will have to figure out how to do that on your own.
 
 This formulation was adopted from https://stackoverflow.com/questions/42885239/correlation-matrix-of-two-pandas-dataframe-with-p-values?rq=1. Note that this is NOT the fastest implementation, because it takes in two for-loops, but it illustrates the logic behind our computation.
 
