@@ -1,10 +1,18 @@
 """
+evaluateMLmodel
 
+This script evaluates machine learning models that were trained using the sklearn framework.
+
+TODO:
+  * Set up script to also evaluate classifiers as well as regressors.
+
+  
 """
 
 import numpy as np
 import pandas as pd
 import math
+from numba import jit
 
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import mean_absolute_error
@@ -48,4 +56,17 @@ def get_best_model_metrics(mdlStrct, performance_df, Xtest, Ytest):
     ypred = pd.DataFrame(final_model.predict(Xtest),
                              index=Ytest.index,
                              columns=Ytest.columns)
-    return regression_eval_metrics(ypred, Ytest)
+    return final_model, regression_eval_metrics(ypred, Ytest)
+
+def fitMLModel(mdlObj, Xtrain, Ytrain, Xtest, Ytest):
+    """
+
+    :param mdlObj:
+    :return:
+    """
+    mdlObj.fit(Xtrain, Ytrain)
+    mdl_pred = pd.DataFrame(mdlObj.predict(Xtest),
+                            index=Ytest.index,
+                            columns=Ytest.columns)
+    mdlScore = regression_eval_metrics(mdl_pred, Ytest)
+    return mdlObj, mdlScore.mean(axis=0)
