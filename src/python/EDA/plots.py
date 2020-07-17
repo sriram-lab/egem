@@ -16,6 +16,8 @@ import dash_bootstrap_components as dbc
 import plotly
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
+import re
 from sklearn import preprocessing
 import numpy as np
 
@@ -44,6 +46,18 @@ def gcp_heatmap(df, categoricals, labels):
 
     #fig = go.Figure(side)
     gcp.update_xaxes(tickangle=90)
+    gcp.update_layout(
+        title_text="CCLE Global Chromatin Profiles",
+        #xaxis_title="Histone markers",
+        yaxis_title="Z-score distribution",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="#7f7f7f"
+        )
+    )
+    gcp.layout.template = 'plotly_dark'
+
     return gcp
 
 def gcp_boxplot(df):
@@ -51,12 +65,51 @@ def gcp_boxplot(df):
     gcp_boxplot creates boxplots for the CCLE GCP data
     
     """
+    # Format to two columns: variable name and value associated with variable
     df = pd.melt(df)
+
+    # Get groups of histone markers for colors
+    pattern = '[a-z]+[a-z]+\d'
+    df['Markers'] = df['variable'].replace(to_replace=pattern,
+                                          value='',
+                                          regex=True)
+    # Make box plot
     gcp_bxplt = go.Figure(
-        go.Box(x=df['variable'], y=df['value'], boxpoints='all', jitter=0.3)
+        px.box(df,
+               x='variable',
+               y='value',
+               points=False,
+               color='Markers',
+               color_discrete_sequence=px.colors.sequential.Agsunset,
+               template='plotly_dark')
     )
+
+    # Add categorical scatterplot / stripplot
+    gcp_bxplt.add_trace(px.strip(df,
+                                 x='variable',
+                                 y='value',
+                                 color='Markers').data[0])
+
+    gcp_bxplt.update_traces(marker=dict(
+                                        size=5,
+                                        opacity=0.5
+                            )
+    )
+    gcp_bxplt.update_xaxes(tickangle=-45)
+
+    gcp_bxplt.update_layout(
+        #title_text="CCLE Global Chromatin Profiles",
+        xaxis_title="Histone markers",
+        yaxis_title="Z-score distribution",
+        font=dict(
+            family="Courier New, monospace",
+            size=18,
+            color="#7f7f7f"
+        )
+    )
+
     return gcp_bxplt
-    
+
 def gcp_clustergram(df):
     """
 
