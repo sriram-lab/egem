@@ -4,4 +4,4 @@ The table below shows the files that are in this directory, and provides a brief
 
 File Name| Description
 --|--|
-correlation-flux-proteomics.mlx | Compute the correlation between metabolic fluxes and histone proteomics |
+correlation_flux_proteomics.mlx | Compute the correlation between metabolic fluxes and histone proteomics |
