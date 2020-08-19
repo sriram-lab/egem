@@ -1,0 +1,152 @@
+---
+title: "Differential Gene Expression Analysis for the CCLE dataset"
+author: "Scott Campit"
+output:
+  html_document:
+    toc: yes
+    df_print: paged
+  html_notebook:
+    toc: yes
+---
+
+# Summary
+This notebook contains the code to compute differentially expressed genes from the Cancer Cell Line Encyclopedia. The in-depth procedure to perform differential expression was adapted from both Barretina et al., 2012 and Yu et al., 2019. 
+
+The procedure followed is outlined below:
+  1. Remove duplicates
+  2. Remove cell lines corresponding to matching tissues with less than 15 samples
+  3. Filter genes with CPM <= 0.5
+  4. Perform TMM normalization
+  5. For each tissue model, perform *limma-voom* with quantile normalization.
+  6. Filter out differentially expressed genes mapping to RECON1. 
+
+# Install libraries
+Requisite bioinformatics, data manipulation, and data visualization libraries are loaded below.
+```{r, message=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install(c("Affy", "edgeR", "limma"))
+library(affy)
+library(edgeR)
+library(limma)
+
+install.packages(c('tidyverse', 'plotly'))
+library(tidyr)
+library(plotly)
+
+```
+
+# Data preprocessing
+The procedure for performing differential expression is outlined in several online tutorials, but [this one](https://www.bioconductor.org/packages/devel/bioc/vignettes/limma/inst/doc/usersguide.pdf) was really informative for this study. 
+
+First, we need to load up the RNASeq data. We'll start from the raw counts.
+
+```{r, message=FALSE}
+filename = '/home/scampit/Data/RNASeq/CCLE/CCLE_RNAseq_genes_counts_20180929.gct'
+data     = read.table(file=filename, 
+                      sep='\t', 
+                      header=TRUE, 
+                      skip=2)
+```
+
+## Remove duplicates
+Next, we'll remove duplicates from the dataset. To simplify my analysis, I'll simply keep the first instance of the gene within the dataset, and drop the remainder.
+
+```{r, message=FALSE}
+to_remove = duplicated(data[, 1])
+data = data[!to_remove, ]
+```
+
+## Remove data points with less than 15 cancer cell lines per tissue model
+Now, I'll handle meta data with the following procedure:
+  * I'll store the gene ENSEMBL IDs and symbols in the `ids` variable
+  * I'll get a list of the cell line name and the corresponding tissue type, and store that in the `col_ids` variable
+  
+```{r, message=FALSE}
+# Get gene identifiers
+ids      = data[, 1:2]
+data[, c("Name", "Description")] = list(NULL)
+
+# Get column identifiers
+col_ids = as.data.frame(colnames(data))
+col_ids = separate(data=col_ids, 
+               col='colnames(data)', 
+               into=c("CCL", "Tissue"), 
+               sep='_', 
+               remove=FALSE, 
+               extra='merge')
+col_ids[, 'colnames(data)'] = NULL
+```
+
+Remove data points if the number of cell lines per tissue model is less than 15.
+
+```{r, message=FALSE}
+cnt = as.data.frame(table(col_ids[, 2]))
+to_remove = cnt[, 2] < 15
+to_remove = cnt[to_remove, ]
+to_remove = as.character(to_remove[, 'Var1'])
+
+idx = col_ids[, 2] %in% to_remove
+col_ids = col_ids[!idx, ]
+data    = data[, !idx]
+
+# Set column names to be tissue type. This will be used to split the data up by groups.
+colnames(data) = col_ids[, 2]
+```
+
+# Differential gene expression analysis using *limma-voom*
+
+## Data filtering and normalization
+
+First, we'll create a DGEList object from `edgeR`.
+```{r, message=FALSE}
+dge = DGEList(counts=data, genes=ids[, 1])
+```
+
+Next, we'll filter genes that have very low counts (using counts per million) across all cell lines.
+```{r, message=FALSE}
+# Remove data points that have cpm < 0.5
+keep = rowSums(cpm(dge) > 0.5) >= 2
+dge = dge[keep, , keep.lib.sizes=FALSE]
+```
+
+The TMM normalization method is performed using `calcNormFactors`.
+```{r, message=FALSE}
+# Calculate normalization factors using the Normalization by Trimmed Mean of M values
+dge = calcNormFactors(dge)
+```
+
+## Model diagnostics using Multi-Dimensional Scaling
+
+If we want to assess the dataset, we can perform multidimensional scaling, the non-linear version to principle component analysis. Note though that the dataset is pretty large. Thus, this procedure does take a long time.
+```{r, message=FALSE}
+groups = as.character(cnt[!cnt[, 2] < 15, 1])
+#plotMDS(dge, labels=groups)
+```
+
+## Differential gene expression analysis
+
+Now we'll iterate a procedure for every single tissue model (which will be denoted as the `tx` variable), and cell lines that are not part of the tissue model of interest (denoted as `cntr`). For each tissue model, we'll perform the following steps to determine differentially expressed genes:
+  1. Perform the `voom` transformation to create an `EList` object with quantile normalization
+  2. Perform a linear fit using `lmFit` on the voom transformed dataset with respect to the design matrix
+  3. Fit an empirical bayes model using `eBayes` on the linear fit
+  4. Store the resulting tables that contain genes ranked by p-value to be accessed later
+  
+```{r, message=FALSE}
+tbl = list()
+for (i in groups){
+  # Get tissue model (tx) and control (cntr)
+  tx   = dge[, i]
+  cntr = dge[, !(names(dge) %in% i)]
+  
+  # Perform voom transformation with quantile normalization
+  v = voom(counts=tx, design=cntr, normalize='quantile')
+  
+  # Perform limma
+  fit = lmFit(v, cntr)
+  fit = eBayes(fit)
+  
+  tbl[[i]] = topTable(fit, coef=ncol(cntr))
+} 
+```
