@@ -137,16 +137,22 @@ Now we'll iterate a procedure for every single tissue model (which will be denot
 tbl = list()
 for (i in groups){
   # Get tissue model (tx) and control (cntr)
-  tx   = dge[, i]
-  cntr = dge[, !(names(dge) %in% i)]
+  idx = col_ids[, 2] %in% i
+
+  tx   = dge[, idx]
+  cntr = dge[, !idx]
+  
+  mm = model.matrix(~0 + colnames(cntr))
   
   # Perform voom transformation with quantile normalization
-  v = voom(counts=tx, design=cntr, normalize='quantile')
+  v = voom(tx, mm, normalize.method='quantile')
   
   # Perform limma
-  fit = lmFit(v, cntr)
+  fit = lmFit(v, mm)
   fit = eBayes(fit)
   
   tbl[[i]] = topTable(fit, coef=ncol(cntr))
+  
+  
 } 
 ```
