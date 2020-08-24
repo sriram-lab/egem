@@ -134,6 +134,11 @@ Now we'll iterate a procedure for every single tissue model (which will be denot
   4. Store the resulting tables that contain genes ranked by p-value to be accessed later
   
 ```{r, message=FALSE}
+
+ans = grepl("STOMACH", colnames(data))
+tx = dge$counts[, ans]
+cntr = dge$counts[, -ans]
+
 tbl = list()
 for (i in groups){
   # Get tissue model (tx) and control (cntr)
