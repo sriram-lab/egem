@@ -144,8 +144,13 @@ for (i in groups){
   # Get tissue model (tx) and control (cntr)
   idx = col_ids[, 2] %in% i
 
-  tx   = dge[, idx]
-  cntr = dge[, !idx]
+  tx = dge$counts[, ans]
+  cntr = dge$counts[, -ans]
+  tx = log2(tx+1)
+  cntr = log2(rowMedians(cntr, )+1)
+  log2fc = tx - cntr
+  hist(log2fc, 100)
+  
   
   mm = model.matrix(~0 + colnames(cntr))
   
