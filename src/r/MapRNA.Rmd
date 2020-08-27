@@ -1,0 +1,85 @@
+---
+title: "Process CCLE RNASeq dataset"
+output: html_notebook
+---
+
+# Summary
+This notebook maps the gene identifiers to Entrez IDs.
+
+```{r}
+install.packages("tidyverse")
+install.packages("readxl")
+
+library(readxl)
+```
+
+Let's also load up Bioconductor and the mapping database:
+
+```{r}
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.11")
+
+BiocManager::install(c("hgu133plus2.db", "org.Hs.eg.db"))
+library(hgu133plus2.db)
+library(org.Hs.eg.db)
+
+```
+
+```{r}
+
+filename = "~/Data/RNASeq/CCLE/Processed_CCLE.xlsx"
+sheet_name = "EffectSize"
+effectsize = read_excel(filename, sheet=sheet_name)
+
+sheet_name="Pvalue"
+pvalue =readxl(filename, sheet=sheet_name)
+# Create a map of the probes to Entrez and gene symbols
+map = select(hgu133plus2.db,
+             keytype="ENSEMBL",
+             keys=unlist(as.list(data["Gene ID"]), use.names=FALSE), 
+             columns = c('ENTREZID', 
+                         'SYMBOL')
+             )
+
+df = merge(map, data, by.x='ENSEMBL', by.y='Gene ID')
+
+# Get gene identifiers
+geneIDs = df[, c("ENSEMBL", "ENTREZID", "Gene Name")]
+
+
+# Get raw data
+drops = c("ENSEMBL", "ENTREZID", "SYMBOL", "Gene Name")
+df = df[, -c(1:4)]
+
+# Get Tissue and Cell Line names
+cols = colnames(df)
+cols = cols[5:length(cols)]
+cols = as.data.frame(cols)
+
+library(tidyr)
+cols = separate(data=cols, col=cols, into=c("Tissue", "Cell Line"), sep=", ")
+```
+
+Save all data as Excel file
+
+```{r}
+install.packages("xlsx")
+library("xlsx")
+
+filename = ""
+
+write.xlsx(geneIDs, filename, 
+           sheetName="GeneID",
+           col.names=TRUE, row.names=FALSE)
+
+write.xlsx(df, filename, 
+           sheetName="Eset", 
+           col.names=TRUE, row.names=FALSE)
+
+write.xlsx(cols, filename, 
+           sheetName="CellIDs",
+           col.names=TRUE, row.names=FALSE)
+
+```
