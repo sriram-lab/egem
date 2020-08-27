@@ -8,12 +8,9 @@ This notebook maps the gene identifiers to Entrez IDs.
 
 ```{r}
 install.packages("tidyverse")
-install.packages("readr")
+install.packages("readxl")
 
-library(readr)
-
-datapath='~/Data/Expression/RNASeq/CCLE/E-MTAB-2770.tsv'
-data=read_tsv(datapath, col_names=TRUE)
+library(readxl)
 ```
 
 Let's also load up Bioconductor and the mapping database:
@@ -31,6 +28,13 @@ library(org.Hs.eg.db)
 ```
 
 ```{r}
+
+filename = "~/Data/RNASeq/CCLE/Processed_CCLE.xlsx"
+sheet_name = "EffectSize"
+effectsize = read_excel(filename, sheet=sheet_name)
+
+sheet_name="Pvalue"
+pvalue =readxl(filename, sheet=sheet_name)
 # Create a map of the probes to Entrez and gene symbols
 map = select(hgu133plus2.db,
              keytype="ENSEMBL",

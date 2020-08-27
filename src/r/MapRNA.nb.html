@@ -1754,25 +1754,75 @@ summary {
 <p>This notebook maps the gene identifiers to Entrez IDs.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcInRpZHl2ZXJzZVwiKVxuaW5zdGFsbC5wYWNrYWdlcyhcInJlYWRyXCIpXG5cbmxpYnJhcnkocmVhZHIpXG5cbmRhdGFwYXRoPSd+L0RhdGEvRXhwcmVzc2lvbi9STkFTZXEvQ0NMRS9FLU1UQUItMjc3MC50c3YnXG5kYXRhPXJlYWRfdHN2KGRhdGFwYXRoLCBjb2xfbmFtZXM9VFJVRSlcbmBgYCJ9 -->
-<pre class="r"><code>install.packages(&quot;tidyverse&quot;)
-install.packages(&quot;readr&quot;)
-
-library(readr)
-
-datapath=&#39;~/Data/Expression/RNASeq/CCLE/E-MTAB-2770.tsv&#39;
-data=read_tsv(datapath, col_names=TRUE)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcInJlYWR4bFwiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>install.packages(&quot;readxl&quot;)
+</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSW5zdGFsbGluZyBwYWNrYWdlIGludG8g4oCYL2hvbWUvc2NhbXBpdC9SL3g4Nl82NC1wYy1saW51eC1nbnUtbGlicmFyeS80LjDigJlcbihhcyDigJhsaWLigJkgaXMgdW5zcGVjaWZpZWQpXG50cnlpbmcgVVJMICdodHRwczovL2Nsb3VkLnItcHJvamVjdC5vcmcvc3JjL2NvbnRyaWIvcmVhZHhsXzEuMy4xLnRhci5neidcbkNvbnRlbnQgdHlwZSAnYXBwbGljYXRpb24veC1nemlwJyBsZW5ndGggMjA1NjE2NSBieXRlcyAoMi4wIE1CKVxuPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbmRvd25sb2FkZWQgMi4wIE1CXG5cbiogaW5zdGFsbGluZyAqc291cmNlKiBwYWNrYWdlIOKAmHJlYWR4bOKAmSAuLi5cbioqIHBhY2thZ2Ug4oCYcmVhZHhs4oCZIHN1Y2Nlc3NmdWxseSB1bnBhY2tlZCBhbmQgTUQ1IHN1bXMgY2hlY2tlZFxuKiogdXNpbmcgc3RhZ2VkIGluc3RhbGxhdGlvblxuKiogbGlic1xuIn0= -->
+<pre><code>Installing package into ‘/home/scampit/R/x86_64-pc-linux-gnu-library/4.0’
+(as ‘lib’ is unspecified)
+trying URL &#39;https://cloud.r-project.org/src/contrib/readxl_1.3.1.tar.gz&#39;
+Content type &#39;application/x-gzip&#39; length 2056165 bytes (2.0 MB)
+==================================================
+downloaded 2.0 MB
+
+* installing *source* package ‘readxl’ ...
+** package ‘readxl’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiZysrIC1zdGQ9Z251KysxMSAtSVwiL3Vzci9zaGFyZS9SL2luY2x1ZGVcIiAtRE5ERUJVRyAtSXVuaXggLUkuIC1EUkNQUF9ERUZBVUxUX0lOQ0xVREVfQ0FMTD1mYWxzZSAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9wcm9ncmVzcy9pbmNsdWRlJyAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9SY3BwL2luY2x1ZGUnICAgLWZ2aXNpYmlsaXR5PWhpZGRlbiAtZnBpYyAgLWcgLU8yIC1mZGVidWctcHJlZml4LW1hcD0vYnVpbGQvci1iYXNlLTVpVXRRUy9yLWJhc2UtNC4wLjI9LiAtZnN0YWNrLXByb3RlY3Rvci1zdHJvbmcgLVdmb3JtYXQgLVdlcnJvcj1mb3JtYXQtc2VjdXJpdHkgLVdkYXRlLXRpbWUgLURfRk9SVElGWV9TT1VSQ0U9MiAtZyAgLWMgUmNwcEV4cG9ydHMuY3BwIC1vIFJjcHBFeHBvcnRzLm9cbmcrKyAtc3RkPWdudSsrMTEgLUlcIi91c3Ivc2hhcmUvUi9pbmNsdWRlXCIgLUROREVCVUcgLUl1bml4IC1JLiAtRFJDUFBfREVGQVVMVF9JTkNMVURFX0NBTEw9ZmFsc2UgLUknL2hvbWUvc2NhbXBpdC9SL3g4Nl82NC1wYy1saW51eC1nbnUtbGlicmFyeS80LjAvcHJvZ3Jlc3MvaW5jbHVkZScgLUknL2hvbWUvc2NhbXBpdC9SL3g4Nl82NC1wYy1saW51eC1nbnUtbGlicmFyeS80LjAvUmNwcC9pbmNsdWRlJyAgIC1mdmlzaWJpbGl0eT1oaWRkZW4gLWZwaWMgIC1nIC1PMiAtZmRlYnVnLXByZWZpeC1tYXA9L2J1aWxkL3ItYmFzZS01aVV0UVMvci1iYXNlLTQuMC4yPS4gLWZzdGFjay1wcm90ZWN0b3Itc3Ryb25nIC1XZm9ybWF0IC1XZXJyb3I9Zm9ybWF0LXNlY3VyaXR5IC1XZGF0ZS10aW1lIC1EX0ZPUlRJRllfU09VUkNFPTIgLWcgIC1jIFhsc1dvcmtCb29rLmNwcCAtbyBYbHNXb3JrQm9vay5vXG5nKysgLXN0ZD1nbnUrKzExIC1JXCIvdXNyL3NoYXJlL1IvaW5jbHVkZVwiIC1ETkRFQlVHIC1JdW5peCAtSS4gLURSQ1BQX0RFRkFVTFRfSU5DTFVERV9DQUxMPWZhbHNlIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL3Byb2dyZXNzL2luY2x1ZGUnIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL1JjcHAvaW5jbHVkZScgICAtZnZpc2liaWxpdHk9aGlkZGVuIC1mcGljICAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS9idWlsZC9yLWJhc2UtNWlVdFFTL3ItYmFzZS00LjAuMj0uIC1mc3RhY2stcHJvdGVjdG9yLXN0cm9uZyAtV2Zvcm1hdCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eSAtV2RhdGUtdGltZSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1nICAtYyBYbHNXb3JrU2hlZXQuY3BwIC1vIFhsc1dvcmtTaGVldC5vXG5nKysgLXN0ZD1nbnUrKzExIC1JXCIvdXNyL3NoYXJlL1IvaW5jbHVkZVwiIC1ETkRFQlVHIC1JdW5peCAtSS4gLURSQ1BQX0RFRkFVTFRfSU5DTFVERV9DQUxMPWZhbHNlIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL3Byb2dyZXNzL2luY2x1ZGUnIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL1JjcHAvaW5jbHVkZScgICAtZnZpc2liaWxpdHk9aGlkZGVuIC1mcGljICAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS9idWlsZC9yLWJhc2UtNWlVdFFTL3ItYmFzZS00LjAuMj0uIC1mc3RhY2stcHJvdGVjdG9yLXN0cm9uZyAtV2Zvcm1hdCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eSAtV2RhdGUtdGltZSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1nICAtYyBYbHN4V29ya0Jvb2suY3BwIC1vIFhsc3hXb3JrQm9vay5vXG5nKysgLXN0ZD1nbnUrKzExIC1JXCIvdXNyL3NoYXJlL1IvaW5jbHVkZVwiIC1ETkRFQlVHIC1JdW5peCAtSS4gLURSQ1BQX0RFRkFVTFRfSU5DTFVERV9DQUxMPWZhbHNlIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL3Byb2dyZXNzL2luY2x1ZGUnIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL1JjcHAvaW5jbHVkZScgICAtZnZpc2liaWxpdHk9aGlkZGVuIC1mcGljICAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS9idWlsZC9yLWJhc2UtNWlVdFFTL3ItYmFzZS00LjAuMj0uIC1mc3RhY2stcHJvdGVjdG9yLXN0cm9uZyAtV2Zvcm1hdCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eSAtV2RhdGUtdGltZSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1nICAtYyBYbHN4V29ya1NoZWV0LmNwcCAtbyBYbHN4V29ya1NoZWV0Lm9cbmdjYyAtc3RkPWdudTk5IC1JXCIvdXNyL3NoYXJlL1IvaW5jbHVkZVwiIC1ETkRFQlVHIC1JdW5peCAtSS4gLURSQ1BQX0RFRkFVTFRfSU5DTFVERV9DQUxMPWZhbHNlIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL3Byb2dyZXNzL2luY2x1ZGUnIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL1JjcHAvaW5jbHVkZScgICAtZnZpc2liaWxpdHk9aGlkZGVuIC1mcGljICAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS9idWlsZC9yLWJhc2UtNWlVdFFTL3ItYmFzZS00LjAuMj0uIC1mc3RhY2stcHJvdGVjdG9yLXN0cm9uZyAtV2Zvcm1hdCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eSAtV2RhdGUtdGltZSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1nICAtYyBjcmFuLmMgLW8gY3Jhbi5vXG5nY2MgLXN0ZD1nbnU5OSAtSVwiL3Vzci9zaGFyZS9SL2luY2x1ZGVcIiAtRE5ERUJVRyAtSXVuaXggLUkuIC1EUkNQUF9ERUZBVUxUX0lOQ0xVREVfQ0FMTD1mYWxzZSAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9wcm9ncmVzcy9pbmNsdWRlJyAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9SY3BwL2luY2x1ZGUnICAgLWZ2aXNpYmlsaXR5PWhpZGRlbiAtZnBpYyAgLWcgLU8yIC1mZGVidWctcHJlZml4LW1hcD0vYnVpbGQvci1iYXNlLTVpVXRRUy9yLWJhc2UtNC4wLjI9LiAtZnN0YWNrLXByb3RlY3Rvci1zdHJvbmcgLVdmb3JtYXQgLVdlcnJvcj1mb3JtYXQtc2VjdXJpdHkgLVdkYXRlLXRpbWUgLURfRk9SVElGWV9TT1VSQ0U9MiAtZyAgLWMgZW5kaWFuLmMgLW8gZW5kaWFuLm9cbmdjYyAtc3RkPWdudTk5IC1JXCIvdXNyL3NoYXJlL1IvaW5jbHVkZVwiIC1ETkRFQlVHIC1JdW5peCAtSS4gLURSQ1BQX0RFRkFVTFRfSU5DTFVERV9DQUxMPWZhbHNlIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL3Byb2dyZXNzL2luY2x1ZGUnIC1JJy9ob21lL3NjYW1waXQvUi94ODZfNjQtcGMtbGludXgtZ251LWxpYnJhcnkvNC4wL1JjcHAvaW5jbHVkZScgICAtZnZpc2liaWxpdHk9aGlkZGVuIC1mcGljICAtZyAtTzIgLWZkZWJ1Zy1wcmVmaXgtbWFwPS9idWlsZC9yLWJhc2UtNWlVdFFTL3ItYmFzZS00LjAuMj0uIC1mc3RhY2stcHJvdGVjdG9yLXN0cm9uZyAtV2Zvcm1hdCAtV2Vycm9yPWZvcm1hdC1zZWN1cml0eSAtV2RhdGUtdGltZSAtRF9GT1JUSUZZX1NPVVJDRT0yIC1nICAtYyBvbGUuYyAtbyBvbGUub1xuZ2NjIC1zdGQ9Z251OTkgLUlcIi91c3Ivc2hhcmUvUi9pbmNsdWRlXCIgLUROREVCVUcgLUl1bml4IC1JLiAtRFJDUFBfREVGQVVMVF9JTkNMVURFX0NBTEw9ZmFsc2UgLUknL2hvbWUvc2NhbXBpdC9SL3g4Nl82NC1wYy1saW51eC1nbnUtbGlicmFyeS80LjAvcHJvZ3Jlc3MvaW5jbHVkZScgLUknL2hvbWUvc2NhbXBpdC9SL3g4Nl82NC1wYy1saW51eC1nbnUtbGlicmFyeS80LjAvUmNwcC9pbmNsdWRlJyAgIC1mdmlzaWJpbGl0eT1oaWRkZW4gLWZwaWMgIC1nIC1PMiAtZmRlYnVnLXByZWZpeC1tYXA9L2J1aWxkL3ItYmFzZS01aVV0UVMvci1iYXNlLTQuMC4yPS4gLWZzdGFjay1wcm90ZWN0b3Itc3Ryb25nIC1XZm9ybWF0IC1XZXJyb3I9Zm9ybWF0LXNlY3VyaXR5IC1XZGF0ZS10aW1lIC1EX0ZPUlRJRllfU09VUkNFPTIgLWcgIC1jIHhscy5jIC1vIHhscy5vXG5nY2MgLXN0ZD1nbnU5OSAtSVwiL3Vzci9zaGFyZS9SL2luY2x1ZGVcIiAtRE5ERUJVRyAtSXVuaXggLUkuIC1EUkNQUF9ERUZBVUxUX0lOQ0xVREVfQ0FMTD1mYWxzZSAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9wcm9ncmVzcy9pbmNsdWRlJyAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9SY3BwL2luY2x1ZGUnICAgLWZ2aXNpYmlsaXR5PWhpZGRlbiAtZnBpYyAgLWcgLU8yIC1mZGVidWctcHJlZml4LW1hcD0vYnVpbGQvci1iYXNlLTVpVXRRUy9yLWJhc2UtNC4wLjI9LiAtZnN0YWNrLXByb3RlY3Rvci1zdHJvbmcgLVdmb3JtYXQgLVdlcnJvcj1mb3JtYXQtc2VjdXJpdHkgLVdkYXRlLXRpbWUgLURfRk9SVElGWV9TT1VSQ0U9MiAtZyAgLWMgeGxzdG9vbC5jIC1vIHhsc3Rvb2wub1xuZysrIC1zdGQ9Z251KysxMSAtSVwiL3Vzci9zaGFyZS9SL2luY2x1ZGVcIiAtRE5ERUJVRyAtSXVuaXggLUkuIC1EUkNQUF9ERUZBVUxUX0lOQ0xVREVfQ0FMTD1mYWxzZSAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9wcm9ncmVzcy9pbmNsdWRlJyAtSScvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC9SY3BwL2luY2x1ZGUnICAgLWZ2aXNpYmlsaXR5PWhpZGRlbiAtZnBpYyAgLWcgLU8yIC1mZGVidWctcHJlZml4LW1hcD0vYnVpbGQvci1iYXNlLTVpVXRRUy9yLWJhc2UtNC4wLjI9LiAtZnN0YWNrLXByb3RlY3Rvci1zdHJvbmcgLVdmb3JtYXQgLVdlcnJvcj1mb3JtYXQtc2VjdXJpdHkgLVdkYXRlLXRpbWUgLURfRk9SVElGWV9TT1VSQ0U9MiAtZyAgLWMgemlwLmNwcCAtbyB6aXAub1xuZysrIC1zdGQ9Z251KysxMSAtc2hhcmVkIC1ML3Vzci9saWIvUi9saWIgLVdsLC1Cc3ltYm9saWMtZnVuY3Rpb25zIC1XbCwteixyZWxybyAtbyByZWFkeGwuc28gUmNwcEV4cG9ydHMubyBYbHNXb3JrQm9vay5vIFhsc1dvcmtTaGVldC5vIFhsc3hXb3JrQm9vay5vIFhsc3hXb3JrU2hlZXQubyBjcmFuLm8gZW5kaWFuLm8gb2xlLm8geGxzLm8geGxzdG9vbC5vIHppcC5vIC1ML3Vzci9saWIvUi9saWIgLWxSXG4ifQ== -->
+<pre><code>g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c RcppExports.cpp -o RcppExports.o
+g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c XlsWorkBook.cpp -o XlsWorkBook.o
+g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c XlsWorkSheet.cpp -o XlsWorkSheet.o
+g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c XlsxWorkBook.cpp -o XlsxWorkBook.o
+g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c XlsxWorkSheet.cpp -o XlsxWorkSheet.o
+gcc -std=gnu99 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c cran.c -o cran.o
+gcc -std=gnu99 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c endian.c -o endian.o
+gcc -std=gnu99 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c ole.c -o ole.o
+gcc -std=gnu99 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c xls.c -o xls.o
+gcc -std=gnu99 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c xlstool.c -o xlstool.o
+g++ -std=gnu++11 -I&quot;/usr/share/R/include&quot; -DNDEBUG -Iunix -I. -DRCPP_DEFAULT_INCLUDE_CALL=false -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/progress/include&#39; -I&#39;/home/scampit/R/x86_64-pc-linux-gnu-library/4.0/Rcpp/include&#39;   -fvisibility=hidden -fpic  -g -O2 -fdebug-prefix-map=/build/r-base-5iUtQS/r-base-4.0.2=. -fstack-protector-strong -Wformat -Werror=format-security -Wdate-time -D_FORTIFY_SOURCE=2 -g  -c zip.cpp -o zip.o
+g++ -std=gnu++11 -shared -L/usr/lib/R/lib -Wl,-Bsymbolic-functions -Wl,-z,relro -o readxl.so RcppExports.o XlsWorkBook.o XlsWorkSheet.o XlsxWorkBook.o XlsxWorkSheet.o cran.o endian.o ole.o xls.o xlstool.o zip.o -L/usr/lib/R/lib -lR</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiaW5zdGFsbGluZyB0byAvaG9tZS9zY2FtcGl0L1IveDg2XzY0LXBjLWxpbnV4LWdudS1saWJyYXJ5LzQuMC8wMExPQ0stcmVhZHhsLzAwbmV3L3JlYWR4bC9saWJzXG4qKiBSXG4qKiBpbnN0XG4qKiBieXRlLWNvbXBpbGUgYW5kIHByZXBhcmUgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbioqKiBjb3B5aW5nIGZpZ3VyZXNcbioqIGJ1aWxkaW5nIHBhY2thZ2UgaW5kaWNlc1xuKiogaW5zdGFsbGluZyB2aWduZXR0ZXNcbioqIHRlc3RpbmcgaWYgaW5zdGFsbGVkIHBhY2thZ2UgY2FuIGJlIGxvYWRlZCBmcm9tIHRlbXBvcmFyeSBsb2NhdGlvblxuKiogY2hlY2tpbmcgYWJzb2x1dGUgcGF0aHMgaW4gc2hhcmVkIG9iamVjdHMgYW5kIGR5bmFtaWMgbGlicmFyaWVzXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWQgZnJvbSBmaW5hbCBsb2NhdGlvblxuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBrZWVwcyBhIHJlY29yZCBvZiB0ZW1wb3JhcnkgaW5zdGFsbGF0aW9uIHBhdGhcbiogRE9ORSAocmVhZHhsKVxuXG5UaGUgZG93bmxvYWRlZCBzb3VyY2UgcGFja2FnZXMgYXJlIGluXG5cdOKAmC90bXAvUnRtcG9wZGxlei9kb3dubG9hZGVkX3BhY2thZ2Vz4oCZXG4ifQ== -->
+<pre><code>installing to /home/scampit/R/x86_64-pc-linux-gnu-library/4.0/00LOCK-readxl/00new/readxl/libs
+** R
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (readxl)
+
+The downloaded source packages are in
+    ‘/tmp/Rtmpopdlez/downloaded_packages’</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Let’s also load up Bioconductor and the mapping database:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQmlvY01hbmFnZXI6Omluc3RhbGwoYyhcImhndTEzM3BsdXMyLmRiXCIsIFwib3JnLkhzLmVnLmRiXCIpKVxuXG5gYGAifQ== -->
-<pre class="r"><code>BiocManager::install(c(&quot;hgu133plus2.db&quot;, &quot;org.Hs.eg.db&quot;))
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWYgKCFyZXF1aXJlTmFtZXNwYWNlKFwiQmlvY01hbmFnZXJcIiwgcXVpZXRseSA9IFRSVUUpKVxuICAgIGluc3RhbGwucGFja2FnZXMoXCJCaW9jTWFuYWdlclwiKVxuQmlvY01hbmFnZXI6Omluc3RhbGwodmVyc2lvbiA9IFwiMy4xMVwiKVxuXG5gYGAifQ== -->
+<pre class="r"><code>if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE))
+    install.packages(&quot;BiocManager&quot;)
+BiocManager::install(version = &quot;3.11&quot;)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiQmlvY29uZHVjdG9yIHZlcnNpb24gMy4xMSAoQmlvY01hbmFnZXIgMS4zMC4xMCksIFIgNC4wLjIgKDIwMjAtMDYtMjIpXG5JbnN0YWxsaW5nIHBhY2thZ2UocykgJ2hndTEzM3BsdXMyLmRiJywgJ29yZy5Icy5lZy5kYidcbnRyeWluZyBVUkwgJ2h0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9wYWNrYWdlcy8zLjExL2RhdGEvYW5ub3RhdGlvbi9zcmMvY29udHJpYi9oZ3UxMzNwbHVzMi5kYl8zLjIuMy50YXIuZ3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDIxMzk2NDIgYnl0ZXMgKDIuMCBNQilcbj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG5kb3dubG9hZGVkIDIuMCBNQlxuXG50cnlpbmcgVVJMICdodHRwczovL2Jpb2NvbmR1Y3Rvci5vcmcvcGFja2FnZXMvMy4xMS9kYXRhL2Fubm90YXRpb24vc3JjL2NvbnRyaWIvb3JnLkhzLmVnLmRiXzMuMTEuNC50YXIuZ3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDc5OTU5ODMxIGJ5dGVzICg3Ni4zIE1CKVxuPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbmRvd25sb2FkZWQgNzYuMyBNQlxuXG4qIGluc3RhbGxpbmcgKnNvdXJjZSogcGFja2FnZSDigJhvcmcuSHMuZWcuZGLigJkgLi4uXG4qKiB1c2luZyBzdGFnZWQgaW5zdGFsbGF0aW9uXG4qKiBSXG4qKiBpbnN0XG4qKiBieXRlLWNvbXBpbGUgYW5kIHByZXBhcmUgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbioqIGJ1aWxkaW5nIHBhY2thZ2UgaW5kaWNlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkIGZyb20gdGVtcG9yYXJ5IGxvY2F0aW9uXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWQgZnJvbSBmaW5hbCBsb2NhdGlvblxuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBrZWVwcyBhIHJlY29yZCBvZiB0ZW1wb3JhcnkgaW5zdGFsbGF0aW9uIHBhdGhcbiogRE9ORSAob3JnLkhzLmVnLmRiKVxuKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2Ug4oCYaGd1MTMzcGx1czIuZGLigJkgLi4uXG4qKiB1c2luZyBzdGFnZWQgaW5zdGFsbGF0aW9uXG4qKiBSXG4qKiBpbnN0XG4qKiBieXRlLWNvbXBpbGUgYW5kIHByZXBhcmUgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbioqIGJ1aWxkaW5nIHBhY2thZ2UgaW5kaWNlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkIGZyb20gdGVtcG9yYXJ5IGxvY2F0aW9uXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWQgZnJvbSBmaW5hbCBsb2NhdGlvblxuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBrZWVwcyBhIHJlY29yZCBvZiB0ZW1wb3JhcnkgaW5zdGFsbGF0aW9uIHBhdGhcbiogRE9ORSAoaGd1MTMzcGx1czIuZGIpXG5cblRoZSBkb3dubG9hZGVkIHNvdXJjZSBwYWNrYWdlcyBhcmUgaW5cblx04oCYL3RtcC9SdG1wSHJaZ2EzL2Rvd25sb2FkZWRfcGFja2FnZXPigJlcbkluc3RhbGxhdGlvbiBwYXRoIG5vdCB3cml0ZWFibGUsIHVuYWJsZSB0byB1cGRhdGUgcGFja2FnZXM6IGZvcmVpZ24sIG5sbWUsXG4gIHNwYXRpYWwsIHN1cnZpdmFsXG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiQmlvY29uZHVjdG9yIHZlcnNpb24gMy4xMSAoQmlvY01hbmFnZXIgMS4zMC4xMCksIFIgNC4wLjIgKDIwMjAtMDYtMjIpXG5JbnN0YWxsYXRpb24gcGF0aCBub3Qgd3JpdGVhYmxlLCB1bmFibGUgdG8gdXBkYXRlIHBhY2thZ2VzOiBmb3JlaWduLCBubG1lLCBzcGF0aWFsLCBzdXJ2aXZhbFxuIn0= -->
+<pre><code>Bioconductor version 3.11 (BiocManager 1.30.10), R 4.0.2 (2020-06-22)
+Installation path not writeable, unable to update packages: foreign, nlme, spatial, survival</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuQmlvY01hbmFnZXI6Omluc3RhbGwoYyhcImhndTEzM3BsdXMyLmRiXCIsIFwib3JnLkhzLmVnLmRiXCIpKVxuYGBgIn0= -->
+<pre class="r"><code>BiocManager::install(c(&quot;hgu133plus2.db&quot;, &quot;org.Hs.eg.db&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiQmlvY29uZHVjdG9yIHZlcnNpb24gMy4xMSAoQmlvY01hbmFnZXIgMS4zMC4xMCksIFIgNC4wLjIgKDIwMjAtMDYtMjIpXG5JbnN0YWxsaW5nIHBhY2thZ2UocykgJ2hndTEzM3BsdXMyLmRiJywgJ29yZy5Icy5lZy5kYidcbnRyeWluZyBVUkwgJ2h0dHBzOi8vYmlvY29uZHVjdG9yLm9yZy9wYWNrYWdlcy8zLjExL2RhdGEvYW5ub3RhdGlvbi9zcmMvY29udHJpYi9oZ3UxMzNwbHVzMi5kYl8zLjIuMy50YXIuZ3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDIxMzk2NDIgYnl0ZXMgKDIuMCBNQilcbj09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09XG5kb3dubG9hZGVkIDIuMCBNQlxuXG50cnlpbmcgVVJMICdodHRwczovL2Jpb2NvbmR1Y3Rvci5vcmcvcGFja2FnZXMvMy4xMS9kYXRhL2Fubm90YXRpb24vc3JjL2NvbnRyaWIvb3JnLkhzLmVnLmRiXzMuMTEuNC50YXIuZ3onXG5Db250ZW50IHR5cGUgJ2FwcGxpY2F0aW9uL3gtZ3ppcCcgbGVuZ3RoIDc5OTU5ODMxIGJ5dGVzICg3Ni4zIE1CKVxuPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT1cbmRvd25sb2FkZWQgNzYuMyBNQlxuXG4qIGluc3RhbGxpbmcgKnNvdXJjZSogcGFja2FnZSDigJhvcmcuSHMuZWcuZGLigJkgLi4uXG4qKiB1c2luZyBzdGFnZWQgaW5zdGFsbGF0aW9uXG4qKiBSXG4qKiBpbnN0XG4qKiBieXRlLWNvbXBpbGUgYW5kIHByZXBhcmUgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbioqIGJ1aWxkaW5nIHBhY2thZ2UgaW5kaWNlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkIGZyb20gdGVtcG9yYXJ5IGxvY2F0aW9uXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWQgZnJvbSBmaW5hbCBsb2NhdGlvblxuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBrZWVwcyBhIHJlY29yZCBvZiB0ZW1wb3JhcnkgaW5zdGFsbGF0aW9uIHBhdGhcbiogRE9ORSAob3JnLkhzLmVnLmRiKVxuKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2Ug4oCYaGd1MTMzcGx1czIuZGLigJkgLi4uXG4qKiB1c2luZyBzdGFnZWQgaW5zdGFsbGF0aW9uXG4qKiBSXG4qKiBpbnN0XG4qKiBieXRlLWNvbXBpbGUgYW5kIHByZXBhcmUgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbioqIGJ1aWxkaW5nIHBhY2thZ2UgaW5kaWNlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkIGZyb20gdGVtcG9yYXJ5IGxvY2F0aW9uXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWQgZnJvbSBmaW5hbCBsb2NhdGlvblxuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBrZWVwcyBhIHJlY29yZCBvZiB0ZW1wb3JhcnkgaW5zdGFsbGF0aW9uIHBhdGhcbiogRE9ORSAoaGd1MTMzcGx1czIuZGIpXG5cblRoZSBkb3dubG9hZGVkIHNvdXJjZSBwYWNrYWdlcyBhcmUgaW5cblx04oCYL3RtcC9SdG1wb3BkbGV6L2Rvd25sb2FkZWRfcGFja2FnZXPigJlcbkluc3RhbGxhdGlvbiBwYXRoIG5vdCB3cml0ZWFibGUsIHVuYWJsZSB0byB1cGRhdGUgcGFja2FnZXM6IGZvcmVpZ24sIG5sbWUsIHNwYXRpYWwsIHN1cnZpdmFsXG4ifQ== -->
 <pre><code>Bioconductor version 3.11 (BiocManager 1.30.10), R 4.0.2 (2020-06-22)
 Installing package(s) &#39;hgu133plus2.db&#39;, &#39;org.Hs.eg.db&#39;
 trying URL &#39;https://bioconductor.org/packages/3.11/data/annotation/src/contrib/hgu133plus2.db_3.2.3.tar.gz&#39;
@@ -1811,14 +1861,13 @@ downloaded 76.3 MB
 * DONE (hgu133plus2.db)
 
 The downloaded source packages are in
-    ‘/tmp/RtmpHrZga3/downloaded_packages’
-Installation path not writeable, unable to update packages: foreign, nlme,
-  spatial, survival</code></pre>
+    ‘/tmp/Rtmpopdlez/downloaded_packages’
+Installation path not writeable, unable to update packages: foreign, nlme, spatial, survival</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShoZ3UxMzNwbHVzMi5kYilcbmBgYCJ9 -->
 <pre class="r"><code>library(hgu133plus2.db)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBBbm5vdGF0aW9uRGJpXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IHN0YXRzNFxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBCaW9jR2VuZXJpY3NcbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogcGFyYWxsZWxcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmEJpb2NHZW5lcmljc+KAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6cGFyYWxsZWzigJk6XG5cbiAgICBjbHVzdGVyQXBwbHksIGNsdXN0ZXJBcHBseUxCLCBjbHVzdGVyQ2FsbCwgY2x1c3RlckV2YWxRLFxuICAgIGNsdXN0ZXJFeHBvcnQsIGNsdXN0ZXJNYXAsIHBhckFwcGx5LCBwYXJDYXBwbHksIHBhckxhcHBseSxcbiAgICBwYXJMYXBwbHlMQiwgcGFyUmFwcGx5LCBwYXJTYXBwbHksIHBhclNhcHBseUxCXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpzdGF0c+KAmTpcblxuICAgIElRUiwgbWFkLCBzZCwgdmFyLCB4dGFic1xuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6YmFzZeKAmTpcblxuICAgIGFueUR1cGxpY2F0ZWQsIGFwcGVuZCwgYXMuZGF0YS5mcmFtZSwgYmFzZW5hbWUsIGNiaW5kLCBjb2xuYW1lcyxcbiAgICBkaXJuYW1lLCBkby5jYWxsLCBkdXBsaWNhdGVkLCBldmFsLCBldmFscSwgRmlsdGVyLCBGaW5kLCBnZXQsIGdyZXAsXG4gICAgZ3JlcGwsIGludGVyc2VjdCwgaXMudW5zb3J0ZWQsIGxhcHBseSwgTWFwLCBtYXBwbHksIG1hdGNoLCBtZ2V0LFxuICAgIG9yZGVyLCBwYXN0ZSwgcG1heCwgcG1heC5pbnQsIHBtaW4sIHBtaW4uaW50LCBQb3NpdGlvbiwgcmFuayxcbiAgICByYmluZCwgUmVkdWNlLCByb3duYW1lcywgc2FwcGx5LCBzZXRkaWZmLCBzb3J0LCB0YWJsZSwgdGFwcGx5LFxuICAgIHVuaW9uLCB1bmlxdWUsIHVuc3BsaXQsIHdoaWNoLCB3aGljaC5tYXgsIHdoaWNoLm1pblxuXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IEJpb2Jhc2VcbldlbGNvbWUgdG8gQmlvY29uZHVjdG9yXG5cbiAgICBWaWduZXR0ZXMgY29udGFpbiBpbnRyb2R1Y3RvcnkgbWF0ZXJpYWw7IHZpZXcgd2l0aFxuICAgICdicm93c2VWaWduZXR0ZXMoKScuIFRvIGNpdGUgQmlvY29uZHVjdG9yLCBzZWVcbiAgICAnY2l0YXRpb24oXCJCaW9iYXNlXCIpJywgYW5kIGZvciBwYWNrYWdlcyAnY2l0YXRpb24oXCJwa2duYW1lXCIpJy5cblxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBJUmFuZ2VzXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IFM0VmVjdG9yc1xuXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYUzRWZWN0b3Jz4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0IGlzIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6YmFzZeKAmTpcblxuICAgIGV4cGFuZC5ncmlkXG5cbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogb3JnLkhzLmVnLmRiXG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBBbm5vdGF0aW9uRGJpXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IHN0YXRzNFxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBCaW9jR2VuZXJpY3NcbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogcGFyYWxsZWxcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmEJpb2NHZW5lcmljc+KAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6cGFyYWxsZWzigJk6XG5cbiAgICBjbHVzdGVyQXBwbHksIGNsdXN0ZXJBcHBseUxCLCBjbHVzdGVyQ2FsbCwgY2x1c3RlckV2YWxRLCBjbHVzdGVyRXhwb3J0LCBjbHVzdGVyTWFwLCBwYXJBcHBseSwgcGFyQ2FwcGx5LCBwYXJMYXBwbHksIHBhckxhcHBseUxCLCBwYXJSYXBwbHksIHBhclNhcHBseSxcbiAgICBwYXJTYXBwbHlMQlxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6c3RhdHPigJk6XG5cbiAgICBJUVIsIG1hZCwgc2QsIHZhciwgeHRhYnNcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOmJhc2XigJk6XG5cbiAgICBhbnlEdXBsaWNhdGVkLCBhcHBlbmQsIGFzLmRhdGEuZnJhbWUsIGJhc2VuYW1lLCBjYmluZCwgY29sbmFtZXMsIGRpcm5hbWUsIGRvLmNhbGwsIGR1cGxpY2F0ZWQsIGV2YWwsIGV2YWxxLCBGaWx0ZXIsIEZpbmQsIGdldCwgZ3JlcCwgZ3JlcGwsIGludGVyc2VjdCxcbiAgICBpcy51bnNvcnRlZCwgbGFwcGx5LCBNYXAsIG1hcHBseSwgbWF0Y2gsIG1nZXQsIG9yZGVyLCBwYXN0ZSwgcG1heCwgcG1heC5pbnQsIHBtaW4sIHBtaW4uaW50LCBQb3NpdGlvbiwgcmFuaywgcmJpbmQsIFJlZHVjZSwgcm93bmFtZXMsIHNhcHBseSwgc2V0ZGlmZixcbiAgICBzb3J0LCB0YWJsZSwgdGFwcGx5LCB1bmlvbiwgdW5pcXVlLCB1bnNwbGl0LCB3aGljaCwgd2hpY2gubWF4LCB3aGljaC5taW5cblxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBCaW9iYXNlXG5XZWxjb21lIHRvIEJpb2NvbmR1Y3RvclxuXG4gICAgVmlnbmV0dGVzIGNvbnRhaW4gaW50cm9kdWN0b3J5IG1hdGVyaWFsOyB2aWV3IHdpdGggJ2Jyb3dzZVZpZ25ldHRlcygpJy4gVG8gY2l0ZSBCaW9jb25kdWN0b3IsIHNlZSAnY2l0YXRpb24oXCJCaW9iYXNlXCIpJywgYW5kIGZvciBwYWNrYWdlc1xuICAgICdjaXRhdGlvbihcInBrZ25hbWVcIiknLlxuXG5Mb2FkaW5nIHJlcXVpcmVkIHBhY2thZ2U6IElSYW5nZXNcbkxvYWRpbmcgcmVxdWlyZWQgcGFja2FnZTogUzRWZWN0b3JzXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDigJhTNFZlY3RvcnPigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpiYXNl4oCZOlxuXG4gICAgZXhwYW5kLmdyaWRcblxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBvcmcuSHMuZWcuZGJcbiJ9 -->
 <pre><code>Loading required package: AnnotationDbi
 Loading required package: stats4
 Loading required package: BiocGenerics
@@ -1828,9 +1877,8 @@ Attaching package: ‘BiocGenerics’
 
 The following objects are masked from ‘package:parallel’:
 
-    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
-    clusterExport, clusterMap, parApply, parCapply, parLapply,
-    parLapplyLB, parRapply, parSapply, parSapplyLB
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ, clusterExport, clusterMap, parApply, parCapply, parLapply, parLapplyLB, parRapply, parSapply,
+    parSapplyLB
 
 The following objects are masked from ‘package:stats’:
 
@@ -1838,19 +1886,15 @@ The following objects are masked from ‘package:stats’:
 
 The following objects are masked from ‘package:base’:
 
-    anyDuplicated, append, as.data.frame, basename, cbind, colnames,
-    dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep,
-    grepl, intersect, is.unsorted, lapply, Map, mapply, match, mget,
-    order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank,
-    rbind, Reduce, rownames, sapply, setdiff, sort, table, tapply,
-    union, unique, unsplit, which, which.max, which.min
+    anyDuplicated, append, as.data.frame, basename, cbind, colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find, get, grep, grepl, intersect,
+    is.unsorted, lapply, Map, mapply, match, mget, order, paste, pmax, pmax.int, pmin, pmin.int, Position, rank, rbind, Reduce, rownames, sapply, setdiff,
+    sort, table, tapply, union, unique, unsplit, which, which.max, which.min
 
 Loading required package: Biobase
 Welcome to Bioconductor
 
-    Vignettes contain introductory material; view with
-    &#39;browseVignettes()&#39;. To cite Bioconductor, see
-    &#39;citation(&quot;Biobase&quot;)&#39;, and for packages &#39;citation(&quot;pkgname&quot;)&#39;.
+    Vignettes contain introductory material; view with &#39;browseVignettes()&#39;. To cite Bioconductor, see &#39;citation(&quot;Biobase&quot;)&#39;, and for packages
+    &#39;citation(&quot;pkgname&quot;)&#39;.
 
 Loading required package: IRanges
 Loading required package: S4Vectors
@@ -1870,42 +1914,47 @@ Loading required package: org.Hs.eg.db</code></pre>
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZHJvcHMgPSBjKFwiRU5TRU1CTFwiLCBcIkVOVFJFWklEXCIsIFwiU1lNQk9MXCIsIFwiR2VuZSBOYW1lXCIpXG5kZiA9IGRmWywgLWRyb3BzXVxuXG5gYGAifQ== -->
-<pre class="r"><code>drops = c(&quot;ENSEMBL&quot;, &quot;ENTREZID&quot;, &quot;SYMBOL&quot;, &quot;Gene Name&quot;)
-df = df[, -drops]
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZWZmZWN0c2l6ZSA9IHJlYWR4bChmaWxlbmFtZSwgc2hlZXQ9c2hlZXRfbmFtZSlcblxuYGBgIn0= -->
+<pre class="r"><code>effectsize = readxl(filename, sheet=sheet_name)
 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gLWRyb3BzIDogaW52YWxpZCBhcmd1bWVudCB0byB1bmFyeSBvcGVyYXRvclxuIn0= -->
-<pre><code>Error in -drops : invalid argument to unary operator</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3IgaW4gcmVhZHhsKGZpbGVuYW1lLCBzaGVldCA9IHNoZWV0X25hbWUpIDogXG4gIGNvdWxkIG5vdCBmaW5kIGZ1bmN0aW9uIFwicmVhZHhsXCJcbiJ9 -->
+<pre><code>Error in readxl(filename, sheet = sheet_name) : 
+  could not find function &quot;readxl&quot;</code></pre>
 <!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuTkFcbmBgYCJ9 -->
+<pre class="r"><code>NA</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Save all data as Excel file</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcInhsc3hcIilcbmxpYnJhcnkoXCJ4bHN4XCIpXG5cbmZpbGVuYW1lID0gXCJcIlxuXG53cml0ZS54bHN4KGdlbmVJRHMsIGZpbGVuYW1lLCBcbiAgICAgICAgICAgc2hlZXROYW1lPVwiR2VuZUlEXCIsXG4gICAgICAgICAgIGNvbC5uYW1lcz1UUlVFLCByb3cubmFtZXM9RkFMU0UpXG5cbndyaXRlLnhsc3goZGYsIGZpbGVuYW1lLCBcbiAgICAgICAgICAgc2hlZXROYW1lPVwiRXNldFwiLCBcbiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSlcblxud3JpdGUueGxzeChjb2xzLCBmaWxlbmFtZSwgXG4gICAgICAgICAgIHNoZWV0TmFtZT1cIkNlbGxJRHNcIixcbiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSlcblxuYGBgIn0= -->
-<pre class="r"><code>install.packages(&quot;xlsx&quot;)
-library(&quot;xlsx&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYGBgclxuaW5zdGFsbC5wYWNrYWdlcyhcXHhsc3hcXClcbmxpYnJhcnkoXFx4bHN4XFwpXG5cbmZpbGVuYW1lID0gXFxcXFxuXG53cml0ZS54bHN4KGdlbmVJRHMsIGZpbGVuYW1lLCBcbiAgICAgICAgICAgc2hlZXROYW1lPVxcR2VuZUlEXFwsXG4gICAgICAgICAgIGNvbC5uYW1lcz1UUlVFLCByb3cubmFtZXM9RkFMU0UpXG5cbndyaXRlLnhsc3goZGYsIGZpbGVuYW1lLCBcbiAgICAgICAgICAgc2hlZXROYW1lPVxcRXNldFxcLCBcbiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSlcblxud3JpdGUueGxzeChjb2xzLCBmaWxlbmFtZSwgXG4gICAgICAgICAgIHNoZWV0TmFtZT1cXENlbGxJRHNcXCxcbiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSlcblxuYGBgXG5gYGAifQ== -->
+<pre class="r"><code>```r
+install.packages(\xlsx\)
+library(\xlsx\)
 
-filename = &quot;&quot;
+filename = \\
 
 write.xlsx(geneIDs, filename, 
-           sheetName=&quot;GeneID&quot;,
+           sheetName=\GeneID\,
            col.names=TRUE, row.names=FALSE)
 
 write.xlsx(df, filename, 
-           sheetName=&quot;Eset&quot;, 
+           sheetName=\Eset\, 
            col.names=TRUE, row.names=FALSE)
 
 write.xlsx(cols, filename, 
-           sheetName=&quot;CellIDs&quot;,
+           sheetName=\CellIDs\,
            col.names=TRUE, row.names=FALSE)
 </code></pre>
+<p>```</p>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvY2VzcyBDQ0xFIFJOQVNlcSBkYXRhc2V0IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCgojIFN1bW1hcnkKVGhpcyBub3RlYm9vayBtYXBzIHRoZSBnZW5lIGlkZW50aWZpZXJzIHRvIEVudHJleiBJRHMuCgpgYGB7cn0KaW5zdGFsbC5wYWNrYWdlcygidGlkeXZlcnNlIikKaW5zdGFsbC5wYWNrYWdlcygicmVhZHIiKQoKbGlicmFyeShyZWFkcikKCmRhdGFwYXRoPSd+L0RhdGEvRXhwcmVzc2lvbi9STkFTZXEvQ0NMRS9FLU1UQUItMjc3MC50c3YnCmRhdGE9cmVhZF90c3YoZGF0YXBhdGgsIGNvbF9uYW1lcz1UUlVFKQpgYGAKCkxldCdzIGFsc28gbG9hZCB1cCBCaW9jb25kdWN0b3IgYW5kIHRoZSBtYXBwaW5nIGRhdGFiYXNlOgoKYGBge3J9CgppZiAoIXJlcXVpcmVOYW1lc3BhY2UoIkJpb2NNYW5hZ2VyIiwgcXVpZXRseSA9IFRSVUUpKQogICAgaW5zdGFsbC5wYWNrYWdlcygiQmlvY01hbmFnZXIiKQpCaW9jTWFuYWdlcjo6aW5zdGFsbCh2ZXJzaW9uID0gIjMuMTEiKQoKQmlvY01hbmFnZXI6Omluc3RhbGwoYygiaGd1MTMzcGx1czIuZGIiLCAib3JnLkhzLmVnLmRiIikpCmxpYnJhcnkoaGd1MTMzcGx1czIuZGIpCmxpYnJhcnkob3JnLkhzLmVnLmRiKQoKYGBgCgpgYGB7cn0KIyBDcmVhdGUgYSBtYXAgb2YgdGhlIHByb2JlcyB0byBFbnRyZXogYW5kIGdlbmUgc3ltYm9scwptYXAgPSBzZWxlY3QoaGd1MTMzcGx1czIuZGIsCiAgICAgICAgICAgICBrZXl0eXBlPSJFTlNFTUJMIiwKICAgICAgICAgICAgIGtleXM9dW5saXN0KGFzLmxpc3QoZGF0YVsiR2VuZSBJRCJdKSwgdXNlLm5hbWVzPUZBTFNFKSwgCiAgICAgICAgICAgICBjb2x1bW5zID0gYygnRU5UUkVaSUQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgICdTWU1CT0wnKQogICAgICAgICAgICAgKQoKZGYgPSBtZXJnZShtYXAsIGRhdGEsIGJ5Lng9J0VOU0VNQkwnLCBieS55PSdHZW5lIElEJykKCiMgR2V0IGdlbmUgaWRlbnRpZmllcnMKZ2VuZUlEcyA9IGRmWywgYygiRU5TRU1CTCIsICJFTlRSRVpJRCIsICJHZW5lIE5hbWUiKV0KCgojIEdldCByYXcgZGF0YQpkcm9wcyA9IGMoIkVOU0VNQkwiLCAiRU5UUkVaSUQiLCAiU1lNQk9MIiwgIkdlbmUgTmFtZSIpCmRmID0gZGZbLCAtYygxOjQpXQoKIyBHZXQgVGlzc3VlIGFuZCBDZWxsIExpbmUgbmFtZXMKY29scyA9IGNvbG5hbWVzKGRmKQpjb2xzID0gY29sc1s1Omxlbmd0aChjb2xzKV0KY29scyA9IGFzLmRhdGEuZnJhbWUoY29scykKCmxpYnJhcnkodGlkeXIpCmNvbHMgPSBzZXBhcmF0ZShkYXRhPWNvbHMsIGNvbD1jb2xzLCBpbnRvPWMoIlRpc3N1ZSIsICJDZWxsIExpbmUiKSwgc2VwPSIsICIpCmBgYAoKU2F2ZSBhbGwgZGF0YSBhcyBFeGNlbCBmaWxlCgpgYGB7cn0KaW5zdGFsbC5wYWNrYWdlcygieGxzeCIpCmxpYnJhcnkoInhsc3giKQoKZmlsZW5hbWUgPSAiIgoKd3JpdGUueGxzeChnZW5lSURzLCBmaWxlbmFtZSwgCiAgICAgICAgICAgc2hlZXROYW1lPSJHZW5lSUQiLAogICAgICAgICAgIGNvbC5uYW1lcz1UUlVFLCByb3cubmFtZXM9RkFMU0UpCgp3cml0ZS54bHN4KGRmLCBmaWxlbmFtZSwgCiAgICAgICAgICAgc2hlZXROYW1lPSJFc2V0IiwgCiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSkKCndyaXRlLnhsc3goY29scywgZmlsZW5hbWUsIAogICAgICAgICAgIHNoZWV0TmFtZT0iQ2VsbElEcyIsCiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSkKCmBgYA==</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvY2VzcyBDQ0xFIFJOQVNlcSBkYXRhc2V0IgpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sKLS0tCgojIFN1bW1hcnkKVGhpcyBub3RlYm9vayBtYXBzIHRoZSBnZW5lIGlkZW50aWZpZXJzIHRvIEVudHJleiBJRHMuCgpgYGB7cn0KaW5zdGFsbC5wYWNrYWdlcygidGlkeXZlcnNlIikKaW5zdGFsbC5wYWNrYWdlcygicmVhZHhsIikKCmxpYnJhcnkocmVhZHhsKQpgYGAKCkxldCdzIGFsc28gbG9hZCB1cCBCaW9jb25kdWN0b3IgYW5kIHRoZSBtYXBwaW5nIGRhdGFiYXNlOgoKYGBge3J9CgppZiAoIXJlcXVpcmVOYW1lc3BhY2UoIkJpb2NNYW5hZ2VyIiwgcXVpZXRseSA9IFRSVUUpKQogICAgaW5zdGFsbC5wYWNrYWdlcygiQmlvY01hbmFnZXIiKQpCaW9jTWFuYWdlcjo6aW5zdGFsbCh2ZXJzaW9uID0gIjMuMTEiKQoKQmlvY01hbmFnZXI6Omluc3RhbGwoYygiaGd1MTMzcGx1czIuZGIiLCAib3JnLkhzLmVnLmRiIikpCmxpYnJhcnkoaGd1MTMzcGx1czIuZGIpCmxpYnJhcnkob3JnLkhzLmVnLmRiKQoKYGBgCgpgYGB7cn0KCmZpbGVuYW1lID0gIn4vRGF0YS9STkFTZXEvQ0NMRS9Qcm9jZXNzZWRfQ0NMRS54bHN4IgpzaGVldF9uYW1lID0gIkVmZmVjdFNpemUiCmVmZmVjdHNpemUgPSByZWFkX2V4Y2VsKGZpbGVuYW1lLCBzaGVldD1zaGVldF9uYW1lKQoKc2hlZXRfbmFtZT0iUHZhbHVlIgpwdmFsdWUgPXJlYWR4bChmaWxlbmFtZSwgc2hlZXQ9c2hlZXRfbmFtZSkKIyBDcmVhdGUgYSBtYXAgb2YgdGhlIHByb2JlcyB0byBFbnRyZXogYW5kIGdlbmUgc3ltYm9scwptYXAgPSBzZWxlY3QoaGd1MTMzcGx1czIuZGIsCiAgICAgICAgICAgICBrZXl0eXBlPSJFTlNFTUJMIiwKICAgICAgICAgICAgIGtleXM9dW5saXN0KGFzLmxpc3QoZGF0YVsiR2VuZSBJRCJdKSwgdXNlLm5hbWVzPUZBTFNFKSwgCiAgICAgICAgICAgICBjb2x1bW5zID0gYygnRU5UUkVaSUQnLCAKICAgICAgICAgICAgICAgICAgICAgICAgICdTWU1CT0wnKQogICAgICAgICAgICAgKQoKZGYgPSBtZXJnZShtYXAsIGRhdGEsIGJ5Lng9J0VOU0VNQkwnLCBieS55PSdHZW5lIElEJykKCiMgR2V0IGdlbmUgaWRlbnRpZmllcnMKZ2VuZUlEcyA9IGRmWywgYygiRU5TRU1CTCIsICJFTlRSRVpJRCIsICJHZW5lIE5hbWUiKV0KCgojIEdldCByYXcgZGF0YQpkcm9wcyA9IGMoIkVOU0VNQkwiLCAiRU5UUkVaSUQiLCAiU1lNQk9MIiwgIkdlbmUgTmFtZSIpCmRmID0gZGZbLCAtYygxOjQpXQoKIyBHZXQgVGlzc3VlIGFuZCBDZWxsIExpbmUgbmFtZXMKY29scyA9IGNvbG5hbWVzKGRmKQpjb2xzID0gY29sc1s1Omxlbmd0aChjb2xzKV0KY29scyA9IGFzLmRhdGEuZnJhbWUoY29scykKCmxpYnJhcnkodGlkeXIpCmNvbHMgPSBzZXBhcmF0ZShkYXRhPWNvbHMsIGNvbD1jb2xzLCBpbnRvPWMoIlRpc3N1ZSIsICJDZWxsIExpbmUiKSwgc2VwPSIsICIpCmBgYAoKU2F2ZSBhbGwgZGF0YSBhcyBFeGNlbCBmaWxlCgpgYGB7cn0KaW5zdGFsbC5wYWNrYWdlcygieGxzeCIpCmxpYnJhcnkoInhsc3giKQoKZmlsZW5hbWUgPSAiIgoKd3JpdGUueGxzeChnZW5lSURzLCBmaWxlbmFtZSwgCiAgICAgICAgICAgc2hlZXROYW1lPSJHZW5lSUQiLAogICAgICAgICAgIGNvbC5uYW1lcz1UUlVFLCByb3cubmFtZXM9RkFMU0UpCgp3cml0ZS54bHN4KGRmLCBmaWxlbmFtZSwgCiAgICAgICAgICAgc2hlZXROYW1lPSJFc2V0IiwgCiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSkKCndyaXRlLnhsc3goY29scywgZmlsZW5hbWUsIAogICAgICAgICAgIHNoZWV0TmFtZT0iQ2VsbElEcyIsCiAgICAgICAgICAgY29sLm5hbWVzPVRSVUUsIHJvdy5uYW1lcz1GQUxTRSkKCmBgYA==</div>
 
 
 
