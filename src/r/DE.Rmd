@@ -1,0 +1,35 @@
+---
+title: "Differential expression analysis"
+author: "Scott Campit"
+output: html_notebook
+---
+
+# Summary
+This notebook performs differential expression analysis for various datasets. 
+
+
+## Cancer Cell Line Encyclopedia (CCLE)
+
+
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.11")
+BiocManager::install("edgeR")
+
+library(edgeR)
+
+install.packages("tidyverse")
+install.packages("readr")
+
+library(readr)
+
+
+```
+First, let's load the table with the gene counts.
+
+```{r}
+filepath = '~/Data/Expression/RNASeq/CCLE/CCLE_counts.tsv'
+
+```
+
