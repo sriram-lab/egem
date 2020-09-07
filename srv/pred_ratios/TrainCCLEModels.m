@@ -31,6 +31,7 @@ load Ratio_data.mat
 
 % Set the training size and the random number generator for the
 % trainTestSplit function.
+parpool;
 randomState  = 'default';
 trainingSize = 0.8;
 data         = trainTestSplit(GCP_norm, MET_norm, ...
