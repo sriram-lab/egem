@@ -106,7 +106,7 @@ envs/
 .mypy_cache/
 
 # Directories
-srv/
+#srv/
 
 # Data
 
