@@ -17,77 +17,16 @@ This bit of code mounts Drive to the Colab notebook, and writes in an accessory 
 import pandas as pd
 import numpy as np
 
-# Load relevant libraries for Google Colab
-from google.colab import auth
-auth.authenticate_user()
-
-# Allows us to read in Google Sheets via url
-import gspread
-from oauth2client.client import GoogleCredentials
-gc = gspread.authorize(GoogleCredentials.get_application_default())
-
-# Mount Google Drive, which will allow you to read in files within your Google 
-# Drive if you wish to repurpose this for other datasets
-from google.colab import drive
-drive.mount('/content/drive')
-
-"""## Accessory functions
-I use this code to read in various Google sheets as Pandas dataframes. So here's a function that simplifies this operation by a lot.
-"""
-
-def read_gsheet(url='', sheetname=''):
-  """
-  read_gsheet reads in a Google sheet via the shared url and sheetname, and 
-  outputs a pandas dataframe.
-
-  params:
-    url:       A string containing the url to the Google sheet.
-    sheetname: A string containing the sheet name to be read in.
-|
-  return:
-    df:        A Pandas dataframe of the data set.
-
-  """
-  # Read in Google sheet data
-  wb = gc.open_by_url(url)
-  wks = wb.worksheet(sheetname)
-  data = wks.get_all_values()
-
-  # Construct dataframe with the first row as column names
-  df = pd.DataFrame(data)
-  header = df.iloc[0]
-  df = df[1:]
-  df.columns = header
-  
-  return df
-
-def save_gsheet(df, url='', sheetname=''):
-  """
-  save_gsheet saves a dataframe to a Google sheet using a url and a specified
-  sheetname.
-
-  :params df:        A pandas dataframe.
-  :params url:       A string of the url to save the pandas dataframe data in.
-  :params sheetname: A string of the sheet.
-  """
-  
-  gc = gspread.authorize(GoogleCredentials.get_application_default())
-  wb = gc.open_by_url(url)
-  wb = wb.add_worksheet(title=sheetname, 
-                        rows=str(df.shape[0]), 
-                        cols=str(df.shape[1]))
-  set_with_dataframe(wb, df)
-
 """# Load datasets
 Now let's load the GCP datasets we'll be computing ratios for. Right now, we'll compute the following ratios:
   * Cancer Cell Line Encyclopedia
   * LeRoy et al., 2012
 """
 
-gcp_url = 'https://docs.google.com/spreadsheets/d/1eRwYUZve16ALg-DvwAooWPvMJfRn8j6ggUp-HVDb84A/edit?usp=sharing'
-met_path = '/content/drive/My Drive/Work/Data/Metabolomics/CCLE/CCLE_ALL_Ratios.csv'
+gcp_path = '/nfs/turbo/umms-csriram/scampit/Data/Proteomics/CCLE/CCLE Global Chromatin Profiles.xlsx'
+met_path = '/nfs/turbo/umms-csriram/scampit/Data/Metabolomics/CCLE/CCLE_ALL_Ratios.csv'
 
-GCP = read_gsheet(url=gcp_url, sheetname='All Ratios')
+GCP = pd.read_excel(gcp_path, 'All Ratios')
 MET = pd.read_csv(met_path)
 
 print(GCP.shape)
@@ -125,21 +64,11 @@ metabolites = list(MET.columns)
 gcps = list(GCP.columns)
 """
 
-
-
 from sklearn.preprocessing import quantile_transform
 from sklearn.preprocessing import robust_scale
 from scipy.stats import zscore
 GCP_norm = GCP
 MET_norm = zscore(MET, axis=1)
-
-"""# SANITY CHECK: Plot the data distributions for the metabolites and histone ratios"""
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-plt.figure(figsize=(12, 12))
-sns.distplot(GCP, bins=100)
-sns.distplot(MET_norm, bins=100)
 
 """# Cancer cell line encyclopedia GCP -> Metabolism models
 First, let's split the data into training and test sets.
@@ -185,14 +114,9 @@ We'll train the following ML models:
 """
 
 # ML models
-!pip install scikit-optimize
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import GradientBoostingRegressor
-#from sklearn.ensemble import GaussianProcessRegressor
 from sklearn.ensemble import ExtraTreesRegressor
-
-# XGBoost
-!pip install xgboost
 import xgboost as xgb
 
 # Accessory functions
@@ -280,7 +204,7 @@ for i in range(Ytrain.shape[1]):
 Ensure model persistence by saving the serialized version of the model
 """
 
-model_path='/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/rf.pkl'
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
 dump(mdls, model_path)
 
 """### Gradient boosting
@@ -301,7 +225,7 @@ mdls = []
 for i in range(Ytrain.shape[1]):
   _ = opt2.fit(Xtrain, Ytrain)
   mdls.append(opt2)
-model_path='/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/gb.pkl'
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl'
 dump(mdls, model_path)
 
 """### Extra Trees
@@ -322,7 +246,7 @@ mdls = []
 for i in range(Ytrain.shape[1]):
   _ = opt3.fit(Xtrain, Ytrain)
   mdls.append(opt3)
-model_path='/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/et.pkl'
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl'
 dump(mdls, model_path)
 
 """### XGBoost
@@ -343,7 +267,7 @@ mdls = []
 for i in range(Ytrain.shape[1]):
   _ = opt4.fit(Xtrain, Ytrain[:, i])
   mdls.append(opt4)
-model_path='/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/xgb.pkl'
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl'
 dump(mdls, model_path)
 
 """# Cancer cell line encyclopedia Metabolism -> GCP models
@@ -371,10 +295,10 @@ params = [
           xgb_params
 ]
 names = [
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/rf.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/gb.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/et.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/xgb.pkl'
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl'
 ]
 
 """Here is the function that I have defined in order to do the following steps for each model:
@@ -438,10 +362,10 @@ from sklearn.metrics import mean_absolute_error
 
 """Let's now load the models we have trained to predict metabolite values from chromatin profiles."""
 
-mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/rf.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/gb.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/et.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/GCP2MET/xgb.pkl')
+mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl')
 ]
 
 """The `evaluate_models()` function will compute evaluation metrics and spit out the final metrics of interest."""
@@ -461,7 +385,7 @@ def evaluate_models(models, Xval, Yval):
   """
 
   final_metrics = []
-  for j = 1 in range(len(models)):
+  for j in range(len(models)):
     # Iterate through model objects
     m = models[j]
 
@@ -513,10 +437,8 @@ final_metrics = final_metrics.sort_values(by=["Metabolites"],
                                           ascending=True)
 
 
-url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
-sheetname = 'GCP2Met_Ratios_Nonlinear'
-
-save_gsheet(final_metrics, url, sheetname)
+path = '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
+final_metrics.to_csv(final_metrics)
 
 """## MET to GCP models
 Now let's do the reverse using the same operations described above.
@@ -527,10 +449,10 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
     MET_norm, GCP_norm, test_size=0.3, random_state=0
 )
 
-mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/rf.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/gb.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/et.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Nonlinear models/MET2GCP/xgb.pkl')
+mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl'),
+        load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl')
 ]
 
 final_metrics = evaluate_models(mdls, Xval, Yval)
@@ -542,7 +464,5 @@ final_metrics = final_metrics.sort_values(by=["GCP"],
                                           axis=1, 
                                           ascending=True)
 
-url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
-sheetname = 'Met2GCP_Ratios_Nonlinear'
-
-save_gsheet(final_metrics, url, sheetname)
+path = '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
+final_metrics.to_csv(final_metrics)
