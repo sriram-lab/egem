@@ -6,7 +6,7 @@
 % Cell Line Encylopedia to predict metabolite and metabolite ratio levels. Other 
 % validation sets are also used from the trained CCLE models.
 
-load Ratio_data.mat
+load /nfs/turbo/umms-csriram/scampit/Data/Models/Ratios/Ratio_data.mat
                   
 %% Predicting metabolism from GCP with hyperparameter optimization and K-fold cross validation
 % Next, let's perform some hyperparameter optimzation for the regressors using 
@@ -29,19 +29,26 @@ load Ratio_data.mat
 % Note that the |regressorEnsemble.mlx| function automatically saves the intermediate 
 % models, as well as the final models selected from k-fold cross validation. 
 
-% Set the training size and the random number generator for the
-% trainTestSplit function.
-parpool;
+%Set the training size and the random number generator for the
+%trainTestSplit function.
+%parpool;
 randomState  = 'default';
 trainingSize = 0.8;
 data         = trainTestSplit(GCP_norm, MET_norm, ...
-                              trainingSize, ...
-                              randomState);
+                             trainingSize, ...
+                             randomState);
 
-% Train several regressor models to predict individual metabolites
+%Train several regressor models to predict individual metabolites
 kfold = 3;
-GCP2MET_mdls = regressorEnsemble(data.Xtrain, data.Ytrain, kfold);
-save('GCP2Met_Ratio_Models.mat')
+filename = 'GCP2Met_Ratio_Models.mat';
+save(filename);
+k_iter = 1;
+col_iter = 1;
+
+GCP2MET_mdls = regressorEnsemble(data.Xtrain, data.Ytrain, ...
+                                kfold, ...
+                                filename, ...
+                                k_iter, col_iter);
 
 %% Predicting GCP from metabolism with hyperparameter optimization and K-fold cross validation
 % This next section runs two sets of models: one set of models aims to predict 
@@ -55,5 +62,9 @@ data = trainTestSplit(MET_norm, GCP_norm, ...
                       randomState);
 
 randomState = 'default';
-MET2GCP_mdls = regressorEnsemble(data.Xtrain, data.Ytrain, kfold);
-save('MET2GCP_Ratio_Models.mat')
+filename = 'MET2GCP_Ratio_Models.mat';
+save(filename);
+k_iter = 1;
+col_iter = 1;
+MET2GCP_mdls = regressorEnsemble(data.Xtrain, data.Ytrain, kfold, filename, k_iter, col_iter);
+
