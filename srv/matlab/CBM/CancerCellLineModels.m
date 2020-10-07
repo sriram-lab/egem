@@ -21,6 +21,12 @@
 
 % Initialize metabolic modeling components
 clear all;
+
+%  Initialize the Umich Cluster profiles
+setupUmichClusters
+NP = str2num(getenv('SLURM_NTASKS'));
+thePool = parpool('current', NP);
+
 initCobraToolbox; changeCobraSolver('gurobi', 'all');
 %% 2. Load metabolic models
 % This code block loads specific versions of the eGEMM. There are currently 
@@ -260,85 +266,7 @@ for i = 1:length(models)
         end
     end
 end      
-%% 10. SANITY CHECK 3: Ensure Gamma has an effect on metabolic flux
-% The short answer - it does.
 
-% % Switch between reconstruction with all reactions and writers only
-% tmp1 = models{1};
-% tmp1.genes = tmp1.geneEntrezID;
-% 
-% entrez_ids = string(entrez_ids);
-% tmp_dm_rxn = dm_reactions(1);
-% 
-% [~, rxnPos] = ismember(tmp_dm_rxn, tmp1.rxns);
-% tmp1.c(rxnPos) = epsilon(1);
-% 
-% k = 1;
-% % Get differentially expressed genes for each cancer cell line.
-% DE{k}.name    = cell_names(k);
-% DE{k}.medium  = medium(k);
-% DE{k}.culture = cultures(k);
-% DE{k}.tissue  = tissues(k);
-% DE{k}.upreg   = entrez_ids(log2fc(:, k) > 0 & pvalue(:, k) <= 0.05);
-% DE{k}.downreg = entrez_ids(log2fc(:, k) < 0 & pvalue(:, k) <= 0.05);
-%             
-% % Constrain the metabolic model to be medium-specific
-% mediumModel = addMediumConstraints(tmp1, medium(k));
-% m = 1;
-% hyperparams.gamma = [];
-% 
-% hyperparams.hscore = false;
-% % Compute flux using iMAT 
-% [~, soln1] = CFR(mediumModel, hyperparams, ...
-%                   DE{k}.upreg, DE{k}.downreg);
-%                                
-% % Get the growth rate
-% grates1(k, 1) = soln1.x(3743);
-% 
-% % Ensure there's growth
-% tmp2 = mediumModel;
-% tmp2.lb(3743) = soln1.x(3743) * 0.99;
-% tmp2.c(3743)  = 0;                                                
-% 
-% % Compute metabolic flux when optimizing histone markers
-% [ ~, soln1] = CFR(tmp2, hyperparams, DE{k}.upreg, DE{k}.downreg);
-% 
-% % Store data here
-% fluxes1 = soln1.x(1:length(tmp1.rxns));
-% 
-% m = 2;
-% tmp1 = models{1};
-% tmp1.genes = tmp1.geneEntrezID;
-% 
-% entrez_ids = string(entrez_ids);
-% tmp_dm_rxn = dm_reactions(1);
-% 
-% [~, rxnPos] = ismember(tmp_dm_rxn, tmp1.rxns);
-% tmp1.c(rxnPos) = epsilon(1);
-% hyperparams.gamma = compute_gamma(tmp1, dm_reactions(1), histone_entrez, string(DE{k}.upreg), string(DE{k}.downreg));
-% 
-% hyperparams.hscore = false;
-% % Compute flux using iMAT 
-% [~, soln2] = CFR(mediumModel, hyperparams, ...
-%                   DE{k}.upreg, DE{k}.downreg);
-%                                
-% % Get the growth rate
-% grates2(k, 1) = soln2.x(3743);
-% 
-% % Ensure there's growth
-% tmp2 = mediumModel;
-% tmp2.lb(3743) = soln.x(3743) * 0.99;
-% tmp2.c(3743)  = 0;                                                
-% 
-% hyperparams.hscore = true;
-% 
-% % Compute metabolic flux when optimizing histone markers
-% [ ~, soln2] = CFR(tmp2, hyperparams, DE{k}.upreg, DE{k}.downreg);
-% 
-% % Store data here
-% fluxes2 = soln2.x(1:length(tmp1.rxns));
-% 
-% sum(fluxes1 - fluxes2, 'all');
 %% 11. Compute CCLE metabolic fluxes with the gamma score
 
 filepaths = [ ...
@@ -367,7 +295,7 @@ for i = 1:length(models)
         [~, rxnPos] = ismember(dm_reactions(j), mdl.rxns);
         tmp = mdl;
         tmp.c(rxnPos) = epsilon(j);
-        
+
         DE = cell(size(log2fc, 2));
         grates = zeros([size(log2fc, 2), 1]);
         fluxes = zeros([length(mdl.rxns), size(log2fc, 2)]);
@@ -433,6 +361,5 @@ for i = 1:length(models)
             save(filepaths(2), 'write_gamma_flux', 'write_gamma_grate', 'i', 'j', 'k', '-append');
         end
     end
-end      
-%% 
-%
+end
+delete(thePool)
