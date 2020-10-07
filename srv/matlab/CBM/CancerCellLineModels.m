@@ -24,8 +24,8 @@ initCobraToolbox; changeCobraSolver('gurobi', 'all');
 % # |07132020.mat:| contains all reactions from the metabolic model
 % # |09072020_write_only.mat|: contains only histone writer reactions
 
-load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/07132020.mat; % Contains all reactions, including demethylation and deacetylation reactions
-%load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/09072020_write_only.mat
+%load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/07132020.mat; % Contains all reactions, including demethylation and deacetylation reactions
+load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/09072020_write_only.mat
 %% 
 % Set the objective function to maximize biomass
 
@@ -71,28 +71,7 @@ for i = 1:length(dm_reactions)
         epsilon(i, 1) = epsilon_methylation;
     end
 end
-%% 3. Compute base metabolic model fluxes and growth rates for comparison
-% Compute the solution for an unconstrained metabolic model. This will be the 
-% control model.
 
-% for i = 1:length(dm_reactions)
-%     [~, rxnPos] = ismember(dm_reactions(i), eGEM.rxns);
-%     
-%     % Add activity to demand reactions
-%     tmp = eGEM;
-%     tmp.c(rxnPos) = epsilon(i);
-%     
-%     [~, soln] = CFR(tmp, hyperparams, {}, {});
-%     
-%     grate(1, i) = soln.x(3743);
-% 
-%     tmp2 = tmp;
-%     tmp2.lb(3743) = soln.x(3743) * 0.99;
-%     tmp2.c(3743)  = 0;                                                
-%     
-%     [~, soln] = CFR(tmp, hyperparams, {}, {});
-%     flux(1, i)  = soln.x(rxnPos);
-% end
 %% 4. Preprocess Cancer Cell Line Encyclopedia data
 % Load data from the Cancer Cell Line Encyclopedia
 % This module uses RNASeq data from the CCLE and performs some basic preprocessing. 
@@ -117,8 +96,8 @@ tissues = tissues(ib);
 %% 5. Compute CCLE metabolic fluxes from the eGEMM
 
 %fileName = '~/Data/CBM/eGEM/CCLE_fluxes_all.mat';
-%fileName = '/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_writers.mat';
-fileName = '/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_all.mat';
+fileName = '/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_writers.mat';
+%fileName = '/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_all.mat';
 
 %save(fileName, '-v7.3')
 % Ensure that histone readers and writers are being used in the metabolic model
@@ -133,32 +112,6 @@ histoneReactionMap = xlsread(histoneReactionFile, 'Genes');
 histone_entrez = histoneReactionMap(:, 1);
 histone_bigg = string(histone_entrez + .1);
 histone_entrez = string(histone_entrez);
-% SANITY CHECK: Intersecting Entrez IDs between metabolic model and dataset
-% This code block just checks and sees if there are any intersecting genes with 
-% the metabolic model and the RNASeq data.
-
-% tmp1 = [];
-% tmp2 = [];
-% for j = 1:size(log2fc, 2)
-%         
-%     % Get differentially expressed genes for each cancer cell line.
-%     DE{j}.name    = cell_names(j);
-%     DE{j}.medium  = medium(j);
-%     DE{j}.culture = cultures(j);
-%     DE{j}.tissue  = tissues(j);
-%     DE{j}.upreg   = entrez_ids(log2fc(:, j) > 0 & pvalue(:, j) <= 0.05);
-%     DE{j}.downreg = entrez_ids(log2fc(:, j) < 0 & pvalue(:, j) <= 0.05);
-%     
-%     gene_list = [DE{j}.upreg; DE{j}.downreg];
-%     [~, ia, ib] = intersect(string(gene_list), string(histone_entrez));
-%     
-%     tmp1 = [tmp1; ia];
-%     tmp2 = [tmp2; ib];
-%     
-% end
-% Compute metabolic flux profiles
-% Now let's compute the data using the model. The data will automatically be 
-% saved.
 
 % Demand reactions
 flux = cell(length(dm_reactions), 1);
@@ -222,36 +175,35 @@ for i = 1:length(dm_reactions)
     
 end
 %% 6. Writers / Erasers Ratio Parameter
-% For this scheme, I need to do the following steps: 
+
+load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/07132020.mat; % Contains all reactions, including demethylation and deacetylation reactions
+%load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/09072020_write_only.mat
 %% 
-% # Separate the RNASeq data out by whether or not the differentially expressed 
-% genes are writers or erasers and ensure the algorithm is distinguishing between 
-% methylation and acetylation
-% # Create a scaling factor for the upper bound of the demand reaction. The 
-% scaling factor $\gamma$ I settled for is the following:$\;\gamma =\frac{\frac{\textrm{counts}\left(Z_{\textrm{up},\textrm{writer}} 
-% \right)}{\textrm{counts}\left(Z_{\textrm{up},\textrm{eraser}} \right)}}{\frac{\textrm{counts}\left(Z_{\textrm{down},\textrm{writer}} 
-% \right)}{\textrm{counts}\left(Z_{\textrm{down},\textrm{eraser}} \right)}}$
-% # For the $i^{\textrm{th}}$demand reaction, constrain its upper bound using 
-% $\gamma$: |model.ub(i) = gamma*model.ub(i)|
-% *Case examples*
-% *Case 1: All writers are up*
-% 
-% $$\gamma =\frac{\frac{10}{1}}{\frac{1}{1}}=10$$
-% 
-% *Case 2: All erasers are up* 
-% 
-% $$\gamma =\frac{\frac{1}{10}}{\frac{1}{1}}=0\ldotp 1$$
-% 
-% *Case 3: Writers are up and erasers are down*
-% 
-% $$\gamma =\frac{\frac{10}{1}}{\frac{1}{10}}=100$$
-% 
-% *Case 4: Erasers are up and writers are down* 
-% 
-% $$\gamma =\frac{\frac{1}{10}}{\frac{10}{1}}=0\ldotp 01$$
-% Compute metabolic flux profiles
-% Now let's compute the data using the model. The data will automatically be 
-% saved.
+% Set the objective function to maximize biomass
+
+% Set up objective function
+eGEM.c = zeros(size(eGEM.c));
+eGEM.c(string(eGEM.rxns) == 'biomass_objective') = 1;
+%% 
+% Set the lower bound for methionine uptake
+
+% Set methionine lower bound to a really small number
+[~, pos] = ismember({'EX_met_L_e'}, eGEM.rxns);
+eGEM.lb(pos) = -1;
+%% 
+% Let's turn off some specific reactions that cause trouble with metabolic models.
+
+% Turn off specific reactions
+posToTurnOff           = find(ismember(eGEM.rxns, {'ALR', 'MGSA', 'MGSA2'}));
+eGEM.ub(posToTurnOff) = 0; eGEM.lb(posToTurnOff) = 0;
+%% 
+% Assign values of parameters for the iMAT algorithm.
+
+% Set up hyperparameters for the linear programming section
+hyperparams.eps = []; hyperparams.isgenes = true;
+hyperparams.kap = []; hyperparams.eps2 = [];
+hyperparams.rho = []; hyperparams.pfba = false;
+hyperparams.kap2 = [];
 
 % Demand reactions
 flux = cell(length(dm_reactions), 1);

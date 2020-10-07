@@ -29,9 +29,6 @@ met_path = '/nfs/turbo/umms-csriram/scampit/Data/Metabolomics/CCLE/CCLE_ALL_Rati
 GCP = pd.read_excel(gcp_path, 'All Ratios')
 MET = pd.read_csv(met_path)
 
-print(GCP.shape)
-print(MET.shape)
-
 """To preprocess the data, we'll do a couple of things, including:
   * Match by cell lines
   * Sort by index
@@ -46,8 +43,6 @@ GCP = GCP.drop_duplicates(subset='index', keep='first')
 
 GCP = GCP.sort_values(by=['index'])
 MET = MET.sort_values(by=['index'])
-print(GCP.shape)
-print(MET.shape)
 
 cell_lines = GCP['index'].values
 gcpcol_to_drop = ['index'] 
@@ -55,8 +50,6 @@ metcol_to_drop = ['index', 'Unnamed: 0', 'Cell Lines']
 
 GCP = GCP.drop(labels=gcpcol_to_drop, axis=1)
 MET = MET.drop(labels=metcol_to_drop, axis=1)
-print(GCP.shape)
-print(MET.shape)
 
 """Save the column names, which will be used later when constructing dataframes for evaluating model performance.
 
@@ -87,21 +80,6 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
     GCP_norm, MET_norm, test_size=0.3, random_state=0
 )
 
-"""Print shape of $X_{train}$ and $Y_{train}$."""
-
-print(GCP_norm.shape)
-print(MET_norm.shape)
-print(Xtrain.shape)
-print(Ytrain.shape)
-print(Xval.shape)
-print(Yval.shape)
-
-print(np.sum(Xtrain == np.inf))
-print(np.sum(Xtrain == -np.inf))
-print(np.sum(Xtrain == np.NaN))
-print(np.sum(Ytrain == np.inf))
-print(np.sum(Ytrain == -np.inf))
-print(np.sum(Ytrain == np.NaN))
 
 """## 3-fold cross validation for non-linear regressor selection
 Now let's train a bunch of non-linear regressors and evaluate their performance.
@@ -178,6 +156,9 @@ The following line below performs Bayesian hyperparameter optimization using a r
 """
 
 from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold
+from time import sleep
+import progressbar
 
 # Set the kfold operator to split 3 times with shuffle
 kfold = KFold(n_splits=3, 
@@ -188,24 +169,28 @@ kfold = KFold(n_splits=3,
 opt1 = BayesSearchCV(
     estimator=RandomForestRegressor(),
     search_spaces=rf_params,
-    n_iter=30,
-    n_jobs=4,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
+bar.start()
 # Construct univariate random forest models and append to mdls list
 mdls = []
-for i in range(Ytrain.shape[1]):
-  _ = opt1.fit(Xtrain, Ytrain)
-  mdls.append(opt1)
-
-"""### Save RF GCP -> MET model 
-Ensure model persistence by saving the serialized version of the model
-"""
-
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
-dump(mdls, model_path)
+print("Starting random forest hyperparameter optimization and cross validation")
+for i in range(Ytrain.shape[1]):
+    _ = opt1.fit(Xtrain, Ytrain[:, i])
+    mdls.append(opt1)
+
+    model_path='/home/scampit/Data/Models/GCP2Met/rf.pkl'
+    dump(res=mdls, filename=model_path)
+    
+    bar.update(i+1)
+    sleep(0.1)
+print("Finished random forest hyperparameter optimization and cross validation")
+bar.finish()
 
 """### Gradient boosting
 Now let's train the remaining GCP -> MET models and save them as well.
@@ -215,9 +200,9 @@ Now let's train the remaining GCP -> MET models and save them as well.
 opt2 = BayesSearchCV(
     estimator=GradientBoostingRegressor(),
     search_spaces=gb_params,
-    n_iter=30,
-    n_jobs=4,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
@@ -236,9 +221,9 @@ Same for the extra trees -> train them and save them.
 opt3 = BayesSearchCV(
     estimator=ExtraTreesRegressor(),
     search_spaces=et_params,
-    n_iter=30,
-    n_jobs=4,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
@@ -257,8 +242,9 @@ Same for gradient boosting -> train them and save them.
 opt4 = BayesSearchCV(
     estimator=xgb.XGBRegressor(),
     search_spaces=xgb_params,
-    n_iter=30,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
@@ -323,21 +309,21 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
 
   """
   for i in range(len(models)):
+    model_path = filename[i]
     opt = BayesSearchCV(
                           estimator=models[i],
                           search_spaces=params[i],
-                          n_iter=30,
                           cv=kfold,
-                          random_state=0
+		          n_iter=30,
+		          n_jobs=-1,
+		          random_state=0
     )
 
     mdls =[]
     for j in range(Ytrain.shape[1]):
       _ = opt.fit(Xtrain, Ytrain[:, j])
       mdls.append(opt)
-
-    model_path = filename[i]
-    dump(mdls, model_path)
+      dump(mdls, model_path)
 
 """Finally, let's train the models."""
 

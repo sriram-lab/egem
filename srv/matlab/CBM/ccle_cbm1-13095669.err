@@ -1,0 +1,9 @@
+{'initCobraToolbox' is not found in the current folder or on the MATLAB path,
+but exists in:
+    /nfs/turbo/umms-csriram/scampit/Software/cobratoolbox
+
+Change the MATLAB current folder or add its folder to the MATLAB path.
+
+Error in CancerCellLineModels (line 19)
+initCobraToolbox; changeCobraSolver('gurobi', 'all');
+} 
