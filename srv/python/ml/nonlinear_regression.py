@@ -23,9 +23,14 @@ Now let's load the GCP datasets we'll be computing ratios for. Right now, we'll 
   * LeRoy et al., 2012
 """
 
+<<<<<<< HEAD
+gcp_path = '~/Data/Proteomics/CCLE/CCLE Global Chromatin Profiles.xlsx'
+met_path = '~/Data/Metabolomics/CCLE/CCLE_ALL_Ratios.csv'
+=======
 gcp_path = '/nfs/turbo/umms-csriram/scampit/Data/Proteomics/CCLE/CCLE Global Chromatin Profiles.xlsx'
 met_path = '/nfs/turbo/umms-csriram/scampit/Data/Metabolomics/CCLE/CCLE_ALL_Ratios.csv'
 
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 GCP = pd.read_excel(gcp_path, 'All Ratios')
 MET = pd.read_csv(met_path)
 
@@ -156,9 +161,17 @@ The following line below performs Bayesian hyperparameter optimization using a r
 """
 
 from sklearn.model_selection import KFold
+<<<<<<< HEAD
 from sklearn.model_selection import KFold
 from time import sleep
 import progressbar
+=======
+from time import sleep
+import progressbar
+
+bar = progressbar.ProgressBar(maxval=Ytrain.shape[1], \
+    widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 # Set the kfold operator to split 3 times with shuffle
 kfold = KFold(n_splits=3, 
@@ -166,6 +179,7 @@ kfold = KFold(n_splits=3,
               random_state=0)
 
 # Set the bayesian hyperparameter tuning to also include kfold cross validation
+<<<<<<< HEAD
 opt1 = BayesSearchCV(
     estimator=RandomForestRegressor(),
     search_spaces=rf_params,
@@ -176,7 +190,33 @@ opt1 = BayesSearchCV(
 )
 
 bar.start()
+=======
+#opt1 = BayesSearchCV(
+#    estimator=RandomForestRegressor(),
+#    search_spaces=rf_params,
+#    cv=kfold,
+#    n_iter=30,
+#    n_jobs=-1,
+#    random_state=0
+#)
+
+#bar.start()
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 # Construct univariate random forest models and append to mdls list
+<<<<<<< HEAD
+#mdls = []
+#model_path='/home/scampit/Data/Models/GCP2Met/rf.pkl'
+#print("Starting hyperparameter optimization and cross validation")
+#for i in range(Ytrain.shape[1]):
+#    _ = opt1.fit(Xtrain, Ytrain[:, i])
+#    mdls.append(opt1)
+#    dump(res=mdls, filename=model_path)
+#    
+#    bar.update(i+1)
+#    sleep(0.1)
+#print("Finished hyperparameter optimization and cross validation")
+#bar.finish()
+=======
 mdls = []
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
 print("Starting random forest hyperparameter optimization and cross validation")
@@ -184,6 +224,7 @@ for i in range(Ytrain.shape[1]):
     _ = opt1.fit(Xtrain, Ytrain[:, i])
     mdls.append(opt1)
 
+<<<<<<< HEAD
     model_path='/home/scampit/Data/Models/GCP2Met/rf.pkl'
     dump(res=mdls, filename=model_path)
     
@@ -191,12 +232,47 @@ for i in range(Ytrain.shape[1]):
     sleep(0.1)
 print("Finished random forest hyperparameter optimization and cross validation")
 bar.finish()
+=======
+"""### Save RF GCP -> MET model 
+Ensure model persistence by saving the serialized version of the model
+"""
+
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
+dump(mdls, model_path)
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 """### Gradient boosting
 Now let's train the remaining GCP -> MET models and save them as well.
 """
 
 # Gradient Boosting
+<<<<<<< HEAD
+#opt2 = BayesSearchCV(
+#    estimator=GradientBoostingRegressor(),
+#    search_spaces=gb_params,
+#    cv=kfold,
+#    n_iter=30,
+#    n_jobs=-1,
+#    random_state=0
+#)
+
+#bar.start()
+# Construct univariate gradient boosting models and append to mdls list
+#mdls = []
+#model_path='/home/scampit/Data/Models/GCP2Met/gb.pkl'
+#print("Starting hyperparameter optimization and cross validation")
+#for i in range(Ytrain.shape[1]):
+#    _ = opt2.fit(Xtrain, Ytrain[:, i])
+#    mdls.append(opt2)
+#    dump(res=mdls, filename=model_path)
+#    
+#    bar.update(i+1)
+#    sleep(0.1)
+    
+#print("Finished hyperparameter optimization and cross validation")
+#bar.finish()
+=======
 opt2 = BayesSearchCV(
     estimator=GradientBoostingRegressor(),
     search_spaces=gb_params,
@@ -212,12 +288,37 @@ for i in range(Ytrain.shape[1]):
   mdls.append(opt2)
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl'
 dump(mdls, model_path)
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 
 """### Extra Trees
 Same for the extra trees -> train them and save them.
 """
 
 # Extra Trees
+<<<<<<< HEAD
+#opt3 = BayesSearchCV(
+#    estimator=ExtraTreesRegressor(),
+#    search_spaces=et_params,
+#    cv=kfold,
+#    n_iter=30,
+#    n_jobs=-1,
+#    random_state=0
+#)
+
+#bar.start()
+#mdls = []
+#model_path='/home/scampit/Data/Models/GCP2Met/et.pkl'
+#for i in range(Ytrain.shape[1]):
+#    _ = opt3.fit(Xtrain, Ytrain[:, i])
+#    mdls.append(opt3)
+#    dump(res=mdls, filename=model_path)
+#    
+#    bar.update(i+1)
+#    sleep(0.1)
+    
+#print("Finished hyperparameter optimization and cross validation")
+#bar.finish()
+=======
 opt3 = BayesSearchCV(
     estimator=ExtraTreesRegressor(),
     search_spaces=et_params,
@@ -233,12 +334,14 @@ for i in range(Ytrain.shape[1]):
   mdls.append(opt3)
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl'
 dump(mdls, model_path)
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 
 """### XGBoost
 Same for gradient boosting -> train them and save them.
 """
 
 # Create object that will perform Bayesian hyperparameter tuning with 30 different iterations
+<<<<<<< HEAD
 opt4 = BayesSearchCV(
     estimator=xgb.XGBRegressor(),
     search_spaces=xgb_params,
@@ -247,14 +350,40 @@ opt4 = BayesSearchCV(
     n_jobs=-1,
     random_state=0
 )
+=======
+#opt4 = BayesSearchCV(
+#    estimator=xgb.XGBRegressor(),
+#    search_spaces=xgb_params,
+#    cv=kfold,
+#    n_iter=30,
+#    n_jobs=-1,
+#    random_state=0
+#)
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 # Create an object that will store all models
+<<<<<<< HEAD
+#bar.start()
+#mdls = []
+#model_path='/home/scampit/Data/Models/GCP2Met/xgb.pkl'
+#for i in range(Ytrain.shape[1]):
+#    _ = opt4.fit(Xtrain, Ytrain[:, i])
+#    mdls.append(opt4)
+#    dump(res=mdls, filename=model_path)
+#    
+#    bar.update(i+1)
+#    sleep(0.1)
+    
+#print("Finished hyperparameter optimization and cross validation")
+#bar.finish()
+=======
 mdls = []
 for i in range(Ytrain.shape[1]):
   _ = opt4.fit(Xtrain, Ytrain[:, i])
   mdls.append(opt4)
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl'
 dump(mdls, model_path)
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 
 """# Cancer cell line encyclopedia Metabolism -> GCP models
 Now we'll try to learn models that do the reverse problem: predicting chromatin profiles using metabolic data.
@@ -281,10 +410,17 @@ params = [
           xgb_params
 ]
 names = [
+<<<<<<< HEAD
+         '/home/scampit/Data/Models/Met2GCP/rf.pkl',
+         '/home/scampit/Data/Models/Met2GCP/gb.pkl',
+         '/home/scampit/Data/Models/Met2GCP/et.pkl',
+         '/home/scampit/Data/Models/Met2GCP/xgb.pkl'
+=======
          '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl',
          '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl',
          '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl',
          '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl'
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 ]
 
 """Here is the function that I have defined in order to do the following steps for each model:
@@ -308,6 +444,7 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
   :param filename: A string or list of paths to save the models (pickle).
 
   """
+  print("Starting hyperparameter optimization and cross validation")
   for i in range(len(models)):
     model_path = filename[i]
     opt = BayesSearchCV(
@@ -318,12 +455,21 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
 		          n_jobs=-1,
 		          random_state=0
     )
-
+    bar.start()
     mdls =[]
     for j in range(Ytrain.shape[1]):
       _ = opt.fit(Xtrain, Ytrain[:, j])
       mdls.append(opt)
+<<<<<<< HEAD
       dump(mdls, model_path)
+=======
+      dump(res=mdls, filename=model_path)
+      
+      bar.update(j+1)
+      sleep(0.1)
+    print("Finished hyperparameter optimization and cross validation")
+    bar.finish()
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 """Finally, let's train the models."""
 
@@ -348,10 +494,17 @@ from sklearn.metrics import mean_absolute_error
 
 """Let's now load the models we have trained to predict metabolite values from chromatin profiles."""
 
+<<<<<<< HEAD
+mdls = [load('/home/scampit/Data/Models/GCP2Met/rf.pkl'),
+        load('/home/scampit/Data/Models/GCP2Met/gb.pkl'),
+        load('/home/scampit/Data/Models/GCP2Met/et.pkl'),
+        load('/home/scampit/Data/Models/GCP2Met/xgb.pkl')
+=======
 mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl')
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 ]
 
 """The `evaluate_models()` function will compute evaluation metrics and spit out the final metrics of interest."""
@@ -423,7 +576,11 @@ final_metrics = final_metrics.sort_values(by=["Metabolites"],
                                           ascending=True)
 
 
+<<<<<<< HEAD
+path = '/home/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
+=======
 path = '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 final_metrics.to_csv(final_metrics)
 
 """## MET to GCP models
@@ -435,10 +592,17 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
     MET_norm, GCP_norm, test_size=0.3, random_state=0
 )
 
+<<<<<<< HEAD
+mdls = [load('/home/scampit/Data/Models/Met2GCP/rf.pkl'),
+        load('/home/scampit/Data/Models/Met2GCP/gb.pkl'),
+        load('/home/scampit/Data/Models/Met2GCP/et.pkl'),
+        load('/home/scampit/Data/Models/Met2GCP/xgb.pkl')
+=======
 mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl'),
         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl')
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 ]
 
 final_metrics = evaluate_models(mdls, Xval, Yval)
@@ -450,5 +614,9 @@ final_metrics = final_metrics.sort_values(by=["GCP"],
                                           axis=1, 
                                           ascending=True)
 
+<<<<<<< HEAD
+path = '/home/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
+=======
 path = '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
+>>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
 final_metrics.to_csv(final_metrics)
