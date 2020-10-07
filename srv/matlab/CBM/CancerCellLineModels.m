@@ -21,6 +21,12 @@
 
 % Initialize metabolic modeling components
 clear all;
+
+%  Initialize the Umich Cluster profiles
+setupUmichClusters
+NP = str2num(getenv('SLURM_NTASKS'));
+thePool = parpool('current', NP);
+
 initCobraToolbox; changeCobraSolver('gurobi', 'all');
 %% 2. Load metabolic models
 % This code block loads specific versions of the eGEMM. There are currently 
@@ -433,6 +439,5 @@ for i = 1:length(models)
             save(filepaths(2), 'write_gamma_flux', 'write_gamma_grate', 'i', 'j', 'k', '-append');
         end
     end
-end      
-%% 
-%
+end
+delete(thePool)
