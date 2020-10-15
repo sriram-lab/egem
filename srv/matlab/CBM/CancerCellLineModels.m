@@ -21,6 +21,15 @@
 
 % Initialize metabolic modeling components
 clear all;
+<<<<<<< HEAD
+=======
+
+%  Initialize the Umich Cluster profiles
+setupUmichClusters
+NP = str2num(getenv('SLURM_NTASKS'));
+thePool = parpool('current', NP);
+
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 initCobraToolbox; changeCobraSolver('gurobi', 'all');
 %% 2. Load metabolic models
 % This code block loads specific versions of the eGEMM. There are currently 
@@ -29,9 +38,15 @@ initCobraToolbox; changeCobraSolver('gurobi', 'all');
 % # |07132020.mat:| contains all reactions from the metabolic model
 % # |09072020_write_only.mat|: contains only histone writer reactions
 
+<<<<<<< HEAD
 load ~/Data/Reconstructions/eGEM/07132020.mat; % Contains all reactions, including demethylation and deacetylation reactions
 eGEM_all = eGEM;
 load ~/Data/Reconstructions/eGEM/09072020_write_only.mat
+=======
+load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/07132020.mat; 
+eGEM_all = eGEM;
+load /nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/09072020_write_only.mat
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 eGEM_write = eGEM;
 models = {eGEM_all, eGEM_write};
 %% 3. Add constraints to metabolic models
@@ -118,8 +133,13 @@ end
 % The data was normalized to TPM. There are 864 cancer cell lines by 1020 metabolic 
 % genes that map onto RECON1 using Entrez identifiers.
 
+<<<<<<< HEAD
 load ~/Data/RNASeq/CCLE/CCLE_RNASeq.mat
 load ~/Data/Proteomics/CCLE/CCLE_Proteomics.mat
+=======
+load /nfs/turbo/umms-csriram/scampit/Data/RNASeq/CCLE/CCLE_RNASeq.mat
+load /nfs/turbo/umms-csriram/scampit/Data/Proteomics/CCLE/CCLE_Proteomics.mat
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 % Get cell line intersections between the RNASeq dataset and the Global Chromatin Profiles
 
 [~, ia, ib] = intersect(cell_lines, string(cell_names));
@@ -139,9 +159,14 @@ tissues = tissues(ib);
 % and erasers.
 
 % Load up curated histone reaction map
+<<<<<<< HEAD
 histoneReactionFile = '~/Data/Reconstructions/eGEM/Epigenome-Scale Metabolic Reconstruction Map.xlsx';
 histoneReactionMap = readcell(histoneReactionFile, 'Sheet', 'Genes');
 histoneReactionMap(ismissing(string(histoneReactionMap(:, 8))), :) = [];
+=======
+histoneReactionFile = '/nfs/turbo/umms-csriram/scampit/Data/Reconstructions/eGEM/Epigenome-Scale Metabolic Reconstruction Map.xlsx';
+histoneReactionMap = xlsread(histoneReactionFile, 'Genes');
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 
 % Edit Entrez 
 histone_entrez = cell2mat(histoneReactionMap(2:end, 8));
@@ -179,10 +204,19 @@ end
 
 % Run without gamma score
 filepaths = [ ...
+<<<<<<< HEAD
     "~/Data/CBM/eGEM/_Fluxes/CCLE_fluxes_all.mat", ...
     "~/Data/CBM/eGEM/_Fluxes/CCLE_fluxes_writers.mat", ...
 ];
 
+=======
+    "/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_all.mat", ...
+    "/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_writers.mat", ...
+];
+
+medium_file = '/nfs/turbo/umms-csriram/scampit/Data/Medium/FINAL_MEDIUM_MAP.xlsx';
+
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 % Create containers to store data
 all_flux    = cell(length(dm_reactions), 1);
 all_grate   = cell(length(dm_reactions), 1);
@@ -220,7 +254,11 @@ for i = 1:length(models)
             DE{k}.downreg = entrez_ids(log2fc(:, k) < 0 & pvalue(:, k) <= 0.05);
             
             % Constrain the metabolic model to be medium-specific
+<<<<<<< HEAD
             mediumModel = addMediumConstraints(tmp, medium(k));
+=======
+            mediumModel = addMediumConstraints(tmp, medium(k), medium_file);
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
             
             % Perform linear optimization
             try
@@ -259,6 +297,7 @@ for i = 1:length(models)
         end
     end
 end      
+<<<<<<< HEAD
 %% 10. SANITY CHECK 3: Ensure Gamma has an effect on metabolic flux
 % The short answer - it does.
 
@@ -343,6 +382,14 @@ end
 filepaths = [ ...
     "~/Data/CBM/eGEM/_Fluxes/CCLE_fluxes_all_gamma.mat", ...
     "~/Data/CBM/eGEM/_Fluxes/CCLE_fluxes_writers_gamma.mat", ...
+=======
+
+%% 11. Compute CCLE metabolic fluxes with the gamma score
+
+filepaths = [ ...
+    "/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_all_gamma.mat", ...
+    "/nfs/turbo/umms-csriram/scampit/Data/CBM/eGEM/CCLE_fluxes_writers_gamma.mat", ...
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 ];
 
 all_gamma_flux = cell(length(dm_reactions), 1);
@@ -366,7 +413,11 @@ for i = 1:length(models)
         [~, rxnPos] = ismember(dm_reactions(j), mdl.rxns);
         tmp = mdl;
         tmp.c(rxnPos) = epsilon(j);
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
         DE = cell(size(log2fc, 2));
         grates = zeros([size(log2fc, 2), 1]);
         fluxes = zeros([length(mdl.rxns), size(log2fc, 2)]);
@@ -391,7 +442,11 @@ for i = 1:length(models)
             DE{k}.downreg = entrez_ids(log2fc(:, k) < 0 & pvalue(:, k) <= 0.05);
             
             % Constrain the metabolic model to be medium-specific
+<<<<<<< HEAD
             mediumModel = addMediumConstraints(tmp, medium(k));
+=======
+            mediumModel = addMediumConstraints(tmp, medium(k), medium_file);
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
     
             hyperparams.gamma = compute_gamma(mdl, dm_reactions(j), histone_entrez, string(DE{k}.upreg), string(DE{k}.downreg));
             try
@@ -432,6 +487,11 @@ for i = 1:length(models)
             save(filepaths(2), 'write_gamma_flux', 'write_gamma_grate', 'i', 'j', 'k', '-append');
         end
     end
+<<<<<<< HEAD
 end      
 %% 
 %
+=======
+end
+delete(thePool)
+>>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
