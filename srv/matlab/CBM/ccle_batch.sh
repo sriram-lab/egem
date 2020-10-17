@@ -5,7 +5,8 @@
 #SBATCH --output=%x-%j.out
 #SBATCH --error=%x-%j.err
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks=1
+#SBATCH --mem-per-cpu=1g
 #SBATCH --cpus-per-task=16
 #SBATCH --time=03-00:00:00
 #SBATCH --account=lsa1
