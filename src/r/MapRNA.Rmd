@@ -3,46 +3,77 @@ title: "Process CCLE RNASeq dataset"
 output: html_notebook
 ---
 
-# Summary
-This notebook maps the gene identifiers to Entrez IDs.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
-```{r}
+# Summary
+This notebook maps different gene and protein identifiers to Entrez IDs. This is needed to get the maximum information out of my metabolic models.
+
+# Load up libraries
+First, let's load up some data science libraries to help manipulate some tables / dataframes.
+```{r, warning=FALSE, message=FALSE}
 install.packages("tidyverse")
 install.packages("readxl")
 
 library(readxl)
+library(dplyr)
 ```
-
 Let's also load up Bioconductor and the mapping database:
-
-```{r}
-
+```{r, warning=FALSE, message=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-
 BiocManager::install(c("hgu133plus2.db", "org.Hs.eg.db"))
 library(hgu133plus2.db)
 library(org.Hs.eg.db)
-
 ```
 
-```{r}
+# Load up the data that we'll be mapping
+Next, we need to load up the data that we wish to map.
 
+## Cancer Cell Line Encyclopedia
+```{r, warning=FALSE, message=FALSE}
 filename = "~/Data/RNASeq/CCLE/Processed_CCLE_Effect.csv"
 effect = read.csv(filename)
-
 filename = "~/Data/RNASeq/CCLE/Processed_CCLE_Pvalue.csv"
 pvalue = read.csv(filename)
-
 ensembl = sub("\\.\\d+$", "", effect[, 1])
+```
 
-# Create a map of the probes to Entrez and gene symbols
-map = select(hgu133plus2.db,
-             keytype="ENSEMBL",
-             keys=ensembl, 
-             use.names=FALSE, 
-             columns = c('ENTREZID', 'SYMBOL')
-             )
+## Khao et al., 2020
+```{r, warning=FALSE, message=FALSE}
+filename = "~/Data/RNASeq/Dou/mmc3.xlsx"
+effect = read_excel(filename, sheet='Differential gene expression', skip=1)
+print(effect)
+```
+
+# Map the identifiers
+
+## Get gene ids to map
+```{r, warning=FALSE, message=FALSE}
+mouse_symbol = apply(effect[, 1], 2, toupper)
+```
+
+Finally, I've created several functions that will allow us to map identifiers using any dataset. 
+```{r, warning=FALSE, message=FALSE}
+map_symbol_to_entrez = function(symbols, keyType){
+  # Create a map of the probes to Entrez and gene symbols
+  map = AnnotationDbi::select(hgu133plus2.db,
+               keytype=keyType,
+               keys=symbols, 
+               use.names=FALSE, 
+               columns = c('ENTREZID', 'SYMBOL')
+               )
+  return(map)
+}
+map = map_symbol_to_entrez(mouse_symbol, "SYMBOL")
+print(map)
+```
+
+## Merge the identifiers together
+
+### Cancer Cell Line Encyclopedia
+```{r, warning=FALSE, message=FALSE}
 
 effect[, 1] = ensembl
 pvalue[, 1] = ensembl
@@ -56,10 +87,8 @@ filename = "~/Data/RNASeq/CCLE/Mapped_Processed_CCLE.xlsx"
 sheets = list("EffectSize"=effect, "PValue"=pvalue)
 write_xlsx(sheets, filename)
 
-
 # Get gene identifiers
 geneIDs = df[, c("ENSEMBL", "ENTREZID", "Gene Name")]
-
 
 # Get raw data
 drops = c("ENSEMBL", "ENTREZID", "SYMBOL", "Gene Name")
@@ -74,24 +103,45 @@ library(tidyr)
 cols = separate(data=cols, col=cols, into=c("Tissue", "Cell Line"), sep=", ")
 ```
 
-Save all data as Excel file
+### Khao et al., 2020
+```{r, warning=FALSE, message=FALSE}
+library(tools)
 
-```{r}
+map[, 1] = tolower(map[, 1])
+substr(map[, 1], 1, 1) = toupper(substr(map[, 1], 1, 1))
+print(map)
+```
+
+```{r, warning=FALSE, message=FALSE}
+final_df = merge(map, effect, by.x='SYMBOL', by.y='Gene (n=2,020)')
+print(final_df)
+```
+
+
+# Save all data as Excel file
+
+## Cancer Cell Line Encyclopedia
+```{r, warning=FALSE, message=FALSE}
 install.packages("xlsx")
 library("xlsx")
-
 filename = ""
-
 write.xlsx(geneIDs, filename, 
            sheetName="GeneID",
            col.names=TRUE, row.names=FALSE)
-
 write.xlsx(df, filename, 
            sheetName="Eset", 
            col.names=TRUE, row.names=FALSE)
-
 write.xlsx(cols, filename, 
            sheetName="CellIDs",
            col.names=TRUE, row.names=FALSE)
+```
 
+## Khao et al., 2020
+```{r, warning=FALSE, message=FALSE}
+install.packages('openxlsx') # Install just once
+library(openxlsx) # Load on each new session
+filename = "~/Data/RNASeq/Dou/MappedDE.xlsx"
+write.xlsx(final_df, filename, 
+           sheetName="DE",
+           col.names=TRUE, row.names=FALSE)
 ```
