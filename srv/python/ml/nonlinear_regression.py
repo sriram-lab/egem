@@ -161,11 +161,17 @@ The following line below performs Bayesian hyperparameter optimization using a r
 """
 
 from sklearn.model_selection import KFold
+<<<<<<< HEAD
+from sklearn.model_selection import KFold
+from time import sleep
+import progressbar
+=======
 from time import sleep
 import progressbar
 
 bar = progressbar.ProgressBar(maxval=Ytrain.shape[1], \
     widgets=[progressbar.Bar('=', '[', ']'), ' ', progressbar.Percentage()])
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 # Set the kfold operator to split 3 times with shuffle
 kfold = KFold(n_splits=3, 
@@ -173,6 +179,18 @@ kfold = KFold(n_splits=3,
               random_state=0)
 
 # Set the bayesian hyperparameter tuning to also include kfold cross validation
+<<<<<<< HEAD
+opt1 = BayesSearchCV(
+    estimator=RandomForestRegressor(),
+    search_spaces=rf_params,
+    cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
+    random_state=0
+)
+
+bar.start()
+=======
 #opt1 = BayesSearchCV(
 #    estimator=RandomForestRegressor(),
 #    search_spaces=rf_params,
@@ -183,6 +201,7 @@ kfold = KFold(n_splits=3,
 #)
 
 #bar.start()
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 # Construct univariate random forest models and append to mdls list
 <<<<<<< HEAD
 #mdls = []
@@ -199,10 +218,21 @@ kfold = KFold(n_splits=3,
 #bar.finish()
 =======
 mdls = []
+model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
+print("Starting random forest hyperparameter optimization and cross validation")
 for i in range(Ytrain.shape[1]):
-  _ = opt1.fit(Xtrain, Ytrain)
-  mdls.append(opt1)
+    _ = opt1.fit(Xtrain, Ytrain[:, i])
+    mdls.append(opt1)
 
+<<<<<<< HEAD
+    model_path='/home/scampit/Data/Models/GCP2Met/rf.pkl'
+    dump(res=mdls, filename=model_path)
+    
+    bar.update(i+1)
+    sleep(0.1)
+print("Finished random forest hyperparameter optimization and cross validation")
+bar.finish()
+=======
 """### Save RF GCP -> MET model 
 Ensure model persistence by saving the serialized version of the model
 """
@@ -210,6 +240,7 @@ Ensure model persistence by saving the serialized version of the model
 model_path='/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'
 dump(mdls, model_path)
 >>>>>>> 6460e3458cffd5e531b83fa268d6c2a5083b1b59
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 """### Gradient boosting
 Now let's train the remaining GCP -> MET models and save them as well.
@@ -245,9 +276,9 @@ Now let's train the remaining GCP -> MET models and save them as well.
 opt2 = BayesSearchCV(
     estimator=GradientBoostingRegressor(),
     search_spaces=gb_params,
-    n_iter=30,
-    n_jobs=4,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
@@ -291,9 +322,9 @@ Same for the extra trees -> train them and save them.
 opt3 = BayesSearchCV(
     estimator=ExtraTreesRegressor(),
     search_spaces=et_params,
-    n_iter=30,
-    n_jobs=4,
     cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
     random_state=0
 )
 
@@ -310,6 +341,16 @@ Same for gradient boosting -> train them and save them.
 """
 
 # Create object that will perform Bayesian hyperparameter tuning with 30 different iterations
+<<<<<<< HEAD
+opt4 = BayesSearchCV(
+    estimator=xgb.XGBRegressor(),
+    search_spaces=xgb_params,
+    cv=kfold,
+    n_iter=30,
+    n_jobs=-1,
+    random_state=0
+)
+=======
 #opt4 = BayesSearchCV(
 #    estimator=xgb.XGBRegressor(),
 #    search_spaces=xgb_params,
@@ -318,6 +359,7 @@ Same for gradient boosting -> train them and save them.
 #    n_jobs=-1,
 #    random_state=0
 #)
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 # Create an object that will store all models
 <<<<<<< HEAD
@@ -418,12 +460,16 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
     for j in range(Ytrain.shape[1]):
       _ = opt.fit(Xtrain, Ytrain[:, j])
       mdls.append(opt)
+<<<<<<< HEAD
+      dump(mdls, model_path)
+=======
       dump(res=mdls, filename=model_path)
       
       bar.update(j+1)
       sleep(0.1)
     print("Finished hyperparameter optimization and cross validation")
     bar.finish()
+>>>>>>> da8992e4440baf2110e8a01ef6ff283617765fe4
 
 """Finally, let's train the models."""
 
