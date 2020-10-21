@@ -1,0 +1,4 @@
+  File "/nfs/turbo/umms-csriram/scampit/Software/egem/srv/python/ml/regression.py", line 236
+    !pip install scikit-optimize
+    ^
+SyntaxError: invalid syntax

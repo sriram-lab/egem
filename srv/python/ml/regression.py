@@ -128,15 +128,18 @@ MET = MET[MET['CCL'].isin(idx)]
 GCP = GCP.drop_duplicates(subset='Cell Line', keep='first')
 MET = MET.drop_duplicates(subset='CCL', keep='first')
 
-GCP = GCP.sort_values(by=['Cell Line'])
-MET = MET.sort_values(by=['CCL'])
-#print(GCP.shape)
-#print(MET.shape)
+# Must assert that cell name is string for some reason.
+GCP['Cell Line'] = GCP['Cell Line'].astype(str)
+MET['CCL'] = MET['CCL'].astype(str)
+
+GCP = GCP.sort_values('Cell Line')
+MET = MET.sort_values('CCL')
+
 
 """To sanity check, let's continue looking at the dataframes"""
 
-print(GCP.head(10))
-print(MET.head(10))
+#print(GCP.head(10))
+#print(MET.head(10))
 
 """Finally, we'll save the cell line names in a list, and remove them from their respective data frames."""
 
@@ -233,13 +236,13 @@ We'll train the following regressors:
 """
 
 # ML models
-!pip install scikit-optimize
+#!pip install scikit-optimize
 from sklearn import linear_model as lm
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
-!pip install xgboost
+#!pip install xgboost
 import xgboost as xgb
 
 # Accessory functions
@@ -248,9 +251,9 @@ from sklearn.metrics import mean_squared_error
 from skopt import BayesSearchCV
 from skopt.space import Real, Categorical, Integer
 
-!pip3 install progressbar
-from time import sleep
-import progressbar
+#!pip3 install progressbar
+#from time import sleep
+#import progressbar
 
 # Suppress annoying warnings
 import warnings
@@ -336,7 +339,7 @@ We'll run all steps as a single for loop. So we need to save the initial model s
 """
 
 models = [
-          lm.HuberRegressor(),
+          lm.HuberRegressor(max_iter=1000),
           lm.Ridge(),
           lm.Lasso(),
           lm.ElasticNet(),
@@ -442,15 +445,15 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
       )
 
       mdls =[]
-      bar.start()
+      #bar.start()
       for j in range(Ytrain.shape[1]):
         _ = opt.fit(Xtrain, Ytrain[:, j])
         mdls.append(opt)
         dump(res=mdls, filename=filename[i])
-        bar.update(j)
-        sleep(0.1)
-      print("Finished hyperparameter optimization and cross validation for model number: " 
-                    + str(i))
+        #bar.update(j)
+        #sleep(0.1)
+      #print("Finished hyperparameter optimization and cross validation for model number: " 
+      #              + str(i))
 
 """Now let's train the models."""
 
@@ -584,7 +587,7 @@ def evaluate_models(models, Xval, Yval):
   """
 
   final_metrics = []
-  for j = 1 in range(len(models)):
+  for j in range(len(models)):
     # Iterate through model objects
     m = models[j]
 
