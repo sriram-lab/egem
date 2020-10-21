@@ -13,17 +13,17 @@ This notebook maps different gene and protein identifiers to Entrez IDs. This is
 # Load up libraries
 First, let's load up some data science libraries to help manipulate some tables / dataframes.
 ```{r, warning=FALSE, message=FALSE}
-install.packages("tidyverse")
-install.packages("readxl")
+#install.packages("tidyverse")
+#install.packages("readxl")
 
 library(readxl)
 library(dplyr)
 ```
 Let's also load up Bioconductor and the mapping database:
 ```{r, warning=FALSE, message=FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(c("hgu133plus2.db", "org.Hs.eg.db"))
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages("BiocManager")
+#BiocManager::install(c("hgu133plus2.db", "org.Hs.eg.db"))
 library(hgu133plus2.db)
 library(org.Hs.eg.db)
 ```
@@ -47,11 +47,27 @@ effect = read_excel(filename, sheet='Differential gene expression', skip=1)
 print(effect)
 ```
 
+## Lu et al., 2019
+```{r, warning=FALSE, message=FALSE}
+filename = "~/Data/Proteomics/Garcia/DEP_EMT.xlsx"
+effect = read_excel(filename, sheet='Log2FC')
+pvalue = read_excel(filename, sheet='PValue')
+
+print(effect)
+```
+
 # Map the identifiers
 
 ## Get gene ids to map
+
+### Khao et al., 2020
 ```{r, warning=FALSE, message=FALSE}
 mouse_symbol = apply(effect[, 1], 2, toupper)
+```
+
+### Lu et al., 2019
+```{r, warning=FALSE, message=FALSE}
+mouse_symbol = apply(effect[, 3], 2, toupper)
 ```
 
 Finally, I've created several functions that will allow us to map identifiers using any dataset. 
@@ -109,14 +125,26 @@ library(tools)
 
 map[, 1] = tolower(map[, 1])
 substr(map[, 1], 1, 1) = toupper(substr(map[, 1], 1, 1))
-print(map)
-```
 
-```{r, warning=FALSE, message=FALSE}
 final_df = merge(map, effect, by.x='SYMBOL', by.y='Gene (n=2,020)')
 print(final_df)
 ```
 
+### Lu et al., 2019
+```{r, warning=FALSE, message=FALSE}
+library(tools)
+
+map[, 1] = tolower(map[, 1])
+substr(map[, 1], 1, 1) = toupper(substr(map[, 1], 1, 1))
+print(map)
+```
+
+```{r, warning=FALSE, message=FALSE}
+final_effect = merge(map, effect, by.x='SYMBOL', by.y='Majority Gene name')
+final_pvalue = merge(map, pvalue, by.x='SYMBOL', by.y='Majority Gene name')
+
+print(final_effect)
+```
 
 # Save all data as Excel file
 
