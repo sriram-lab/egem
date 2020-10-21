@@ -25,12 +25,24 @@ clear all;
 =======
 
 %  Initialize the Umich Cluster profiles
-setupUmichClusters
-NP = str2num(getenv('SLURM_NTASKS'));
-thePool = parpool('current', NP);
+%setupUmichClusters
+%NP = str2num(getenv('SLURM_NTASKS'));
+%thePool = parpool('current', NP);
+%poolobj = parpool;
 
+<<<<<<< HEAD
+addpath('/nfs/turbo/umms-csriram/scampit/Software/cobratoolbox');
+addpath('/nfs/turbo/umms-csriram/scampit/Software/gurobi903/linux64/matlab');
+addpath('/nfs/turbo/umms-csriram/scampit/Software/metabolicmodeling');
+addpath('/nfs/turbo/umms-csriram/scampit/Software/egem/srv/matlab/CBM');
+setenv('GRB_LICENSE_FILE', '/nfs/turbo/umms-csriram/scampit/Software/gurobi903/linux64/gurobi.lic');
+
+initCobraToolbox(false); 
+changeCobraSolver('gurobi', 'all');
+=======
 >>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 initCobraToolbox; changeCobraSolver('gurobi', 'all');
+>>>>>>> 894866c9d85e35f5fc7f9a9a52041f8ab68ca8f4
 %% 2. Load metabolic models
 % This code block loads specific versions of the eGEMM. There are currently 
 % two versions of the eGEMM:
@@ -169,7 +181,7 @@ histoneReactionMap = xlsread(histoneReactionFile, 'Genes');
 >>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
 
 % Edit Entrez 
-histone_entrez = cell2mat(histoneReactionMap(2:end, 8));
+histone_entrez = histoneReactionMap(:, 1);
 histone_entrez = string(histone_entrez);
 % SANITY CHECK 2: Intersecting Entrez IDs between metabolic model and dataset
 % This code block just checks and sees if there are any intersecting genes with 
@@ -227,6 +239,7 @@ save(filepaths(2), 'write_flux', 'write_grate');
 entrez_ids = string(entrez_ids);
 
 % Switch between reconstruction with all reactions and writers only
+%addAttachedFiles(poolobj, {medium_file, '/nfs/turbo/umms-csriram/scampit/Software/metabolicmodeling/MATLAB/Constrainers/addMediumConstraints.mlx'});
 for i = 1:length(models)
     
     mdl = models{i};
@@ -243,7 +256,7 @@ for i = 1:length(models)
         fluxes = zeros([length(mdl.rxns), size(log2fc, 2)]);
         
         % Run through all cancer cell lines
-        parfor k = 1:size(log2fc, 2)
+        for k = 1:size(log2fc, 2)
     
             % Get differentially expressed genes for each cancer cell line.
             DE{k}.name    = cell_names(k);
@@ -397,13 +410,13 @@ all_gamma_grate = cell(length(dm_reactions), 1);
 write_gamma_flux = cell(length(dm_reactions), 1);
 write_gamma_grate = cell(length(dm_reactions), 1);
 
-save(filepaths(1), 'all_gamma_flux', 'all_gamma_grate');
+%save(filepaths(1), 'all_gamma_flux', 'all_gamma_grate');
 save(filepaths(2), 'write_gamma_flux', 'write_gamma_grate');
 
 entrez_ids = string(entrez_ids);
 
 % Switch between reconstruction with all reactions and writers only
-for i = 1:length(models)
+for i = 2:length(models)
     
     mdl = models{i};
     mdl.genes = mdl.geneEntrezID;
@@ -423,7 +436,7 @@ for i = 1:length(models)
         fluxes = zeros([length(mdl.rxns), size(log2fc, 2)]);
         
         % Run through all cancer cell lines
-        parfor k = 1:size(log2fc, 2)
+        for k = 1:size(log2fc, 2)
             
             % Set up hyperparameters for the linear programming section
             hyperparams = struct();
@@ -493,5 +506,8 @@ end
 %
 =======
 end
+<<<<<<< HEAD
+=======
 delete(thePool)
 >>>>>>> 43c2a4cac8a06873849b43e731256f2ee2e1a8b8
+>>>>>>> 894866c9d85e35f5fc7f9a9a52041f8ab68ca8f4
