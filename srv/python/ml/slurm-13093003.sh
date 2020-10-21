@@ -13,4 +13,4 @@
 #SBATCH --partition=standard
 
 source /nfs/turbo/umms-csriram/scampit/PyEnvs/ml/bin/activate
-python3 /nfs/turbo/umms-csriram/scampit/Software/egem/srv/python/ml/nonlinear_regression.py
+python3 /nfs/turbo/umms-csriram/scampit/Software/egem/srv/python/ml/regression.py
