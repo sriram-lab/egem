@@ -21,18 +21,18 @@ import pandas as pd
 import numpy as np
 
 # Load relevant libraries for Google Colab
-from google.colab import auth
-auth.authenticate_user()
+#from google.colab import auth
+#auth.authenticate_user()
 
 # Allows us to read in Google Sheets via url
-import gspread
-from oauth2client.client import GoogleCredentials
-gc = gspread.authorize(GoogleCredentials.get_application_default())
+#import gspread
+#from oauth2client.client import GoogleCredentials
+#gc = gspread.authorize(GoogleCredentials.get_application_default())
 
 # Mount Google Drive, which will allow you to read in files within your Google 
 # Drive if you wish to repurpose this for other datasets
-from google.colab import drive
-drive.mount('/content/drive')
+#from google.colab import drive
+#drive.mount('/content/drive')
 
 """## Accessory functions
 I use this code to read in various Google sheets as Pandas dataframes. So here's a function that simplifies this operation by a lot.
@@ -88,19 +88,27 @@ This code block will train several univariate models for each target variable $Y
 This code block loads the GCP and metabolomics datasets for single histone markers and metabolites.
 """
 
-gcp_url = 'https://docs.google.com/spreadsheets/d/1eRwYUZve16ALg-DvwAooWPvMJfRn8j6ggUp-HVDb84A/edit?usp=sharing'
-met_url = 'https://docs.google.com/spreadsheets/d/1V1JEugHtnQrfqOxFD-Nsqa3KM2PaegNsp22J4dp8vy4/edit?usp=sharing'
+# Needed for running on Google Colab
+#gcp_url = 'https://docs.google.com/spreadsheets/d/1eRwYUZve16ALg-DvwAooWPvMJfRn8j6ggUp-HVDb84A/edit?usp=sharing'
+#met_url = 'https://docs.google.com/spreadsheets/d/1V1JEugHtnQrfqOxFD-Nsqa3KM2PaegNsp22J4dp8vy4/edit?usp=sharing'
 
-GCP = read_gsheet(url=gcp_url, sheetname='ACME')
-MET = read_gsheet(met_url, sheetname='All + FA')
+#GCP = read_gsheet(url=gcp_url, sheetname='ACME')
+#MET = read_gsheet(met_url, sheetname='All + FA')
 
-print(GCP.shape)
-print(MET.shape)
+# Needed to run server side
+gcp_path = '/nfs/turbo/umms-csriram/scampit/Data/Proteomics/CCLE/CCLE Global Chromatin Profiles.xlsx'
+met_path = '/nfs/turbo/umms-csriram/scampit/Data/Metabolomics/CCLE/CCLE metabolomics dataset.xlsx'
+
+GCP = pd.read_excel(gcp_path, 'ACME')
+MET = pd.read_excel(met_path, 'All')
+
+#print(GCP.shape)
+#print(MET.shape)
 
 """Let's also get a preview of the datasets"""
 
-print(GCP.head(10))
-print(MET.head(10))
+#print(GCP.head(10))
+#print(MET.head(10))
 
 """We don't need some of the meta data in the `MET` dataframe"""
 
@@ -120,15 +128,18 @@ MET = MET[MET['CCL'].isin(idx)]
 GCP = GCP.drop_duplicates(subset='Cell Line', keep='first')
 MET = MET.drop_duplicates(subset='CCL', keep='first')
 
-GCP = GCP.sort_values(by=['Cell Line'])
-MET = MET.sort_values(by=['CCL'])
-print(GCP.shape)
-print(MET.shape)
+# Must assert that cell name is string for some reason.
+GCP['Cell Line'] = GCP['Cell Line'].astype(str)
+MET['CCL'] = MET['CCL'].astype(str)
+
+GCP = GCP.sort_values('Cell Line')
+MET = MET.sort_values('CCL')
+
 
 """To sanity check, let's continue looking at the dataframes"""
 
-print(GCP.head(10))
-print(MET.head(10))
+#print(GCP.head(10))
+#print(MET.head(10))
 
 """Finally, we'll save the cell line names in a list, and remove them from their respective data frames."""
 
@@ -142,23 +153,23 @@ Let's check out the distributions between the two datasets. Note that for some r
 GCP = GCP.apply(pd.to_numeric, errors = 'coerce')
 MET = MET.apply(pd.to_numeric, errors = 'coerce')
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-plt.figure(figsize=(12, 12))
-sns.distplot(GCP, bins=100)
-sns.distplot(MET, bins=100)
-plt.legend(['GCP', 'Metabolomics'])
+#import matplotlib.pyplot as plt
+#import seaborn as sns
+#plt.figure(figsize=(12, 12))
+#sns.distplot(GCP, bins=100)
+#sns.distplot(MET, bins=100)
+#plt.legend(['GCP', 'Metabolomics'])
 
 """The only thing we'll probably need to do is mean center the metabolomics data."""
 
 MET = MET - MET.mean()
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-plt.figure(figsize=(12, 12))
-sns.distplot(GCP, bins=100)
-sns.distplot(MET, bins=100)
-plt.legend(['GCP', 'Metabolomics'])
+#import matplotlib.pyplot as plt
+#import seaborn as sns
+#plt.figure(figsize=(12, 12))
+#sns.distplot(GCP, bins=100)
+#sns.distplot(MET, bins=100)
+#plt.legend(['GCP', 'Metabolomics'])
 
 """## 1d. Train on GCP to predict metabolism
 First, let's split the data into training and test sets.
@@ -189,24 +200,24 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
 
 import sys
 np.set_printoptions(threshold=sys.maxsize)
-print(Xtrain)
-print(Ytrain)
+#print(Xtrain)
+#print(Ytrain)
 
 """Print shape of $X_{train}$ and $Y_{train}$."""
 
-print(Xtrain.shape)
-print(Ytrain.shape)
-print(Xval.shape)
-print(Yval.shape)
+#print(Xtrain.shape)
+#print(Ytrain.shape)
+#print(Xval.shape)
+#print(Yval.shape)
 
 """Ensure that all values are finite."""
 
-print(np.sum(Xtrain == np.inf))
-print(np.sum(Xtrain == -np.inf))
-print(np.sum(Xtrain == np.NaN))
-print(np.sum(Ytrain == np.inf))
-print(np.sum(Ytrain == -np.inf))
-print(np.sum(Ytrain == np.NaN))
+#print(np.sum(Xtrain == np.inf))
+#print(np.sum(Xtrain == -np.inf))
+#print(np.sum(Xtrain == np.NaN))
+#print(np.sum(Ytrain == np.inf))
+#print(np.sum(Ytrain == -np.inf))
+#print(np.sum(Ytrain == np.NaN))
 
 """### 1d.1. 3-fold cross validation for univariate regression
 Now let's train a bunch of non-linear regressors and evaluate their performance.
@@ -225,13 +236,13 @@ We'll train the following regressors:
 """
 
 # ML models
-!pip install scikit-optimize
+#!pip install scikit-optimize
 from sklearn import linear_model as lm
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.ensemble import GradientBoostingRegressor
-!pip install xgboost
+#!pip install xgboost
 import xgboost as xgb
 
 # Accessory functions
@@ -240,9 +251,9 @@ from sklearn.metrics import mean_squared_error
 from skopt import BayesSearchCV
 from skopt.space import Real, Categorical, Integer
 
-!pip3 install progressbar
-from time import sleep
-import progressbar
+#!pip3 install progressbar
+#from time import sleep
+#import progressbar
 
 # Suppress annoying warnings
 import warnings
@@ -328,7 +339,7 @@ We'll run all steps as a single for loop. So we need to save the initial model s
 """
 
 models = [
-          lm.HuberRegressor(),
+          lm.HuberRegressor(max_iter=1000),
           lm.Ridge(),
           lm.Lasso(),
           lm.ElasticNet(),
@@ -350,7 +361,7 @@ params = [
           xgb_params
 ]
 
-# Names stored on desktop
+# Names stored on local
 #names = [
 #         '/home/scampit/Data/Models/GCP2Met/robust.pkl',
 #         '/home/scampit/Data/Models/GCP2Met/ridge.pkl',
@@ -363,18 +374,31 @@ params = [
 #         '/home/scampit/Data/Models/GCP2Met/xgb.pkl'
 #]
 
-# Path for Google Drive
+# Path for server
 names = [
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/robust.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/ridge.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/lasso.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/en.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/svr.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/rf.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/gb.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/et.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/xgb.pkl'
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/robust.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/ridge.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/lasso.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/en.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/svr.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl'
 ]
+
+# Path for Google Drive
+#names = [
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/robust.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/ridge.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/lasso.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/en.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/svr.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/rf.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/gb.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/et.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/xgb.pkl'
+#]
 
 """### 1d.4. Specify k-folds operator
 We'll specify the number of k-folds.
@@ -421,15 +445,15 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
       )
 
       mdls =[]
-      bar.start()
+      #bar.start()
       for j in range(Ytrain.shape[1]):
         _ = opt.fit(Xtrain, Ytrain[:, j])
         mdls.append(opt)
         dump(res=mdls, filename=filename[i])
-        bar.update(j)
-        sleep(0.1)
-      print("Finished hyperparameter optimization and cross validation for model number: " 
-                    + str(i))
+        #bar.update(j)
+        #sleep(0.1)
+      #print("Finished hyperparameter optimization and cross validation for model number: " 
+      #              + str(i))
 
 """Now let's train the models."""
 
@@ -458,18 +482,31 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
 #         '/home/scampit/Data/Models/Met2GCP/xgb.pkl'
 #]
 
-# Google Drive version
+# Path for server
 names = [
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/robust.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/ridge.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/lasso.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/en.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/svr.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/rf.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/gb.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/et.pkl',
-         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/xgb.pkl'
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/robust.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/ridge.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/lasso.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/en.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/svr.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl',
+         '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl'
 ]
+
+# Google Drive version
+#names = [
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/robust.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/ridge.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/lasso.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/en.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/svr.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/rf.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/gb.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/et.pkl',
+#         '/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/xgb.pkl'
+#]
 
 train_models(models, params, Xtrain, Ytrain, kfold, names)
 
@@ -507,17 +544,29 @@ Let's now load the models we have trained to predict metabolite values from chro
 #         load('/home/scampit/Data/Models/GCP2Met/xgb.pkl')
 #]
 
-# Google Drive
-mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/robust.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/ridge.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/lasso.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/en.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/svr.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/rf.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/gb.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/et.pkl'),
-         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/xgb.pkl')
+# Server
+mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/robust.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/ridge.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/lasso.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/en.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/svr.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/rf.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gb.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/et.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/xgb.pkl')
 ]
+
+# Google Drive
+#mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/robust.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/ridge.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/lasso.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/en.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/svr.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/rf.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/gb.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/et.pkl'),
+#         load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/GCP2MET/xgb.pkl')
+#]
 
 """## 2.4 Create a function that will evaluate the models
 The `evaluate_models()` function will compute evaluation metrics and spit out the final metrics of interest.
@@ -538,7 +587,7 @@ def evaluate_models(models, Xval, Yval):
   """
 
   final_metrics = []
-  for j = 1 in range(len(models)):
+  for j in range(len(models)):
     # Iterate through model objects
     m = models[j]
 
@@ -590,13 +639,13 @@ final_metrics = final_metrics.sort_values(by=["Metabolites"],
                                           ascending=True)
 
 # Save to Google Sheet 
-url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
-sheetname = 'GCP2Met'
-save_gsheet(final_metrics, url, sheetname)
+#url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
+#sheetname = 'GCP2Met'
+#save_gsheet(final_metrics, url, sheetname)
 
 # Save to local
-path = '/home/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
-final_metrics.to_csv(path)
+#path = '/home/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
+#final_metrics.to_csv(path)
 
 # Save to server
 path = '/nfs/turbo/umms-csriram/scampit/Data/Models/GCP2Met/gcp2met_metrics.csv'
@@ -611,6 +660,7 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
     MET, GCP, test_size=0.3, random_state=0
 )
 
+# Local
 #mdls = [load('/home/scampit/Data/Models/Met2GCP/robust.pkl'),
 #        load('/home/scampit/Data/Models/Met2GCP/ridge.pkl'),
 #        load('/home/scampit/Data/Models/Met2GCP/lasso.pkl'),
@@ -622,16 +672,29 @@ Xtrain, Xval, Ytrain, Yval = train_test_split(
 #        load('/home/scampit/Data/Models/Met2GCP/xgb.pkl')
 #]
 
-mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/robust.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/ridge.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/lasso.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/en.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/svr.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/rf.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/gb.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/et.pkl'),
-        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/xgb.pkl')
+# Server
+mdls = [load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/robust.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/ridge.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/lasso.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/en.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/svr.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/rf.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/gb.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/et.pkl'),
+         load('/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/xgb.pkl')
 ]
+
+# Google Drive
+#mdls = [load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/robust.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/ridge.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/lasso.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/en.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/svr.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/rf.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/gb.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/et.pkl'),
+#        load('/content/drive/My Drive/Work/Analysis/eGEMM/ML/Regression/MET2GCP/xgb.pkl')
+#]
 final_metrics = evaluate_models(mdls, Xval, Yval)
 
 # Flatten the array so that 
@@ -642,13 +705,13 @@ final_metrics = final_metrics.sort_values(by=["GCP"],
                                           ascending=True)
 
 # Save the metrics to the Google sheet directly
-url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
-sheetname = 'Met2GCP'
-save_gsheet(final_metrics, url, sheetname)
+#url = 'https://docs.google.com/spreadsheets/d/1_tFjeBplSfozCw0VIU84j8d0NTm4CyOAFr9tXQfBLoE/edit?usp=sharing'
+#sheetname = 'Met2GCP'
+#save_gsheet(final_metrics, url, sheetname)
 
 # Save to local
-path = '/home/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
-final_metrics.to_csv(path)
+#path = '/home/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
+#final_metrics.to_csv(path)
 
 # Save to server
 path = '/nfs/turbo/umms-csriram/scampit/Data/Models/Met2GCP/met2gcp_metrics.csv'
