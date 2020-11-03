@@ -12,5 +12,8 @@
 #SBATCH --account=lsa1
 #SBATCH --partition=standard
 
-source /nfs/turbo/umms-csriram/scampit/PyEnvs/ml/bin/activate
+module load python3
+source /nfs/turbo/umms-csriram/scampit/Envs/python/ml/bin/activate
+pip install --upgrade pip --user
+pip3 install -r /nfs/turbo/umms-csriram/scampit/Software/egem/srv/python/ml/requirements.txt --user
 python3 /nfs/turbo/umms-csriram/scampit/Software/egem/srv/python/ml/regression.py
