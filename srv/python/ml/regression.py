@@ -145,6 +145,8 @@ MET = MET.sort_values('CCL')
 
 cell_lines = list(GCP.pop('Cell Line'))
 MET = MET.drop('CCL', axis=1)
+gcps = GCP.columns.values
+metabolites = MET.columns.values
 
 """## 1c. SANITY CHECK: Plot the data distributions for the metabolites and histone ratios
 Let's check out the distributions between the two datasets. Note that for some reason the data is not being read as a numeric data type. Thus, I also need to coerce the data into a numeric data type.
@@ -457,19 +459,16 @@ def train_models(models, params, Xtrain, Ytrain, kfold, filename):
 
 """Now let's train the models."""
 
-train_models(models, params, Xtrain, Ytrain, kfold, names)
+#train_models(models, params, Xtrain, Ytrain, kfold, names)
 
 """## 1e. Train on metabolomics to predict GCP
 Now we'll do the reverse problem, using the same hyperparameters and functions set up above. The only other thing we'll change besides the $X$ and $Y$ variables are the file names to save these sets of models.
 """
 
 # Split the CCLE data into a validation set
-Xtrain, Xval, Ytrain, Yval = train_test_split(
-                                              MET, GCP, 
-                                              test_size=0.3, random_state=0
-)
+Xtrain, Xval, Ytrain, Yval = train_test_split(MET, GCP, test_size=0.3, random_state=0)
 
-# Desktop version
+# Linux version
 #names = [
 #         '/home/scampit/Data/Models/Met2GCP/robust.pkl',
 #         '/home/scampit/Data/Models/Met2GCP/ridge.pkl',
@@ -606,8 +605,8 @@ def evaluate_models(models, Xval, Yval):
 
       r_values.append(r)
       p_values.append(pvalue)
-      mae.append(mae)
-      mse.append(mse)
+      mae_values.append(mae)
+      mse_values.append(mse)
 
     # Save the metrics in a dataframe
     pre_df = {
