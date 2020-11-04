@@ -122,3 +122,5 @@ envs/
 
 # R 
 .Rhistory
+
+.vscode

@@ -1,35 +1,104 @@
 ---
 title: "Differential expression analysis"
 author: "Scott Campit"
-output: html_notebook
+output: 
+  html_notebook:
+    toc: yes
 ---
 
-# Summary
-This notebook performs differential expression analysis for various datasets. 
+## Summary
+This notebook performs differential expression analysis for various transcriptomics datasets. 
 
+**UPDATES: **
 
-## Cancer Cell Line Encyclopedia (CCLE)
-
-
-```{r}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-BiocManager::install(version = "3.11")
-BiocManager::install("edgeR")
-
+  * November 4, 2020: Added more stringent and robust differential expression analysis options.
+  * Follow computational pipeline outlined in Yu, et al. (2019). Comprehensive transcriptomic analysis of cell lines as models of primary tumors across 22 tumor types. Nature communications, 10(1), 1-11.
+  * Compute differentially expressed genes using both edgeR, DESeq2, and limma-voom
+  * Take intersection of differentially expressed genes 
+  
+## 1. Load libraries
+First we'll load some essential packages needed to run differential expression analysis.
+```{r, warning=FALSE, message=FALSE}
+# Bioinformatics libraries
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#    install.packages(c("BiocManager", "edgeR", 
+#                       "DESeq2", "limma", 
+#                       "sva", "PCAtools"))
 library(edgeR)
+library(DESeq2)
+library(limma)
+library(sva)
 
-install.packages("tidyverse")
-install.packages("readr")
-
+# Data science libraries
+#install.packages(c("tidyverse", "readr", "rrcov"))
+library(tidyverse)
 library(readr)
-
+library(rrcov)
 
 ```
+
+## 2. Perform Differential Expression on Cancer Cell Line Encyclopedia (CCLE)
+
+This code block computes differential expression for the Cancer cell line encylopedia for both individual cancer cell lines and tissue models.
+
 First, let's load the table with the gene counts.
-
 ```{r}
-filepath = '~/Data/Expression/RNASeq/CCLE/CCLE_counts.tsv'
+# Windows path
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_counts.tsv"
+ccle = read.table(file=readpath)
+print(head(x=ccle, n=10))
+```
+
+### Remove outliers
+We will first remove some outliers using Robust PCA. It combines two ideas to find outliers:
+  1. Find projections with maximal dispersion using a grid search.
+  2. Estimate the covariance using an idea similar to Hubert robust regression.
+
+The publication that benchmarks several robust PCA algorithms and the classical PCA counterparts can be found here: Chen, X., Zhang, B., Wang, T., Bonni, A., & Zhao, G. (2020). Robust principal component analysis for accurate outlier sample detection in RNA-Seq data. BMC bioinformatics, 21(1), 1-20.
+
+First let's compute PCs and visualize the data
+```{r}
+# Plot the principle components
+pc1 = PcaHubert(ccle)
+plot(pc1)
+pc2 = PcaHubert(ccle, k=2)  
+plot(pca2)
+
+# Additional diagnostic plots
+screeplot(pc1)
+biplot(pc1)
+
+# Get the outliers
+outliers = which(pc@flag=="False")
+```
+
+### Data Normalization 
+Now let's perform upper quartile normalization and log transformation on the counts.
+```{r}
+# Construct an object for limma-voom
+X = DGEList(counts=ccle)
+
+# Perform upper-quartile normalization
+Xnorm = calcNormFactors(X, method="upperquartile")
+Xcpm = cpm(Xnorm, log=TRUE, prior.count=1)
+```
+
+### Save normalized data 
+We'll save the results as an .rds file.
+```{r}
+# Save data for later processing
+savepath = "C:\Users\scott\Data\RNASeq\CCLE\CCLE_CPM.rds"
+saveRDS(Xcpm, savepath)
+```
+
+### Batch correction 
+Now that I have this data, I should correct for sequencing platform differences using ComBat.
+```{r}
 
 ```
 
+### Save batch corrected data
+Now that I performed the batch correction and normalization, let's perform differential expression.
+```{r}
+
+```
