@@ -28,6 +28,7 @@ library(edgeR)
 library(DESeq2)
 library(limma)
 library(sva)
+library(PCAtools)
 
 # Data science libraries
 #install.packages(c("tidyverse", "readr", "rrcov"))
@@ -80,25 +81,20 @@ min_impute = function(df){
 ccle = min_impute(ccle)
 ```
 
-Check for NaNs
+Check for NaNs. It looks like there are none
 ```{r}
-print(paste("Number of NaNs: ", str(sum(is.na(ccle)))))
+print(cat("Number of NaNs: ", (sum(is.na(ccle))))
 ```
 
-First let's compute PCs and visualize the data. 
+First let's compute PCs and visualize the data with classical PCA. 
 ```{r}
-# Plot the principle components
-pc1 = PcaHubert(data.matrix(ccle))
-plot(pc1)
-pc2 = PcaHubert(data.matrix(ccle), k=2)  
-plot(pca2)
+pc=pca(ccle)
+screeplot(pc)
+biplot(pc)
 
-# Additional diagnostic plots
-screeplot(pc1)
-biplot(pc1)
 
 # Get the outliers
-outliers = which(pc@flag=="False")
+#outliers = which(pc@flag=="False")
 ```
 
 ### Data Normalization 
