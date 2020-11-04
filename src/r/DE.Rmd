@@ -44,9 +44,17 @@ This code block computes differential expression for the Cancer cell line encylo
 First, let's load the table with the gene counts.
 ```{r}
 # Windows path
-readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_counts.tsv"
-ccle = read.table(file=readpath)
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+ccle = read_delim(file=readpath, delim='\t')
 print(head(x=ccle, n=10))
+```
+
+We have to clean up the data slightly. First, we'll extract the name of the tumor subtype and store in a separate vector.
+
+```{r}
+tmp = colnames(ccle)
+tissue = substr(tmp, 1, regexpr(",", tmp)-1)
+ccl = sub(",*xxx", "", tmp)
 ```
 
 ### Remove outliers
@@ -56,12 +64,33 @@ We will first remove some outliers using Robust PCA. It combines two ideas to fi
 
 The publication that benchmarks several robust PCA algorithms and the classical PCA counterparts can be found here: Chen, X., Zhang, B., Wang, T., Bonni, A., & Zhao, G. (2020). Robust principal component analysis for accurate outlier sample detection in RNA-Seq data. BMC bioinformatics, 21(1), 1-20.
 
-First let's compute PCs and visualize the data
+Note that there are missing values, so we'll impute them with the minimum value in the dataset.
+```{r}
+min_impute = function(df){
+  for (cols in colnames(df)) {
+    if (cols %in% names(df[,sapply(df, is.numeric)])) {
+      df = df %>% mutate(!!cols := replace(!!rlang::sym(cols),
+                                           is.na(!!rlang::sym(cols)),
+                                           min(!!rlang::sym(cols), na.rm=TRUE)))
+    }
+  }
+  return(df)
+}
+
+ccle = min_impute(ccle)
+```
+
+Check for NaNs
+```{r}
+print(paste("Number of NaNs: ", str(sum(is.na(ccle)))))
+```
+
+First let's compute PCs and visualize the data. 
 ```{r}
 # Plot the principle components
-pc1 = PcaHubert(ccle)
+pc1 = PcaHubert(data.matrix(ccle))
 plot(pc1)
-pc2 = PcaHubert(ccle, k=2)  
+pc2 = PcaHubert(data.matrix(ccle), k=2)  
 plot(pca2)
 
 # Additional diagnostic plots
