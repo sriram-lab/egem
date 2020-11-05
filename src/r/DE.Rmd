@@ -46,14 +46,16 @@ First, let's load the table with the gene counts.
 ```{r}
 # ACLX path
 #readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_RNAseq_genes_counts_20180929.gct"
 
 # Dell
-readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+#readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
 
-ccle = read_delim(file=readpath, delim='\t')
+#ccle = read_delim(file=readpath, delim='\t')
+ccle = read.gct(readpath)
 print(head(x=ccle, n=10))
 ```
-
+### Declare some essential labels
 We have to clean up the data slightly. First, we'll extract the name of the tumor subtype and store in a separate vector.
 
 ```{r}
@@ -62,13 +64,7 @@ tissue = substr(tmp, 1, regexpr(",", tmp)-1)
 ccl = word(string=tmp, -1, sep=", ")
 ```
 
-### Remove outliers
-We will first remove some outliers using Robust PCA. It combines two ideas to find outliers:
-  1. Find projections with maximal dispersion using a grid search.
-  2. Estimate the covariance using an idea similar to Hubert robust regression.
-
-The publication that benchmarks several robust PCA algorithms and the classical PCA counterparts can be found here: Chen, X., Zhang, B., Wang, T., Bonni, A., & Zhao, G. (2020). Robust principal component analysis for accurate outlier sample detection in RNA-Seq data. BMC bioinformatics, 21(1), 1-20.
-
+### Missing value imputation
 Note that there are missing values, so we'll impute them with the minimum value in the dataset.
 ```{r}
 min_impute = function(df){
@@ -90,56 +86,158 @@ Check for NaNs. It looks like there are none
 print(cat("Number of NaNs: ", sum(is.na(ccle))))
 ```
 
-First let's compute PCs and visualize the data with classical PCA. 
+### Data Normalization 
+
+Now let's calculate the normalization factors from limma and also remove low-expressed genes that may be skewing rPCA.
 ```{r}
-pc = PCAtools::pca(data.matrix(ccle[, 2:ncol(ccle)]))
+gene_symbols = ccle[, 1]
+tmp = data.matrix(ccle[, 2:ncol(ccle)])
+
+# Construct an object for limma-voom
+X = DGEList(counts=tmp, 
+            genes=gene_symbols, 
+            group = as.factor(tissue[2:length(tissue)]))
+
+# Perform upper-quartile normalization
+Xnorm = calcNormFactors(X)
+Xcpm = cpm(Xnorm, log=TRUE, prior.count=1)
+
+# Set cutoff
+cutoff = 1
+drop = which(apply(Xcpm, 1, max) < cutoff)
+Xcpm_filtered = Xcpm[-drop,] 
+genes_filtered = gene_symbols[-drop, 1]
+```
+
+### Remove outliers
+We will first remove some outliers using Robust PCA. It combines two ideas to find outliers:
+  1. Find projections with maximal dispersion using a grid search.
+  2. Estimate the covariance using an idea similar to Hubert robust regression.
+
+The publication that benchmarks several robust PCA algorithms and the classical PCA counterparts can be found here: Chen, X., Zhang, B., Wang, T., Bonni, A., & Zhao, G. (2020). Robust principal component analysis for accurate outlier sample detection in RNA-Seq data. BMC bioinformatics, 21(1), 1-20.
+
+First let's compute PCs and visualize the data with classical PCA. There are totally some really bad data points 
+```{r}
+pc = PCAtools::pca(data.matrix(Xcpm_filtered[, 2:ncol(Xcpm_filtered)]))
 PCAtools::screeplot(pc)
 PCAtools::biplot(pc)
 PCAtools::pairsplot(pc)
 ```
 
-Then let's get the data we want with robust PCA
+Then let's get the highly quality data we want with robust PCA
 ```{r}
 # Generate a Robust Huber object
-pc = PcaHubert(data.matrix(ccle[, 2:ncol(ccle)]))
+pc = PcaHubert(data.matrix(Xcpm_filtered))
 
 # Get the outliers
-filtered_ccle = ccle
-filtered_ccle = filtered_ccle[pc@flag, ]
+Xfinal = Xcpm_filtered
+Xfinal = Xfinal[pc@flag, ]
+genes_filtered = genes_filtered[pc@flag, 1]
 ```
 
-### Data Normalization 
-Now let's perform upper quartile normalization and log transformation on the counts.
+### Save the Principle Component Results
+I should really save this variable, because it is pretty time consuming to generate this.
 ```{r}
-gene_symbols = filtered_ccle[, 1]
-tmp = data.matrix(filtered_ccle[, 2:ncol(filtered_ccle)])
-print(ncol(tmp))
-print(nrow(tmp))
-
-# Construct an object for limma-voom
-X = DGEList(counts=tmp, genes=gene_symbols, group=as.factor(tissue[2:length(tissue)]))
-
-# Perform upper-quartile normalization
-Xnorm = calcNormFactors(X, method="upperquartile")
-Xcpm = cpm(Xnorm, log=TRUE, prior.count=1)
+# ACLX
+savepath = "C:\\Users\\scott\\Analysis\\eGEM\\r\\PCA\\CCLE_Counts_rPCA.rds"
+saveRDS(pc, savepath)
 ```
 
-### Save normalized data 
+### Create Limma data object and save the results
 We'll save the results as an .rds file.
 ```{r}
-# DELL
-savepath = "D:\\Data\\RNASeq\\CCLE\\CCLE_CPM.rds"
-saveRDS(Xcpm, savepath)
+# Construct an object for limma-voom
+X = DGEList(counts=Xfinal, genes=genes_filtered, group=as.factor(tissue[2:length(tissue)]))
+
+# ACLX
+savepath = "C:\\Users\\scott\\Analysis\\eGEM\\r\\PCA\\CCLE_limma_input.rds"
+saveRDS(X, savepath)
+
+# Windows
+
 ```
 
-### Batch correction 
-Now that I have this data, I should correct for sequencing platform differences using ComBat.
+### Load normalized data
+Only run this block if you need to re-load the data
 ```{r}
-design = model.matrix()
+# ACLX
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_limma_input.rds"
+X = readRDS(file=readpath)
+
+# Windows
+
+```
+
+
+### Batch correction 
+
+**NOTE:** As of November 5, 2020, this code does not work in it's current state. I will try to fix this ASAP. Until then, the preceding code blocks will be hashed.
+
+Now that I have this data, I should correct for sequencing platform differences using ComBat. I will treat each tissue as a covariate in this batch correction.
+
+The data needs to be in a dataframe.
+```{r}
+#X = data.frame(Xcpm)
+```
+
+We'll create appropriate variables.
+```{r}
+#colnames(X) = ccl[2:length(ccl)]
+#adjvar = as.factor(tissue[2:length(tissue)])
+```
+
+Now let's actually perform batch correction for each tissue.
+```{r}
+# Create model and null matrix
+#mod = model.matrix(~adjvar, data=adjvar)
+#mod0 = model.matrix(~1, data=adjvar)
+
+# Estimate latent factors and estimate surrogate variables
+#n.sv = num.sv(X, mod, method="leek")
+#svobj = sva(X, mod, mod0, n.sv=n.sv)
+```
+Now we can get the parametric F-test p-values for each row in the data matrix, then calculate the Q values less than the significance threshold of 0.05.
+```{r}
+#modSv = cbind(mod, svobj$sv)
+#mod0Sv = cbind(mod0, svobj$sv)
+#pval = f.pvalue(X, modSv, mod0Sv)
+#qval = p.adjust(pval, method="BH")
 ```
 
 ### Save batch corrected data
-Now that I performed the batch correction and normalization, let's perform differential expression.
+
+
+### Differential Expression Analysis
+We'll now perform differential expression using three different platforms:
+  1. *limma-voom*
+  2. *edgeR*
+  3. *DESeq2*
+  
+#### *limma-voom*
+First, we'll need to calculate the variance weights.
 ```{r}
+adjvar = as.factor(tissue[2:length(tissue)])
+adjvar = interaction(adjvar)
+mdl = model.matrix(~0 + adjvar)
+y = voom(X, mdl, plot=TRUE)
+```
+
+Okay, it looks like the variance stabilizes. Now let's fit the linear model using weighted least squares for each gene to compute some coefficients.
+
+```{r}
+design = model.matrix(~ adjvar)
+theta = lmFit(object=y, design=design)
+```
+
+Now I need to estimate the contrast for each gene across different cell lines and smooth the standard errors using Empirical Bayes.
+```{r}
+for(i in ){
+  
+}
+```
+
+I can then extract differentially expressed genes
+```{r}
+DEG = topTable(tmp, sort.by="P", n=Inf)
 
 ```
