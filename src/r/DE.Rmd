@@ -44,8 +44,12 @@ This code block computes differential expression for the Cancer cell line encylo
 
 First, let's load the table with the gene counts.
 ```{r}
-# Windows path
-readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+# ACLX path
+#readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+
+# Dell
+readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+
 ccle = read_delim(file=readpath, delim='\t')
 print(head(x=ccle, n=10))
 ```
@@ -55,7 +59,7 @@ We have to clean up the data slightly. First, we'll extract the name of the tumo
 ```{r}
 tmp = colnames(ccle)
 tissue = substr(tmp, 1, regexpr(",", tmp)-1)
-ccl = sub(",*xxx", "", tmp)
+ccl = word(string=tmp, -1, sep=", ")
 ```
 
 ### Remove outliers
@@ -83,25 +87,37 @@ ccle = min_impute(ccle)
 
 Check for NaNs. It looks like there are none
 ```{r}
-print(cat("Number of NaNs: ", (sum(is.na(ccle))))
+print(cat("Number of NaNs: ", sum(is.na(ccle))))
 ```
 
 First let's compute PCs and visualize the data with classical PCA. 
 ```{r}
-pc=pca(ccle)
-screeplot(pc)
-biplot(pc)
+pc = PCAtools::pca(data.matrix(ccle[, 2:ncol(ccle)]))
+PCAtools::screeplot(pc)
+PCAtools::biplot(pc)
+PCAtools::pairsplot(pc)
+```
 
+Then let's get the data we want with robust PCA
+```{r}
+# Generate a Robust Huber object
+pc = PcaHubert(data.matrix(ccle[, 2:ncol(ccle)]))
 
 # Get the outliers
-#outliers = which(pc@flag=="False")
+filtered_ccle = ccle
+filtered_ccle = filtered_ccle[pc@flag, ]
 ```
 
 ### Data Normalization 
 Now let's perform upper quartile normalization and log transformation on the counts.
 ```{r}
+gene_symbols = filtered_ccle[, 1]
+tmp = data.matrix(filtered_ccle[, 2:ncol(filtered_ccle)])
+print(ncol(tmp))
+print(nrow(tmp))
+
 # Construct an object for limma-voom
-X = DGEList(counts=ccle)
+X = DGEList(counts=tmp, genes=gene_symbols, group=as.factor(tissue[2:length(tissue)]))
 
 # Perform upper-quartile normalization
 Xnorm = calcNormFactors(X, method="upperquartile")
@@ -111,15 +127,15 @@ Xcpm = cpm(Xnorm, log=TRUE, prior.count=1)
 ### Save normalized data 
 We'll save the results as an .rds file.
 ```{r}
-# Save data for later processing
-savepath = "C:\Users\scott\Data\RNASeq\CCLE\CCLE_CPM.rds"
+# DELL
+savepath = "D:\\Data\\RNASeq\\CCLE\\CCLE_CPM.rds"
 saveRDS(Xcpm, savepath)
 ```
 
 ### Batch correction 
 Now that I have this data, I should correct for sequencing platform differences using ComBat.
 ```{r}
-
+design = model.matrix()
 ```
 
 ### Save batch corrected data
