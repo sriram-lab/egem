@@ -24,6 +24,10 @@ First we'll load some essential packages needed to run differential expression a
 #    install.packages(c("BiocManager", "edgeR", 
 #                       "DESeq2", "limma", 
 #                       "sva", "PCAtools"))
+
+#install.packages("CePa", dependences=TRUE)
+#BiocManager::install("Rgraphviz")
+library(CePa)
 library(edgeR)
 library(DESeq2)
 library(limma)
@@ -38,11 +42,13 @@ library(rrcov)
 
 ```
 
-## 2. Perform Differential Expression on Cancer Cell Line Encyclopedia (CCLE)
+## 2. Perform data preprocessing
 
-This code block computes differential expression for the Cancer cell line encylopedia for both individual cancer cell lines and tissue models.
+This code block performs essential data preprocessing for the cancer cell line encyclopedia data.
 
-First, let's load the table with the gene counts.
+### Read in raw RNASeq counts
+
+First, let's load the table with the raw RNASeq gene counts.
 ```{r}
 # ACLX path
 #readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
@@ -51,17 +57,51 @@ readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_RNAseq_genes_counts_20180
 # Dell
 #readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
 
+# Load data either as a TPM or gene counts. I'm doing this from scratch.
 #ccle = read_delim(file=readpath, delim='\t')
 ccle = read.gct(readpath)
-print(head(x=ccle, n=10))
 ```
-### Declare some essential labels
-We have to clean up the data slightly. First, we'll extract the name of the tumor subtype and store in a separate vector.
+
+Note that in the raw gene count data matrix, the rows are labeled by Ensembl IDs, while the columns have the syntax CELLLINE_TISSUE, separated by an underscore. I can keep the Ensembl gene IDs, but I need to extract the tissue type, as this is a covariate of interest.
+
+Later on, I can add other covariates of interest using meta data from the CCLE.
+
+### Aggregate duplicate cell line entries.
+Note that some cell lines (columns) are duplicate entries. I need to aggregate them before moving on to additional preprocessing steps. 
+```{r}
+tmp = t(ccle)
+agg_tmp = aggregate(tmp, by=list(rownames(tmp)), mean)
+agg_tmp[, 2:length(agg_tmp)] = lapply(agg_tmp[, 2:length(agg_tmp)], as.integer)
+agg_tmp = as.data.frame(agg_tmp)
+ccle = t(agg_tmp)
+ccle = as.data.frame(ccle)
+ccle = ccle[-1, ]
+```
+
+Now that I have aggregated duplicate cell lines, I can construct the phenotype dataframe `pheno` that I will need for downstream data processing.
+
+### Construct the `pheno` dataframe
+First, we'll extract the name of the tumor tissue subtype and then store the data in a dataframe. This will be used to create the model and the null model when performing covariate and artifact correction.
 
 ```{r}
+# Get data from the ccle dataframe
 tmp = colnames(ccle)
-tissue = substr(tmp, 1, regexpr(",", tmp)-1)
-ccl = word(string=tmp, -1, sep=", ")
+tissue = word(string=tmp, start=2, end=-1, sep="_")
+ccl = word(string=tmp, start=1, sep="_")
+
+# Store into dataframe
+
+```
+
+
+```{r}
+# Create a dataframe with phenotype data
+pheno = data.frame("Tissue"=tissue)
+row.names(pheno) = ccl
+
+# Change the column names in ccle
+colnames(ccle) = ccl
+
 ```
 
 ### Missing value imputation
