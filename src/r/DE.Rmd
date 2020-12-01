@@ -73,15 +73,18 @@ tmp = t(ccle)
 agg_tmp = aggregate(tmp, by=list(rownames(tmp)), mean)
 agg_tmp[, 2:length(agg_tmp)] = lapply(agg_tmp[, 2:length(agg_tmp)], as.integer)
 agg_tmp = as.data.frame(agg_tmp)
+
+# Get final aggregated matrix
 ccle = t(agg_tmp)
 ccle = as.data.frame(ccle)
+names(ccle) = lapply(ccle[1, ], as.character)
 ccle = ccle[-1, ]
 ```
 
 Now that I have aggregated duplicate cell lines, I can construct the phenotype dataframe `pheno` that I will need for downstream data processing.
 
 ### Construct the `pheno` dataframe
-First, we'll extract the name of the tumor tissue subtype and then store the data in a dataframe. This will be used to create the model and the null model when performing covariate and artifact correction.
+First, we'll extract the name of the tumor tissue subtype and then store the data in a dataframe. 
 
 ```{r}
 # Get data from the ccle dataframe
@@ -90,18 +93,21 @@ tissue = word(string=tmp, start=2, end=-1, sep="_")
 ccl = word(string=tmp, start=1, sep="_")
 
 # Store into dataframe
-
+colnames(ccle) = as.character(ccl)
 ```
 
-
+Now let's construct the `pheno` dataframe. This will be used to create the model and the null model when performing covariate and artifact correction.
 ```{r}
 # Create a dataframe with phenotype data
+ccle = ccle[, -duplicated(ccl)]
+tissue = tissue[-duplicated(ccl)]
+ccl = ccl[-duplicated(ccl)]
+
+ccle = ccle[, -956]
+tissue = tissue[-956]
+ccl = ccl[-956]
 pheno = data.frame("Tissue"=tissue)
 row.names(pheno) = ccl
-
-# Change the column names in ccle
-colnames(ccle) = ccl
-
 ```
 
 ### Missing value imputation
@@ -124,29 +130,9 @@ ccle = min_impute(ccle)
 Check for NaNs. It looks like there are none
 ```{r}
 print(cat("Number of NaNs: ", sum(is.na(ccle))))
-```
 
-### Data Normalization 
-
-Now let's calculate the normalization factors from limma and also remove low-expressed genes that may be skewing rPCA.
-```{r}
-gene_symbols = ccle[, 1]
-tmp = data.matrix(ccle[, 2:ncol(ccle)])
-
-# Construct an object for limma-voom
-X = DGEList(counts=tmp, 
-            genes=gene_symbols, 
-            group = as.factor(tissue[2:length(tissue)]))
-
-# Perform upper-quartile normalization
-Xnorm = calcNormFactors(X)
-Xcpm = cpm(Xnorm, log=TRUE, prior.count=1)
-
-# Set cutoff
-cutoff = 1
-drop = which(apply(Xcpm, 1, max) < cutoff)
-Xcpm_filtered = Xcpm[-drop,] 
-genes_filtered = gene_symbols[-drop, 1]
+ensemble_ids = rownames(ccle)
+data = data.matrix(ccle)
 ```
 
 ### Remove outliers
@@ -156,9 +142,9 @@ We will first remove some outliers using Robust PCA. It combines two ideas to fi
 
 The publication that benchmarks several robust PCA algorithms and the classical PCA counterparts can be found here: Chen, X., Zhang, B., Wang, T., Bonni, A., & Zhao, G. (2020). Robust principal component analysis for accurate outlier sample detection in RNA-Seq data. BMC bioinformatics, 21(1), 1-20.
 
-First let's compute PCs and visualize the data with classical PCA. There are totally some really bad data points 
+First let's compute PCs and visualize the data with classical PCA. There are totally some really bad data points and heteroskedasticity. 
 ```{r}
-pc = PCAtools::pca(data.matrix(Xcpm_filtered[, 2:ncol(Xcpm_filtered)]))
+pc = PCAtools::pca(data)
 PCAtools::screeplot(pc)
 PCAtools::biplot(pc)
 PCAtools::pairsplot(pc)
@@ -167,12 +153,12 @@ PCAtools::pairsplot(pc)
 Then let's get the highly quality data we want with robust PCA
 ```{r}
 # Generate a Robust Huber object
-pc = PcaHubert(data.matrix(Xcpm_filtered))
+pc = PcaHubert(data)
 
 # Get the outliers
-Xfinal = Xcpm_filtered
+Xfinal = data
 Xfinal = Xfinal[pc@flag, ]
-genes_filtered = genes_filtered[pc@flag, 1]
+genes_filtered = ensemble_ids[pc@flag]
 ```
 
 ### Save the Principle Component Results
@@ -183,83 +169,72 @@ savepath = "C:\\Users\\scott\\Analysis\\eGEM\\r\\PCA\\CCLE_Counts_rPCA.rds"
 saveRDS(pc, savepath)
 ```
 
-### Create Limma data object and save the results
+If we want to do a final sanity check, here's a code block that can make those plots.
+```{r}
+pc = PCAtools::pca(data.matrix(Xfinal))
+PCAtools::screeplot(pc)
+PCAtools::biplot(pc)
+PCAtools::pairsplot(pc)
+```
+
+### Data Normalization 
+Now let's take the log2 of the counts-per-million of the RNASeq counts.
+```{r}
+Xfinal = DGEList(Xfinal, 
+               genes=genes_filtered,
+               group=as.factor(tissue))
+Xnorm = calcNormFactors(Xfinal)
+
+#cutoff = 1
+#drop = which(apply(cpm(Xnorm), 1, max) < cutoff)
+#Xfilter = Xnorm[-drop, ] 
+#dim(Xfilter) # number of genes left
+
+Xcpm = log2(cpm(Xnorm)+1)
+```
+
+### Batch Effect Correction using `ComBat`
+Now we can use Combat to perform batch correction for multiple tissues with the cleaned up dataset.
+
+First let's construct the model matrix which contains the adjustment variables and the variable of interest.
+```{r}
+mod = model.matrix(~as.factor(tissue), data=pheno)
+mod0 = model.matrix(~1, data=pheno)
+```
+
+Now let's compute the latent factors that need to be estimated. Note that this code will take awhile as it needs to perform several SVD operations.
+```{r}
+n.sv = num.sv(dat=Xcpm, mod=mod)
+svobj = svaseq(Xcpm, mod, mod0, n.sv=n.sv)
+```
+
+We can actually get differentially expressed genes using a parametric F-test. Let's check this out!
+```{r}
+# Compute initial P and Q-values
+tmp_pval = f.pvalue(data.matrix(Xfinal), mod, mod0)
+tmp_qval = p.adjust(tmp_pval, method='BH')
+
+# Create adjusted models
+modSv = cbind(mod, svobj$sv)
+mod0Sv = cbind(mod0, svobj$sv)
+
+# Adjust p-values using Combat
+combat_pvalues = f.pvalue(data.matrix(Xfinal), modSv, mod0Sv)
+combat_qvalues = p.adjust(combat_pvalues, method='BH')
+```
+
+### Perform *limma-voom* 
 We'll save the results as an .rds file.
 ```{r}
 # Construct an object for limma-voom
-X = DGEList(counts=Xfinal, genes=genes_filtered, group=as.factor(tissue[2:length(tissue)]))
-
-# ACLX
-savepath = "C:\\Users\\scott\\Analysis\\eGEM\\r\\PCA\\CCLE_limma_input.rds"
-saveRDS(X, savepath)
-
-# Windows
-
+X = DGEList(counts=Xfinal, 
+            genes=genes_filtered, 
+            group=as.factor(tissue))
 ```
 
-### Load normalized data
-Only run this block if you need to re-load the data
+First, we'll need to calculate the variance weights using the voom function.
 ```{r}
-# ACLX
-readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_limma_input.rds"
-X = readRDS(file=readpath)
-
-# Windows
-
-```
-
-
-### Batch correction 
-
-**NOTE:** As of November 5, 2020, this code does not work in it's current state. I will try to fix this ASAP. Until then, the preceding code blocks will be hashed.
-
-Now that I have this data, I should correct for sequencing platform differences using ComBat. I will treat each tissue as a covariate in this batch correction.
-
-The data needs to be in a dataframe.
-```{r}
-#X = data.frame(Xcpm)
-```
-
-We'll create appropriate variables.
-```{r}
-#colnames(X) = ccl[2:length(ccl)]
-#adjvar = as.factor(tissue[2:length(tissue)])
-```
-
-Now let's actually perform batch correction for each tissue.
-```{r}
-# Create model and null matrix
-#mod = model.matrix(~adjvar, data=adjvar)
-#mod0 = model.matrix(~1, data=adjvar)
-
-# Estimate latent factors and estimate surrogate variables
-#n.sv = num.sv(X, mod, method="leek")
-#svobj = sva(X, mod, mod0, n.sv=n.sv)
-```
-Now we can get the parametric F-test p-values for each row in the data matrix, then calculate the Q values less than the significance threshold of 0.05.
-```{r}
-#modSv = cbind(mod, svobj$sv)
-#mod0Sv = cbind(mod0, svobj$sv)
-#pval = f.pvalue(X, modSv, mod0Sv)
-#qval = p.adjust(pval, method="BH")
-```
-
-### Save batch corrected data
-
-
-### Differential Expression Analysis
-We'll now perform differential expression using three different platforms:
-  1. *limma-voom*
-  2. *edgeR*
-  3. *DESeq2*
-  
-#### *limma-voom*
-First, we'll need to calculate the variance weights.
-```{r}
-adjvar = as.factor(tissue[2:length(tissue)])
-adjvar = interaction(adjvar)
-mdl = model.matrix(~0 + adjvar)
-y = voom(X, mdl, plot=TRUE)
+y = voom(X, mod, plot=TRUE)
 ```
 
 Okay, it looks like the variance stabilizes. Now let's fit the linear model using weighted least squares for each gene to compute some coefficients.
