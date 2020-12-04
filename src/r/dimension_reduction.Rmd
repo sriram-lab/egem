@@ -32,6 +32,7 @@ meta = read_xlsx(path=filepath, sheet='Meta')
 ```
 
 ## Clean dataset
+
 I'm only interested in single histone PTMs, so I need to clean up the GCP dataset.
 ```{r}
 gcp_name = colnames(gcp)
@@ -59,17 +60,6 @@ gcp_name = str_replace(gcp_name, pattern, '')
 colnames(gcp) = gcp_name
 ```
 
-## Mean-center metabolomics dataset
-The metabolomics dataset is not mean centered. I will do that now.
-```{r}
-met = met - mean(met)
-```
-
-Also, I should remove NAs from the data
-```{r}
-gcp[is.na(gcp)] = 0
-```
-
 We should sanity check this now with histograms
 ```{r}
 ggplot(melt(met), aes(x=value)) + 
@@ -80,21 +70,73 @@ ggplot(melt(gcp), aes(x=value)) +
   geom_histogram(bins=100) + 
   ggtitle("CCLE Global Chromatin Profile distribution")
 ```
-There are definitely outliers in the GCP dataset. We'll address those next.
+Also, I should remove NAs from the data
+```{r}
+gcp[is.na(gcp)] = 0
+```
+
+Now, let's separate hematopoietic and leukemic stem cell lineages, just because they have different profiles.
+
+```{r}
+HL_idx = meta['Tissue'] == "HAEMATOPOIETIC AND LYMPHOID TISSUE"
+
+# Solid only
+gcp_noHL = gcp[-c(HL_idx), ]
+met_noHL = met[-c(HL_idx), ]
+
+# HL only
+gcp_HL = gcp[c(HL_idx), ]
+met_HL = met[c(HL_idx), ]
+
+tissue = meta["Tissue"]
+noHL_tissue = tissue[-c(HL_idx), 1]
+HL_tissue = tissue[c(HL_idx), 1]
+```
+
+## Mean-center metabolomics dataset
+The metabolomics dataset is not mean centered. I will do that now.
+```{r}
+met_noHL = met_noHL - mean(met_noHL)
+met_HL = met_HL - mean(met_HL)
+```
+
+We should sanity check this now with histograms
+```{r}
+ggplot(melt(gcp_noHL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("Solid tumor Global Chromatin Profile distribution")
+
+ggplot(melt(met_noHL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("Solid tumor Metabolomics distribution")
+
+ggplot(melt(gcp_HL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("HL Global Chromatin Profile distribution")
+
+ggplot(melt(met_HL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("HL Metabolomics distribution")
+```
+
+There are definitely still outliers in the GCP dataset, but We'll address those next.
 
 ## Outliers
 
 Let's use robust PCA to identify cancer cell lines that are outliers.
 ```{r}
-install.packages('rrcov')
+#install.packages('rrcov')
 library(rrcov)
 
 # Run Robust PCA
 gcp_pca = PcaHubert(gcp)
 
 # Remove outliers. We need to remove cell lines from the metabolomics dataset too.
-gcp = gcp[gcp_pca@flag, ]
-met = met[gcp_pca@flag, ]
+gcp_noHL = gcp_noHL[gcp_pca@flag, ]
+gcp_HL = gcp_HL[gcp_pca@flag, ]
+met_noHL = met_noHL[gcp_pca@flag, ]
+met_HL = met_HL[gcp_pca@flag, ]
+
 celllines = celllines[gcp_pca@flag,]
 ```
 
@@ -147,12 +189,5 @@ corrplot(pcc,
          tl.pos = "td", tl.cex = 0.5, 
          p.mat=pmat, sig.level=0.05)
 ```
-# Correlation analysis with rotated matrices
-Now let's do the same analysis, but with the decorrelated matrices. Note that 
-
-```{r}
-#library(MASS)
-#decomp = svd(pcc)
-
-```
-
+# Conclusions
+All of the data is saved on 
