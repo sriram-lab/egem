@@ -51,7 +51,7 @@ First, let's load the table with the raw RNASeq gene counts.
 ```{r}
 # ACLX path
 #readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
-#readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_RNAseq_genes_counts_20180929.gct"
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_RNAseq_genes_counts_20180929.gct"
 
 # Dell
 #readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
@@ -60,7 +60,7 @@ First, let's load the table with the raw RNASeq gene counts.
 #ccle = read_delim(file=readpath, delim='\t')
 
 # Linux
-readpath = "~/Data/RNASeq/CCLE/CCLE_RNAseq_genes_counts_20180929.gct"
+#readpath = "~/Data/RNASeq/CCLE/CCLE_RNAseq_genes_counts_20180929.gct"
 ccle = read.gct(readpath)
 ```
 
@@ -231,77 +231,70 @@ First, let's construct the `pheno` dataframe, a dataframe that contains
 
 First let's construct the model matrix which contains the adjustment variables and the variable of interest.
 ```{r}
-mod = model.matrix(~as.factor(tissue), data=pheno)
-mod0 = model.matrix(~1, data=pheno)
+#mod = model.matrix(~as.factor(tissue), data=pheno)
+#mod0 = model.matrix(~1, data=pheno)
 ```
 
 Now let's compute the latent factors that need to be estimated. Note that this code will take awhile as it needs to perform several SVD operations.
 ```{r}
-n.sv = num.sv(dat=Xcpm, mod=mod)
-svobj = svaseq(Xcpm, mod, mod0, n.sv=n.sv)
+#n.sv = num.sv(dat=Xcpm, mod=mod)
+#svobj = svaseq(Xcpm, mod, mod0, n.sv=n.sv)
 ```
 
 We can actually get differentially expressed genes using a parametric F-test. Let's check this out!
 ```{r}
 # Compute initial P and Q-values
-tmp_pval = f.pvalue(data.matrix(Xfinal), mod, mod0)
-tmp_qval = p.adjust(tmp_pval, method='BH')
+#tmp_pval = f.pvalue(data.matrix(Xfinal), mod, mod0)
+#tmp_qval = p.adjust(tmp_pval, method='BH')
 
 # Create adjusted models
-modSv = cbind(mod, svobj$sv)
-mod0Sv = cbind(mod0, svobj$sv)
+#modSv = cbind(mod, svobj$sv)
+#mod0Sv = cbind(mod0, svobj$sv)
 
 # Adjust p-values using Combat
-combat_pvalues = f.pvalue(data.matrix(Xfinal), modSv, mod0Sv)
-combat_qvalues = p.adjust(combat_pvalues, method='BH')
+#combat_pvalues = f.pvalue(data.matrix(Xfinal), modSv, mod0Sv)
+#combat_qvalues = p.adjust(combat_pvalues, method='BH')
 ```
 
 ### Data Normalization 
 Now let's take the log2 of the counts-per-million of the RNASeq counts.
 ```{r}
-Xfinal = DGEList(Xfinal, 
-               genes=genes_filtered,
-               group=as.factor(tissue))
-Xnorm = calcNormFactors(Xfinal)
+keep = rowSums(cpm(SOLID_final) >= 1) >= (nrow(SOLID_final)/1000)
+Xfinal = SOLID_final
+Xfinal = Xfinal[keep, ]
 
-#cutoff = 1
-#drop = which(apply(cpm(Xnorm), 1, max) < cutoff)
-#Xfilter = Xnorm[-drop, ] 
-#dim(Xfilter) # number of genes left
+Xfinal = Xfinal / rowMeans(Xfinal)
+Xfinal = cpm(Xfinal, log=TRUE)
 
-lcpm = cpm(SOLID_final, log=TRUE)
+Xfinal = DGEList(Xfinal, genes=rownames(Xfinal))
+Xnorm = calcNormFactors(Xfinal, method="TMM")
 ```
+
+## 3. Differential Expression Analysis
 
 ### Perform *limma-voom* 
-We'll save the results as an .rds file.
 ```{r}
-# Construct an object for limma-voom
-X = DGEList(counts=Xfinal, 
-            genes=genes_filtered, 
-            group=as.factor(tissue))
+design = model.matrix(~as.factor(colnames(Xnorm)))
+vt = voom(Xnorm, design, plot=TRUE)
+vt_fit = lmFit(vt, design=design, method="robust")
+vt_fit = eBayes(vt_fit, trend=TRUE, robust=TRUE)
+limma_results = topTable(vt_fit, adjust.method="BH")
 ```
 
-First, we'll need to calculate the variance weights using the voom function.
+### Perform *EdgeR*
 ```{r}
-y = voom(X, mod, plot=TRUE)
+disperse = estimateCommonDisp(Xnorm)
+disperse = estimateTagwiseDisp(disperse)
+dgeTest = exactTest(disperse, dispersion="auto", rejection.region="doubletail")
 ```
 
-Okay, it looks like the variance stabilizes. Now let's fit the linear model using weighted least squares for each gene to compute some coefficients.
-
+### Perform *DESeq2*
 ```{r}
-design = model.matrix(~ adjvar)
-theta = lmFit(object=y, design=design)
-```
-
-Now I need to estimate the contrast for each gene across different cell lines and smooth the standard errors using Empirical Bayes.
-```{r}
-for(i in ){
-  
-}
-```
-
-I can then extract differentially expressed genes
-```{r}
-DEG = topTable(tmp, sort.by="P", n=Inf)
-
+deseqTable = DESeqDataSetFromMatrix(
+  countData=data.matrix(SOLID_final),
+  colData=colnames(SOLID_final),
+  design=design
+)
+deseqTable = DESeq(deseqTable)
+deseq2_results = results(deseqTable)
 ```
