@@ -23,7 +23,8 @@ First we'll load some essential packages needed to run differential expression a
 #install.packages("BiocManager")
 #BiocManager::install(c("BiocManager", "edgeR", 
 #                   "DESeq2", "limma", 
-#                   "sva", "PCAtools"))
+#                   "sva", "PCAtools",
+#                   "Glimma", "bioMart"))
 
 #install.packages("CePa", dependences=TRUE)
 #BiocManager::install("Rgraphviz")
@@ -33,6 +34,8 @@ library(DESeq2)
 library(limma)
 library(sva)
 library(PCAtools)
+library(Glimma)
+library(biomaRt)
 
 # Data science libraries
 #install.packages(c("tidyverse", "readr", "rrcov"))
@@ -65,6 +68,31 @@ ccle = read.gct(readpath)
 ```
 
 Note that in the raw gene count data matrix, the rows are labeled by Ensembl IDs, while the columns have the syntax CELLLINE_TISSUE, separated by an underscore. I can keep the Ensembl gene IDs, but I need to extract the tissue type, as this is a covariate of interest.
+
+### Map genes to Entrez ID
+First, since we'll be using Entrez ID in the RECON1 model, we need to map ENSEMBL to Entrez.
+```{r}
+# Get map of Ensembl to Entrez
+human = useMart("ensembl", dataset="hsapiens_gene_ensembl")
+genes = getBM(
+  attributes=c("ensembl_gene_id", "hgnc_symbol", "entrezgene_id"),
+  values=rownames(ccle),
+  mart=human
+)
+
+# Map Entrez to CCLE dataset. Remove those without Entrez ID.
+rownames(ccle) <- gsub("\\..*","",rownames(ccle))
+
+# Map rows
+mapped_ccle = merge(genes, ccle, by.x="ensembl_gene_id", by.y=0)
+
+# Remove datapoints where entrez is NA
+remove_genes = is.na(mapped_ccle[, "entrezgene_id"])
+ccle = mapped_ccle[!remove_genes,]
+ccle = ccle[, -c(1:2)]
+agg_ccle = aggregate(ccle[,-1], by=list(ccle[,1]), FUN=mean)
+rownames(ccle) = ccle[, "entrezgene_id"]
+```
 
 ### Aggregate and remove duplicate cell line entries.
 Note that some cell lines (columns) are duplicate entries. I need to aggregate them before moving on to additional preprocessing steps. 
