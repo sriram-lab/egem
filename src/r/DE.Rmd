@@ -42,6 +42,8 @@ library(biomaRt)
 library(tidyverse)
 library(readr)
 library(rrcov)
+
+remove(list=ls())
 ```
 
 ## 2. Perform data preprocessing
@@ -90,24 +92,19 @@ mapped_ccle = merge(genes, ccle, by.x="ensembl_gene_id", by.y=0)
 remove_genes = is.na(mapped_ccle[, "entrezgene_id"])
 ccle = mapped_ccle[!remove_genes,]
 ccle = ccle[, -c(1:2)]
-agg_ccle = aggregate(ccle[,-1], by=list(ccle[,1]), FUN=mean)
-rownames(ccle) = ccle[, "entrezgene_id"]
+agg_ccle = aggregate(ccle[, -1], 
+                     by=list(ccle[, 1]), 
+                     FUN=median)
+colnames(agg_ccle)[1] = "entrezgene_id"
+ccle = agg_ccle
+
+rm(list = c("human", "genes", 
+            "mapped_ccle", "agg_ccle", 
+            "remove_genes"))
 ```
 
 ### Aggregate and remove duplicate cell line entries.
 Note that some cell lines (columns) are duplicate entries. I need to aggregate them before moving on to additional preprocessing steps. 
-```{r}
-tmp = t(ccle)
-agg_tmp = aggregate(tmp, by=list(rownames(tmp)), mean)
-agg_tmp[, 2:length(agg_tmp)] = lapply(agg_tmp[, 2:length(agg_tmp)], as.integer)
-agg_tmp = as.data.frame(agg_tmp)
-
-# Get final aggregated matrix
-ccle = t(agg_tmp)
-ccle = as.data.frame(ccle)
-names(ccle) = lapply(ccle[1, ], as.character)
-ccle = ccle[-1, ]
-```
 
 Now let's begin preprocessing by grabbing some important meta data, specifically the tissue names.
 ```{r}
@@ -120,15 +117,30 @@ ccl = word(string=tmp, start=1, sep="_")
 colnames(ccle) = as.character(ccl)
 ```
 
-There seems to be a persistent duplicate that I can't get rid of from the aggregation step. Thus, I performed it manually.
+Now we can being aggregating by cancer cell line.
 ```{r}
-ccle = ccle[, -duplicated(ccl)]
-tissue = tissue[-duplicated(ccl)]
-ccl = ccl[-duplicated(ccl)]
+# Get entrez gene id
+tmp = t(ccle)
+entrezgene = tmp[1, ]
+tmp = tmp[-1, ]
 
-ccle = ccle[, -956]
-tissue = tissue[-956]
-ccl = ccl[-956]
+ccl = rownames(tmp)
+rownames(tmp) = NULL
+
+tissue = tissue[-1]
+meta = data.frame("CCL"=ccl, "Tissue"=tissue)
+meta = meta[!duplicated(ccl), ]
+
+# Aggregate by cancer cell line
+agg_tmp = aggregate(tmp, by=list(ccl), FUN=mean)
+agg_tmp = t(agg_tmp)
+
+agg_tmp = as.data.frame(agg_tmp)
+colnames(agg_tmp) = agg_tmp[1, ]
+agg_tmp = agg_tmp[-1, ]
+rownames(agg_tmp) = ccle[, 1]
+ccle = agg_tmp
+rm(list = c("agg_tmp"))
 ```
 
 ### Missing value imputation
@@ -145,24 +157,22 @@ min_impute = function(df){
   return(df)
 }
 
+tmp = DGEList(counts=data.matrix(ccle), genes=rownames(ccle))
+keep = rowSums(cpm(tmp) >= 1) >= (ncol(tmp$counts)/5)
+ccle = ccle[keep, ]
 ccle = min_impute(ccle)
 ```
 
-Check for NaNs. It looks like there are none
-```{r}
-print(cat("Number of NaNs: ", sum(is.na(ccle))))
 
-ensemble_ids = rownames(ccle)
-```
 
 ### Separate solid tumor and hematopoietic cancer cell lines
 I need to separate the hematopoeitic and leukemia cell line lineages. Then I can perform differential expression analysis on both of the them separately.
 ```{r}
-HL_idx = (tissue == "HAEMATOPOIETIC_AND_LYMPHOID_TISSUE")
+HL_idx = (meta[, 2] == "HAEMATOPOIETIC_AND_LYMPHOID_TISSUE")
 HL_CCL = ccle[ , c(HL_idx)]
-HL_tissue = tissue[c(HL_idx)]
+HL_tissue = meta[c(HL_idx), 2]
 SOLID_CCL = ccle[ , !c(HL_idx)]
-SOLID_tissue = tissue[!c(HL_idx)]
+SOLID_tissue = meta[!c(HL_idx), 2]
 ```
 
 ### Remove outliers
@@ -185,6 +195,7 @@ removeOutliers = function(data, id){
              data="matrix",
              outlier_data="matrix",
              id="character",
+             flag="logical",
              outlier_id="character"
            )
    )
@@ -192,6 +203,7 @@ removeOutliers = function(data, id){
           data=filtered_data,
           outlier_data=outlier_data,
           id=filtered_id,
+          flag=pca_obj@flag,
           outlier_id=outlier_id))
 }
 ```
@@ -203,9 +215,11 @@ HL_data = data.matrix(HL_CCL)
 SOLID_data = data.matrix(SOLID_CCL)
 
 # Use removeOutliers to remove noisy genes
-HL_geneFilter = removeOutliers(HL_data, ensemble_ids)
-SOLID_geneFilter = removeOutliers(SOLID_data, ensemble_ids)
+HL_geneFilter = removeOutliers(HL_data, rownames(HL_data))
+SOLID_geneFilter = removeOutliers(SOLID_data, rownames(SOLID_data))
+```
 
+```{r}
 # Now set the stage to remove noisy cancer cell lines
 HL_data2 = data.matrix(HL_geneFilter@data)
 SOLID_data2 = data.matrix(SOLID_geneFilter@data)
@@ -213,8 +227,8 @@ SOLID_data2 = data.matrix(SOLID_geneFilter@data)
 HL_data2 = t(HL_data2)
 SOLID_data2 = t(SOLID_data2)
 
-HL_allFilter = removeOutliers(HL_data2, HL_tissue)
-SOLID_allFilter = removeOutliers(SOLID_data2, SOLID_tissue)
+HL_allFilter = removeOutliers(HL_data2, meta[, 1])
+SOLID_allFilter = removeOutliers(SOLID_data2,  meta[, 1])
 ```
 
 The final dataframe will be constructed here.
@@ -223,33 +237,35 @@ The final dataframe will be constructed here.
 HL_final = t(data.matrix(HL_allFilter@data))
 SOLID_final = t(data.matrix(SOLID_allFilter@data))
 rownames(HL_final) = c(HL_geneFilter@id)
-colnames(HL_final) = c(HL_allFilter@id)
 rownames(SOLID_final) = c(SOLID_geneFilter@id)
-colnames(SOLID_final) = c(SOLID_allFilter@id)
+final_tissue = SOLID_tissue[SOLID_allFilter@flag]
 ```
 
 If we want to do a final sanity check, here's a code block that can make those plots.
 ```{r}
-
 tmp = t(data.matrix(SOLID_final))
 colnames(tmp) = NULL
 rownames(tmp) = NULL
 
 # Visualize cancer cell lines in 2D space
 solid_pc_filtered = PCAtools::pca(tmp)
-#PCAtools::screeplot(solid_pc_filtered)
-#PCAtools::biplot(solid_pc_filtered, x="PC1", y="PC2", showLoadings=TRUE)
-#PCAtools::pairsplot(solid_pc_filtered)
-plot(solid_pc_filtered$rotated$PC1, solid_pc_filtered$rotated$PC2)
+PCAtools::screeplot(solid_pc_filtered)
+PCAtools::biplot(solid_pc_filtered, 
+                 x="PC1", y="PC2")
+PCAtools::pairsplot(solid_pc_filtered)
+```
 
 
+```{r}
 # Visualize genes in 2D space
 tmp = data.matrix(SOLID_final)
 colnames(tmp) = NULL
 rownames(tmp) = NULL
 
 solid_pc_filtered = PCAtools::pca(tmp)
-plot(solid_pc_filtered$rotated$PC1, solid_pc_filtered$rotated$PC2)
+PCAtools::screeplot(solid_pc_filtered)
+PCAtools::biplot(solid_pc_filtered)
+PCAtools::pairsplot(solid_pc_filtered)
 ```
 
 ### Batch Effect Correction using `ComBat-Seq`
@@ -287,25 +303,50 @@ We can actually get differentially expressed genes using a parametric F-test. Le
 ### Data Normalization 
 Now let's take the log2 of the counts-per-million of the RNASeq counts.
 ```{r}
-keep = rowSums(cpm(SOLID_final) >= 1) >= (nrow(SOLID_final)/1000)
 Xfinal = SOLID_final
-Xfinal = Xfinal[keep, ]
-
-Xfinal = Xfinal / rowMeans(Xfinal)
+Xfinal = DGEList(Xfinal, 
+                 genes=rownames(Xfinal), 
+                 group=as.factor(final_tissue))
+Xfinal = calcNormFactors(Xfinal, method="TMM")
 Xfinal = cpm(Xfinal, log=TRUE)
-
-Xfinal = DGEList(Xfinal, genes=rownames(Xfinal))
-Xnorm = calcNormFactors(Xfinal, method="TMM")
+#Xfinal = Xfinal / rowMeans(Xfinal)
+hist(Xfinal, breaks=100)
 ```
 
 ## 3. Differential Expression Analysis
 
+### Log2 fold change
+We'll use the log2 fold change 
+```{r}
+Xfinal = SOLID_final
+mu = rowMeans(Xfinal)
+sd = rowSds(Xfinal)
+Xfinal = (Xfinal - mu) / sd
+hist(Xfinal, breaks=100)
+pvalue=2*pnorm(-abs(Xfinal))
+
+tmp = as.vector(pvalue)
+tmp = p.adjust(tmp, method="fdr")
+pvalue = matrix(tmp, 
+                nrow=nrow(pvalue), ncol=ncol(pvalue), 
+                byrow=TRUE)
+colnames(pvalue) = colnames(Xfinal)
+rownames(pvalue) = rownames(Xfinal)
+
+install.packages("openxlsx")
+library(openxlsx)
+
+df_list = list("Z-scores"=Xfinal, "P-value"=pvalue)
+filename = "C:/Users/scott/Data/RNASeq/CCLE/DEG_RNASEQ_120920.xlsx"
+write.xlsx(df_list, file=filename, row.names=TRUE)
+```
+
 ### Perform *limma-voom* 
 ```{r}
-design = model.matrix(~as.factor(colnames(Xnorm)))
-vt = voom(Xnorm, design, plot=TRUE)
+design = model.matrix(~as.factor(final_tissue))
+vt = voom(Xfinal, design, plot=TRUE)
 vt_fit = lmFit(vt, design=design, method="robust")
-vt_fit = eBayes(vt_fit, trend=TRUE, robust=TRUE)
+vt_fit = eBayes(vt_fit, robust=TRUE, trend=TRUE)
 limma_results = topTable(vt_fit, adjust.method="BH")
 ```
 
