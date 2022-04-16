@@ -1,1 +1,0 @@
-%% Single reaction competition reactions <SERVER>
