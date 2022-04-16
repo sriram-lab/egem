@@ -1,8 +1,17 @@
-# Epigenome-Scale Metabolic Modeling
-The epigenome-scale metabolic network model (EGEM) predicts the impact of metabolic alterations on histone acetylation, a central epigenome modification that impacts gene expression.
+# epiGenome-Scale Metabolic Modeling and Reconstruction Analysis
 
-### Commentary on integrating genome-scale metabolic modeling with the epigenome
-[Chandrasekaran, Sriram. "Tying Metabolic Branches With Histone Tails Using Systems Biology." Epigenetics insights 12 (2019): 2516865719869683.](https://journals.sagepub.com/doi/full/10.1177/2516865719869683)
+## Summary
+This repository contains data and analyses from contraint-based modeling of the metabolic effects on histone post-translational modifications
 
-### Publications
-[Shen, Fangzhou, Luigi Boccuto, Rini Pauly, Sujata Srikanth, and Sriram Chandrasekaran. "Genome-scale network model of metabolism and histone acetylation reveals metabolic dependencies of histone deacetylase inhibitors." Genome biology 20, no. 1 (2019): 49.](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1661-z)
+## Installation 
+The code for this is stored under `lib/matlab`. 
+
+Description:
+  * `constrain_flux_regulation.m`: A function that uses transcriptomics data to generate context-specific metabolic fluxes and models.
+  * `MATLAB_CODE.m`: The MATLAB code used to generate all the analysis in [Shen et al., 2019](https://genomebiology.biomedcentral.com/articles/10.1186/s13059-019-1661-z)
+  * `supplementary_software_code.mat`: The data used to generate all of the analysis.
+
+## References
+Please cite 
+  * Shen, F., Boccuto, L., Pauly, R., Srikanth, S., & Chandrasekaran, S. (2019). Genome-scale network model of metabolism and histone acetylation reveals metabolic dependencies of histone deacetylase inhibitors. Genome biology, 20(1), 1-15.
+  * Chandrasekaran, Sriram. "Tying Metabolic Branches With Histone Tails Using Systems Biology." Epigenetics insights 12 (2019)
