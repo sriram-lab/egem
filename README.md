@@ -12,4 +12,6 @@ Description:
   * `supplementary_software_code.mat`: The data used to generate all of the analysis.
 
 ## References
-Please cite Shen, F., Boccuto, L., Pauly, R., Srikanth, S., & Chandrasekaran, S. (2019). Genome-scale network model of metabolism and histone acetylation reveals metabolic dependencies of histone deacetylase inhibitors. Genome biology, 20(1), 1-15.
+Please cite 
+  * Shen, F., Boccuto, L., Pauly, R., Srikanth, S., & Chandrasekaran, S. (2019). Genome-scale network model of metabolism and histone acetylation reveals metabolic dependencies of histone deacetylase inhibitors. Genome biology, 20(1), 1-15.
+  * Chandrasekaran, Sriram. "Tying Metabolic Branches With Histone Tails Using Systems Biology." Epigenetics insights 12 (2019)

@@ -1,0 +1,369 @@
+---
+title: "Differential expression analysis"
+author: "Scott Campit"
+output: 
+  html_notebook:
+    toc: yes
+---
+
+## Summary
+This notebook performs differential expression analysis for various transcriptomics datasets. 
+
+**UPDATES: **
+
+  * November 4, 2020: Added more stringent and robust differential expression analysis options.
+  * Follow computational pipeline outlined in Yu, et al. (2019). Comprehensive transcriptomic analysis of cell lines as models of primary tumors across 22 tumor types. Nature communications, 10(1), 1-11.
+  * Compute differentially expressed genes using both edgeR, DESeq2, and limma-voom
+  * Take intersection of differentially expressed genes 
+  
+## 1. Load libraries
+First we'll load some essential packages needed to run differential expression analysis.
+```{r, warning=FALSE, message=FALSE}
+# Bioinformatics libraries
+#install.packages("BiocManager")
+#BiocManager::install(c("BiocManager", "edgeR", 
+#                   "DESeq2", "limma", 
+#                   "sva", "PCAtools",
+#                   "Glimma", "bioMart"))
+
+#install.packages("CePa", dependences=TRUE)
+#BiocManager::install("Rgraphviz")
+library(CePa)
+library(edgeR)
+library(DESeq2)
+library(limma)
+library(sva)
+library(PCAtools)
+library(Glimma)
+library(biomaRt)
+
+# Data science libraries
+#install.packages(c("tidyverse", "readr", "rrcov"))
+library(tidyverse)
+library(readr)
+library(rrcov)
+
+remove(list=ls())
+```
+
+## 2. Perform data preprocessing
+
+This code block performs essential data preprocessing for the cancer cell line encyclopedia data.
+
+### Read in raw RNASeq counts
+
+First, let's load the table with the raw RNASeq gene counts.
+```{r}
+# ACLX path
+#readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+readpath = "C:\\Users\\scott\\Data\\RNASeq\\CCLE\\CCLE_RNAseq_genes_counts_20180929.gct"
+
+# Dell
+#readpath = "D:\\Data\\RNASeq\\CCLE\\CCLE_934_TPM_EBI.tsv"
+
+# Load data either as a TPM or gene counts. I'm doing this from scratch.
+#ccle = read_delim(file=readpath, delim='\t')
+
+# Linux
+#readpath = "~/Data/RNASeq/CCLE/CCLE_RNAseq_genes_counts_20180929.gct"
+ccle = read.gct(readpath)
+```
+
+Note that in the raw gene count data matrix, the rows are labeled by Ensembl IDs, while the columns have the syntax CELLLINE_TISSUE, separated by an underscore. I can keep the Ensembl gene IDs, but I need to extract the tissue type, as this is a covariate of interest.
+
+### Map genes to Entrez ID
+First, since we'll be using Entrez ID in the RECON1 model, we need to map ENSEMBL to Entrez.
+```{r}
+# Get map of Ensembl to Entrez
+human = useMart("ensembl", dataset="hsapiens_gene_ensembl")
+genes = getBM(
+  attributes=c("ensembl_gene_id", "hgnc_symbol", "entrezgene_id"),
+  values=rownames(ccle),
+  mart=human
+)
+
+# Map Entrez to CCLE dataset. Remove those without Entrez ID.
+rownames(ccle) <- gsub("\\..*","",rownames(ccle))
+
+# Map rows
+mapped_ccle = merge(genes, ccle, by.x="ensembl_gene_id", by.y=0)
+
+# Remove datapoints where entrez is NA
+remove_genes = is.na(mapped_ccle[, "entrezgene_id"])
+ccle = mapped_ccle[!remove_genes,]
+ccle = ccle[, -c(1:2)]
+agg_ccle = aggregate(ccle[, -1], 
+                     by=list(ccle[, 1]), 
+                     FUN=median)
+colnames(agg_ccle)[1] = "entrezgene_id"
+ccle = agg_ccle
+
+rm(list = c("human", "genes", 
+            "mapped_ccle", "agg_ccle", 
+            "remove_genes"))
+```
+
+### Aggregate and remove duplicate cell line entries.
+Note that some cell lines (columns) are duplicate entries. I need to aggregate them before moving on to additional preprocessing steps. 
+
+Now let's begin preprocessing by grabbing some important meta data, specifically the tissue names.
+```{r}
+# Get data from the ccle dataframe
+tmp = colnames(ccle)
+tissue = word(string=tmp, start=2, end=-1, sep="_")
+ccl = word(string=tmp, start=1, sep="_")
+
+# Store into dataframe
+colnames(ccle) = as.character(ccl)
+```
+
+Now we can being aggregating by cancer cell line.
+```{r}
+# Get entrez gene id
+tmp = t(ccle)
+entrezgene = tmp[1, ]
+tmp = tmp[-1, ]
+
+ccl = rownames(tmp)
+rownames(tmp) = NULL
+
+tissue = tissue[-1]
+meta = data.frame("CCL"=ccl, "Tissue"=tissue)
+meta = meta[!duplicated(ccl), ]
+
+# Aggregate by cancer cell line
+agg_tmp = aggregate(tmp, by=list(ccl), FUN=mean)
+agg_tmp = t(agg_tmp)
+
+agg_tmp = as.data.frame(agg_tmp)
+colnames(agg_tmp) = agg_tmp[1, ]
+agg_tmp = agg_tmp[-1, ]
+rownames(agg_tmp) = ccle[, 1]
+ccle = agg_tmp
+rm(list = c("agg_tmp"))
+```
+
+### Missing value imputation
+Note that there are missing values, so we'll impute them with the minimum value in the dataset.
+```{r}
+min_impute = function(df){
+  for (cols in colnames(df)) {
+    if (cols %in% names(df[,sapply(df, is.numeric)])) {
+      df = df %>% mutate(!!cols := replace(!!rlang::sym(cols),
+                                           is.na(!!rlang::sym(cols)),
+                                           min(!!rlang::sym(cols), na.rm=TRUE)))
+    }
+  }
+  return(df)
+}
+
+tmp = DGEList(counts=data.matrix(ccle), genes=rownames(ccle))
+keep = rowSums(cpm(tmp) >= 1) >= (ncol(tmp$counts)/5)
+ccle = ccle[keep, ]
+ccle = min_impute(ccle)
+```
+
+
+
+### Separate solid tumor and hematopoietic cancer cell lines
+I need to separate the hematopoeitic and leukemia cell line lineages. Then I can perform differential expression analysis on both of the them separately.
+```{r}
+HL_idx = (meta[, 2] == "HAEMATOPOIETIC_AND_LYMPHOID_TISSUE")
+HL_CCL = ccle[ , c(HL_idx)]
+HL_tissue = meta[c(HL_idx), 2]
+SOLID_CCL = ccle[ , !c(HL_idx)]
+SOLID_tissue = meta[!c(HL_idx), 2]
+```
+
+### Remove outliers
+We will first remove some outliers in both the HL and SOLID datasets using Robust PCA. It combines two ideas to find outliers:
+  1. Find projections with maximal dispersion using a grid search.
+  2. Estimate the covariance using an idea similar to Hubert robust regression.
+
+First, we'll define a function to do this filtering.
+```{r}
+# Create a function that filters data using ROBPCA
+removeOutliers = function(data, id){
+  pca_obj = PcaHubert(data)
+  filtered_data = data[pca_obj@flag, ]
+  filtered_id = id[pca_obj@flag]
+  outlier_data = data[!pca_obj@flag, ]
+  outlier_id = id[!pca_obj@flag]
+  
+  setClass(Class="geneObj",
+           representation(
+             data="matrix",
+             outlier_data="matrix",
+             id="character",
+             flag="logical",
+             outlier_id="character"
+           )
+   )
+   return(new("geneObj",
+          data=filtered_data,
+          outlier_data=outlier_data,
+          id=filtered_id,
+          flag=pca_obj@flag,
+          outlier_id=outlier_id))
+}
+```
+
+Now let's do this filtering for both genes and cell lines.
+```{r}
+# Construct the input for PcaHubert of class matrix
+HL_data = data.matrix(HL_CCL)
+SOLID_data = data.matrix(SOLID_CCL)
+
+# Use removeOutliers to remove noisy genes
+HL_geneFilter = removeOutliers(HL_data, rownames(HL_data))
+SOLID_geneFilter = removeOutliers(SOLID_data, rownames(SOLID_data))
+```
+
+```{r}
+# Now set the stage to remove noisy cancer cell lines
+HL_data2 = data.matrix(HL_geneFilter@data)
+SOLID_data2 = data.matrix(SOLID_geneFilter@data)
+
+HL_data2 = t(HL_data2)
+SOLID_data2 = t(SOLID_data2)
+
+HL_allFilter = removeOutliers(HL_data2, meta[, 1])
+SOLID_allFilter = removeOutliers(SOLID_data2,  meta[, 1])
+```
+
+The final dataframe will be constructed here.
+```{r}
+# Construct the final dataframe
+HL_final = t(data.matrix(HL_allFilter@data))
+SOLID_final = t(data.matrix(SOLID_allFilter@data))
+rownames(HL_final) = c(HL_geneFilter@id)
+rownames(SOLID_final) = c(SOLID_geneFilter@id)
+final_tissue = SOLID_tissue[SOLID_allFilter@flag]
+```
+
+If we want to do a final sanity check, here's a code block that can make those plots.
+```{r}
+tmp = t(data.matrix(SOLID_final))
+colnames(tmp) = NULL
+rownames(tmp) = NULL
+
+# Visualize cancer cell lines in 2D space
+solid_pc_filtered = PCAtools::pca(tmp)
+PCAtools::screeplot(solid_pc_filtered)
+PCAtools::biplot(solid_pc_filtered, 
+                 x="PC1", y="PC2")
+PCAtools::pairsplot(solid_pc_filtered)
+```
+
+
+```{r}
+# Visualize genes in 2D space
+tmp = data.matrix(SOLID_final)
+colnames(tmp) = NULL
+rownames(tmp) = NULL
+
+solid_pc_filtered = PCAtools::pca(tmp)
+PCAtools::screeplot(solid_pc_filtered)
+PCAtools::biplot(solid_pc_filtered)
+PCAtools::pairsplot(solid_pc_filtered)
+```
+
+### Batch Effect Correction using `ComBat-Seq`
+Now we can use Combat-Seq to perform batch correction from our expression set. Specifically, we'll be correcting for tissue lineage relationships with the cleaned up dataset.
+
+First, let's construct the `pheno` dataframe, a dataframe that contains
+
+First let's construct the model matrix which contains the adjustment variables and the variable of interest.
+```{r}
+#mod = model.matrix(~as.factor(tissue), data=pheno)
+#mod0 = model.matrix(~1, data=pheno)
+```
+
+Now let's compute the latent factors that need to be estimated. Note that this code will take awhile as it needs to perform several SVD operations.
+```{r}
+#n.sv = num.sv(dat=Xcpm, mod=mod)
+#svobj = svaseq(Xcpm, mod, mod0, n.sv=n.sv)
+```
+
+We can actually get differentially expressed genes using a parametric F-test. Let's check this out!
+```{r}
+# Compute initial P and Q-values
+#tmp_pval = f.pvalue(data.matrix(Xfinal), mod, mod0)
+#tmp_qval = p.adjust(tmp_pval, method='BH')
+
+# Create adjusted models
+#modSv = cbind(mod, svobj$sv)
+#mod0Sv = cbind(mod0, svobj$sv)
+
+# Adjust p-values using Combat
+#combat_pvalues = f.pvalue(data.matrix(Xfinal), modSv, mod0Sv)
+#combat_qvalues = p.adjust(combat_pvalues, method='BH')
+```
+
+### Data Normalization 
+Now let's take the log2 of the counts-per-million of the RNASeq counts.
+```{r}
+Xfinal = SOLID_final
+Xfinal = DGEList(Xfinal, 
+                 genes=rownames(Xfinal), 
+                 group=as.factor(final_tissue))
+Xfinal = calcNormFactors(Xfinal, method="TMM")
+Xfinal = cpm(Xfinal, log=TRUE)
+#Xfinal = Xfinal / rowMeans(Xfinal)
+hist(Xfinal, breaks=100)
+```
+
+## 3. Differential Expression Analysis
+
+### Log2 fold change
+We'll use the log2 fold change 
+```{r}
+Xfinal = SOLID_final
+mu = rowMeans(Xfinal)
+sd = rowSds(Xfinal)
+Xfinal = (Xfinal - mu) / sd
+hist(Xfinal, breaks=100)
+pvalue=2*pnorm(-abs(Xfinal))
+
+tmp = as.vector(pvalue)
+tmp = p.adjust(tmp, method="fdr")
+pvalue = matrix(tmp, 
+                nrow=nrow(pvalue), ncol=ncol(pvalue), 
+                byrow=TRUE)
+colnames(pvalue) = colnames(Xfinal)
+rownames(pvalue) = rownames(Xfinal)
+
+install.packages("openxlsx")
+library(openxlsx)
+
+df_list = list("Z-scores"=Xfinal, "P-value"=pvalue)
+filename = "C:/Users/scott/Data/RNASeq/CCLE/DEG_RNASEQ_120920.xlsx"
+write.xlsx(df_list, file=filename, row.names=TRUE)
+```
+
+### Perform *limma-voom* 
+```{r}
+design = model.matrix(~as.factor(final_tissue))
+vt = voom(Xfinal, design, plot=TRUE)
+vt_fit = lmFit(vt, design=design, method="robust")
+vt_fit = eBayes(vt_fit, robust=TRUE, trend=TRUE)
+limma_results = topTable(vt_fit, adjust.method="BH")
+```
+
+### Perform *EdgeR*
+```{r}
+disperse = estimateCommonDisp(Xnorm)
+disperse = estimateTagwiseDisp(disperse)
+dgeTest = exactTest(disperse, dispersion="auto", rejection.region="doubletail")
+```
+
+### Perform *DESeq2*
+```{r}
+deseqTable = DESeqDataSetFromMatrix(
+  countData=data.matrix(SOLID_final),
+  colData=colnames(SOLID_final),
+  design=design
+)
+deseqTable = DESeq(deseqTable)
+deseq2_results = results(deseqTable)
+```

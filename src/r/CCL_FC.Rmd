@@ -1,0 +1,25 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+install.packages(c('tidyverse', 'plotly'))
+library(tidyverse)
+library(plotly)
+library(preprocessCore)
+
+filename  = '/home/scampit/Data/RNASeq/CCLE/E-MTAB-2770-query-results.tpms.tsv'
+data      = read_tsv(file=filename)
+
+# Z-score data
+tmp       = as.matrix(data[, 3:ncol(data)])
+z_data    = (tmp - mean(tmp, na.rm=TRUE)) / sd(tmp, na.rm=TRUE)
+
+# Log transform data
+log_data  = log(as.matrix(data[, 3:ncol(data)]))
+
+# Quantile norm data
+norm_data = normalize.quantiles(as.matrix(data[, 3:ncol(data)]))
+
+```

@@ -1,0 +1,193 @@
+---
+title: "Dimension reduction for CCLE dataset"
+output: html_notebook
+---
+
+# Summary
+This notebook performs dimension reduction on the CCLE global chromatin profiling data and the metabolomics data. I will perform both linear and non-linear dimension reduction.
+
+# Library and data preprocessing
+First we'll load some essential libraries.
+```{r}
+#install.packages(c('ggplot2', 'tidyverse', 'readxl'))
+library(tidyverse)
+library(ggplot2)
+library(readxl)
+library(reshape2)
+```
+
+Now let's load the data.
+```{r}
+filepath = 'C:/Users/scott/Data/Mapped CCLE Metabolomics-GCP Data.xlsx'
+met = read_xlsx(path=filepath, sheet='Metabolomics')
+celllines = met[, 1]
+met = met[, -1]
+met = data.matrix(met)
+
+gcp = read_xlsx(path=filepath, sheet='GCP')
+gcp = gcp[, -1]
+gcp = data.matrix(gcp)
+
+meta = read_xlsx(path=filepath, sheet='Meta')
+```
+
+## Clean dataset
+
+I'm only interested in single histone PTMs, so I need to clean up the GCP dataset.
+```{r}
+gcp_name = colnames(gcp)
+pos_to_keep = c(3, 4, 5, 
+                7, 8, 9, 10, 
+                11, 17, 18, 
+                22, 23, 24, 
+                25, 29, 32, 
+                34, 42, 43) - 1
+gcp_name = gcp_name[pos_to_keep]
+```
+
+Let's clean up the labels using regular expressions.
+```{r}
+# Remove useless marks
+gcp = gcp[, pos_to_keep]
+
+# Remove regexes
+pattern = "K....0"
+gcp_name = str_replace(gcp_name, pattern, '')
+
+pattern = "K...0"
+gcp_name = str_replace(gcp_name, pattern, '')
+
+colnames(gcp) = gcp_name
+```
+
+We should sanity check this now with histograms
+```{r}
+ggplot(melt(met), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("CCLE Metabolomics distribution")
+
+ggplot(melt(gcp), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("CCLE Global Chromatin Profile distribution")
+```
+Also, I should remove NAs from the data
+```{r}
+gcp[is.na(gcp)] = 0
+```
+
+Now, let's separate hematopoietic and leukemic stem cell lineages, just because they have different profiles.
+
+```{r}
+HL_idx = meta['Tissue'] == "HAEMATOPOIETIC AND LYMPHOID TISSUE"
+
+# Solid only
+gcp_noHL = gcp[-c(HL_idx), ]
+met_noHL = met[-c(HL_idx), ]
+
+# HL only
+gcp_HL = gcp[c(HL_idx), ]
+met_HL = met[c(HL_idx), ]
+
+tissue = meta["Tissue"]
+noHL_tissue = tissue[-c(HL_idx), 1]
+HL_tissue = tissue[c(HL_idx), 1]
+```
+
+## Mean-center metabolomics dataset
+The metabolomics dataset is not mean centered. I will do that now.
+```{r}
+met_noHL = met_noHL - mean(met_noHL)
+met_HL = met_HL - mean(met_HL)
+```
+
+We should sanity check this now with histograms
+```{r}
+ggplot(melt(gcp_noHL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("Solid tumor Global Chromatin Profile distribution")
+
+ggplot(melt(met_noHL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("Solid tumor Metabolomics distribution")
+
+ggplot(melt(gcp_HL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("HL Global Chromatin Profile distribution")
+
+ggplot(melt(met_HL), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("HL Metabolomics distribution")
+```
+
+There are definitely still outliers in the GCP dataset, but We'll address those next.
+
+## Outliers
+
+Let's use robust PCA to identify cancer cell lines that are outliers.
+```{r}
+#install.packages('rrcov')
+library(rrcov)
+
+# Run Robust PCA
+gcp_pca = PcaHubert(gcp)
+
+# Remove outliers. We need to remove cell lines from the metabolomics dataset too.
+gcp_noHL = gcp_noHL[gcp_pca@flag, ]
+gcp_HL = gcp_HL[gcp_pca@flag, ]
+met_noHL = met_noHL[gcp_pca@flag, ]
+met_HL = met_HL[gcp_pca@flag, ]
+
+celllines = celllines[gcp_pca@flag,]
+```
+
+Now let's plot the resulting data matrices.
+```{r}
+# Sanity Check
+ggplot(melt(met), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("CCLE Metabolomics distribution") 
+
+ggplot(melt(gcp), aes(x=value)) + 
+  geom_histogram(bins=100) + 
+  ggtitle("CCLE Global Chromatin Profile distribution")
+```
+
+# Correlation analysis with filtered GCP and MET matrices
+Let's see how the data is correlated now that we removed bad data points.
+```{r}
+install.packages(c("corrplot", "RColorBrewer"))
+library(corrplot)
+library(RColorBrewer)
+```
+
+First, well compute the correlation matrix
+```{r}
+pcc = cor(met, gcp)
+```
+
+Now let's create a function that computes the p-value for the pearson correlation coefficient.
+```{r}
+cortest = function(df1, df2){
+  pvalue = matrix(, nrow=ncol(df1), ncol=ncol(df2))
+  for(i in 1:ncol(df1)){
+    for(j in 1:ncol(df2)){
+      pvalue[i, j] = cor.test(df1[, i], df2[, j])$p.value
+    }
+  }
+  colnames(pvalue) = colnames(df2)
+  rownames(pvalue) = colnames(df1)
+  return(pvalue)
+}
+pmat = cortest(met, gcp)
+```
+
+Finally, we'll plot the correlation matrix.
+```{r}
+corrplot(pcc, 
+         type="upper", 
+         tl.col="black", tl.srt=45,
+         tl.pos = "td", tl.cex = 0.5, 
+         p.mat=pmat, sig.level=0.05)
+```
+# Conclusions
+All of the data is saved on 

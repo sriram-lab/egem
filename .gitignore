@@ -90,6 +90,7 @@ ENV/
 env.bak/
 venv.bak/
 manuscript/
+envs/
 
 # Spyder project settings
 .spyderproject
@@ -103,3 +104,23 @@ manuscript/
 
 # mypy
 .mypy_cache/
+
+# Directories
+#srv/
+
+# Data
+
+
+# IDEA 
+.idea
+
+# Mac 
+.DS_Store
+
+# Stack-edit
+.stackedit-trash
+
+# R 
+.Rhistory
+
+.vscode

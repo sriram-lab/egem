@@ -1,0 +1,146 @@
+
+                            < M A T L A B (R) >
+                  Copyright 1984-2018 The MathWorks, Inc.
+                   R2018b (9.5.0.944444) 64-bit (glnxa64)
+                              August 28, 2018
+
+ 
+To get started, type doc.
+For product information, visit www.mathworks.com.
+ 
+Starting parallel pool (parpool) using the 'current' profile ...
+[Warning: The integration function 'cancelJobFcn.m' threw an error. The nested
+error is:
+Error using warning
+Unable to load a message catalog 'parallelexamples:GenericMPIEXEC'. Please
+check the file location and format.
+
+Error in parallel.integration.UMICH>iCancelJobImpl (line 75)
+        warning(message('parallelexamples:GenericMPIEXEC:MpiexecUnableToCancel',
+        whyNotAlive.description));
+
+Error in parallel.integration.UMICH.cancelJobFcn (line 5)
+            OK = iCancelJobImpl( cluster, job );
+
+Error in cancelJobFcn (line 2)
+OK = parallel.integration.UMICH.cancelJobFcn( cluster, job );
+
+Error in parallel.cluster.Generic/cancelJobOrTask (line 653)
+                OK = feval( userFcnHandle, cluster, entity, args{:} );
+
+Error in parallel.cluster.Generic/hCancelJob (line 471)
+            OK = cluster.cancelJobOrTask( 'CancelJobFcn', job, job );
+
+Error in parallel.internal.cluster.CJSJobMethods.cancelOneJob (line 51)
+                        okToWriteCancellation = cluster.hCancelJob( job );
+
+Error in parallel.job.CJSCommunicatingJob/cancelOneJob (line 107)
+            CJSJobMethods.cancelOneJob( job.Parent, job, ...
+
+Error in parallel.Job/cancel (line 1362)
+                    cancelOneJob( currentJob, cancelException );
+
+Error in parallel.Cluster/hDeleteOneJob (line 1012)
+                cancel(job);
+
+Error in parallel.internal.pool.InteractiveClient>iDeleteJobs (line 873)
+            cluster.hDeleteOneJob(job, timeoutInSeconds);
+
+Error in parallel.internal.pool.InteractiveClient/pRemoveOldJobs (line 481)
+                adaptor.deleteJobs( sched, jobs(old), timeoutForRemovingOldJobs
+                );
+
+Error in parallel.internal.pool.InteractiveClient/start (line 315)
+                    obj.pRemoveOldJobs(sched);
+
+Error in parallel.Pool>iStartClient (line 796)
+spmdInitialized = client.start(poolType , numWorkers, cluster, ...
+
+Error in parallel.Pool.hBuildPool (line 585)
+                iStartClient(client, 'pool', cluster, guiMode, supportRestart,
+                argsList);
+
+Error in parallel.internal.pool.doParpool (line 18)
+    pool = parallel.Pool.hBuildPool(constructorArgs{:});
+
+Error in parpool (line 98)
+    pool = parallel.internal.pool.doParpool(varargin{:});
+
+Error in CancerCellLineModels (line 28)
+thePool = parpool('current', NP);] 
+connected to 1 workers.
+
+
+      _____   _____   _____   _____     _____     |
+     /  ___| /  _  \ |  _  \ |  _  \   / ___ \    |   COnstraint-Based Reconstruction and Analysis
+     | |     | | | | | |_| | | |_| |  | |___| |   |   The COBRA Toolbox - 2020
+     | |     | | | | |  _  { |  _  /  |  ___  |   |
+     | |___  | |_| | | |_| | | | \ \  | |   | |   |   Documentation:
+     \_____| \_____/ |_____/ |_|  \_\ |_|   |_|   |   http://opencobra.github.io/cobratoolbox
+                                                  | 
+
+ > Checking if git is installed ...  Done (version: 1.8.3.).
+ > Checking if the repository is tracked using git ...  Done.
+ > Checking if curl is installed ...  Done.
+ > Checking if remote can be reached ...  (unsuccessful - no internet connection).
+ > Submodules exist but cannot be updated (remote cannot be reached).
+ > Adding all the files of The COBRA Toolbox ...  Done.
+ > Define CB map output... set to svg.
+ > TranslateSBML is installed and working properly.
+ > Configuring solver environment variables ...
+   - [----] ILOG_CPLEX_PATH: --> set this path manually after installing the solver ( see https://opencobra.github.io/cobratoolbox/docs/solvers.html )
+   - [-*--] GUROBI_PATH: /nfs/turbo/umms-csriram/scampit/Software/gurobi903/linux64/matlab
+   - [----] TOMLAB_PATH: --> set this path manually after installing the solver ( see https://opencobra.github.io/cobratoolbox/docs/solvers.html )
+   - [----] MOSEK_PATH: --> set this path manually after installing the solver ( see https://opencobra.github.io/cobratoolbox/docs/solvers.html )
+   Done.
+ > Checking available solvers and solver interfaces ...gurobi
+ibm_cplex
+tomlab_cplex
+glpk
+mosek
+matlab
+pdco
+quadMinos
+dqqMinos
+cplex_direct
+cplexlp
+qpng
+tomlab_snopt
+lp_solve
+ Done.
+ > Setting default solvers ... Done.
+ > Saving the MATLAB path ... Done.
+   - The MATLAB path was saved as ~/pathdef.m.
+
+ > Summary of available solvers and solver interfaces
+
+			Support 	   LP 	 MILP 	   QP 	 MIQP 	  NLP
+	----------------------------------------------------------------------
+	gurobi       	active        	    1 	    1 	    1 	    1 	    -
+	ibm_cplex    	active        	    0 	    0 	    0 	    0 	    -
+	tomlab_cplex 	active        	    0 	    0 	    0 	    0 	    -
+	glpk         	active        	    1 	    1 	    - 	    - 	    -
+	mosek        	active        	    0 	    - 	    0 	    - 	    -
+	matlab       	active        	    1 	    - 	    - 	    - 	    1
+	pdco         	active        	    1 	    - 	    1 	    - 	    -
+	quadMinos    	active        	    1 	    - 	    - 	    - 	    -
+	dqqMinos     	active        	    1 	    - 	    1 	    - 	    -
+	cplex_direct 	active        	    0 	    0 	    0 	    - 	    -
+	cplexlp      	active        	    0 	    - 	    - 	    - 	    -
+	qpng         	passive       	    - 	    - 	    1 	    - 	    -
+	tomlab_snopt 	passive       	    - 	    - 	    - 	    - 	    0
+	lp_solve     	legacy        	    1 	    - 	    - 	    - 	    -
+	----------------------------------------------------------------------
+	Total        	-             	    7 	    2 	    4 	    1 	    1
+
+ + Legend: - = not applicable, 0 = solver not compatible or not installed, 1 = solver installed.
+
+
+ > You can solve LP problems using: 'glpk' - 'matlab' - 'pdco' - 'quadMinos' 
+ > You can solve MILP problems using: 'glpk' 
+ > You can solve QP problems using: 'pdco' 
+ > You can solve MIQP problems using: 
+ > You can solve NLP problems using: 'matlab' 
+
+> Checking for available updates ... skipped
+ > changeCobraSolver: Solver gurobi is installed but not working properly.
